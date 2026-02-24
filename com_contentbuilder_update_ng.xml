@@ -2,20 +2,20 @@
 <updates>
 	<update>
 		<name>Contentbuilder_ng</name>
-		<description>ContentBuilder NG Update 6.1.0-RC7</description>
+		<description>ContentBuilder NG Update 6.1.0-RC9</description>
 		<element>com_contentbuilder_ng</element>
 		<type>component</type>
 		<client>1</client>
-		<version>6.1.0-RC7</version>
-		<infourl title="ContentBuilder_ng">https://breezingforms.vcmb.fr/</infourl>
+		<version>6.1.0-RC9</version>
+		<infourl title="ContentBuilderng">https://breezingforms-ng.vcmb.fr/</infourl>
 		<downloads>
-		<downloadurl type="full" format="zip">https://breezingforms.vcmb.fr/download/com_contentbuilder_ng-6.1.0-RC7.zip</downloadurl>
+		<downloadurl type="full" format="zip">https://breezingforms-ng.vcmb.fr/download/com_contentbuilderng-6.1.0-RC9.zip</downloadurl>
 		</downloads>
 		<tags>
 			<tag>stable</tag>
 		</tags>
 		<maintainer>XDA+GIL</maintainer>
-		<maintainerurl>https://breezingforms.vcmb.fr</maintainerurl>
+		<maintainerurl>https://breezingforms-ng.vcmb.fr</maintainerurl>
 		<targetplatform name="joomla" version="6.*"/>
 	</update>
 </updates>
