@@ -1,13 +1,13 @@
 <extension type="component" method="upgrade" version="6.0">
 
     <name>Contentbuilder_ng</name>
-    <creationDate>2026-02-18</creationDate>
+    <creationDate>2026-02-23</creationDate>
     <author>XDA+GIL</author>
-    <authorEmail>breezingforms@vcmb.fr</authorEmail>
-    <authorUrl>https://breezingforms.vcmb.fr</authorUrl>
+    <authorEmail>bf@vcmb.fr</authorEmail>
+    <authorUrl>https://breezingforms-ng.vcmb.fr</authorUrl>
     <copyright>Copyright 2011 - 2026 by XDA+GIL</copyright>
     <license>GNU/GPL v2 or later</license>
-    <version>6.1.0-RC7</version>
+    <version>6.1.0-RC9</version>
     <description>COM_CONTENTBUILDER_NG_XML_DESCRIPTION</description>
 
     <!-- ===================== -->
@@ -33,7 +33,7 @@
  </uninstall>
  
  <updateservers>
-    <server type="extension" name="ContentBuilder_ng" priority="1">https://breezingforms.vcmb.fr/download/com_contentbuilder_ng_update.xml</server>
+    <server type="extension" name="ContentBuilder_ng" priority="1">https://breezingforms-ng.vcmb.fr/download/com_contentbuilderng_update.xml</server>
  </updateservers>
 
  <files folder="site">
