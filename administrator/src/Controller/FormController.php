@@ -429,6 +429,16 @@ class FormController extends BaseFormController
         return $this->elementsPublish(0, 'COM_CONTENTBUILDER_NG_UNPUBLISHED');
     }
 
+    public function formpublish(): bool
+    {
+        return $this->setFormPublishedState(1, 'COM_CONTENTBUILDER_NG_PUBLISHED');
+    }
+
+    public function formunpublish(): bool
+    {
+        return $this->setFormPublishedState(0, 'COM_CONTENTBUILDER_NG_UNPUBLISHED');
+    }
+
 
     // Devrait migrer dans Element*Controller ?
     private function elementsUpdate(string $field, int $value): bool
@@ -545,6 +555,71 @@ class FormController extends BaseFormController
                 $this->respondAjax(false, $e->getMessage());
             } else {
                 $this->setRedirect($this->getEditRedirectUrl((int) ($formId ?? 0)));
+            }
+            return false;
+        }
+    }
+
+    private function setFormPublishedState(int $state, string $successMsgKey): bool
+    {
+        try {
+            $this->checkToken();
+
+            $formId = (int) $this->input->getInt('id');
+            if ($formId <= 0) {
+                $cids = (array) $this->input->get('cid', [], 'array');
+                ArrayHelper::toInteger($cids);
+                $formId = (int) ($cids[0] ?? 0);
+            }
+
+            if ($formId <= 0) {
+                $this->setMessage(Text::_('JERROR_NO_ITEMS_SELECTED'), 'error');
+                if ($this->isAjaxCall()) {
+                    $this->respondAjax(false, Text::_('JERROR_NO_ITEMS_SELECTED'));
+                } else {
+                    $this->setRedirect($this->getEditRedirectUrl(0));
+                }
+                return false;
+            }
+
+            $model = $this->getModel('Form', 'Administrator', ['ignore_request' => true]);
+            $pks = [$formId];
+            if (!$model || !$model->publish($pks, (int) $state)) {
+                $error = ($model && $model->getError()) ? $model->getError() : Text::_('JLIB_APPLICATION_ERROR_SAVE_FAILED');
+                $this->setMessage($error, 'error');
+                if ($this->isAjaxCall()) {
+                    $this->respondAjax(false, $error);
+                } else {
+                    $this->setRedirect(
+                        $this->getEditRedirectUrl($formId),
+                        $error,
+                        'error'
+                    );
+                }
+                return false;
+            }
+
+            if ($this->isAjaxCall()) {
+                $this->respondAjax(true, Text::_($successMsgKey));
+                return true;
+            }
+
+            $this->setRedirect(
+                $this->getEditRedirectUrl($formId),
+                Text::_($successMsgKey)
+            );
+
+            return true;
+        } catch (\Throwable $e) {
+            $this->setMessage($e->getMessage(), 'warning');
+            if ($this->isAjaxCall()) {
+                $this->respondAjax(false, $e->getMessage());
+            } else {
+                $this->setRedirect(
+                    $this->getEditRedirectUrl((int) ($formId ?? 0)),
+                    $e->getMessage(),
+                    'warning'
+                );
             }
             return false;
         }

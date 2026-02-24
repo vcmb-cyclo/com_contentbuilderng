@@ -23,6 +23,7 @@ $wa = Factory::getApplication()->getDocument()->getWebAssetManager();
 $wa->addInlineStyle(
     '.saveorder.btn{background-color:#fff;border-color:#ced4da;color:#1b1b1b}'
     . '.saveorder.btn:hover{background-color:#f8f9fa}'
+    . '.cb-display-in-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}'
     . '.cb-order-slot{display:inline-block;width:24px;text-align:center}'
     . '.cb-order-placeholder{visibility:hidden}'
     . '.cb-order-input{margin-left:6px}'
@@ -511,6 +512,8 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
             case 'form.cancel':
             case 'form.publish':
             case 'form.unpublish':
+            case 'form.formpublish':
+            case 'form.formunpublish':
             case 'form.listpublish':
             case 'form.listunpublish':
             case 'form.listorderdown':
@@ -697,6 +700,60 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         }
 
         var hint = document.getElementById('cb_create_editable_sample_hint');
+        if (hint) {
+            hint.classList.remove('d-none');
+        }
+    }
+
+    function cbQueueEmailAdminSampleGeneration(button) {
+        var hiddenFlag = document.getElementById('cb_email_admin_create_sample_flag');
+        if (!hiddenFlag) {
+            return;
+        }
+
+        var currentTemplate = cbGetEditorFieldValue('email_admin_template');
+        if (cbTemplateHasContent(currentTemplate)) {
+            var shouldContinue = confirm("<?php echo addslashes(Text::_('COM_CONTENTBUILDER_NG_INITIALISE_OVERWRITE_CONFIRM')); ?>");
+            if (!shouldContinue) {
+                return;
+            }
+        }
+
+        hiddenFlag.value = '1';
+
+        if (button) {
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-success');
+        }
+
+        var hint = document.getElementById('cb_email_admin_create_sample_hint');
+        if (hint) {
+            hint.classList.remove('d-none');
+        }
+    }
+
+    function cbQueueEmailUserSampleGeneration(button) {
+        var hiddenFlag = document.getElementById('cb_email_create_sample_flag');
+        if (!hiddenFlag) {
+            return;
+        }
+
+        var currentTemplate = cbGetEditorFieldValue('email_template');
+        if (cbTemplateHasContent(currentTemplate)) {
+            var shouldContinue = confirm("<?php echo addslashes(Text::_('COM_CONTENTBUILDER_NG_INITIALISE_OVERWRITE_CONFIRM')); ?>");
+            if (!shouldContinue) {
+                return;
+            }
+        }
+
+        hiddenFlag.value = '1';
+
+        if (button) {
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-success');
+        }
+
+        var hint = document.getElementById('cb_email_create_sample_hint');
         if (hint) {
             hint.classList.remove('d-none');
         }
@@ -995,7 +1052,12 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         <?php
         $advancedOptionsContent = '';
         // Démarrer les onglets
-        echo HTMLHelper::_('uitab.startTabSet', 'view-pane', ['active' => 'tab0']);
+        $activeViewTab = Factory::getApplication()->input->getCmd('tab', 'tab0');
+        $allowedViewTabs = ['tab0', 'tab1', 'tab2', 'tab3', 'tab4', 'tab5', 'tab6', 'tab7', 'tab8', 'tab9'];
+        if (!in_array($activeViewTab, $allowedViewTabs, true)) {
+            $activeViewTab = 'tab0';
+        }
+        echo HTMLHelper::_('uitab.startTabSet', 'view-pane', ['active' => $activeViewTab]);
         // Premier onglet
         echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', Text::_('COM_CONTENTBUILDER_NG_VIEW'));
         ?>
@@ -1007,7 +1069,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                     <fieldset class="border rounded p-3 mb-3">
 
                         <div class="row g-3 align-items-end mb-2">
-                            <div class="col-12 col-lg-4">
+                            <div class="col-12 col-lg-3">
                                 <label for="name">
                                     <span class="editlinktip hasTip"
                                         title="<?php echo Text::_('COM_CONTENTBUILDER_NG_VIEW_NAME_TIP'); ?>"><b>
@@ -1018,7 +1080,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                                     style="max-width: 280px;" maxlength="255"
                                     value="<?php echo htmlentities($this->item->name ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                             </div>
-                            <div class="col-12 col-lg-4">
+                            <div class="col-12 col-lg-3">
                                 <label for="tag">
                                     <span class="editlinktip hasTip"
                                         title="<?php echo Text::_('COM_CONTENTBUILDER_NG_VIEW_TAG_TIP'); ?>"><b>
@@ -1029,25 +1091,55 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                                     style="max-width: 280px;" maxlength="255"
                                     value="<?php echo htmlentities($this->item->tag ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                             </div>
-                            <div class="col-12 col-lg-4">
-                                <label for="theme_plugin">
-                                    <span class="editlinktip hasTip"
-                                        title="<?php echo Text::_('COM_CONTENTBUILDER_NG_THEME_PLUGIN_TIP'); ?>"><b>
-                                            <?php echo Text::_('COM_CONTENTBUILDER_NG_THEME_PLUGIN'); ?>:
-                                        </b></span>
-                                </label>
-                                <select class="form-select-sm" name="jform[theme_plugin]" id="theme_plugin" style="max-width: 280px;">
-                                    <?php
-                                    foreach ($this->theme_plugins as $theme_plugin) {
-                                        $isDarkTheme = ((string) $theme_plugin === 'dark');
-                                    ?>
-                                        <option value="<?php echo htmlspecialchars((string) $theme_plugin, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $theme_plugin == $this->item->theme_plugin ? ' selected="selected"' : ''; ?><?php echo $isDarkTheme ? ' style="background:#111;color:#fff;font-weight:700;"' : ''; ?>>
-                                            <?php echo htmlspecialchars((string) $theme_plugin, ENT_QUOTES, 'UTF-8'); ?>
-                                        </option>
-                                    <?php
-                                    }
-                                    ?>
-                                </select>
+                            <div class="col-12 col-lg-3">
+                                <div class="d-flex align-items-center gap-2 flex-nowrap">
+                                    <label for="theme_plugin" class="mb-0">
+                                        <span class="editlinktip hasTip"
+                                            title="<?php echo Text::_('COM_CONTENTBUILDER_NG_THEME_PLUGIN_TIP'); ?>"><b>
+                                                <?php echo Text::_('COM_CONTENTBUILDER_NG_THEME_PLUGIN'); ?>:
+                                            </b></span>
+                                    </label>
+                                    <select class="form-select-sm w-auto" name="jform[theme_plugin]" id="theme_plugin">
+                                        <?php
+                                        foreach ($this->theme_plugins as $theme_plugin) {
+                                            $isDarkTheme = ((string) $theme_plugin === 'dark');
+                                        ?>
+                                            <option value="<?php echo htmlspecialchars((string) $theme_plugin, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $theme_plugin == $this->item->theme_plugin ? ' selected="selected"' : ''; ?><?php echo $isDarkTheme ? ' style="background:#111;color:#fff;font-weight:700;"' : ''; ?>>
+                                                <?php echo htmlspecialchars((string) $theme_plugin, ENT_QUOTES, 'UTF-8'); ?>
+                                            </option>
+                                        <?php
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-3">
+                                <?php if ((int) ($this->item->id ?? 0) > 0) : ?>
+                                    <div class="d-inline-flex align-items-center gap-2 ms-sm-4 ps-sm-2">
+                                        <span class="fw-semibold editlinktip hasTip"
+                                            title="<?php echo Text::_('COM_CONTENTBUILDER_NG_PUBLISH_TIP'); ?>">
+                                            <?php echo Text::_('COM_CONTENTBUILDER_NG_PUBLISHED'); ?>:
+                                        </span>
+                                        <?php
+                                        $publishedToggleHtml = HTMLHelper::_(
+                                            'jgrid.published',
+                                            !empty($this->item->published) ? 1 : 0,
+                                            0,
+                                            'form.form',
+                                            true,
+                                            'cbformstate'
+                                        );
+                                        $publishedToggleHtml = preg_replace('/\saria-labelledby="[^"]*"/', '', (string) $publishedToggleHtml) ?? (string) $publishedToggleHtml;
+                                        $publishedToggleHtml = preg_replace('#<div role="tooltip"[^>]*>.*?</div>#s', '', (string) $publishedToggleHtml) ?? (string) $publishedToggleHtml;
+                                        echo $publishedToggleHtml;
+                                        ?>
+                                        <input type="checkbox"
+                                            name="cid[]"
+                                            id="cbformstate0"
+                                            value="<?php echo (int) $this->item->id; ?>"
+                                            style="display:none" />
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <style>
@@ -1187,17 +1279,19 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                                 </legend>
 
 
-                                <select class="form-select-sm" name="jform[display_in]">
-                                    <option value="0" <?php echo $this->item->display_in == 0 ? ' selected="selected"' : '' ?>>
-                                        <?php echo Text::_('COM_CONTENTBUILDER_NG_DISPLAY_FRONTEND') ?>
-                                    </option>
-                                    <option value="1" <?php echo $this->item->display_in == 1 ? ' selected="selected"' : '' ?>>
-                                        <?php echo Text::_('COM_CONTENTBUILDER_NG_DISPLAY_BACKEND') ?>
-                                    </option>
-                                    <option value="2" <?php echo $this->item->display_in == 2 ? ' selected="selected"' : '' ?>>
-                                        <?php echo Text::_('COM_CONTENTBUILDER_NG_DISPLAY_BOTH') ?>
-                                    </option>
-                                </select>
+                                <div class="cb-display-in-row">
+                                    <select class="form-select-sm" name="jform[display_in]">
+                                        <option value="0" <?php echo $this->item->display_in == 0 ? ' selected="selected"' : '' ?>>
+                                            <?php echo Text::_('COM_CONTENTBUILDER_NG_DISPLAY_FRONTEND') ?>
+                                        </option>
+                                        <option value="1" <?php echo $this->item->display_in == 1 ? ' selected="selected"' : '' ?>>
+                                            <?php echo Text::_('COM_CONTENTBUILDER_NG_DISPLAY_BACKEND') ?>
+                                        </option>
+                                        <option value="2" <?php echo $this->item->display_in == 2 ? ' selected="selected"' : '' ?>>
+                                            <?php echo Text::_('COM_CONTENTBUILDER_NG_DISPLAY_BOTH') ?>
+                                        </option>
+                                    </select>
+                                </div>
 
                             </fieldset>
 
@@ -2409,13 +2503,21 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                     </tr>
                     <tr>
                         <td width="20%">
-                            <label for="email_admin_create_sample">
-                                <?php echo Text::_('COM_CONTENTBUILDER_NG_CREATE_EDITABLE_SAMPLE'); ?>
+                            <label for="email_admin_create_sample_button">
+                                <?php echo Text::_('COM_CONTENTBUILDER_NG_CREATE_EMAIL_TEMPLATE'); ?>
                             </label>
                         </td>
                         <td>
-                            <input type="hidden" name="jform[email_admin_create_sample]" value="0" />
-                            <?php echo $renderCheckbox('jform[email_admin_create_sample]', 'email_admin_create_sample', !empty($this->item->email_admin_create_sample)); ?>
+                            <input type="hidden" name="jform[email_admin_create_sample]" id="cb_email_admin_create_sample_flag" value="0" />
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="email_admin_create_sample_button"
+                                    onclick="cbQueueEmailAdminSampleGeneration(this);">
+                                    <?php echo Text::_('COM_CONTENTBUILDER_NG_CREATE_EMAIL_TEMPLATE'); ?>
+                                </button>
+                                <small id="cb_email_admin_create_sample_hint" class="text-success d-none">
+                                    <?php echo Text::_('COM_CONTENTBUILDER_NG_INITIALISE_WILL_APPLY_ON_SAVE'); ?>
+                                </small>
+                            </div>
                         </td>
                         <td width="20%">
                         </td>
@@ -2508,13 +2610,21 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                     </tr>
                     <tr>
                         <td width="20%">
-                            <label for="email_create_sample">
-                                <?php echo Text::_('COM_CONTENTBUILDER_NG_CREATE_EDITABLE_SAMPLE'); ?>
+                            <label for="email_create_sample_button">
+                                <?php echo Text::_('COM_CONTENTBUILDER_NG_CREATE_EMAIL_TEMPLATE'); ?>
                             </label>
                         </td>
                         <td>
-                            <input type="hidden" name="jform[email_create_sample]" value="0" />
-                            <?php echo $renderCheckbox('jform[email_create_sample]', 'email_create_sample', !empty($this->item->email_create_sample)); ?>
+                            <input type="hidden" name="jform[email_create_sample]" id="cb_email_create_sample_flag" value="0" />
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="email_create_sample_button"
+                                    onclick="cbQueueEmailUserSampleGeneration(this);">
+                                    <?php echo Text::_('COM_CONTENTBUILDER_NG_CREATE_EMAIL_TEMPLATE'); ?>
+                                </button>
+                                <small id="cb_email_create_sample_hint" class="text-success d-none">
+                                    <?php echo Text::_('COM_CONTENTBUILDER_NG_INITIALISE_WILL_APPLY_ON_SAVE'); ?>
+                                </small>
+                            </div>
                         </td>
                         <td width="20%">
                         </td>

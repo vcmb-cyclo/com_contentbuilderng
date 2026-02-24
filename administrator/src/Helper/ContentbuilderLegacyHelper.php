@@ -2513,13 +2513,15 @@ final class ContentbuilderLegacyHelper
         $app     = Factory::getApplication();
         $session = $app->getSession();
         $key     = 'com_contentbuilder_ng.permissions' . $suffix;
+        $isAdminPreview = self::isSignedAdminPreviewRequest((int) $form_id) || $app->input->getBool('cb_preview_ok', false);
+        $formPublishedClause = $isAdminPreview ? '' : ' And published = 1';
 
         // Optionnel : reset propre
         $session->remove($key); // ou $session->set($key, []);
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
 
-        $db->setQuery("Select `type`, `reference_id` From #__contentbuilder_ng_forms Where id = " . intval($form_id) . " And published = 1");
+        $db->setQuery("Select `type`, `reference_id` From #__contentbuilder_ng_forms Where id = " . intval($form_id) . $formPublishedClause);
         $type = $db->loadAssoc();
 
         $num_records_query = '';
@@ -2601,8 +2603,7 @@ final class ContentbuilderLegacyHelper
                 " : '') . "
             Where 
                 forms.id = " . intval($form_id) . "
-            And
-                forms.published = 1
+            " . (!$isAdminPreview ? "And forms.published = 1" : "") . "
         ");
         $result = $db->loadAssoc();
 
@@ -2852,6 +2853,43 @@ final class ContentbuilderLegacyHelper
 
 
         $session->set($key, $permissions);
+    }
+
+    private static function isSignedAdminPreviewRequest(int $formId): bool
+    {
+        $app = Factory::getApplication();
+        $input = $app->input;
+
+        if ($formId < 1 || !$input->getBool('cb_preview', false)) {
+            return false;
+        }
+
+        $until = (int) $input->getInt('cb_preview_until', 0);
+        $sig = trim((string) $input->getString('cb_preview_sig', ''));
+
+        if ($until < time() || $sig === '') {
+            return false;
+        }
+
+        $secret = (string) $app->get('secret');
+        if ($secret === '') {
+            return false;
+        }
+
+        $actorId = (int) $input->getInt('cb_preview_actor_id', 0);
+        $actorName = trim((string) $input->getString('cb_preview_actor_name', ''));
+
+        $payload = $formId . '|' . $until;
+        $expected = hash_hmac('sha256', $payload, $secret);
+
+        $actorPayload = $payload . '|' . $actorId . '|' . $actorName;
+        $actorExpected = hash_hmac('sha256', $actorPayload, $secret);
+
+        if (($actorId > 0 || $actorName !== '') && hash_equals($actorExpected, $sig)) {
+            return true;
+        }
+
+        return hash_equals($expected, $sig);
     }
 
     public static function stringURLUnicodeSlug($string)
