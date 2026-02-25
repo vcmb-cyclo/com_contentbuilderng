@@ -191,7 +191,7 @@ class StorageController extends BaseFormController
             if (!$saved) {
                 $this->setRedirect(
                     Route::_('index.php?option=com_contentbuilder_ng&task=storage.edit&id=' . (int) ($data['id'] ?? 0), false),
-                    $model->getError() ?: 'Save failed',
+                    Text::_('JLIB_APPLICATION_ERROR_SAVE_FAILED'),
                     'error'
                 );
                 return false;
@@ -242,7 +242,7 @@ class StorageController extends BaseFormController
             if (!$id) {
                 $this->setRedirect(
                     Route::_('index.php?option=com_contentbuilder_ng&task=storages.display', false),
-                    $model->getError() ?: 'Save succeeded but storage id could not be resolved',
+                    'Save succeeded but storage id could not be resolved',
                     'error'
                 );
                 return false;
@@ -253,7 +253,7 @@ class StorageController extends BaseFormController
             if (!$ok) {
                 $this->setRedirect(
                     Route::_('index.php?option=com_contentbuilder_ng&task=storage.edit&id=' . (int) $id, false),
-                    $model->getError() ?: 'Import failed',
+                    Text::_('JLIB_APPLICATION_ERROR_SAVE_FAILED'),
                     'error'
                 );
                 return false;
@@ -306,7 +306,7 @@ class StorageController extends BaseFormController
 
         $msg = $ok
             ? Text::_('COM_CONTENTBUILDER_NG_FIELD_ADDED')
-            : ($model->getError() ?: Text::_('COM_CONTENTBUILDER_NG_FIELD_ADD_FAILED'));
+            : Text::_('COM_CONTENTBUILDER_NG_FIELD_ADD_FAILED');
 
         $type = $ok ? 'message' : 'warning';
 

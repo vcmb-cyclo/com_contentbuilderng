@@ -216,19 +216,16 @@ class UserModel extends BaseDatabaseModel
         $row = $this->getTable('Cbuser');
         
         if (!$row->bind($data)) {
-            $this->setError($this->getDatabase()->getErrorMessage());
             return false;
         }
 
         if (!$row->check()) {
-            $this->setError($this->getDatabase()->getErrorMessage());
             return false;
         }
         
         $storeRes = $row->store();
 
         if (!$storeRes) {
-            $this->setError($this->getDatabase()->getErrorMessage());
             return false;
         }
         

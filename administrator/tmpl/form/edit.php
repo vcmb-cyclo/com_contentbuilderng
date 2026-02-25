@@ -36,7 +36,7 @@ $wa->addInlineStyle(
     . '.cb-elements-table .cb-col-toggle{white-space:nowrap}'
     . '.cb-elements-table .cb-col-editable{width:120px;min-width:120px}'
     . '.cb-wordwrap-input{width:8ch!important;min-width:8ch!important;max-width:8ch!important;text-align:center}'
-    . '.cb-save-animate{background:#198754!important;border-color:#198754!important;color:#fff!important;filter:brightness(1.2)!important;box-shadow:0 0 0 .38rem rgba(25,135,84,.36)!important;transition:none!important}'
+    . '.cb-save-animate{background-color:var(--alert-heading-bg,var(--bs-success,#198754))!important;background-image:none!important;border-color:var(--bs-success,#198754)!important;color:#fff!important;filter:brightness(1.2)!important;box-shadow:0 0 0 .38rem rgba(25,135,84,.36)!important;transition:none!important}'
     . '.cb-save-animate .icon-apply,.cb-save-animate .icon-save,.cb-save-animate .icon-save-new{color:#fff!important}'
     . '#view-pane .nav-tabs,#perm-pane .nav-tabs{display:flex;gap:.4rem;flex-wrap:wrap;padding:.42rem;margin-bottom:.9rem;border:1px solid #dbe1ea;border-bottom:1px solid #dbe1ea;border-radius:14px;background:linear-gradient(180deg,#f7f9fc,#eef3f9)}'
     . '#view-pane .nav-tabs .nav-link,#view-pane .nav-tabs [role="tab"],#perm-pane .nav-tabs .nav-link,#perm-pane .nav-tabs [role="tab"]{border:1px solid transparent;border-radius:10px;padding:.45rem .8rem;font-weight:600;color:#334155;background:transparent;transition:all .18s ease}'

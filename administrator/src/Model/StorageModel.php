@@ -103,13 +103,11 @@ class StorageModel extends AdminModel
         // Recharger l’item pour connaître name/bytable
         $storage = $this->getItem($storageId);
         if (!$storage) {
-            $this->setError('Storage not found: ' . $storageId);
             return false;
         }
 
         // Pas d’ajout en mode bytable
         if (!empty($storage->bytable)) {
-            $this->setError(Text::_('COM_CONTENTBUILDER_NG_CANNOT_ADD_FIELD_WITH_FOREIGN_TABLE'));
             return false;
         }
 
@@ -119,7 +117,6 @@ class StorageModel extends AdminModel
 
         $fieldname = trim((string) ($jform['fieldname'] ?? ''));
         if ($fieldname === '') {
-            $this->setError(Text::_('COM_CONTENTBUILDER_NG_FIELDNAME_REQUIRED'));
             return false;
         }
 
@@ -143,7 +140,6 @@ class StorageModel extends AdminModel
             WHERE storage_id = " . (int) $storageId . " AND `name` = " . $db->quote($newfieldname)
         );
         if ($db->loadResult()) {
-            $this->setError(Text::sprintf('COM_CONTENTBUILDER_NG_FIELD_EXISTS', $newfieldname));
             return false;
         }
 
@@ -172,7 +168,6 @@ class StorageModel extends AdminModel
             } catch (\Throwable $e) {
                 // Si la colonne existe déjà ou table absente, on log et on renvoie false
                 Logger::exception($e);
-                $this->setError($e->getMessage());
                 return false;
             }
         }
@@ -790,7 +785,6 @@ class StorageModel extends AdminModel
             }
 
             if (!$row->delete($pk)) {
-                $this->setError($row->getError());
                 return false;
             }
 
@@ -826,24 +820,20 @@ class StorageModel extends AdminModel
             $resolvedStorageId = (int) $this->getState($this->getName() . '.id', 0);
         }
         if ($resolvedStorageId <= 0) {
-            $this->setError(Text::_('COM_CONTENTBUILDER_NG_ERROR'));
             return false;
         }
 
         $storage = $this->getItem($resolvedStorageId);
         if (!$storage) {
-            $this->setError(Text::_('COM_CONTENTBUILDER_NG_ERROR'));
             return false;
         }
         if (!empty($storage->bytable)) {
-            $this->setError(Text::_('COM_CONTENTBUILDER_NG_CANNOT_USE_CSV_WITH_FOREIGN_TABLE'));
             return false;
         }
 
         $this->storageId = $resolvedStorageId;
         $this->target_table = trim((string) ($storage->name ?? ''));
         if ($this->target_table === '') {
-            $this->setError(Text::_('COM_CONTENTBUILDER_NG_ERROR'));
             return false;
         }
 
@@ -855,7 +845,6 @@ class StorageModel extends AdminModel
         $extension = strtolower((string) pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
         $supportedExtensions = ['csv', 'xlsx', 'xls'];
         if (!in_array($extension, $supportedExtensions, true)) {
-            $this->setError(Text::_('COM_CONTENTBUILDER_NG_STORAGE_IMPORT_UNSUPPORTED_FORMAT'));
             return false;
         }
 
@@ -863,7 +852,6 @@ class StorageModel extends AdminModel
         $uploaded = File::upload($file['tmp_name'], $dest, false, true);
 
         if (!$uploaded) {
-            $this->setError(Text::_('COM_CONTENTBUILDER_NG_ERROR'));
             return false;
         }
 
@@ -895,7 +883,6 @@ class StorageModel extends AdminModel
         }
 
         if (is_string($retval)) {
-            $this->setError($retval);
             return false;
         }
 
@@ -908,7 +895,6 @@ class StorageModel extends AdminModel
             VendorHelper::load();
         } catch (\Throwable $e) {
             Logger::exception($e);
-            $this->setError($e->getMessage());
             return null;
         }
 
@@ -928,7 +914,6 @@ class StorageModel extends AdminModel
             return $csvPath;
         } catch (\Throwable $e) {
             Logger::exception($e);
-            $this->setError($e->getMessage());
             return null;
         } finally {
             if ($spreadsheet !== null) {

@@ -451,7 +451,10 @@ class VerifyModel extends BaseDatabaseModel
 
         // Store the user object.
         if (!$user->save()) {
-            throw new \Exception(Text::sprintf('COM_USERS_REGISTRATION_ACTIVATION_SAVE_FAILED', $user->getError()), 500);
+            throw new \Exception(
+                Text::sprintf('COM_USERS_REGISTRATION_ACTIVATION_SAVE_FAILED', Text::_('JLIB_APPLICATION_ERROR_SAVE_FAILED')),
+                500
+            );
         }
 
         $params = ComponentHelper::getParams('com_users');
@@ -576,8 +579,7 @@ class VerifyModel extends BaseDatabaseModel
             try {
                 $rows = $db->loadObjectList();
             } catch (\RuntimeException $e) {
-                $this->setError(Text::sprintf('COM_USERS_DATABASE_ERROR', $e->getMessage()), 500);
-
+                $this->app->enqueueMessage(Text::sprintf('COM_USERS_DATABASE_ERROR', $e->getMessage()), 'error');
                 return false;
             }
 
@@ -590,8 +592,7 @@ class VerifyModel extends BaseDatabaseModel
 
                     // Check for an error.
                     if ($return !== true) {
-                        $this->setError(Text::_('COM_USERS_REGISTRATION_ACTIVATION_NOTIFY_SEND_MAIL_FAILED'));
-
+                        $this->app->enqueueMessage(Text::_('COM_USERS_REGISTRATION_ACTIVATION_NOTIFY_SEND_MAIL_FAILED'), 'error');
                         return false;
                     }
                 }
@@ -628,8 +629,7 @@ class VerifyModel extends BaseDatabaseModel
 
             // Check for an error.
             if ($return !== true) {
-                $this->setError(Text::_('COM_USERS_REGISTRATION_ACTIVATION_NOTIFY_SEND_MAIL_FAILED'));
-
+                $this->app->enqueueMessage(Text::_('COM_USERS_REGISTRATION_ACTIVATION_NOTIFY_SEND_MAIL_FAILED'), 'error');
                 return false;
             }
 
@@ -645,7 +645,10 @@ class VerifyModel extends BaseDatabaseModel
 
         // Store the user object.
         if (!$user->save()) {
-            throw new \Exception(Text::sprintf('COM_USERS_REGISTRATION_ACTIVATION_SAVE_FAILED', $user->getError()), 500);
+            throw new \Exception(
+                Text::sprintf('COM_USERS_REGISTRATION_ACTIVATION_SAVE_FAILED', Text::_('JLIB_APPLICATION_ERROR_SAVE_FAILED')),
+                500
+            );
         }
 
         return true;

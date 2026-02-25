@@ -260,7 +260,6 @@ class ElementsModel extends ListModel
             $formId = (int) $this->getState('form.id', 0);
         }
         if (!$formId) {
-            $this->setError('Missing form id');
             return false;
         }
 
@@ -269,14 +268,12 @@ class ElementsModel extends ListModel
         $pk = (int) ($cid[0] ?? 0);
 
         if (!$pk) {
-            $this->setError('No item selected');
             return false;
         }
 
         $table = $this->getTable('Elementoptions');
 
         if (!$table->load($pk)) {
-            $this->setError($table->getError());
             return false;
         }
 
@@ -291,7 +288,6 @@ class ElementsModel extends ListModel
             $formId = (int) $this->getState('form.id', 0);
         }
         if (!$formId) {
-            $this->setError('Missing form id');
             return false;
         }
 
@@ -302,7 +298,6 @@ class ElementsModel extends ListModel
         ArrayHelper::toInteger($order);
 
         if (count($pks) !== count($order)) {
-            $this->setError('Invalid order payload');
             return false;
         }
 
@@ -335,7 +330,6 @@ class ElementsModel extends ListModel
         $n = 1;
         foreach ($pairs as $row) {
             if (!$table->load((int) $row['id'])) {
-                $this->setError($table->getError());
                 return false;
             }
 
@@ -347,7 +341,6 @@ class ElementsModel extends ListModel
             $table->ordering = $n++;
 
             if (!$table->store()) {
-                $this->setError($table->getError());
                 return false;
             }
         }
@@ -366,7 +359,6 @@ class ElementsModel extends ListModel
             $formId = (int) $this->getState('form.id', 0);
         }
         if (!$formId) {
-            $this->setError('Missing form id');
             return false;
         }
 

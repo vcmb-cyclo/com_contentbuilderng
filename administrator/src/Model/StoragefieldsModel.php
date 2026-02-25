@@ -180,7 +180,6 @@ class StoragefieldsModel extends ListModel
     {
         $storageId = (int) $this->getState('storage.id', 0);
         if (!$storageId) {
-            $this->setError('Missing storage id');
             return false;
         }
 
@@ -189,13 +188,11 @@ class StoragefieldsModel extends ListModel
         $pk = (int) ($cid[0] ?? 0);
 
         if (!$pk) {
-            $this->setError('No item selected');
             return false;
         }
 
         $table = $this->getTable();
         if (!$table->load($pk)) {
-            $this->setError($table->getError());
             return false;
         }
 
@@ -206,7 +203,6 @@ class StoragefieldsModel extends ListModel
     {
         $storageId = (int) $this->getState('storage.id', 0);
         if (!$storageId) {
-            $this->setError('Missing storage id');
             return false;
         }
 
@@ -214,7 +210,6 @@ class StoragefieldsModel extends ListModel
         $order = array_values((array) ($order ?? []));
 
         if (empty($pks) || empty($order)) {
-            $this->setError(Text::_('JGLOBAL_NO_MATCHING_RESULTS'));
             return false;
         }
 
@@ -223,19 +218,16 @@ class StoragefieldsModel extends ListModel
         try {
             foreach ($pks as $i => $pk) {
                 if (!$table->load((int) $pk)) {
-                    $this->setError($table->getError());
                     return false;
                 }
                 $table->ordering = (int) ($order[$i] ?? 0);
                 if (!$table->store()) {
-                    $this->setError($table->getError());
                     return false;
                 }
             }
 
             $table->reorder('storage_id = ' . $storageId);
         } catch (\Throwable $e) {
-            $this->setError($e->getMessage());
             return false;
         }
 
@@ -264,8 +256,7 @@ class StoragefieldsModel extends ListModel
         try {
             $db->execute();
         } catch (\Throwable $e) {
-            $this->setError($e->getMessage());
-            return false;
+            throw new \RuntimeException($e->getMessage(), 0, $e);
         }
 
         return true;

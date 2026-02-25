@@ -1866,7 +1866,10 @@ var contentbuilder_ng = new function(){
 
         // Bind the data.
         if (!$user->bind($data)) {
-            $this->setError(Text::sprintf('COM_USERS_REGISTRATION_BIND_FAILED', $user->getError()));
+            Factory::getApplication()->enqueueMessage(
+                Text::sprintf('COM_USERS_REGISTRATION_BIND_FAILED', Text::_('JLIB_APPLICATION_ERROR_SAVE_FAILED')),
+                'error'
+            );
             return false;
         }
 
@@ -1875,7 +1878,10 @@ var contentbuilder_ng = new function(){
 
         // Store the data.
         if (!$user->save()) {
-            $this->setError(Text::sprintf('COM_USERS_REGISTRATION_SAVE_FAILED', $user->getError()));
+            Factory::getApplication()->enqueueMessage(
+                Text::sprintf('COM_USERS_REGISTRATION_SAVE_FAILED', Text::_('JLIB_APPLICATION_ERROR_SAVE_FAILED')),
+                'error'
+            );
             return false;
         }
 
@@ -1977,8 +1983,7 @@ var contentbuilder_ng = new function(){
             try {
                 $rows = Factory::getContainer()->get(DatabaseInterface::class)->loadObjectList();
             } catch (\RuntimeException $e) {
-                $this->setError(Text::sprintf('COM_USERS_DATABASE_ERROR', $e->getMessage()), 500);
-
+                Factory::getApplication()->enqueueMessage(Text::sprintf('COM_USERS_DATABASE_ERROR', $e->getMessage()), 'error');
                 return false;
             }
 
@@ -1988,8 +1993,7 @@ var contentbuilder_ng = new function(){
 
                 // Check for an error.
                 if ($return !== true) {
-                    $this->setError(Text::_('COM_USERS_REGISTRATION_ACTIVATION_NOTIFY_SEND_MAIL_FAILED'));
-
+                    Factory::getApplication()->enqueueMessage(Text::_('COM_USERS_REGISTRATION_ACTIVATION_NOTIFY_SEND_MAIL_FAILED'), 'error');
                     return false;
                 }
             }
@@ -2007,8 +2011,6 @@ var contentbuilder_ng = new function(){
         if ($return !== true) {
 
             Factory::getApplication()->enqueueMessage(Text::_('COM_USERS_REGISTRATION_SEND_MAIL_FAILED'), 'error');
-
-            $this->setError(Text::_('COM_USERS_REGISTRATION_SEND_MAIL_FAILED'));
 
             // Send a system message to administrators receiving system mails
             $db = Factory::getContainer()->get(DatabaseInterface::class);

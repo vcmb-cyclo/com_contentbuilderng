@@ -191,7 +191,7 @@ class FormModel extends AdminModel
                 (array) ($jform['order'] ?? [])
             );
         } catch (\Throwable $e) {
-            $this->setError($e->getMessage());
+            Logger::exception($e);
             return false;
         }
 
@@ -1131,7 +1131,6 @@ class FormModel extends AdminModel
         $formId = (int) $this->getState($this->getName() . '.id');
         if ($formId < 1) {
             // ne devrait pas arriver, mais on sécurise
-            $this->setError('Form ID not available after save');
             return false;
         }
 
@@ -1345,7 +1344,6 @@ class FormModel extends AdminModel
             }
 
             if (!$row->delete($cid)) {
-                $this->setError($row->getErrorMsg());
                 return false;
             }
         }
@@ -1379,12 +1377,10 @@ class FormModel extends AdminModel
         $row = $this->getTable('Form', '');
 
         if (!$row->load($pk)) {
-            $this->setError($row->getError());
             return false;
         }
 
         if (!$row->move((int) $direction)) {
-            $this->setError($row->getError());
             return false;
         }
 

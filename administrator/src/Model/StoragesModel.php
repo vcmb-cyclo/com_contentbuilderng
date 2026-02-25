@@ -159,12 +159,10 @@ class StoragesModel extends ListModel
         $formModel = $factory->createModel('storage', 'Administrator', ['ignore_request' => true]);
 
         if (!$formModel) {
-            $this->setError('Unable to create Storage model');
             return false;
         }
 
         if (!$formModel->delete($pks)) {
-            $this->setError($formModel->getError());
             return false;
         }
 
@@ -262,7 +260,6 @@ class StoragesModel extends ListModel
             if ($row->ordering != $order[$i]) {
                 $row->ordering = $order[$i];
                 if (!$row->save()) {
-                    $this->setError($row->getError());
                     return false;
                 }
             } // if

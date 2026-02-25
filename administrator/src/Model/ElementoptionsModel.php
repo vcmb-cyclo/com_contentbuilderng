@@ -492,7 +492,6 @@ class ElementoptionsModel extends BaseDatabaseModel
             $db->execute();
         } catch (\Throwable $e) {
             Logger::exception($e);
-            $this->setError($e->getMessage());
             return false;
         }
 
@@ -531,7 +530,6 @@ class ElementoptionsModel extends BaseDatabaseModel
             $db->execute();
         } catch (\Throwable $e) {
             Logger::exception($e);
-            $this->setError($e->getMessage());
             return false;
         }
 

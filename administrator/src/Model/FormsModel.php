@@ -271,12 +271,10 @@ class FormsModel extends ListModel
         $formModel = $factory->createModel('form', 'Administrator', ['ignore_request' => true]);
 
         if (!$formModel) {
-            $this->setError('Unable to create Form model');
             return false;
         }
 
         if (!$formModel->delete($pks)) {
-            $this->setError($formModel->getError());
             return false;
         }
 
