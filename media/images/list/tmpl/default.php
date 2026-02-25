@@ -12,6 +12,7 @@
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -20,7 +21,9 @@ use CB\Component\Contentbuilder_ng\Administrator\Helper\ContentbuilderLegacyHelp
 use CB\Component\Contentbuilder_ng\Administrator\Helper\ContentbuilderHelper;
 use CB\Component\Contentbuilder_ng\Administrator\Helper\RatingHelper;
 
-$frontend = Factory::getApplication()->isClient('site');
+/** @var SiteApplication $app */
+$app = Factory::getApplication();
+$frontend = $app->isClient('site');
 $language_allowed = ContentbuilderLegacyHelper::authorizeFe('language');
 $edit_allowed = $frontend ? ContentbuilderLegacyHelper::authorizeFe('edit') : ContentbuilderLegacyHelper::authorize('edit');
 $delete_allowed = $frontend ? ContentbuilderLegacyHelper::authorizeFe('delete') : ContentbuilderLegacyHelper::authorize('delete');
@@ -30,7 +33,7 @@ $state_allowed = $frontend ? ContentbuilderLegacyHelper::authorizeFe('state') : 
 $publish_allowed = $frontend ? ContentbuilderLegacyHelper::authorizeFe('publish') : ContentbuilderLegacyHelper::authorize('publish');
 $rating_allowed = $frontend ? ContentbuilderLegacyHelper::authorizeFe('rating') : ContentbuilderLegacyHelper::authorize('rating');
 
-$input = Factory::getApplication()->input;
+$input = $app->input;
 $previewQuery = '';
 $previewEnabled = $input->getBool('cb_preview', false);
 $previewUntil = $input->getInt('cb_preview_until', 0);
@@ -58,7 +61,8 @@ if ($isAdminPreview) {
     $view_allowed = true;
 }
 
-$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$document = $app->getDocument();
+$wa = $document->getWebAssetManager();
 
 // Charge le manifeste joomla.asset.json du composant
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilder_ng');
@@ -68,9 +72,12 @@ $wa->useScript('com_contentbuilder_ng.contentbuilder_ng');
 
 $___getpost = 'post';
 $___tableOrdering = "Joomla.tableOrdering = function";
-?>
-<?php Factory::getApplication()->getDocument()->addStyleDeclaration($this->theme_css); ?>
-<?php Factory::getApplication()->getDocument()->addStyleDeclaration(
+
+if (!empty($this->theme_css)) {
+	$wa->addInlineStyle((string) $this->theme_css);
+}
+
+$wa->addInlineStyle(
 	'.cb-scroll-x{overflow-x:auto;padding-bottom:.35rem;box-shadow:inset 0 -1px 0 rgba(0,0,0,.08)}'
 	. '.cb-scroll-x::-webkit-scrollbar{height:12px}'
 	. '.cb-scroll-x::-webkit-scrollbar-track{background:rgba(0,0,0,.06);border-radius:999px}'
@@ -94,8 +101,12 @@ $___tableOrdering = "Joomla.tableOrdering = function";
 	. '.cb-list-title::after{content:\"\";display:block;width:3.75rem;height:.2rem;margin-top:.45rem;border-radius:999px;background:linear-gradient(90deg,#0d6efd,#3f8cff)}'
 	. '@media (max-width: 767.98px){.cb-list-actions{width:100%;justify-content:flex-end}.cb-list-panel{padding:.55rem .45rem}}'
 	. '@media (max-width: 767.98px){.cb-list-titlebar{padding:.55rem .65rem;margin-bottom:.75rem}.cb-list-title{font-size:1.18rem}}'
-); ?>
-<?php Factory::getApplication()->getDocument()->addScriptDeclaration($this->theme_js); ?>
+);
+
+if (!empty($this->theme_js)) {
+	$wa->addInlineScript((string) $this->theme_js);
+}
+?>
 <script>
 	Joomla.tableOrdering = function(order, dir, task) {
 		var form = document.getElementById('adminForm');
@@ -630,7 +641,7 @@ by this block. -->
 						<td>
 							<a class="text-primary" href="<?php echo $edit_link; ?>"
 								title="<?php echo Text::_('COM_CONTENTBUILDER_NG_EDIT'); ?>">
-								<span class="icon-edit" aria-hidden="true"></span>
+								<span class="fa-solid fa-pen" aria-hidden="true"></span>
 							</a>
 						</td>
 					<?php

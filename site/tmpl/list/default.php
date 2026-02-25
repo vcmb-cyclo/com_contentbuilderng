@@ -12,6 +12,7 @@
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -20,7 +21,9 @@ use CB\Component\Contentbuilder_ng\Administrator\Helper\ContentbuilderLegacyHelp
 use CB\Component\Contentbuilder_ng\Administrator\Helper\ContentbuilderHelper;
 use CB\Component\Contentbuilder_ng\Administrator\Helper\RatingHelper;
 
-$frontend = Factory::getApplication()->isClient('site');
+/** @var SiteApplication $app */
+$app = Factory::getApplication();
+$frontend = $app->isClient('site');
 $language_allowed = ContentbuilderLegacyHelper::authorizeFe('language');
 $edit_allowed = $frontend ? ContentbuilderLegacyHelper::authorizeFe('edit') : ContentbuilderLegacyHelper::authorize('edit');
 $delete_allowed = $frontend ? ContentbuilderLegacyHelper::authorizeFe('delete') : ContentbuilderLegacyHelper::authorize('delete');
@@ -30,7 +33,7 @@ $state_allowed = $frontend ? ContentbuilderLegacyHelper::authorizeFe('state') : 
 $publish_allowed = $frontend ? ContentbuilderLegacyHelper::authorizeFe('publish') : ContentbuilderLegacyHelper::authorize('publish');
 $rating_allowed = $frontend ? ContentbuilderLegacyHelper::authorizeFe('rating') : ContentbuilderLegacyHelper::authorize('rating');
 
-$input = Factory::getApplication()->input;
+$input = $app->input;
 $previewQuery = '';
 $previewEnabled = $input->getBool('cb_preview', false);
 $previewUntil = $input->getInt('cb_preview_until', 0);
@@ -63,7 +66,8 @@ if ($isAdminPreview) {
     $view_allowed = true;
 }
 
-$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$document = $app->getDocument();
+$wa = $document->getWebAssetManager();
 
 // Charge le manifeste joomla.asset.json du composant
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilder_ng');
@@ -73,11 +77,16 @@ $wa->useScript('com_contentbuilder_ng.contentbuilder_ng');
 
 $___getpost = 'post';
 $___tableOrdering = "Joomla.tableOrdering = function";
-?>
-<?php Factory::getApplication()->getDocument()->addStyleDeclaration($this->theme_css); ?>
-<?php Factory::getApplication()->getDocument()->addScriptDeclaration($this->theme_js); ?>
-<?php
-Factory::getApplication()->getDocument()->addStyleDeclaration(
+
+if (!empty($this->theme_css)) {
+	$wa->addInlineStyle((string) $this->theme_css);
+}
+
+if (!empty($this->theme_js)) {
+	$wa->addInlineScript((string) $this->theme_js);
+}
+
+$wa->addInlineStyle(
 	<<<'CSS'
 .cb-list-sticky{
 	position:sticky;
@@ -729,7 +738,7 @@ by this block. -->
 						<td>
 							<a class="text-primary" href="<?php echo $edit_link; ?>"
 								title="<?php echo Text::_('COM_CONTENTBUILDER_NG_EDIT'); ?>">
-								<span class="icon-edit" aria-hidden="true"></span>
+								<span class="fa-solid fa-pen" aria-hidden="true"></span>
 							</a>
 						</td>
 					<?php
