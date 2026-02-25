@@ -23,6 +23,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\FormController as BaseFormController;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Response\JsonResponse;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Filesystem\File;
 use Joomla\Utilities\ArrayHelper;
@@ -495,8 +496,13 @@ class StorageController extends BaseFormController
             $storageId = (int) $this->input->getInt('id');
 
             if (empty($cids)) {
-                $this->setMessage(Text::_('JERROR_NO_ITEMS_SELECTED'), 'error');
-                $this->setRedirect(Route::_('index.php?option=com_contentbuilder_ng&task=storage.display' . '&id=' . $storageId, false));
+                $error = Text::_('JERROR_NO_ITEMS_SELECTED');
+                $this->setMessage($error, 'error');
+                if ($this->isAjaxCall()) {
+                    $this->respondAjax(false, $error);
+                } else {
+                    $this->setRedirect(Route::_('index.php?option=com_contentbuilder_ng&task=storage.display' . '&id=' . $storageId, false));
+                }
                 return false;
             }
 
@@ -505,7 +511,25 @@ class StorageController extends BaseFormController
                 throw new \RuntimeException('StoragefieldsModel introuvable');
             }
             $model->setStorageId($storageId);
-            $model->publish($cids, $state);
+            if (!$model->publish($cids, $state)) {
+                $error = Text::_('JLIB_APPLICATION_ERROR_SAVE_FAILED');
+                $this->setMessage($error, 'error');
+                if ($this->isAjaxCall()) {
+                    $this->respondAjax(false, $error);
+                } else {
+                    $this->setRedirect(
+                        Route::_('index.php?option=com_contentbuilder_ng&task=storage.display&layout=edit&id=' . $storageId, false),
+                        $error,
+                        'error'
+                    );
+                }
+                return false;
+            }
+
+            if ($this->isAjaxCall()) {
+                $this->respondAjax(true, Text::_($successMsgKey));
+                return true;
+            }
 
             $this->setRedirect(
                 Route::_('index.php?option=com_contentbuilder_ng&task=storage.display&layout=edit&id=' . $storageId, false),
@@ -515,8 +539,23 @@ class StorageController extends BaseFormController
             return true;
         } catch (\Throwable $e) {
             $this->setMessage($e->getMessage(), 'warning');
-            $this->setRedirect(Route::_('index.php?option=com_contentbuilder_ng&task=storage.display', false));
+            if ($this->isAjaxCall()) {
+                $this->respondAjax(false, $e->getMessage());
+            } else {
+                $this->setRedirect(Route::_('index.php?option=com_contentbuilder_ng&task=storage.display', false));
+            }
             return false;
         }
+    }
+
+    private function isAjaxCall(): bool
+    {
+        return (bool) $this->input->getInt('cb_ajax', 0);
+    }
+
+    private function respondAjax(bool $success, string $message = ''): void
+    {
+        echo new JsonResponse(['ok' => $success], $message, !$success);
+        Factory::getApplication()->close();
     }
 }

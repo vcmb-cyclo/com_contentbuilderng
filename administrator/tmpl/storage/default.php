@@ -91,11 +91,277 @@ $wa->addInlineStyle(
     . '.cb-storage-pagination .cb-storage-pages{margin-left:auto}'
     . '.cb-storage-pagination .cb-storage-pages .pagination{margin:0!important;text-align:right!important}'
     . '.cb-storage-pagination .cb-storage-pages .pagination ul{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:.35rem;margin:0;padding:0}'
+    . '.cb-save-animate{background-color:var(--alert-heading-bg,var(--bs-success,#198754))!important;background-image:none!important;border-color:var(--bs-success,#198754)!important;color:#fff!important;filter:brightness(1.2)!important;box-shadow:0 0 0 .38rem rgba(25,135,84,.36)!important;transition:none!important}'
+    . '.cb-save-animate .icon-apply,.cb-save-animate .icon-save,.cb-save-animate .icon-save-new{color:#fff!important}'
 );
 
 ?>
 
 <script>
+const cbSaveAnimationDurationMs = 500;
+const cbPublishedTitle = <?php echo json_encode(Text::_('JPUBLISHED'), JSON_UNESCAPED_UNICODE); ?>;
+const cbUnpublishedTitle = <?php echo json_encode(Text::_('JUNPUBLISHED'), JSON_UNESCAPED_UNICODE); ?>;
+let cbAjaxBusy = false;
+let cbSaveButtonTimer = null;
+
+function cbAnimateSaveButton() {
+    var selectors = [
+        'joomla-toolbar-button#save-group-children-apply button',
+        'joomla-toolbar-button#save-group-children-save button',
+        'joomla-toolbar-button#save-group-children-save2new button',
+        '#save-group-children-apply button',
+        '#save-group-children-save button',
+        '#save-group-children-save2new button',
+        '#toolbar .button-apply',
+        '#toolbar .button-save',
+        '#toolbar .button-save2new',
+        '#toolbar .button-save-new'
+    ];
+
+    var targets = [];
+    selectors.forEach(function(selector) {
+        document.querySelectorAll(selector).forEach(function(el) {
+            if (!el) {
+                return;
+            }
+            if (el.classList && el.classList.contains('dropdown-toggle-split')) {
+                return;
+            }
+            if (typeof el.closest === 'function' && el.closest('.dropdown-menu')) {
+                return;
+            }
+            if (targets.indexOf(el) === -1) {
+                targets.push(el);
+            }
+        });
+    });
+
+    if (!targets.length) {
+        return;
+    }
+
+    targets.forEach(function(el) {
+        el.classList.remove('cb-save-animate');
+        void el.offsetWidth;
+        el.classList.add('cb-save-animate');
+    });
+
+    if (cbSaveButtonTimer) {
+        clearTimeout(cbSaveButtonTimer);
+        cbSaveButtonTimer = null;
+    }
+
+    cbSaveButtonTimer = setTimeout(function() {
+        targets.forEach(function(el) {
+            el.classList.remove('cb-save-animate');
+        });
+    }, cbSaveAnimationDurationMs);
+}
+
+function cbDismissTransientTooltips() {
+    if (window.bootstrap && typeof window.bootstrap.Tooltip === 'function') {
+        document.querySelectorAll('[data-bs-toggle="tooltip"], .hasTip, .editlinktip, .js-grid-item-action').forEach(function(el) {
+            var instance = window.bootstrap.Tooltip.getInstance(el);
+            if (instance && typeof instance.hide === 'function') {
+                instance.hide();
+            }
+        });
+    }
+
+    document.querySelectorAll('.tooltip.show').forEach(function(el) {
+        el.classList.remove('show');
+        el.setAttribute('aria-hidden', 'true');
+    });
+}
+
+function cbGetToggleTaskMeta(task) {
+    var map = {
+        'storage.publish': { nextTask: 'storage.unpublish', enabled: true },
+        'storage.unpublish': { nextTask: 'storage.publish', enabled: false }
+    };
+
+    return map[String(task || '')] || null;
+}
+
+function cbApplyAjaxToggleState(actionElement, task) {
+    if (!actionElement) {
+        return;
+    }
+
+    var meta = cbGetToggleTaskMeta(task);
+    if (!meta) {
+        return;
+    }
+
+    if (actionElement.hasAttribute('data-item-task')) {
+        actionElement.setAttribute('data-item-task', meta.nextTask);
+    }
+    if (actionElement.hasAttribute('data-submit-task')) {
+        actionElement.setAttribute('data-submit-task', meta.nextTask);
+    }
+    if (actionElement.hasAttribute('data-task')) {
+        actionElement.setAttribute('data-task', meta.nextTask);
+    }
+
+    var onclick = String(actionElement.getAttribute('onclick') || '');
+    if (onclick.indexOf('listItemTask(') !== -1) {
+        actionElement.setAttribute(
+            'onclick',
+            onclick.replace(
+                /(listItemTask\(\s*['"][^'"]+['"]\s*,\s*['"])([^'"]+)(['"]\s*\))/,
+                '$1' + meta.nextTask + '$3'
+            )
+        );
+    }
+
+    if (actionElement.classList) {
+        actionElement.classList.toggle('active', !!meta.enabled);
+    }
+
+    var icon = actionElement.querySelector('span[class*="icon-"]');
+    if (icon && icon.classList) {
+        icon.classList.remove('icon-publish', 'icon-unpublish');
+        icon.classList.add(meta.enabled ? 'icon-publish' : 'icon-unpublish');
+    }
+
+    var title = meta.enabled ? cbPublishedTitle : cbUnpublishedTitle;
+    actionElement.setAttribute('title', title);
+    actionElement.setAttribute('aria-label', title);
+
+    var hiddenLabel = actionElement.querySelector('.visually-hidden, .sr-only');
+    if (hiddenLabel) {
+        hiddenLabel.textContent = title;
+    }
+}
+
+function cbIsAjaxToggleTask(task) {
+    return task === 'storage.publish' || task === 'storage.unpublish';
+}
+
+function cbExtractListItemTask(actionElement) {
+    if (!actionElement) {
+        return null;
+    }
+
+    var onclick = String(actionElement.getAttribute('onclick') || '');
+    var match = onclick.match(/listItemTask\(\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]+)['"]/);
+    if (match) {
+        return {
+            checkboxId: String(match[1] || ''),
+            task: String(match[2] || '')
+        };
+    }
+
+    var dataTask = String(
+        actionElement.getAttribute('data-item-task')
+        || actionElement.getAttribute('data-submit-task')
+        || actionElement.getAttribute('data-task')
+        || ''
+    ).trim();
+
+    if (dataTask === '') {
+        return null;
+    }
+
+    return {
+        checkboxId: '',
+        task: dataTask.indexOf('.') === -1 ? ('storage.' + dataTask) : dataTask
+    };
+}
+
+function cbResolveRowId(actionElement, checkboxId) {
+    if (actionElement && typeof actionElement.closest === 'function') {
+        var row = actionElement.closest('tr[data-cb-row-id]');
+        if (row) {
+            var rowId = String(row.getAttribute('data-cb-row-id') || '');
+            if (rowId !== '') {
+                return rowId;
+            }
+        }
+    }
+
+    if (checkboxId !== '') {
+        var checkbox = document.getElementById(checkboxId);
+        if (checkbox && typeof checkbox.value !== 'undefined' && String(checkbox.value) !== '') {
+            return String(checkbox.value);
+        }
+    }
+
+    return '';
+}
+
+function cbSubmitTaskAjax(task, rowId, onSuccess, onError, triggerElement) {
+    var form = document.getElementById('adminForm') || document.adminForm;
+    if (!form) {
+        if (typeof onError === 'function') {
+            onError('Form not found.');
+        }
+        return;
+    }
+
+    if (cbAjaxBusy) {
+        return;
+    }
+
+    cbAjaxBusy = true;
+    cbDismissTransientTooltips();
+
+    var formData = new FormData(form);
+    formData.set('task', task);
+    formData.set('cb_ajax', '1');
+
+    if (rowId) {
+        formData.delete('cid[]');
+        formData.append('cid[]', String(rowId));
+        formData.set('boxchecked', '1');
+    }
+
+    fetch(form.getAttribute('action') || 'index.php', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(function(response) {
+            return response.text().then(function(text) {
+                var payload = null;
+                try {
+                    payload = JSON.parse(text);
+                } catch (e) {
+                    payload = null;
+                }
+
+                if (!response.ok || !payload || payload.success === false) {
+                    throw new Error((payload && payload.message) ? payload.message : 'Save failed');
+                }
+
+                return payload;
+            });
+        })
+        .then(function(payload) {
+            cbAnimateSaveButton();
+            if (typeof onSuccess === 'function') {
+                onSuccess(payload);
+            }
+        })
+        .catch(function(error) {
+            if (typeof onError === 'function') {
+                onError(error && error.message ? error.message : 'Save failed');
+                return;
+            }
+            alert(error && error.message ? error.message : 'Save failed');
+        })
+        .finally(function() {
+            cbDismissTransientTooltips();
+            if (triggerElement && typeof triggerElement.blur === 'function') {
+                triggerElement.blur();
+            }
+            cbAjaxBusy = false;
+        });
+}
+
 function listItemTask(id, task) {
     var form = document.getElementById('adminForm');
     if (!form) return false;
@@ -111,6 +377,25 @@ function listItemTask(id, task) {
     var boxchecked = form.querySelector('input[name="boxchecked"]');
     if (boxchecked) {
         boxchecked.value = 1;
+    }
+
+    if (cbIsAjaxToggleTask(task)) {
+        var rowId = (typeof target.value !== 'undefined' && target.value !== '') ? String(target.value) : '';
+        var actionElement = null;
+
+        if (typeof target.closest === 'function') {
+            var row = target.closest('tr[data-cb-row-id]');
+            if (row) {
+                actionElement = row.querySelector(
+                    '[data-item-task="' + task + '"], [data-submit-task="' + task + '"], [data-task="' + task + '"], [onclick*="' + task + '"]'
+                );
+            }
+        }
+
+        cbSubmitTaskAjax(task, rowId, function() {
+            cbApplyAjaxToggleState(actionElement, task);
+        }, null, actionElement);
+        return false;
     }
 
     Joomla.submitform(task, form);
@@ -144,10 +429,55 @@ function initStorageTooltips() {
     });
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initStorageTooltips, { once: true });
-} else {
+function initStorageAjaxToggles() {
+    var form = document.getElementById('adminForm') || document.adminForm;
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener('click', function(event) {
+        var target = event.target;
+        if (!target || typeof target.closest !== 'function') {
+            return;
+        }
+
+        var actionElement = target.closest('[onclick*="listItemTask("], [data-item-task], [data-submit-task], [data-task]');
+        if (!actionElement) {
+            return;
+        }
+
+        var parsed = cbExtractListItemTask(actionElement);
+        if (!parsed) {
+            return;
+        }
+
+        var task = String(parsed.task || '').trim();
+        if (!cbIsAjaxToggleTask(task)) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === 'function') {
+            event.stopImmediatePropagation();
+        }
+
+        var rowId = cbResolveRowId(actionElement, parsed.checkboxId);
+        cbSubmitTaskAjax(task, rowId, function() {
+            cbApplyAjaxToggleState(actionElement, task);
+        }, null, actionElement);
+    }, true);
+}
+
+function initStorageUi() {
     initStorageTooltips();
+    initStorageAjaxToggles();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initStorageUi, { once: true });
+} else {
+    initStorageUi();
 }
 </script>
 
@@ -515,7 +845,7 @@ echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', Text::_('COM_CONTENTBUIL
                         // ordering: n’active les flèches que si ordering est vrai
                         $canOrder = !empty($this->ordering);
                     ?>
-                        <tr class="row<?php echo $i % 2; ?>">
+                        <tr class="row<?php echo $i % 2; ?>" data-cb-row-id="<?php echo $id; ?>">
                             <td class="text-center"><?php echo $checked; ?></td>
                             <td><?php echo $name; ?></td>
                             <td><?php echo $title; ?></td>
