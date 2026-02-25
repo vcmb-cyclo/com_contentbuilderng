@@ -20,6 +20,12 @@ use Joomla\CMS\HTML\HTMLHelper;
 $versionValue = (string) ($this->componentVersion ?: Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'));
 $creationDateValue = (string) ($this->componentCreationDate ?: Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'));
 $authorValue = (string) ($this->componentAuthor ?: Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'));
+$licenseValue = trim((string) $this->componentLicense);
+$genericLicenseValues = ['gpl', 'gnu/gpl', 'gnu/gpl v2 or later'];
+if ($licenseValue === '' || in_array(strtolower($licenseValue), $genericLicenseValues, true)) {
+    $licenseValue = Text::_('COM_CONTENTBUILDERNG_LICENSE_FALLBACK');
+}
+$licenseUrl = 'https://www.gnu.org/licenses/gpl-2.0.html';
 $auditReport = is_array($this->auditReport ?? null) ? $this->auditReport : [];
 $auditSummary = (array) ($auditReport['summary'] ?? []);
 $duplicateIndexes = (array) ($auditReport['duplicate_indexes'] ?? []);
@@ -226,6 +232,12 @@ $formatAuditIssueList = static function (array $values, int $limit = 8): string 
         border: 1px solid #111827;
         box-shadow: 0 .35rem .9rem rgba(15, 23, 42, .26);
     }
+    .cb-about-intro-link--license {
+        color: #3f2d00;
+        background: linear-gradient(135deg, #fff3cd 0%, #ffe08a 100%);
+        border: 1px solid #ffcf66;
+        box-shadow: 0 .25rem .75rem rgba(191, 144, 0, .22);
+    }
     @media (max-width: 767.98px) {
         .cb-about-intro {
             flex-wrap: wrap;
@@ -294,6 +306,9 @@ $formatAuditIssueList = static function (array $values, int $limit = 8): string 
     .cb-about-version-tile--author {
         --cb-accent-color: #fd7e14;
     }
+    .cb-about-version-tile--license {
+        --cb-accent-color: #d39e00;
+    }
     .cb-about-version-icon {
         width: 2rem;
         height: 2rem;
@@ -315,6 +330,10 @@ $formatAuditIssueList = static function (array $values, int $limit = 8): string 
         background-color: #fff1e8;
         color: #fd7e14;
     }
+    .cb-about-version-tile--license .cb-about-version-icon {
+        background-color: #fff6d6;
+        color: #a87400;
+    }
     .cb-about-version-label {
         margin: .15rem 0 0;
         color: #6c757d;
@@ -330,6 +349,11 @@ $formatAuditIssueList = static function (array $values, int $limit = 8): string 
         font-weight: 700;
         line-height: 1.25;
         word-break: break-word;
+    }
+    .cb-about-version-link {
+        margin-top: .4rem;
+        font-size: .76rem;
+        font-weight: 700;
     }
     .cb-audit-ok-alert {
         display: flex;
@@ -402,6 +426,12 @@ $formatAuditIssueList = static function (array $values, int $limit = 8): string 
                 target="_blank"
                 rel="noopener noreferrer"
             >GitHub repository</a>
+            <a
+                class="cb-about-intro-link cb-about-intro-link--license"
+                href="<?php echo htmlspecialchars($licenseUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                target="_blank"
+                rel="noopener noreferrer"
+            ><?php echo Text::_('COM_CONTENTBUILDERNG_LICENSE_LINK'); ?></a>
         </div>
     </div>
 </div>
@@ -932,25 +962,38 @@ $formatAuditIssueList = static function (array $values, int $limit = 8): string 
         </div>
 
         <div class="row g-3">
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6 col-lg-2">
                 <div class="cb-about-version-tile cb-about-version-tile--version">
                     <span class="cb-about-version-icon" aria-hidden="true">VER</span>
                     <p class="cb-about-version-label"><?php echo Text::_('COM_CONTENTBUILDERNG_VERSION_LABEL'); ?></p>
                     <p class="cb-about-version-value"><?php echo htmlspecialchars($versionValue, ENT_QUOTES, 'UTF-8'); ?></p>
                 </div>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6 col-lg-2">
                 <div class="cb-about-version-tile cb-about-version-tile--date">
                     <span class="cb-about-version-icon" aria-hidden="true">DATE</span>
                     <p class="cb-about-version-label"><?php echo Text::_('COM_CONTENTBUILDERNG_CREATION_DATE_LABEL'); ?></p>
                     <p class="cb-about-version-value"><?php echo htmlspecialchars($creationDateValue, ENT_QUOTES, 'UTF-8'); ?></p>
                 </div>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6 col-lg-2">
                 <div class="cb-about-version-tile cb-about-version-tile--author">
                     <span class="cb-about-version-icon" aria-hidden="true">DEV</span>
                     <p class="cb-about-version-label"><?php echo Text::_('COM_CONTENTBUILDERNG_AUTHOR_LABEL'); ?></p>
                     <p class="cb-about-version-value"><?php echo htmlspecialchars($authorValue, ENT_QUOTES, 'UTF-8'); ?></p>
+                </div>
+            </div>
+            <div class="col-12 col-md-12 col-lg-6">
+                <div class="cb-about-version-tile cb-about-version-tile--license">
+                    <span class="cb-about-version-icon" aria-hidden="true">GPL</span>
+                    <p class="cb-about-version-label"><?php echo Text::_('COM_CONTENTBUILDERNG_LICENSE_LABEL'); ?></p>
+                    <p class="cb-about-version-value"><?php echo htmlspecialchars($licenseValue, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <a
+                        class="cb-about-version-link"
+                        href="<?php echo htmlspecialchars($licenseUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    ><?php echo Text::_('COM_CONTENTBUILDERNG_LICENSE_LINK'); ?></a>
                 </div>
             </div>
         </div>

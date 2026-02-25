@@ -5,7 +5,7 @@
     <authorEmail>bf@vcmb.fr</authorEmail>
     <authorUrl>https://breezingforms-ng.vcmb.fr</authorUrl>
     <copyright>Copyright 2011 - 2026 by XDA+GIL</copyright>
-    <license>GNU/GPL v2 or later</license>
+    <license>Licensed under the GNU General Public License, version 2 or (at your option) any later version (SPDX: GPL-2.0-or-later).</license>
     <version>6.1.1</version>
     <description>COM_CONTENTBUILDERNG_XML_DESCRIPTION</description>
 

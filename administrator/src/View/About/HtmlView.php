@@ -25,6 +25,7 @@ class HtmlView extends BaseHtmlView
     protected string $componentVersion = '';
     protected string $componentCreationDate = '';
     protected string $componentAuthor = '';
+    protected string $componentLicense = '';
     protected array $phpLibraries = [];
     protected array $javascriptLibraries = [];
     protected array $auditReport = [];
@@ -104,6 +105,7 @@ class HtmlView extends BaseHtmlView
         $this->componentVersion = (string) ($versionInformation['version'] ?? '');
         $this->componentCreationDate = (string) ($versionInformation['creationDate'] ?? '');
         $this->componentAuthor = (string) ($versionInformation['author'] ?? '');
+        $this->componentLicense = (string) ($versionInformation['license'] ?? '');
         $this->phpLibraries = $this->getInstalledPhpLibraries();
         $this->javascriptLibraries = $this->getInstalledJavascriptLibraries();
         $auditReport = $app->getUserState('com_contentbuilderng.about.audit', []);
@@ -123,6 +125,7 @@ class HtmlView extends BaseHtmlView
             'version' => '',
             'creationDate' => '',
             'author' => '',
+            'license' => '',
         ];
 
         try {
@@ -143,13 +146,23 @@ class HtmlView extends BaseHtmlView
                     $versionInformation['version'] = (string) ($manifestData['version'] ?? '');
                     $versionInformation['creationDate'] = (string) ($manifestData['creationDate'] ?? '');
                     $versionInformation['author'] = (string) ($manifestData['author'] ?? '');
+                    $versionInformation['license'] = (string) ($manifestData['license'] ?? '');
                 }
             }
         } catch (\Throwable $e) {
             // Ignore and fallback to manifest XML.
         }
 
-        if ($versionInformation['version'] !== '') {
+        $needsManifestFallback = false;
+
+        foreach (['version', 'creationDate', 'author', 'license'] as $key) {
+            if (trim((string) ($versionInformation[$key] ?? '')) === '') {
+                $needsManifestFallback = true;
+                break;
+            }
+        }
+
+        if (!$needsManifestFallback) {
             return $versionInformation;
         }
 
@@ -162,9 +175,18 @@ class HtmlView extends BaseHtmlView
         $manifest = simplexml_load_file($manifestPath);
 
         if ($manifest instanceof \SimpleXMLElement) {
-            $versionInformation['version'] = (string) ($manifest->version ?? '');
-            $versionInformation['creationDate'] = (string) ($manifest->creationDate ?? '');
-            $versionInformation['author'] = (string) ($manifest->author ?? '');
+            $manifestValues = [
+                'version' => (string) ($manifest->version ?? ''),
+                'creationDate' => (string) ($manifest->creationDate ?? ''),
+                'author' => (string) ($manifest->author ?? ''),
+                'license' => (string) ($manifest->license ?? ''),
+            ];
+
+            foreach ($manifestValues as $key => $value) {
+                if (trim((string) ($versionInformation[$key] ?? '')) === '' && trim($value) !== '') {
+                    $versionInformation[$key] = $value;
+                }
+            }
         }
 
         return $versionInformation;
