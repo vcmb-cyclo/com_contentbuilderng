@@ -1170,7 +1170,7 @@ var contentbuilderng = new function(){
                                     }
 
                                     $dispatcher = $this->app->getDispatcher();
-                                    $eventResult = $dispatcher->dispatch('onValidate', new \Joomla\Event\Event('onValidate', array($the_upload_fields[$id], array_merge($the_upload_fields, $the_fields, $the_html_fields), $this->app->input->getCmd('record_id', 0), $data->form, isset($values[$id]) ? $values[$id] : '')));
+                                    $eventResult = $dispatcher->dispatch('onValidate', new \Joomla\CMS\Event\GenericEvent('onValidate', array($the_upload_fields[$id], array_merge($the_upload_fields, $the_fields, $the_html_fields), $this->app->input->getCmd('record_id', 0), $data->form, isset($values[$id]) ? $values[$id] : '')));
                                     $results = $eventResult->getArgument('result') ?: [];
                                     $dispatcher->clearListeners('onValidate');
 
@@ -1256,7 +1256,7 @@ var contentbuilderng = new function(){
                                     }
 
                                     $dispatcher = $this->app->getDispatcher();
-                                    $eventResult = $dispatcher->dispatch('onValidate', new \Joomla\Event\Event('onValidate', array($f, array_merge($the_upload_fields, $the_fields, $the_html_fields), $this->app->input->getCmd('record_id', 0), $data->form, $value)));
+                                    $eventResult = $dispatcher->dispatch('onValidate', new \Joomla\CMS\Event\GenericEvent('onValidate', array($f, array_merge($the_upload_fields, $the_fields, $the_html_fields), $this->app->input->getCmd('record_id', 0), $data->form, $value)));
                                     $results = $eventResult->getArgument('result') ?: [];
                                     $dispatcher->clearListeners('onValidate');
 
@@ -1277,7 +1277,7 @@ var contentbuilderng = new function(){
                                         $dispatcher = $this->app->getDispatcher();
                                         $eventResult = $dispatcher->dispatch(
                                             'onAfterValidationSuccess',
-                                            new \Joomla\Event\Event(
+                                            new \Joomla\CMS\Event\GenericEvent(
                                                 'onAfterValidationSuccess',
                                                 array($f, $m = array_merge($the_upload_fields, $the_fields, $the_html_fields), $this->app->input->getCmd('record_id', 0), $data->form, $value)
                                             )
@@ -1295,7 +1295,7 @@ var contentbuilderng = new function(){
                     }
 
                     $dispatcher = $this->app->getDispatcher();
-                    $submit_before_result = $dispatcher->dispatch('onBeforeSubmit', new \Joomla\Event\Event('onBeforeSubmit', array($this->app->input->getCmd('record_id', 0), $data->form, $values)));
+                    $submit_before_result = $dispatcher->dispatch('onBeforeSubmit', new \Joomla\CMS\Event\GenericEvent('onBeforeSubmit', array($this->app->input->getCmd('record_id', 0), $data->form, $values)));
 
                     if ($this->app->input->get('cb_submission_failed', 0, 'string')) {
                         $session->set('cb_failed_values', $values, 'com_contentbuilderng.' . $this->_id);
@@ -1358,7 +1358,7 @@ var contentbuilderng = new function(){
                                 PluginHelper::importPlugin('content', 'contentbuilderng_verify');
 
                                 $dispatcher = $this->app->getDispatcher();
-                                $bypass_result = $dispatcher->dispatch('onPrepareContent', new \Joomla\Event\Event('onPrepareContent', array(&$bypass, &$params)));
+                                $bypass_result = $dispatcher->dispatch('onPrepareContent', new \Joomla\CMS\Event\GenericEvent('onPrepareContent', array(&$bypass, &$params)));
 
                                 $verification_id = '';
 
@@ -1578,7 +1578,7 @@ var contentbuilderng = new function(){
                     }
 
                     $dispatcher = $this->app->getDispatcher();
-                    $submit_after_result = $dispatcher->dispatch('onAfterSubmit', new \Joomla\Event\Event('onAfterSubmit', array($record_return, $article_id, $data->form, $cleanedValues)));
+                    $submit_after_result = $dispatcher->dispatch('onAfterSubmit', new \Joomla\CMS\Event\GenericEvent('onAfterSubmit', array($record_return, $article_id, $data->form, $cleanedValues)));
 
                     foreach ($fields as $actionField) {
                         if (trim($actionField['custom_action_script'] ?? '')) {
@@ -2276,7 +2276,7 @@ var contentbuilderng = new function(){
         PluginHelper::importPlugin('contentbuilderng_listaction', $res['action']);
 
         $dispatcher = $this->app->getDispatcher();
-        $eventResult = $dispatcher->dispatch('onBeforeAction', new \Joomla\Event\Event('onBeforeAction', array($this->_id, $items)));
+        $eventResult = $dispatcher->dispatch('onBeforeAction', new \Joomla\CMS\Event\GenericEvent('onBeforeAction', array($this->_id, $items)));
         $results = $eventResult->getArgument('result') ?: [];
         $error = implode('', $results);
 
@@ -2302,7 +2302,7 @@ var contentbuilderng = new function(){
         }
 
         $dispatcher = $this->app->getDispatcher();
-        $eventResult = $dispatcher->dispatch('onAfterAction', new \Joomla\Event\Event('onAfterAction', array($this->_id, $items, $error)));
+        $eventResult = $dispatcher->dispatch('onAfterAction', new \Joomla\CMS\Event\GenericEvent('onAfterAction', array($this->_id, $items, $error)));
         $results = $eventResult->getArgument('result') ?: [];
         $error = implode('', $results);
 

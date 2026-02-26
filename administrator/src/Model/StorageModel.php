@@ -43,6 +43,90 @@ class StorageModel extends AdminModel
     /** Required for CSV file */
     private string $target_table = '';
     private int $storageId = 0;
+    /** @var array<string,mixed> */
+    private array $lastImportSummary = [];
+
+    private function normalizeFieldIdentifier(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return '';
+        }
+
+        // Some CSV headers may arrive in legacy single-byte encodings.
+        if (preg_match('//u', $value) !== 1 && function_exists('iconv')) {
+            foreach (['Windows-1252', 'ISO-8859-1'] as $legacyEncoding) {
+                $converted = iconv($legacyEncoding, 'UTF-8//IGNORE', $value);
+                if (is_string($converted) && $converted !== '' && preg_match('//u', $converted) === 1) {
+                    $value = $converted;
+                    break;
+                }
+            }
+        }
+
+        // Normalize combining marks first when intl is available.
+        if (class_exists('\Normalizer')) {
+            $normalized = \Normalizer::normalize($value, \Normalizer::FORM_D);
+            if (is_string($normalized) && $normalized !== '') {
+                $value = preg_replace('/\p{Mn}+/u', '', $normalized) ?? $normalized;
+            }
+        }
+
+        // Map frequent non-ASCII letters that iconv may not always transliterate consistently.
+        $value = strtr($value, [
+            'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'A', 'Å' => 'A', 'Ā' => 'A', 'Ă' => 'A', 'Ą' => 'A',
+            'à' => 'a', 'á' => 'a', 'â' => 'a', 'ã' => 'a', 'ä' => 'a', 'å' => 'a', 'ā' => 'a', 'ă' => 'a', 'ą' => 'a',
+            'Ç' => 'C', 'Ć' => 'C', 'Ĉ' => 'C', 'Ċ' => 'C', 'Č' => 'C',
+            'ç' => 'c', 'ć' => 'c', 'ĉ' => 'c', 'ċ' => 'c', 'č' => 'c',
+            'È' => 'E', 'É' => 'E', 'Ê' => 'E', 'Ë' => 'E', 'Ē' => 'E', 'Ĕ' => 'E', 'Ė' => 'E', 'Ę' => 'E', 'Ě' => 'E',
+            'è' => 'e', 'é' => 'e', 'ê' => 'e', 'ë' => 'e', 'ē' => 'e', 'ĕ' => 'e', 'ė' => 'e', 'ę' => 'e', 'ě' => 'e',
+            'Ì' => 'I', 'Í' => 'I', 'Î' => 'I', 'Ï' => 'I', 'Ĩ' => 'I', 'Ī' => 'I', 'Ĭ' => 'I', 'Į' => 'I', 'İ' => 'I',
+            'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i', 'ĩ' => 'i', 'ī' => 'i', 'ĭ' => 'i', 'į' => 'i', 'ı' => 'i',
+            'Ñ' => 'N', 'Ń' => 'N', 'Ņ' => 'N', 'Ň' => 'N',
+            'ñ' => 'n', 'ń' => 'n', 'ņ' => 'n', 'ň' => 'n',
+            'Ò' => 'O', 'Ó' => 'O', 'Ô' => 'O', 'Õ' => 'O', 'Ö' => 'O', 'Ō' => 'O', 'Ŏ' => 'O', 'Ő' => 'O',
+            'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'õ' => 'o', 'ö' => 'o', 'ō' => 'o', 'ŏ' => 'o', 'ő' => 'o',
+            'Ù' => 'U', 'Ú' => 'U', 'Û' => 'U', 'Ü' => 'U', 'Ũ' => 'U', 'Ū' => 'U', 'Ŭ' => 'U', 'Ů' => 'U', 'Ű' => 'U', 'Ų' => 'U',
+            'ù' => 'u', 'ú' => 'u', 'û' => 'u', 'ü' => 'u', 'ũ' => 'u', 'ū' => 'u', 'ŭ' => 'u', 'ů' => 'u', 'ű' => 'u', 'ų' => 'u',
+            'Ý' => 'Y', 'Ÿ' => 'Y', 'Ŷ' => 'Y',
+            'ý' => 'y', 'ÿ' => 'y', 'ŷ' => 'y',
+            'Ž' => 'Z', 'Ź' => 'Z', 'Ż' => 'Z',
+            'ž' => 'z', 'ź' => 'z', 'ż' => 'z',
+            'ß' => 'ss', 'ẞ' => 'SS',
+            'Æ' => 'AE', 'æ' => 'ae',
+            'Œ' => 'OE', 'œ' => 'oe',
+            'Ø' => 'O',  'ø' => 'o',
+            'Ð' => 'D',  'ð' => 'd',
+            'Þ' => 'TH', 'þ' => 'th',
+            'Ł' => 'L',  'ł' => 'l',
+            'Đ' => 'D',  'đ' => 'd',
+        ]);
+
+        if (function_exists('iconv')) {
+            $translit = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+            if (is_string($translit) && $translit !== '') {
+                $value = $translit;
+            }
+        }
+
+        $value = preg_replace('/[^A-Za-z0-9_]+/', '_', $value) ?? $value;
+        $value = trim($value, '_');
+        $value = preg_replace('/_+/', '_', $value) ?? $value;
+
+        if ($value === '') {
+            return '';
+        }
+        if (preg_match('/^[0-9]/', $value)) {
+            $value = 'field_' . $value;
+        }
+
+        return $value;
+    }
+
+    private function makeFallbackFieldIdentifier(): string
+    {
+        return 'field' . mt_rand(0, mt_getrandmax());
+    }
 
     public function __construct(
         $config,
@@ -127,10 +211,8 @@ class StorageModel extends AdminModel
         $groupDef   = (string) ($jform['group_definition'] ?? '');
 
         // Normalisation
-        $newfieldname = preg_replace("/[^a-zA-Z0-9_\s]/isU", "_", $fieldname);
-        $newfieldname = str_replace([' ', "\n", "\r", "\t"], ['_'], $newfieldname);
-        $newfieldname = preg_replace("/^([0-9\s])/isU", "field$1$2", $newfieldname);
-        $newfieldname = $newfieldname === '' ? ('field' . mt_rand(0, mt_getrandmax())) : $newfieldname;
+        $newfieldname = $this->normalizeFieldIdentifier($fieldname);
+        $newfieldname = $newfieldname === '' ? $this->makeFallbackFieldIdentifier() : $newfieldname;
 
         $newfieldtitle = $fieldtitle !== '' ? $fieldtitle : $newfieldname;
 
@@ -328,10 +410,8 @@ class StorageModel extends AdminModel
         $groupDef   = (string)($jform['group_definition'] ?? '');
 
         // Normalisation.
-        $newfieldname = preg_replace("/[^a-zA-Z0-9_\s]/isU", "_", trim($fieldname));
-        $newfieldname = str_replace([' ', "\n", "\r", "\t"], ['_'], $newfieldname);
-        $newfieldname = preg_replace("/^([0-9\s])/isU", "field$1$2", $newfieldname);
-        $newfieldname = $newfieldname === '' ? ('field' . mt_rand(0, mt_getrandmax())) : $newfieldname;
+        $newfieldname = $this->normalizeFieldIdentifier($fieldname);
+        $newfieldname = $newfieldname === '' ? $this->makeFallbackFieldIdentifier() : $newfieldname;
 
         $newfieldtitle = $fieldtitle !== '' ? $fieldtitle : $newfieldname;
 
@@ -812,7 +892,10 @@ class StorageModel extends AdminModel
 
     function storeCsv($file, ?int $storageId = null)
     {
+        $this->lastImportSummary = [];
+        $start = microtime(true);
         $data = Factory::getApplication()->input->post->getArray();
+        $fileName = (string) ($file['name'] ?? '');
 
         $resolvedStorageId = (int) ($storageId ?? 0);
         if ($resolvedStorageId <= 0) {
@@ -822,20 +905,24 @@ class StorageModel extends AdminModel
             $resolvedStorageId = (int) $this->getState($this->getName() . '.id', 0);
         }
         if ($resolvedStorageId <= 0) {
+            $this->setError('Missing storage id for import');
             return false;
         }
 
         $storage = $this->getItem($resolvedStorageId);
         if (!$storage) {
+            $this->setError('Storage not found');
             return false;
         }
         if (!empty($storage->bytable)) {
+            $this->setError(Text::_('COM_CONTENTBUILDERNG_CANNOT_USE_CSV_WITH_FOREIGN_TABLE'));
             return false;
         }
 
         $this->storageId = $resolvedStorageId;
         $this->target_table = trim((string) ($storage->name ?? ''));
         if ($this->target_table === '') {
+            $this->setError('Storage target table is empty');
             return false;
         }
 
@@ -847,6 +934,7 @@ class StorageModel extends AdminModel
         $extension = strtolower((string) pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
         $supportedExtensions = ['csv', 'xlsx', 'xls'];
         if (!in_array($extension, $supportedExtensions, true)) {
+            $this->setError(Text::_('COM_CONTENTBUILDERNG_STORAGE_IMPORT_UNSUPPORTED_FORMAT'));
             return false;
         }
 
@@ -854,6 +942,7 @@ class StorageModel extends AdminModel
         $uploaded = File::upload($file['tmp_name'], $dest, false, true);
 
         if (!$uploaded) {
+            $this->setError('Could not upload the import file to tmp');
             return false;
         }
 
@@ -869,6 +958,7 @@ class StorageModel extends AdminModel
                         File::delete($tmpFile);
                     }
                 }
+                $this->setError('Could not convert spreadsheet to CSV');
                 return false;
             }
             $sourceFile = $converted;
@@ -885,10 +975,30 @@ class StorageModel extends AdminModel
         }
 
         if (is_string($retval)) {
+            $this->setError($retval);
             return false;
         }
 
-        return $retval ?: false;
+        if (!$retval) {
+            $this->setError(Text::_('JLIB_APPLICATION_ERROR_SAVE_FAILED'));
+            return false;
+        }
+
+        if (!empty($this->lastImportSummary)) {
+            $this->lastImportSummary['file_name'] = $fileName;
+            $this->lastImportSummary['file_format'] = strtoupper($extension);
+            $this->lastImportSummary['duration_ms'] = (int) round((microtime(true) - $start) * 1000);
+        }
+
+        return true;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getLastImportSummary(): array
+    {
+        return $this->lastImportSummary;
     }
 
     /**
@@ -913,10 +1023,8 @@ class StorageModel extends AdminModel
         $isGroup = (int) (!empty($data['is_group']));
         $groupDef = (string) ($data['group_definition'] ?? '');
 
-        $newfieldname = preg_replace("/[^a-zA-Z0-9_\s]/isU", "_", $fieldname);
-        $newfieldname = str_replace([' ', "\n", "\r", "\t"], ['_'], (string) $newfieldname);
-        $newfieldname = preg_replace("/^([0-9\s])/isU", "field$1$2", (string) $newfieldname);
-        $newfieldname = (string) ($newfieldname === '' ? ('field' . mt_rand(0, mt_getrandmax())) : $newfieldname);
+        $newfieldname = $this->normalizeFieldIdentifier($fieldname);
+        $newfieldname = $newfieldname === '' ? $this->makeFallbackFieldIdentifier() : $newfieldname;
 
         $newfieldtitle = $fieldtitle !== '' ? $fieldtitle : $newfieldname;
 
@@ -1020,7 +1128,7 @@ class StorageModel extends AdminModel
      * @param array<string,mixed> $file
      * @return array<int,string>
      */
-    public function extractHeaderColumnsFromUpload(array $file, string $delimiter = ','): array
+    public function extractHeaderColumnsFromUpload(array $file, string $delimiter = ',', string $repairEncoding = ''): array
     {
         if (empty($file['name']) || empty($file['tmp_name'])) {
             return [];
@@ -1042,7 +1150,16 @@ class StorageModel extends AdminModel
 
         try {
             if ($extension === 'csv') {
-                $handle = fopen($dest, 'rb');
+                $handle = null;
+                $encoding = $this->resolveCsvRepairEncoding($repairEncoding);
+                if ($encoding !== '') {
+                    if (!function_exists('iconv')) {
+                        return [];
+                    }
+                    $handle = $this->utf8_fopen_read($dest, $encoding);
+                } else {
+                    $handle = fopen($dest, 'rb');
+                }
                 if ($handle !== false) {
                     $sep = ($delimiter !== '') ? $delimiter : ',';
                     $sep = $sep[0] ?? ',';
@@ -1093,58 +1210,27 @@ class StorageModel extends AdminModel
         return $handle;
     }
 
+    private function resolveCsvRepairEncoding(string $requested): string
+    {
+        $allowed = [
+            'WINDOWS-1250', 'WINDOWS-1251', 'WINDOWS-1252', 'WINDOWS-1253', 'WINDOWS-1254', 'WINDOWS-1255', 'WINDOWS-1256',
+            'ISO-8859-1', 'ISO-8859-2', 'ISO-8859-3', 'ISO-8859-4', 'ISO-8859-5', 'ISO-8859-6', 'ISO-8859-7', 'ISO-8859-8',
+            'ISO-8859-9', 'ISO-8859-10', 'ISO-8859-11', 'ISO-8859-12', 'ISO-8859-13', 'ISO-8859-14', 'ISO-8859-15', 'ISO-8859-16',
+            'UTF-8-MAC', 'UTF-16', 'UTF-16BE', 'UTF-16LE', 'UTF-32', 'UTF-32BE', 'UTF-32LE', 'ASCII', 'BIG-5', 'HEBREW',
+            'CYRILLIC', 'ARABIC', 'GREEK', 'CHINESE', 'KOREAN', 'KOI8-R', 'KOI8-U', 'KOI8-RU', 'EUC-JP',
+        ];
+
+        $requested = strtoupper(trim($requested));
+        return in_array($requested, $allowed, true) ? $requested : '';
+    }
+
 
     function csv_file_to_table($source_file, $data, $max_line_length = 1000000)
     {
 
-        $encoding = '';
-
-        switch (Factory::getApplication()->input->get('csv_repair_encoding', '', 'string')) {
-            case 'WINDOWS-1250':
-            case 'WINDOWS-1251':
-            case 'WINDOWS-1252':
-            case 'WINDOWS-1253':
-            case 'WINDOWS-1254':
-            case 'WINDOWS-1255':
-            case 'WINDOWS-1256':
-            case 'ISO-8859-1':
-            case 'ISO-8859-2':
-            case 'ISO-8859-3':
-            case 'ISO-8859-4':
-            case 'ISO-8859-5':
-            case 'ISO-8859-6':
-            case 'ISO-8859-7':
-            case 'ISO-8859-8':
-            case 'ISO-8859-9':
-            case 'ISO-8859-10':
-            case 'ISO-8859-11':
-            case 'ISO-8859-12':
-            case 'ISO-8859-13':
-            case 'ISO-8859-14':
-            case 'ISO-8859-15':
-            case 'ISO-8859-16':
-            case 'UTF-8-MAC':
-            case 'UTF-16':
-            case 'UTF-16BE':
-            case 'UTF-16LE':
-            case 'UTF-32':
-            case 'UTF-32BE':
-            case 'UTF-32LE':
-            case 'ASCII':
-            case 'BIG-5':
-            case 'HEBREW':
-            case 'CYRILLIC':
-            case 'ARABIC':
-            case 'GREEK':
-            case 'CHINESE':
-            case 'KOREAN':
-            case 'KOI8-R':
-            case 'KOI8-U':
-            case 'KOI8-RU':
-            case 'EUC-JP':
-                $encoding = Factory::getApplication()->input->get('csv_repair_encoding', '', 'string');
-                break;
-        }
+        $encoding = $this->resolveCsvRepairEncoding(
+            Factory::getApplication()->input->get('csv_repair_encoding', '', 'string')
+        );
 
         $handle = null;
 
@@ -1157,18 +1243,33 @@ class StorageModel extends AdminModel
             $handle = fopen("$source_file", "rb");
         }
 
+        if ($handle === FALSE) {
+            return Text::_('JLIB_FILESYSTEM_ERROR_FILE_NOT_FOUND');
+        }
+
         if ($handle !== FALSE) {
 
             $last_update = Factory::getDate()->toSql();
 
             $fieldnames = array();
+            $rowReadCount = 0;
+            $rowImportedCount = 0;
+            $rowSkippedEmptyCount = 0;
+            $droppedDataRecords = 0;
+            $droppedMetaRecords = 0;
+            $droppedArticleLinks = 0;
 
             $columns = fgetcsv($handle, $max_line_length, Factory::getApplication()->input->get('csv_delimiter', ',', 'string'), '"');
+            if ($columns === false || !is_array($columns) || empty($columns)) {
+                fclose($handle);
+                return Text::_('COM_CONTENTBUILDERNG_CSV_IMPORT_COLUMN_COUNT_ERROR');
+            }
 
             $colCheck = array();
             foreach ($columns as &$column) {
                 $col = str_replace(".", "", trim($column));
                 if (in_array($col, $colCheck)) {
+                    fclose($handle);
                     return Text::_('COM_CONTENTBUILDERNG_CSV_IMPORT_COLUMN_NOT_UNIQUE');
                 }
                 $colCheck[] = $col;
@@ -1184,6 +1285,13 @@ class StorageModel extends AdminModel
             }
 
             if (Factory::getApplication()->input->getBool('csv_drop_records', false)) {
+                $this->getDatabase()->setQuery("Select Count(*) From #__" . $this->target_table);
+                $droppedDataRecords = (int) $this->getDatabase()->loadResult();
+                $this->getDatabase()->setQuery("Select Count(*) From #__contentbuilderng_records Where `type` = 'com_contentbuilderng' And reference_id = " . $this->getDatabase()->quote($this->storageId));
+                $droppedMetaRecords = (int) $this->getDatabase()->loadResult();
+                $this->getDatabase()->setQuery("Select Count(*) From #__contentbuilderng_articles Where `type` = 'com_contentbuilderng' And reference_id = " . $this->getDatabase()->quote($this->storageId));
+                $droppedArticleLinks = (int) $this->getDatabase()->loadResult();
+
                 $this->getDatabase()->setQuery("Truncate Table #__" . $this->target_table);
                 $this->getDatabase()->execute();
                 $this->getDatabase()->setQuery("Delete From #__contentbuilderng_records Where `type` = 'com_contentbuilderng' And reference_id = " . $this->getDatabase()->quote($this->storageId));
@@ -1195,15 +1303,44 @@ class StorageModel extends AdminModel
             $insert_query_prefix = "INSERT INTO #__" . $this->target_table . " (" . join(",", $fieldnames) . ")\nVALUES";
 
             while (($data = fgetcsv($handle, $max_line_length, Factory::getApplication()->input->get('csv_delimiter', ',', 'string'), '"')) !== FALSE) {
+                $rowReadCount++;
                 while (count($data) < count($columns))
                     array_push($data, NULL);
+
+                $isEmptyRow = true;
+                foreach ($data as $value) {
+                    if (trim((string) $value) !== '') {
+                        $isEmptyRow = false;
+                        break;
+                    }
+                }
+                if ($isEmptyRow) {
+                    $rowSkippedEmptyCount++;
+                    continue;
+                }
+
                 $query = "$insert_query_prefix (" . join(", ", $this->quote_all_array($data)) . ")";
                 $this->getDatabase()->setQuery($query);
                 $this->getDatabase()->execute();
                 $this->getDatabase()->setQuery("Insert Into #__contentbuilderng_records (`type`,last_update,is_future,lang_code, sef, published, record_id, reference_id) Values ('com_contentbuilderng'," . $this->getDatabase()->quote($last_update) . ",0,'*',''," . Factory::getApplication()->input->getInt('csv_published', 0) . ", " . $this->getDatabase()->quote(intval($this->getDatabase()->insertid())) . ", " . $this->getDatabase()->quote($this->storageId) . ")");
                 $this->getDatabase()->execute();
+                $rowImportedCount++;
             }
             fclose($handle);
+
+            $this->lastImportSummary = [
+                'storage_id' => $this->storageId,
+                'columns' => count($columns),
+                'created_fields' => count($fieldnames),
+                'rows_read' => $rowReadCount,
+                'rows_imported' => $rowImportedCount,
+                'rows_skipped_empty' => $rowSkippedEmptyCount,
+                'published' => Factory::getApplication()->input->getInt('csv_published', 0),
+                'drop_records' => Factory::getApplication()->input->getBool('csv_drop_records', false),
+                'dropped_data_records' => $droppedDataRecords,
+                'dropped_meta_records' => $droppedMetaRecords,
+                'dropped_article_links' => $droppedArticleLinks,
+            ];
         }
         return $this->storageId;
     }

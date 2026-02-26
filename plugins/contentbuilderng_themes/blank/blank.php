@@ -15,7 +15,7 @@ use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
-use Joomla\Event\Event;
+use Joomla\CMS\Event\GenericEvent as Event;
 use Joomla\Event\SubscriberInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 

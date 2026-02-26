@@ -803,7 +803,7 @@ final class ContentbuilderLegacyHelper
         PluginHelper::importPlugin('contentbuilderng_themes', $plugin);
 
         $dispatcher = Factory::getApplication()->getDispatcher();
-        $eventResult = $dispatcher->dispatch('onContentTemplateSample', new \Joomla\Event\Event('onContentTemplateSample', [$contentbuilderng_form_id, $form, 'theme' => $plugin]));
+        $eventResult = $dispatcher->dispatch('onContentTemplateSample', new \Joomla\CMS\Event\GenericEvent('onContentTemplateSample', [$contentbuilderng_form_id, $form, 'theme' => $plugin]));
         $results = $eventResult->getArgument('result') ?: [];
         $out = implode('', $results);
         if ($plugin && $out === '') {
@@ -862,7 +862,7 @@ final class ContentbuilderLegacyHelper
         PluginHelper::importPlugin('contentbuilderng_themes', $plugin);
 
         $dispatcher = Factory::getApplication()->getDispatcher();
-        $eventResult = $dispatcher->dispatch('onEditableTemplateSample', new \Joomla\Event\Event('onEditableTemplateSample', [$contentbuilderng_form_id, $form, 'theme' => $plugin]));
+        $eventResult = $dispatcher->dispatch('onEditableTemplateSample', new \Joomla\CMS\Event\GenericEvent('onEditableTemplateSample', [$contentbuilderng_form_id, $form, 'theme' => $plugin]));
         $results = $eventResult->getArgument('result') ?: [];
         $out = implode('', $results);
         if ($plugin && $out === '') {
@@ -994,7 +994,8 @@ final class ContentbuilderLegacyHelper
             JPATH_ROOT . '/administrator/components/com_breezingforms/breezingforms.xml',
             JPATH_ROOT . '/administrator/components/com_breezingforms/com_breezingforms.xml',
             JPATH_ROOT . '/administrator/components/com_breezingforms_ng/com_breezingforms_ng.xml',
-            JPATH_ROOT . '/administrator/components/com_breezingforms_ng/com_breezingformsng.xml',
+            JPATH_ROOT . '/administrator/components/com_breezingformsng/com_breezingformsng.xml',
+            JPATH_ROOT . '/administrator/components/com_breezingformsng/breezingformsng.xml',
         );
 
         foreach ($manifestCandidates as $manifest) {
@@ -1708,7 +1709,7 @@ final class ContentbuilderLegacyHelper
                             \Joomla\CMS\Plugin\PluginHelper::importPlugin('contentbuilderng_form_elements', $elementType);
 
                             $dispatcher = Factory::getApplication()->getDispatcher();
-                            $eventResult = $dispatcher->dispatch('onRenderElement', new \Joomla\Event\Event('onRenderElement', array($item, $element, $options, $failed_values, $result, $hasRecords)));
+                            $eventResult = $dispatcher->dispatch('onRenderElement', new \Joomla\CMS\Event\GenericEvent('onRenderElement', array($item, $element, $options, $failed_values, $result, $hasRecords)));
                             $results = $eventResult->getArgument('result') ?: [];
                             $dispatcher->clearListeners('onRenderElement');
 
@@ -2558,7 +2559,7 @@ final class ContentbuilderLegacyHelper
         PluginHelper::importPlugin('contentbuilderng_listaction');
 
         $dispatcher = Factory::getApplication()->getDispatcher();
-        $eventResult = $dispatcher->dispatch('onAfterArticleCreation', new \Joomla\Event\Event('onAfterArticleCreation', array($contentbuilderng_form_id, $record_id, $article)));
+        $eventResult = $dispatcher->dispatch('onAfterArticleCreation', new \Joomla\CMS\Event\GenericEvent('onAfterArticleCreation', array($contentbuilderng_form_id, $record_id, $article)));
         $results = $eventResult->getArgument('result') ?: [];
 
         $msg = implode('', $results);

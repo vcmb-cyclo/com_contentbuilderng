@@ -639,7 +639,7 @@ CSS;
                     }
                     $dispatcher = Factory::getApplication()->getDispatcher();
 
-                    $eventObj = new \Joomla\Event\Event('onEditableTemplateCss', ['theme' => $themePlugin]);
+                    $eventObj = new \Joomla\CMS\Event\GenericEvent('onEditableTemplateCss', ['theme' => $themePlugin]);
                     $dispatcher->dispatch('onEditableTemplateCss', $eventObj);
                     $results = $eventObj->getArgument('result') ?: [];
                     $this->theme_css = trim(implode('', $results));
@@ -647,7 +647,7 @@ CSS;
                         $this->theme_css = $this->getFallbackEditThemeCss();
                     }
 
-                    $eventObj = new \Joomla\Event\Event('onEditableTemplateJavascript', ['theme' => $themePlugin]);
+                    $eventObj = new \Joomla\CMS\Event\GenericEvent('onEditableTemplateJavascript', ['theme' => $themePlugin]);
                     $dispatcher->dispatch('onEditableTemplateJavascript', $eventObj);
                     $results = $eventObj->getArgument('result') ?: [];
                     $this->theme_js = implode('', $results);

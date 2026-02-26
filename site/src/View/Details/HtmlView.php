@@ -400,7 +400,7 @@ CSS;
 				$fallbackTheme = true;
 			}
 
-		$eventObj = new \Joomla\Event\Event('onContentTemplateCss', ['theme' => $themePlugin]);
+		$eventObj = new \Joomla\CMS\Event\GenericEvent('onContentTemplateCss', ['theme' => $themePlugin]);
 		$dispatcher->dispatch('onContentTemplateCss', $eventObj);
 		$results = $eventObj->getArgument('result') ?: [];
 		$this->theme_css = trim(implode('', $results));
@@ -410,7 +410,7 @@ CSS;
 
         $this->theme_css .= $this->getBlinkCss();
 
-		$eventObj = new \Joomla\Event\Event('onContentTemplateJavascript', ['theme' => $themePlugin]);
+		$eventObj = new \Joomla\CMS\Event\GenericEvent('onContentTemplateJavascript', ['theme' => $themePlugin]);
 		$dispatcher->dispatch('onContentTemplateJavascript', $eventObj);
 		$results = $eventObj->getArgument('result') ?: [];
 		$this->theme_js = implode('', $results);

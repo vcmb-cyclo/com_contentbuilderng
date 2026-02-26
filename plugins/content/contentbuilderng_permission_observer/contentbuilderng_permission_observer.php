@@ -34,7 +34,7 @@ class plgContentContentbuilderng_permission_observer extends CMSPlugin implement
 
     function onContentPrepare($context = '', $article = null, $params = null, $limitstart = 0)
     {
-        if ($context instanceof \Joomla\Event\Event) {
+        if ($context instanceof \Joomla\Event\EventInterface) {
             $event = $context;
             $context = (string) ($event->getArgument('context') ?? '');
             $article = $event->getArgument('subject') ?? $event->getArgument('article') ?? $event->getArgument('item');

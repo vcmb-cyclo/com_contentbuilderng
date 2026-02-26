@@ -78,7 +78,7 @@ class plgContentContentbuilderng_verify extends CMSPlugin implements SubscriberI
 
     function onContentPrepare($context = '', $article = null, $params = null, $limitstart = 0)
     {
-        if ($context instanceof \Joomla\Event\Event) {
+        if ($context instanceof \Joomla\Event\EventInterface) {
             $event = $context;
             $context = (string) ($event->getArgument('context') ?? '');
             $article = $event->getArgument('subject') ?? $event->getArgument('article') ?? $event->getArgument('item');
@@ -177,7 +177,7 @@ class plgContentContentbuilderng_verify extends CMSPlugin implements SubscriberI
 
                     $link = Uri::root(true) . '/index.php?option=com_contentbuilderng&view=verify&plugin=' . urlencode($plugin) . '&verification_name=' . urlencode($verification_name) . '&format=raw';
                     PluginHelper::importPlugin('contentbuilderng_verify', $plugin);
-                    $eventResult = $this->app->getDispatcher()->dispatch('onViewport', new \Joomla\Event\Event('onVerify', array($link, $plugin_settings)));
+                    $eventResult = $this->app->getDispatcher()->dispatch('onViewport', new \Joomla\CMS\Event\GenericEvent('onViewport', array($link, $plugin_settings)));
                     $results = $eventResult->getArgument('result') ?: [];
                     $viewport_result = implode('', $results);
 

@@ -1130,6 +1130,7 @@ echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', Text::_('COM_CONTENTBUIL
     }
 
     var delimiterInput = document.getElementById('csv_delimiter');
+    var repairEncodingInput = document.getElementById('csv_repair_encoding');
     var labelElement = toggleButton.querySelector('.cb-csv-button-label');
     var defaultText = toggleButton.dataset.cbDefaultText || (labelElement ? labelElement.textContent : toggleButton.textContent);
     var createText = toggleButton.dataset.cbCreateText || defaultText;
@@ -1174,11 +1175,23 @@ echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', Text::_('COM_CONTENTBUIL
     }
 
     function sanitizeName(value) {
-        var name = value.replace(/[^a-zA-Z0-9_\s]/g, '_');
-        name = name.replace(/[\s\r\n\t]+/g, '_');
-        name = name.replace(/^([0-9\s])/, function (match) {
-            return 'field' + match;
-        });
+        var name = (value || '').trim();
+        if (name.normalize) {
+            name = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+        name = name
+            .replace(/ß/g, 'ss')
+            .replace(/ẞ/g, 'SS')
+            .replace(/æ/g, 'ae')
+            .replace(/Æ/g, 'AE')
+            .replace(/œ/g, 'oe')
+            .replace(/Œ/g, 'OE');
+        name = name.replace(/[^A-Za-z0-9_]+/g, '_');
+        name = name.replace(/^_+|_+$/g, '');
+        name = name.replace(/_+/g, '_');
+        if (/^[0-9]/.test(name)) {
+            name = 'field_' + name;
+        }
         if (name === '') {
             name = 'field' + Math.floor(Math.random() * 1000000);
         }
@@ -1250,6 +1263,7 @@ echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', Text::_('COM_CONTENTBUIL
         var formData = new FormData();
         formData.append('csv_file', file, file.name || 'import.csv');
         formData.append('csv_delimiter', (delimiterInput && delimiterInput.value) ? delimiterInput.value : ',');
+        formData.append('csv_repair_encoding', (repairEncodingInput && repairEncodingInput.value) ? repairEncodingInput.value : '');
         formData.append(tokenName, '1');
 
         fetch(previewUrl, {

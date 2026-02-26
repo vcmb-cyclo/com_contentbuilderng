@@ -222,8 +222,8 @@ class plgSystemContentbuilderng_system extends CMSPlugin implements SubscriberIn
                             PluginHelper::importPlugin('contentbuilderng_themes', 'joomla6');
                         }
                         $dispatcher = $this->app->getDispatcher();
-                        $eventresults_css = $dispatcher->dispatch('onContentTemplateCss', new \Joomla\Event\Event('onContentTemplateCss', ['theme' => $theme]));
-                        $eventresults_js = $dispatcher->dispatch('onContentTemplateJavascript', new \Joomla\Event\Event('onContentTemplateJavascript', ['theme' => $theme]));
+                        $eventresults_css = $dispatcher->dispatch('onContentTemplateCss', new \Joomla\CMS\Event\GenericEvent('onContentTemplateCss', ['theme' => $theme]));
+                        $eventresults_js = $dispatcher->dispatch('onContentTemplateJavascript', new \Joomla\CMS\Event\GenericEvent('onContentTemplateJavascript', ['theme' => $theme]));
                         $results_css = $eventresults_css->getArgument('result');
                         $results_js = $eventresults_js->getArgument('result');
 

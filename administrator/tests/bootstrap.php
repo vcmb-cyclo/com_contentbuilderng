@@ -107,9 +107,28 @@ namespace Joomla\CMS\MVC\Model {
         {
         }
     }
+
+    if (!\class_exists(AdminModel::class, false)) {
+        class AdminModel extends BaseDatabaseModel
+        {
+            /** @var string|array<int,string>|null */
+            protected $error = null;
+
+            public function setError($error): void
+            {
+                $this->error = $error;
+            }
+
+            public function getError()
+            {
+                return $this->error;
+            }
+        }
+    }
 }
 
 namespace {
     require_once \dirname(__DIR__) . '/src/Helper/ContentbuilderLegacyHelper.php';
+    require_once \dirname(__DIR__) . '/src/Model/StorageModel.php';
     require_once \dirname(__DIR__) . '/src/Model/VerifyModel.php';
 }

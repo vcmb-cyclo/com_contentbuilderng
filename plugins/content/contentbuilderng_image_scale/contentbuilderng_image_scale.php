@@ -83,7 +83,7 @@ class plgContentContentbuilderng_image_scale extends CMSPlugin implements Subscr
 
 	function onContentPrepare($context = '', $article = null, $params = null, $limitstart = 0, $is_list = false, $form = null, $item = null)
 	{
-		if ($context instanceof \Joomla\Event\Event) {
+		if ($context instanceof \Joomla\Event\EventInterface) {
 			$event = $context;
 			$context = (string) ($event->getArgument('context') ?? '');
 			$article = $event->getArgument('subject') ?? $event->getArgument('article') ?? $event->getArgument('item');

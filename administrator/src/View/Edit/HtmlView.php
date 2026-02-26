@@ -417,13 +417,13 @@ class HtmlView extends BaseHtmlView
 				PluginHelper::importPlugin('contentbuilderng_themes', 'joomla6');
 			}
 		$dispatcher = Factory::getApplication()->getDispatcher();
-        $eventResult = $dispatcher->dispatch('onEditableTemplateCss', new \Joomla\Event\Event('onEditableTemplateCss', ['theme' => $themePlugin]));
+        $eventResult = $dispatcher->dispatch('onEditableTemplateCss', new \Joomla\CMS\Event\GenericEvent('onEditableTemplateCss', ['theme' => $themePlugin]));
         $results = $eventResult->getArgument('result') ?: [];
 		$theme_css = implode('', $results);
 		$this->theme_css = $theme_css;
 
 			$dispatcher = Factory::getApplication()->getDispatcher();
-        $eventResult = $dispatcher->dispatch('onEditableTemplateJavascript', new \Joomla\Event\Event('onEditableTemplateJavascript', ['theme' => $themePlugin]));
+        $eventResult = $dispatcher->dispatch('onEditableTemplateJavascript', new \Joomla\CMS\Event\GenericEvent('onEditableTemplateJavascript', ['theme' => $themePlugin]));
         $results = $eventResult->getArgument('result') ?: [];
 		$theme_js = implode('', $results);
 		$this->theme_js = $theme_js;

@@ -258,12 +258,53 @@ class StorageController extends BaseFormController
             // (B) Import file (CSV/Excel)
             $ok = $model->storeCsv($file, (int) $id);
             if (!$ok) {
+                $error = trim((string) $model->getError());
+                if ($error === '') {
+                    $error = Text::_('JLIB_APPLICATION_ERROR_SAVE_FAILED');
+                }
                 $this->setRedirect(
                     Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) $id, false),
-                    Text::_('JLIB_APPLICATION_ERROR_SAVE_FAILED'),
+                    $error,
                     'error'
                 );
                 return false;
+            }
+
+            $importSummary = $model->getLastImportSummary();
+            if (!empty($importSummary)) {
+                $summaryParts = [];
+                $summaryParts[] = Text::sprintf(
+                    'COM_CONTENTBUILDERNG_STORAGE_IMPORT_SUMMARY',
+                    (int) ($importSummary['rows_imported'] ?? 0),
+                    (int) ($importSummary['rows_read'] ?? 0),
+                    (int) ($importSummary['columns'] ?? 0),
+                    (string) ($importSummary['file_format'] ?? 'CSV')
+                );
+
+                if (!empty($importSummary['drop_records'])) {
+                    $summaryParts[] = Text::sprintf(
+                        'COM_CONTENTBUILDERNG_STORAGE_IMPORT_SUMMARY_DROPPED',
+                        (int) ($importSummary['dropped_data_records'] ?? 0),
+                        (int) ($importSummary['dropped_meta_records'] ?? 0),
+                        (int) ($importSummary['dropped_article_links'] ?? 0)
+                    );
+                }
+
+                if (!empty($importSummary['rows_skipped_empty'])) {
+                    $summaryParts[] = Text::sprintf(
+                        'COM_CONTENTBUILDERNG_STORAGE_IMPORT_SUMMARY_SKIPPED_EMPTY',
+                        (int) $importSummary['rows_skipped_empty']
+                    );
+                }
+
+                if (!empty($importSummary['duration_ms'])) {
+                    $summaryParts[] = Text::sprintf(
+                        'COM_CONTENTBUILDERNG_STORAGE_IMPORT_SUMMARY_DURATION',
+                        (int) $importSummary['duration_ms']
+                    );
+                }
+
+                $this->setMessage(implode(' ', $summaryParts));
             }
         } catch (\Throwable $e) {
             Logger::exception($e);
@@ -281,7 +322,11 @@ class StorageController extends BaseFormController
             ? Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) $id, false)
             : Route::_('index.php?option=com_contentbuilderng&task=storages.display', false);
 
-        $this->setRedirect($link, Text::_('COM_CONTENTBUILDERNG_SAVED'));
+        $message = trim((string) ($this->message ?? ''));
+        if ($message === '') {
+            $message = Text::_('COM_CONTENTBUILDERNG_SAVED');
+        }
+        $this->setRedirect($link, $message);
         return true;
     }
 
@@ -302,13 +347,14 @@ class StorageController extends BaseFormController
 
         $file = $this->input->files->get('csv_file', null, 'array');
         $delimiter = $this->input->post->getString('csv_delimiter', ',');
+        $repairEncoding = $this->input->post->getString('csv_repair_encoding', '');
 
         /** @var StorageModel $model */
         $model = $this->getModel('Storage', 'Administrator', ['ignore_request' => true]);
         $headers = [];
 
         if ($model && is_array($file) && !empty($file['name'])) {
-            $headers = $model->extractHeaderColumnsFromUpload($file, $delimiter);
+            $headers = $model->extractHeaderColumnsFromUpload($file, $delimiter, $repairEncoding);
         }
 
         $app = Factory::getApplication();

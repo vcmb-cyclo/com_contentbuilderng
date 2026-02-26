@@ -11,7 +11,7 @@
 // No direct access
 \defined('_JEXEC') or die ('Restricted access');
 use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\Event\Event;
+use Joomla\CMS\Event\GenericEvent as Event;
 use Joomla\Event\SubscriberInterface;
 
 

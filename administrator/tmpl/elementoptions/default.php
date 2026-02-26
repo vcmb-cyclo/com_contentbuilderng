@@ -39,7 +39,7 @@ if ($elementType !== '') {
 }
 
 $dispatcher = Factory::getApplication()->getDispatcher();
-$eventResult = $dispatcher->dispatch('onSettingsDisplay', new \Joomla\Event\Event('onSettingsDisplay', array($this->element->options ?? null)));
+$eventResult = $dispatcher->dispatch('onSettingsDisplay', new \Joomla\CMS\Event\GenericEvent('onSettingsDisplay', array($this->element->options ?? null)));
 $results = $eventResult->getArgument('result') ?: [];
 $dispatcher->clearListeners('onSettingsDisplay');
 

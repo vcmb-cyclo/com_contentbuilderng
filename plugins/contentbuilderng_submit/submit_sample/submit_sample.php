@@ -14,7 +14,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\Event\Event;
+use Joomla\CMS\Event\GenericEvent as Event;
 use Joomla\Event\SubscriberInterface;
 
 class plgContentbuilderng_submitSubmit_sample extends CMSPlugin implements SubscriberInterface

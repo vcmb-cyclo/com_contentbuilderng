@@ -71,13 +71,13 @@ class HtmlView extends BaseHtmlView
         $lists['liststart'] = (int) $state->get('list.start');
 
         $dispatcher = Factory::getApplication()->getDispatcher();
-        $eventResult = $dispatcher->dispatch('onListViewCss', new \Joomla\Event\Event('onListViewCss', ['theme' => $themePlugin]));
+        $eventResult = $dispatcher->dispatch('onListViewCss', new \Joomla\CMS\Event\GenericEvent('onListViewCss', ['theme' => $themePlugin]));
         $results = $eventResult->getArgument('result') ?: [];
 
         $theme_css = implode('', $results);
         $this->theme_css = $theme_css;
 
-        $eventResult = $dispatcher->dispatch('onListViewJavascript', new \Joomla\Event\Event('onListViewJavascript', ['theme' => $themePlugin]));
+        $eventResult = $dispatcher->dispatch('onListViewJavascript', new \Joomla\CMS\Event\GenericEvent('onListViewJavascript', ['theme' => $themePlugin]));
         $results = $eventResult->getArgument('result') ?: [];
 
         $theme_js = implode('', $results);

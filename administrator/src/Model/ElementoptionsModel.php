@@ -171,7 +171,7 @@ class ElementoptionsModel extends BaseDatabaseModel
                 \Joomla\CMS\Plugin\PluginHelper::importPlugin('contentbuilderng_form_elements', Factory::getApplication()->input->getCmd('field_type', ''));
 
                 $dispatcher = Factory::getApplication()->getDispatcher();
-                $eventResult = $dispatcher->dispatch('onSettingsStore', new \Joomla\Event\Event('onSettingsStore', array()));
+                $eventResult = $dispatcher->dispatch('onSettingsStore', new \Joomla\CMS\Event\GenericEvent('onSettingsStore', array()));
                 $results = $eventResult->getArgument('result') ?: [];
                 Factory::getApplication()->getDispatcher()->clearListeners('onSettingsStore');
 
