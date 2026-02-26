@@ -11,7 +11,7 @@
 
 \defined('_JEXEC') or die;
 
-use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderComponent;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use Joomla\CMS\Dispatcher\ComponentDispatcherFactoryInterface;
 use Joomla\CMS\Extension\ComponentInterface;
 use Joomla\CMS\Extension\Service\Provider\ComponentDispatcherFactory;
@@ -45,7 +45,7 @@ return new class implements ServiceProviderInterface
         $container->set(
             ComponentInterface::class,
             function (Container $container): ComponentInterface {
-                $component = new ContentbuilderComponent(
+                $component = new ContentbuilderngComponent(
                     $container->get(ComponentDispatcherFactoryInterface::class)
                 );
 

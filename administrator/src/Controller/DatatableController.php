@@ -18,6 +18,7 @@ use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
 use CB\Component\Contentbuilderng\Administrator\Service\DatatableService;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 
 class DatatableController extends BaseController
 {
@@ -38,7 +39,12 @@ class DatatableController extends BaseController
         }
 
         try {
-            $container = Factory::getApplication()->bootComponent('com_contentbuilderng')->getContainer();
+            $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
+            if (!$component instanceof ContentbuilderngComponent) {
+                throw new \RuntimeException('Unexpected component instance');
+            }
+
+            $container = $component->getContainer();
             $service   = $container->get(DatatableService::class);
 
             $breturn = $service->createForStorage($storageId);

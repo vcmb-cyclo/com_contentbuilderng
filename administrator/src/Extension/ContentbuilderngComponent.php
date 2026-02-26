@@ -12,7 +12,7 @@
  * @since       6.0.0  Joomla 6 compatibility rewrite.
  */
 
-// administrator/src/Extension/ContentbuilderComponent.php
+// administrator/src/Extension/ContentbuilderngComponent.php
 
 namespace CB\Component\Contentbuilderng\Administrator\Extension;
 
@@ -26,7 +26,7 @@ use Joomla\CMS\Factory;
 use LogicException;
 
 
-class ContentbuilderComponent extends MVCComponent implements BootableExtensionInterface
+class ContentbuilderngComponent extends MVCComponent implements BootableExtensionInterface
 {
     use HTMLRegistryAwareTrait;
 

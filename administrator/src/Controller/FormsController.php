@@ -19,6 +19,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Controller;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\MVC\Controller\AdminController;
@@ -26,6 +27,7 @@ use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
+use CB\Component\Contentbuilderng\Administrator\Model\FormModel;
 
 final class FormsController extends AdminController
 {
@@ -46,7 +48,9 @@ final class FormsController extends AdminController
 
         // Si tu veux absolument garder ces paramètres en session (legacy),
         // tu peux le faire proprement via $this->input.
-        $session = Factory::getApplication()->getSession();
+        /** @var CMSApplication $application */
+        $application = Factory::getApplication();
+        $session = $application->getSession();
 
         if ($this->input->getInt('email_users', -1) !== -1) {
             $session->set('email_users', $this->input->get('email_users', 'none'), 'com_contentbuilderng');
@@ -113,6 +117,7 @@ final class FormsController extends AdminController
             'cid'  => $cid,
         ]);
 
+        /** @var FormModel|false $model */
         $model = $this->getModel('Form', 'Administrator', ['ignore_request' => true]);
         if (!$model) {
             throw new \RuntimeException('FormModel introuvable');
@@ -153,6 +158,7 @@ final class FormsController extends AdminController
             'cid'  => $cid,
         ]);
 
+        /** @var FormModel|false $model */
         $model = $this->getModel('Form', 'Administrator', ['ignore_request' => true]);
         if (!$model) {
             throw new \RuntimeException('FormModel introuvable');
