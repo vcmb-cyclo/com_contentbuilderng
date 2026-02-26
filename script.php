@@ -51,11 +51,14 @@ class com_contentbuilderngInstallerScript extends InstallerScript
   ];
   private bool $criticalFailureDetected = false;
   private array $criticalFailureMessages = [];
+  private float $installStartedAt = 0.0;
   protected $minimumPhp = '8.1';
   protected $minimumJoomla = '5.0';
 
   public function __construct()
   {
+    $this->installStartedAt = microtime(true);
+
     // Logger personnalisé
     $app = Factory::getApplication();
     $logPath = '';
@@ -80,12 +83,195 @@ class com_contentbuilderngInstallerScript extends InstallerScript
     );
 
 
-    // Starting logs.
+    // Starting logs: compact runtime header block.
     $this->writeInstallLogEntry('---------------------------------------------------------', Log::INFO);
-    $this->writeInstallLogEntry('[OK] ContentBuilder NG installation/update started.', Log::INFO);
-    $this->writeInstallLogEntry('* PHP Version: ' . PHP_VERSION . '.', Log::INFO);
-    $this->writeInstallLogEntry('* Joomla Version : ' . JVERSION . '.', Log::INFO);
-    $this->writeInstallLogEntry('* User Agent: ' . ($_SERVER['HTTP_USER_AGENT'] ?? 'CLI') . '.', Log::INFO);
+    $detectedInstalledVersion = 'unknown';
+    try {
+      $detectedInstalledVersion = $this->getCurrentInstalledVersion();
+    } catch (\Throwable) {
+      $detectedInstalledVersion = 'unknown';
+    }
+    $this->log(
+      '[OK] ContentBuilder NG installation/update started (detected installed version: '
+      . $detectedInstalledVersion
+      . ').',
+      Log::INFO,
+      false
+    );
+    $this->log('[INFO] Joomla version: <strong>' . htmlspecialchars(JVERSION, ENT_QUOTES, 'UTF-8') . '</strong>.', Log::INFO, false);
+    $this->log('[INFO] PHP version: ' . PHP_VERSION . '.', Log::INFO, false);
+    $this->logDatabaseRuntimeInfo(false);
+    $this->log('[INFO] User agent: ' . ($_SERVER['HTTP_USER_AGENT'] ?? 'CLI') . '.', Log::INFO, false);
+    $this->log('[INFO] ===================================================================', Log::INFO, false);
+    $this->writeInstallLogEntry('---------------------------------------------------------', Log::INFO);
+  }
+
+  private function logDatabaseRuntimeInfo(bool $enqueue = true): void
+  {
+    try {
+      $db = Factory::getContainer()->get(DatabaseInterface::class);
+
+      $type = '';
+      if (method_exists($db, 'getServerType')) {
+        $type = trim((string) $db->getServerType());
+      }
+      if ($type === '' && method_exists($db, 'getName')) {
+        $type = trim((string) $db->getName());
+      }
+      if ($type === '') {
+        $type = 'unknown';
+      }
+
+      $version = '';
+      if (method_exists($db, 'getVersion')) {
+        $version = trim((string) $db->getVersion());
+      }
+      if ($version === '') {
+        try {
+          $db->setQuery('SELECT VERSION()');
+          $version = trim((string) $db->loadResult());
+        } catch (\Throwable) {
+          $version = '';
+        }
+      }
+      if ($version === '') {
+        $version = 'unknown';
+      }
+
+      $prefix = '';
+      if (method_exists($db, 'getPrefix')) {
+        $prefix = trim((string) $db->getPrefix());
+      }
+      if ($prefix === '') {
+        $prefix = '(none)';
+      }
+
+      $this->log('[INFO] Database: ' . $type . ' ' . $version . ' (prefix: ' . $prefix . ').', Log::INFO, $enqueue);
+
+      // Session-level charset/collation (most relevant for runtime SQL behavior).
+      try {
+        $db->setQuery('SELECT @@character_set_connection, @@collation_connection');
+        $sessionInfo = $db->loadRow();
+        $sessionCharset = trim((string) ($sessionInfo[0] ?? ''));
+        $sessionCollation = trim((string) ($sessionInfo[1] ?? ''));
+        if ($sessionCharset !== '' || $sessionCollation !== '') {
+          $this->log(
+            '[INFO] Database session charset/collation: '
+            . ($sessionCharset !== '' ? $sessionCharset : 'unknown')
+            . ' / '
+            . ($sessionCollation !== '' ? $sessionCollation : 'unknown')
+            . '.',
+            Log::INFO,
+            $enqueue
+          );
+
+          if ($sessionCharset !== '' && stripos($sessionCharset, 'utf8mb4') === false) {
+            $this->log(
+              '[WARNING] Database session charset is not utf8mb4 (' . $sessionCharset . ').',
+              Log::WARNING,
+              $enqueue
+            );
+          }
+        }
+      } catch (\Throwable $e) {
+        $this->log('[WARNING] Could not read database session charset/collation: ' . $e->getMessage(), Log::WARNING, $enqueue);
+      }
+
+      // Database-level default charset/collation (fallback if available).
+      try {
+        $db->setQuery('SELECT DATABASE()');
+        $dbName = trim((string) $db->loadResult());
+        if ($dbName !== '') {
+          $db->setQuery(
+            'SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME'
+            . ' FROM information_schema.SCHEMATA'
+            . ' WHERE SCHEMA_NAME = ' . $db->quote($dbName)
+          );
+          $schemaInfo = $db->loadRow();
+          $schemaCharset = trim((string) ($schemaInfo[0] ?? ''));
+          $schemaCollation = trim((string) ($schemaInfo[1] ?? ''));
+          if ($schemaCharset !== '' || $schemaCollation !== '') {
+            $this->log(
+              '[INFO] Database default charset/collation: '
+              . ($schemaCharset !== '' ? $schemaCharset : 'unknown')
+              . ' / '
+              . ($schemaCollation !== '' ? $schemaCollation : 'unknown')
+              . '.',
+              Log::INFO,
+              $enqueue
+            );
+
+            if ($schemaCharset !== '' && stripos($schemaCharset, 'utf8mb4') === false) {
+              $this->log(
+                '[WARNING] Database default charset is not utf8mb4 (' . $schemaCharset . ').',
+                Log::WARNING,
+                $enqueue
+              );
+            }
+          }
+        }
+      } catch (\Throwable $e) {
+        $this->log('[WARNING] Could not read database default charset/collation: ' . $e->getMessage(), Log::WARNING, $enqueue);
+      }
+    } catch (\Throwable $e) {
+      $this->log('[WARNING] Could not resolve database runtime info: ' . $e->getMessage(), Log::WARNING, $enqueue);
+    }
+  }
+
+  private function enqueueRuntimeHeaderBlock(): void
+  {
+    $this->log('[INFO] Joomla version: <strong>' . htmlspecialchars(JVERSION, ENT_QUOTES, 'UTF-8') . '</strong>.', Log::INFO);
+    $this->log('[INFO] PHP version: ' . PHP_VERSION . '.', Log::INFO);
+    $this->logDatabaseRuntimeInfo(true);
+    $this->log('[INFO] User agent: ' . ($_SERVER['HTTP_USER_AGENT'] ?? 'CLI') . '.', Log::INFO);
+    $this->log('[INFO] ===================================================================', Log::INFO);
+  }
+
+  private function reportLegacyTableCollisions(): void
+  {
+    try {
+      $db = Factory::getContainer()->get(DatabaseInterface::class);
+      $prefix = $db->getPrefix();
+      $existing = $db->getTableList();
+
+      $collisionCount = 0;
+      foreach (self::LEGACY_TABLE_RENAMES as $legacy => $target) {
+        $legacyFull = $prefix . $legacy;
+        $targetFull = $prefix . $target;
+
+        if (!in_array($legacyFull, $existing, true) || !in_array($targetFull, $existing, true)) {
+          continue;
+        }
+
+        $legacyHasRows = false;
+        $targetHasRows = false;
+        try {
+          $db->setQuery('SELECT 1 FROM ' . $db->quoteName($legacyFull) . ' LIMIT 1');
+          $legacyHasRows = (bool) $db->loadResult();
+          $db->setQuery('SELECT 1 FROM ' . $db->quoteName($targetFull) . ' LIMIT 1');
+          $targetHasRows = (bool) $db->loadResult();
+        } catch (\Throwable $e) {
+          $this->log('[WARNING] Could not inspect row presence for collision ' . $legacyFull . ' / ' . $targetFull . ': ' . $e->getMessage(), Log::WARNING);
+        }
+
+        $this->log(
+          '[WARNING] Table collision detected: '
+          . $legacyFull . ' (has rows: ' . ($legacyHasRows ? 'yes' : 'no') . ')'
+          . ' and '
+          . $targetFull . ' (has rows: ' . ($targetHasRows ? 'yes' : 'no') . ').',
+          Log::WARNING
+        );
+        $collisionCount++;
+      }
+
+      if ($collisionCount > 0) {
+        $this->log('[WARNING] Legacy/NG table collision report: ' . $collisionCount . ' collision(s) detected before migration.', Log::WARNING);
+      } else {
+        $this->log('[OK] Legacy/NG table collision report: no collision detected.');
+      }
+    } catch (\Throwable $e) {
+      $this->log('[WARNING] Could not build legacy/NG table collision report: ' . $e->getMessage(), Log::WARNING);
+    }
   }
 
   function getPlugins()
@@ -180,8 +366,13 @@ class com_contentbuilderngInstallerScript extends InstallerScript
   private function formatInstallMessageForDisplay(string $message): string
   {
     return str_replace(
-      '[OK]',
-      '<span style="color:#198754;font-weight:700;" aria-hidden="true">&#10003;</span>',
+      ['[OK]', '[INFO]', '[WARNING]', '[ERROR]'],
+      [
+        '<span style="color:#198754;font-weight:700;" aria-hidden="true">&#10003;</span>',
+        '<span style="color:#0d6efd;font-weight:700;" aria-hidden="true">&#9432;</span>',
+        '<span style="color:#fd7e14;font-weight:700;" aria-hidden="true">&#9888;</span>',
+        '<span style="color:#dc3545;font-weight:700;" aria-hidden="true">&#10060;</span>',
+      ],
       $message
     );
   }
@@ -781,14 +972,35 @@ class com_contentbuilderngInstallerScript extends InstallerScript
         . '.'
       );
       $incomingVersionHtml = htmlspecialchars($incomingVersion, ENT_QUOTES, 'UTF-8');
-      $this->log('[OK] ContentBuilder NG Version <strong>' . $incomingVersionHtml . '</strong>.');
-  //    $this->log('Preflight installation method call, parameter : ' . $type . '.');
-      $this->log('[OK] Detected current version in manifest_cache : ' . $this->getCurrentInstalledVersion() . '.');
+      $currentVersion = $this->getCurrentInstalledVersion();
+      $currentVersionHtml = htmlspecialchars($currentVersion, ENT_QUOTES, 'UTF-8');
+      $actionLabel = strtolower(trim((string) $type)) !== '' ? strtoupper((string) $type) : 'UNKNOWN';
+      $this->log(
+        '<span style="color:#0d6efd;font-weight:700;" title="Version currently being installed" aria-hidden="true">&#11014;</span> '
+        . 'ContentBuilder NG <strong>'
+        . $incomingVersionHtml
+        . '</strong> installation/update started.',
+        Log::INFO
+      );
+      $this->enqueueRuntimeHeaderBlock();
+      $this->log('[OK] Detected current version in manifest_cache : ' . $currentVersionHtml . '.');
+      $this->log(
+        '[OK] ContentBuilder NG versions : '
+        . '<span style="color:#0d6efd;font-weight:700;" title="Version currently being installed" aria-hidden="true">&#11014;</span> '
+        . 'package <strong>'
+        . $incomingVersionHtml
+        . '</strong> | installed <strong>'
+        . $currentVersionHtml
+        . '</strong> | action <strong>'
+        . $actionLabel
+        . '</strong>.'
+      );
 
       if ($type !== 'uninstall') {
         $context = 'preflight:' . (string) $type;
         $this->disableLegacyPluginsInPriorityOrder($context);
         $this->removeLegacySystemPluginFolderEarly($context);
+        $this->reportLegacyTableCollisions();
       }
 
       $db->setQuery("Select id From `#__menu` Where `alias` = 'root'");
@@ -2092,7 +2304,7 @@ class com_contentbuilderngInstallerScript extends InstallerScript
         $db->quote($alias),
         $db->quote(''),
         $db->quote($alias),
-        $db->quote('index.php?option=com_contentbuilder_ng'),
+        $db->quote('index.php?option=com_contentbuilderng'),
         $db->quote('component'),
         1,
         $rootId,
@@ -2135,7 +2347,7 @@ class com_contentbuilderngInstallerScript extends InstallerScript
           ->select($db->quoteName('extension_id'))
           ->from($db->quoteName('#__extensions'))
           ->where($db->quoteName('type') . ' = ' . $db->quote('component'))
-          ->where($db->quoteName('element') . ' = ' . $db->quote('com_contentbuilder_ng'))
+          ->where($db->quoteName('element') . ' = ' . $db->quote('com_contentbuilderng'))
           ->where($db->quoteName('client_id') . ' = 1')
       )->loadResult();
     } catch (\Throwable $e) {
@@ -2151,19 +2363,19 @@ class com_contentbuilderngInstallerScript extends InstallerScript
       [
         'label' => 'Storages',
         'links' => [
-          'index.php?option=com_contentbuilder_ng&view=storages',
-          'index.php?option=com_contentbuilder_ng&task=storages.display',
+          'index.php?option=com_contentbuilderng&view=storages',
+          'index.php?option=com_contentbuilderng&task=storages.display',
         ],
-        'quicktask' => 'index.php?option=com_contentbuilder_ng&task=storage.add',
+        'quicktask' => 'index.php?option=com_contentbuilderng&task=storage.add',
         'quicktask_title' => 'COM_CONTENTBUILDERNG_MENUS_NEW_STORAGE',
       ],
       [
         'label' => 'Views',
         'links' => [
-          'index.php?option=com_contentbuilder_ng&view=forms',
-          'index.php?option=com_contentbuilder_ng&task=forms.display',
+          'index.php?option=com_contentbuilderng&view=forms',
+          'index.php?option=com_contentbuilderng&task=forms.display',
         ],
-        'quicktask' => 'index.php?option=com_contentbuilder_ng&task=form.add',
+        'quicktask' => 'index.php?option=com_contentbuilderng&task=form.add',
         'quicktask_title' => 'COM_CONTENTBUILDERNG_MENUS_NEW_VIEW',
       ],
     ];
@@ -2264,9 +2476,63 @@ class com_contentbuilderngInstallerScript extends InstallerScript
         continue;
       }
       if (in_array($targetFull, $existing, true)) {
-        $this->log("[WARNING] Legacy table {$legacyFull} detected but {$targetFull} already exists, skipping rename.", Log::WARNING);
-        $skipped++;
-        continue;
+        $targetHasRows = false;
+        $legacyHasRows = false;
+        try {
+          $db->setQuery('SELECT 1 FROM ' . $db->quoteName($targetFull) . ' LIMIT 1');
+          $targetHasRows = (bool) $db->loadResult();
+          $db->setQuery('SELECT 1 FROM ' . $db->quoteName($legacyFull) . ' LIMIT 1');
+          $legacyHasRows = (bool) $db->loadResult();
+        } catch (\Throwable $e) {
+          $this->log(
+            "[WARNING] Could not inspect {$targetFull}/{$legacyFull} before legacy replacement decision: " . $e->getMessage(),
+            Log::WARNING
+          );
+          $skipped++;
+          continue;
+        }
+
+        if (!$legacyHasRows) {
+          try {
+            $db->setQuery('DROP TABLE ' . $db->quoteName($legacyFull))->execute();
+            $this->log(
+              "[WARNING] Legacy source table {$legacyFull} was empty and has been removed; keeping {$targetFull}.",
+              Log::WARNING
+            );
+            $existing = array_values(array_filter($existing, static fn($name) => $name !== $legacyFull));
+            $skipped++;
+            continue;
+          } catch (\Throwable $e) {
+            $this->log(
+              "[WARNING] Failed dropping empty legacy source table {$legacyFull}: " . $e->getMessage(),
+              Log::WARNING
+            );
+            $skipped++;
+            continue;
+          }
+        }
+
+        if ($targetHasRows) {
+          $this->log("[WARNING] Legacy table {$legacyFull} detected but {$targetFull} already contains data, skipping rename.", Log::WARNING);
+          $skipped++;
+          continue;
+        }
+
+        try {
+          $db->setQuery('DROP TABLE ' . $db->quoteName($targetFull))->execute();
+          $this->log(
+            "[WARNING] Target table {$targetFull} existed but was empty; it has been replaced by legacy table {$legacyFull}.",
+            Log::WARNING
+          );
+          $existing = array_values(array_filter($existing, static fn($name) => $name !== $targetFull));
+        } catch (\Throwable $e) {
+          $this->log(
+            "[WARNING] Failed dropping empty target table {$targetFull} before legacy replacement: " . $e->getMessage(),
+            Log::WARNING
+          );
+          $skipped++;
+          continue;
+        }
       }
 
       try {
@@ -3225,7 +3491,8 @@ class com_contentbuilderngInstallerScript extends InstallerScript
     $this->updateDateColumns();
     $this->ensureFormsNewButtonColumn();
     $this->ensureElementsLinkableDefault();
-    $this->updateMenuLinks('com_contentbuilder', 'com_contentbuilder_ng');
+    $this->updateMenuLinks('com_contentbuilder', 'com_contentbuilderng');
+    $this->updateMenuLinks('com_contentbuilder_ng', 'com_contentbuilderng');
 
     $source = $this->resolveInstallSourcePath($parent);
     if ($source && is_dir($source)) {
@@ -3333,6 +3600,14 @@ class com_contentbuilderngInstallerScript extends InstallerScript
       throw new \RuntimeException('ContentBuilder NG postflight failed: ' . $summary);
     }
 
-    $this->log('[OK] ContentBuilder NG installation finished.');
+    $finishedAt = Factory::getDate('now', $this->resolveJoomlaTimezoneName())->format('Y-m-d H:i:s T');
+    $durationSeconds = max(0.0, microtime(true) - $this->installStartedAt);
+    $this->log(
+      '[OK] ContentBuilder NG installation finished. '
+      . $finishedAt
+      . '. Duration: '
+      . number_format($durationSeconds, 2, '.', '')
+      . 's.'
+    );
   }
 }
