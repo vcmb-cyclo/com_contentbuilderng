@@ -785,14 +785,16 @@ class com_contentbuilderngInstallerScript extends InstallerScript
   //    $this->log('Preflight installation method call, parameter : ' . $type . '.');
       $this->log('[OK] Detected current version in manifest_cache : ' . $this->getCurrentInstalledVersion() . '.');
 
+      if ($type !== 'uninstall') {
+        $context = 'preflight:' . (string) $type;
+        $this->disableLegacyPluginsInPriorityOrder($context);
+        $this->removeLegacySystemPluginFolderEarly($context);
+      }
+
       $db->setQuery("Select id From `#__menu` Where `alias` = 'root'");
       if (!$db->loadResult()) {
         $db->setQuery("INSERT INTO `#__menu` VALUES(1, '', 'Menu_Item_Root', 'root', '', '', '', '', 1, 0, 0, 0, 0, 0, NULL, 0, 0, '', 0, '', 0, ( Select mlftrgt From (Select max(mlft.rgt)+1 As mlftrgt From #__menu As mlft) As tbone ), 0, '*', 0)");
         $db->execute();
-      }
-
-      if ($type === 'update') {
-        $this->disableLegacyContentbuilderPlugins('preflight');
       }
 
       if ($type !== 'uninstall') {
@@ -2310,11 +2312,17 @@ class com_contentbuilderngInstallerScript extends InstallerScript
     }
   }
 
+  private function installPluginFromPath(string $path): bool
+  {
+    $installer = new Installer();
+    $installer->setDatabase(Factory::getContainer()->get('DatabaseDriver'));
+
+    return (bool) $installer->install($path);
+  }
+
   private function ensurePluginsInstalled(?string $source = null, bool $forceUpdate = false): void
   {
     $db = Factory::getContainer()->get(DatabaseInterface::class);
-    $installer = new Installer();
-    $installer->setDatabase(Factory::getContainer()->get('DatabaseDriver'));
 
     $plugins = $this->getPlugins();
     $refreshTotal = 0;
@@ -2354,7 +2362,13 @@ class com_contentbuilderngInstallerScript extends InstallerScript
           if ($forceUpdate) {
             $refreshIndex++;
             $rank = $refreshTotal > 0 ? " ({$refreshIndex}/{$refreshTotal})" : '';
-            $ok = $installer->install($path);
+            try {
+              $ok = $this->installPluginFromPath($path);
+            } catch (\Throwable $e) {
+              $this->log("[ERROR] Plugin refresh exception{$rank}: {$folder}/{$element} | " . $e->getMessage(), Log::ERROR);
+              continue;
+            }
+
             if ($ok) {
               $this->log("[OK] Plugin refreshed{$rank}: {$folder}/{$element}");
             } else {
@@ -2380,7 +2394,13 @@ class com_contentbuilderngInstallerScript extends InstallerScript
             continue;
           }
 
-          $ok = $installer->install($path);
+          try {
+            $ok = $this->installPluginFromPath($path);
+          } catch (\Throwable $e) {
+            $this->log("[ERROR] Plugin update exception: {$folder}/{$element} | " . $e->getMessage(), Log::ERROR);
+            continue;
+          }
+
           if ($ok) {
             $this->log("[OK] Plugin updated: {$folder}/{$element} (version {$installedVersion} -> {$manifestVersion})");
           } else {
@@ -2395,7 +2415,13 @@ class com_contentbuilderngInstallerScript extends InstallerScript
           continue;
         }
 
-        $ok = $installer->install($path);
+        try {
+          $ok = $this->installPluginFromPath($path);
+        } catch (\Throwable $e) {
+          $this->log("[ERROR] Plugin install exception: {$folder}/{$element} | " . $e->getMessage(), Log::ERROR);
+          continue;
+        }
+
         if ($ok) {
           $this->log("[OK] Plugin installed: {$folder}/{$element}");
         } else {
@@ -2671,7 +2697,66 @@ class com_contentbuilderngInstallerScript extends InstallerScript
     }
   }
 
-  private function disableLegacyContentbuilderPlugins(string $context = 'update'): int
+  private function disableLegacySystemPluginFirst(string $context = 'update'): int
+  {
+    $db = Factory::getContainer()->get(DatabaseInterface::class);
+
+    $query = $db->getQuery(true)
+      ->select($db->quoteName(['extension_id', 'enabled']))
+      ->from($db->quoteName('#__extensions'))
+      ->where($db->quoteName('type') . ' = ' . $db->quote('plugin'))
+      ->where($db->quoteName('folder') . ' = ' . $db->quote('system'))
+      ->where($db->quoteName('element') . ' = ' . $db->quote('contentbuilder_system'));
+
+    try {
+      $db->setQuery($query);
+      $rows = $db->loadAssocList() ?: [];
+    } catch (\Throwable $e) {
+      $this->log('[WARNING] Failed to detect legacy system plugin during ' . $context . ': ' . $e->getMessage(), Log::WARNING);
+      return 0;
+    }
+
+    if (empty($rows)) {
+      $this->log("[INFO] Legacy system plugin not found during {$context}.");
+      return 0;
+    }
+
+    $ids = [];
+    $alreadyDisabled = 0;
+    foreach ($rows as $row) {
+      $id = (int) ($row['extension_id'] ?? 0);
+      if ($id > 0) {
+        $ids[] = $id;
+      }
+      if ((int) ($row['enabled'] ?? 0) === 0) {
+        $alreadyDisabled++;
+      }
+    }
+
+    $ids = array_values(array_unique($ids));
+    if (empty($ids)) {
+      return 0;
+    }
+
+    try {
+      $db->setQuery(
+        $db->getQuery(true)
+          ->update($db->quoteName('#__extensions'))
+          ->set($db->quoteName('enabled') . ' = 0')
+          ->where($db->quoteName('extension_id') . ' IN (' . implode(',', $ids) . ')')
+      )->execute();
+    } catch (\Throwable $e) {
+      $this->log('[WARNING] Failed disabling legacy system plugin during ' . $context . ': ' . $e->getMessage(), Log::WARNING);
+      return 0;
+    }
+
+    $disabledNow = max(0, count($ids) - $alreadyDisabled);
+    $this->log("[OK] Legacy plugin disabled first: system/contentbuilder_system ({$disabledNow} newly disabled, " . count($ids) . " total) during {$context}.");
+
+    return count($ids);
+  }
+
+  private function disableLegacyContentbuilderPlugins(string $context = 'update', bool $excludeSystemPlugin = false): int
   {
     $db = Factory::getContainer()->get(DatabaseInterface::class);
     $rows = $this->getLegacyContentbuilderPlugins();
@@ -2684,6 +2769,12 @@ class com_contentbuilderngInstallerScript extends InstallerScript
     $ids = [];
     $alreadyDisabled = 0;
     foreach ($rows as $row) {
+      $folder = strtolower((string) ($row['folder'] ?? ''));
+      $element = strtolower((string) ($row['element'] ?? ''));
+      if ($excludeSystemPlugin && $folder === 'system' && $element === 'contentbuilder_system') {
+        continue;
+      }
+
       $id = (int) ($row['extension_id'] ?? 0);
       if ($id > 0) {
         $ids[] = $id;
@@ -2714,6 +2805,37 @@ class com_contentbuilderngInstallerScript extends InstallerScript
     $this->log("[OK] Legacy ContentBuilder plugins disabled ({$disabledNow} newly disabled, " . count($ids) . " total) during {$context}.");
 
     return count($ids);
+  }
+
+  private function disableLegacyPluginsInPriorityOrder(string $context = 'update'): int
+  {
+    $disabled = 0;
+    $disabled += $this->disableLegacySystemPluginFirst($context . ':first');
+    $disabled += $this->disableLegacyContentbuilderPlugins($context . ':others', true);
+
+    return $disabled;
+  }
+
+  private function removeLegacySystemPluginFolderEarly(string $context = 'postflight'): void
+  {
+    $path = JPATH_ROOT . '/plugins/system/contentbuilder_system';
+
+    if (Folder::exists($path)) {
+      if (Folder::delete($path)) {
+        $this->log("[OK] Legacy system plugin folder deleted first during {$context}: {$path}");
+      } else {
+        $this->log("[WARNING] Failed deleting legacy system plugin folder during {$context}: {$path}", Log::WARNING);
+      }
+      return;
+    }
+
+    if (File::exists($path)) {
+      if (File::delete($path)) {
+        $this->log("[OK] Legacy system plugin file deleted first during {$context}: {$path}");
+      } else {
+        $this->log("[WARNING] Failed deleting legacy system plugin file during {$context}: {$path}", Log::WARNING);
+      }
+    }
   }
 
   private function removeLegacyPlugins(): void
@@ -3088,6 +3210,12 @@ class com_contentbuilderngInstallerScript extends InstallerScript
       $db->execute();
     } catch (\Throwable $e) {
       $this->log('[WARNING] Failed to normalize admin menu title: ' . $e->getMessage(), Log::WARNING);
+    }
+
+    if ($type !== 'uninstall') {
+      $context = 'postflight:' . (string) $type;
+      $this->disableLegacyPluginsInPriorityOrder($context);
+      $this->removeLegacySystemPluginFolderEarly($context);
     }
 
     $this->removeOldDirectories();

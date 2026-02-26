@@ -231,12 +231,13 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     const cbEditByTypeEnableConfirm = <?php echo json_encode(Text::_('COM_CONTENTBUILDERNG_TYPE_EDIT_ENABLE_BF_CONFIRM'), JSON_UNESCAPED_UNICODE); ?>;
     const cbFirefoxVersionMatch = String(window.navigator.userAgent || '').match(/\bfirefox\/(\d+)/i);
     const cbFirefoxMajorVersion = cbFirefoxVersionMatch ? parseInt(cbFirefoxVersionMatch[1], 10) : 0;
+    const cbIsFirefoxBrowser = cbFirefoxMajorVersion > 0;
     let cbLastRowId = '';
     let cbAjaxBusy = false;
     let cbSaveButtonTimer = null;
 
     function cbSetupFirefoxTinyMceIframeReloadGuard() {
-        if (cbFirefoxMajorVersion < 148) {
+        if (!cbIsFirefoxBrowser) {
             return;
         }
 
@@ -254,10 +255,11 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
             try {
                 if (type === 'load' && typeof listener === 'function') {
                     var listenerCode = Function.prototype.toString.call(listener);
+                    var listenerCodeLower = listenerCode.toLowerCase();
                     var stack = String((new Error()).stack || '').toLowerCase();
                     var looksLikeJoomlaTinyReloadListener =
-                        listenerCode.indexOf('debounceReInit') !== -1
-                        || stack.indexOf('/media/plg_editors_tinymce/js/tinymce.js') !== -1;
+                        listenerCodeLower.indexOf('debouncereinit') !== -1
+                        || /\/media\/plg_editors_tinymce\/js\/tinymce(?:\.min)?\.js/.test(stack);
 
                     if (looksLikeJoomlaTinyReloadListener) {
                         return;
@@ -274,9 +276,9 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     }
 
     // TODO: Remove this workaround once the upstream issue is fixed.
-    // Reference (observed on Firefox 148+): repeated TinyMCE re-init loop on Joomla admin form edit
-    // via media/plg_editors_tinymce/js/tinymce.js (listenIframeReload -> debounceReInit),
-    // with recursive editor init path also crossing media/vendor/tinymce/plugins/wordcount/plugin.js setup.
+    // Reference (observed on Firefox): repeated TinyMCE re-init loop on Joomla admin form edit
+    // via media/plg_editors_tinymce/js/tinymce(.min).js (listenIframeReload -> debounceReInit),
+    // with recursive editor init path also crossing media/vendor/tinymce/plugins/wordcount/plugin(.min).js setup.
     cbSetupFirefoxTinyMceIframeReloadGuard();
 
     function cbRememberViewport(rowId) {
