@@ -21,7 +21,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\CMS\Response\JsonResponse;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Input\Input;
 
@@ -640,8 +639,16 @@ class ApiController extends BaseController
 
     private function sendJson(array $payload): void
     {
-        $this->siteApp->setHeader('Content-Type', 'application/json', true);
-        echo new JsonResponse($payload);
+        $response = [
+            'success' => true,
+            'message' => null,
+            'messages' => null,
+            'data' => $payload,
+        ];
+
+        $this->siteApp->setHeader('Content-Type', 'application/json; charset=utf-8', true);
+        $json = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+        echo $json === false ? '{"success":false,"message":"JSON encoding error","messages":null,"data":null}' : $json;
         $this->siteApp->close();
     }
 
@@ -655,8 +662,16 @@ class ApiController extends BaseController
             http_response_code($code);
         }
 
-        $this->siteApp->setHeader('Content-Type', 'application/json', true);
-        echo new JsonResponse($e);
+        $response = [
+            'success' => false,
+            'message' => $e->getMessage(),
+            'messages' => null,
+            'data' => null,
+        ];
+
+        $this->siteApp->setHeader('Content-Type', 'application/json; charset=utf-8', true);
+        $json = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+        echo $json === false ? '{"success":false,"message":"JSON encoding error","messages":null,"data":null}' : $json;
         $this->siteApp->close();
     }
 
