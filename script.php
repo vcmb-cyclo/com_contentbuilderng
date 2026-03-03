@@ -748,7 +748,7 @@ class com_contentbuilderngInstallerScript
         // 2) Joomla caches
         try {
             $this->safe(function () {
-                $cache = Factory::getCache();
+                $cache = Factory::getContainer()->get(\Joomla\CMS\Cache\CacheControllerFactoryInterface::class);
                 if (is_object($cache) && method_exists($cache, 'clean')) {
                     $cache->clean();
                 }
