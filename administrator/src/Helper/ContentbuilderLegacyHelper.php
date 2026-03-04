@@ -2164,7 +2164,14 @@ final class ContentbuilderLegacyHelper
         }
 
         if ($skipDetailsTemplateOnSave && (int) $article > 0) {
-            $db->setQuery("Select introtext, fulltext From #__content Where id = " . (int) $article);
+            $query = $db->getQuery(true)
+                ->select([
+                    $db->quoteName('introtext'),
+                    $db->quoteName('fulltext'),
+                ])
+                ->from($db->quoteName('#__content'))
+                ->where($db->quoteName('id') . ' = ' . (int) $article);
+            $db->setQuery($query);
             $existingContent = $db->loadAssoc();
             if (is_array($existingContent)) {
                 $introtext = (string) ($existingContent['introtext'] ?? '');

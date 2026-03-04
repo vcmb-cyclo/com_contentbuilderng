@@ -4170,6 +4170,8 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QU
         // Clés de stockage
         const KEY_VIEW = 'cb_active_view_tab';
         const KEY_PERM = 'cb_active_perm_tab';
+        const urlParams = new URLSearchParams(window.location.search);
+        const forcedViewTab = urlParams.get('force_view_tab') || urlParams.get('tab');
         const tooltipSelector = '[data-bs-toggle="tooltip"]';
         const viewTabTooltips = <?php echo json_encode($viewTabTooltips, $jsonFlags); ?>;
         const permTabTooltips = <?php echo json_encode($permTabTooltips, $jsonFlags); ?>;
@@ -4301,6 +4303,12 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QU
             }, {
                 passive: true
             });
+        }
+
+        // Force requested view tab from URL and override persisted tab selection.
+        if (forcedViewTab && /^tab\d+$/.test(forcedViewTab)) {
+            localStorage.setItem(KEY_VIEW, forcedViewTab);
+            setHidden('tabStartOffset', forcedViewTab);
         }
 
         // 1) onglets principaux view-pane (tab0, tab1, tab2…)

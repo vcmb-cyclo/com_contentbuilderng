@@ -14,6 +14,46 @@ use Joomla\CMS\Factory;
 final class FormSourceFactory
 {
     /**
+     * Validates signed admin preview links generated in backend.
+     * Mirrors frontend controllers so source loading can safely allow unpublished forms.
+     */
+    private static function isSignedAdminPreviewRequest(int $formId): bool
+    {
+        $app = Factory::getApplication();
+        $input = $app->input;
+
+        if ($formId < 1 || !$input->getBool('cb_preview', false)) {
+            return false;
+        }
+
+        $until = (int) $input->getInt('cb_preview_until', 0);
+        $sig = trim((string) $input->getString('cb_preview_sig', ''));
+
+        if ($until < time() || $sig === '') {
+            return false;
+        }
+
+        $secret = (string) $app->get('secret');
+        if ($secret === '') {
+            return false;
+        }
+
+        $actorId = (int) $input->getInt('cb_preview_actor_id', 0);
+        $actorName = trim((string) $input->getString('cb_preview_actor_name', ''));
+
+        $payload = $formId . '|' . $until;
+        $expected = hash_hmac('sha256', $payload, $secret);
+        $actorPayload = $payload . '|' . $actorId . '|' . $actorName;
+        $actorExpected = hash_hmac('sha256', $actorPayload, $secret);
+
+        if (($actorId > 0 || $actorName !== '') && hash_equals($actorExpected, $sig)) {
+            return true;
+        }
+
+        return hash_equals($expected, $sig);
+    }
+
+    /**
      * Resolve a source form object using Joomla 6 namespaced type classes first,
      * and fallback to legacy dynamic loader for custom/third-party types.
      *
@@ -74,7 +114,9 @@ final class FormSourceFactory
         }
 
         $app = Factory::getApplication();
-        $allowUnpublishedSource = $app->isClient('administrator') || $app->input->getBool('cb_preview_ok', false);
+        $allowUnpublishedSource = $app->isClient('administrator')
+            || $app->input->getBool('cb_preview_ok', false)
+            || self::isSignedAdminPreviewRequest((int) $app->input->getInt('id', 0));
 
         $form = new $class($referenceId);
         $exists = !property_exists($form, 'exists') || (bool) ($form->exists ?? false);

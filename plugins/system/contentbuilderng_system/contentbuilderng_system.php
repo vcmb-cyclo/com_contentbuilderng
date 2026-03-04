@@ -41,22 +41,31 @@ class plgSystemContentbuilderng_system extends CMSPlugin implements SubscriberIn
     private $caching = 0;
 
     /**
-     * True when current frontend request is CB edit/new flow.
-     * New records are handled via edit display with record_id=0.
+     * True when current request is a write mutation for CB/Joomla/BF.
+     * Display/read requests must not trigger synchronization work.
      */
-    private function isContentbuilderEditFlowRequest(): bool
+    private function isSyncMutationRequest(): bool
     {
         $input = $this->app->input;
         $option = $input->getCmd('option', '');
         $task = $input->getCmd('task', '');
-        $view = $input->getCmd('view', '');
+        $task = strtolower($task);
 
-        if ($option !== 'com_contentbuilderng') {
+        if (!in_array($option, ['com_contentbuilderng', 'com_content', 'com_breezingforms'], true)) {
             return false;
         }
 
-        return $view === 'edit'
-            || str_starts_with($task, 'edit.');
+        if ($task === '') {
+            return false;
+        }
+
+        // Explicit CB mutation handlers.
+        if ($option === 'com_contentbuilderng' && (str_starts_with($task, 'edit.') || str_starts_with($task, 'details.'))) {
+            return true;
+        }
+
+        // Generic mutation tasks for Joomla content / BF.
+        return (bool) preg_match('/(^|\.)(save|apply|publish|unpublish|archive|trash|delete|remove|batch)$/', $task);
     }
 
     /**
@@ -306,9 +315,9 @@ class plgSystemContentbuilderng_system extends CMSPlugin implements SubscriberIn
         }
 
         $app = $this->app;
-        $isCbEditFlow = $this->isContentbuilderEditFlowRequest();
+        $isSyncMutationRequest = $this->isSyncMutationRequest();
         // register non-existent records
-        if ($isCbEditFlow) {
+        if ($isSyncMutationRequest) {
             $this->db->setQuery("Select `type`, `reference_id` From #__contentbuilderng_forms Where published = 1");
             $views = $this->db->loadAssocList();
             $typeview = array();
@@ -323,7 +332,7 @@ class plgSystemContentbuilderng_system extends CMSPlugin implements SubscriberIn
             }
         }
 
-        if ($isCbEditFlow) {
+        if ($isSyncMutationRequest) {
             // managing published states
             $date = Factory::getDate()->toSql();
 
@@ -360,7 +369,7 @@ class plgSystemContentbuilderng_system extends CMSPlugin implements SubscriberIn
             }
         }
 
-        if ($isCbEditFlow) {
+        if ($isSyncMutationRequest) {
 
             $this->db->setQuery("
                     Update 
@@ -439,13 +448,8 @@ class plgSystemContentbuilderng_system extends CMSPlugin implements SubscriberIn
             return;
         }
 
-        // Keep this plugin passive on non-edit frontend requests.
-        if (!$this->isContentbuilderEditFlowRequest()) {
-            return;
-        }
-
-        // Run sync only on effective save operations.
-        if ($app->input->getCmd('task', '') !== 'edit.save') {
+        // Keep this plugin passive on non-mutation frontend requests.
+        if (!$this->isSyncMutationRequest()) {
             return;
         }
 

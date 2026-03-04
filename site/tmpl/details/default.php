@@ -67,6 +67,8 @@ if ($previewFormName === '') {
 }
 
 $previewFormName = htmlspecialchars($previewFormName, ENT_QUOTES, 'UTF-8');
+$detailsTemplateMissing = $isAdminPreview && trim((string) ($this->tpl ?? '')) === '';
+$detailsScreenAdminUrl = Uri::root() . 'administrator/index.php?option=com_contentbuilderng&view=form&layout=edit&id=' . (int) $input->getInt('id', 0) . '&tab=tab3&force_view_tab=tab3';
 
 if ($previewEnabled && $previewUntil > 0 && $previewSig !== '') {
     $previewQuery = '&cb_preview=1'
@@ -182,11 +184,23 @@ CSS
         <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <span>
                 <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE') . ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName) . ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CONFIG_TAB', Text::_('COM_CONTENTBUILDERNG_PREVIEW_TAB_CONTENT_TEMPLATE')); ?>
+                <?php if ($detailsTemplateMissing): ?>
+                    <br />
+                    <strong><?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_DETAILS_TEMPLATE_MISSING'); ?></strong>
+                <?php endif; ?>
             </span>
-            <a class="btn btn-sm btn-outline-secondary" href="<?php echo $adminReturnUrl; ?>">
-                <span class="fa-solid fa-arrow-left me-1" aria-hidden="true"></span>
-                <?php echo Text::_('COM_CONTENTBUILDERNG_BACK_TO_ADMIN'); ?>
-            </a>
+            <span class="d-inline-flex flex-wrap align-items-center gap-2">
+                <?php if ($detailsTemplateMissing): ?>
+                    <a class="btn btn-sm btn-outline-warning" href="<?php echo htmlspecialchars($detailsScreenAdminUrl, ENT_QUOTES, 'UTF-8'); ?>">
+                        <span class="fa-solid fa-triangle-exclamation me-1" aria-hidden="true"></span>
+                        <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_OPEN_DETAIL_SCREEN'); ?>
+                    </a>
+                <?php endif; ?>
+                <a class="btn btn-sm btn-outline-secondary" href="<?php echo $adminReturnUrl; ?>">
+                    <span class="fa-solid fa-arrow-left me-1" aria-hidden="true"></span>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_BACK_TO_ADMIN'); ?>
+                </a>
+            </span>
         </div>
     <?php endif; ?>
 
@@ -196,6 +210,15 @@ CSS
     $currentRecordLabel = trim((string) $input->getCmd('record_id', ''));
     $showCurrentRecordLabel = !in_array($currentRecordLabel, ['', '0'], true);
     $showCurrentRecordLabel = $showCurrentRecordLabel && (int) ($this->show_id_column ?? 0) === 1;
+    $headingTitle = (string) ($this->page_title ?? '');
+    if ($currentRecordLabel !== '') {
+        foreach ([': ' . $currentRecordLabel, ' &raquo; ' . $currentRecordLabel] as $idSuffix) {
+            if (str_ends_with($headingTitle, $idSuffix)) {
+                $headingTitle = substr($headingTitle, 0, -strlen($idSuffix));
+                break;
+            }
+        }
+    }
     $detailsNavBaseLink = 'index.php?option=com_contentbuilderng&title=' . $input->get('title', '', 'string')
         . '&task=details.display&id=' . $input->getInt('id', 0)
         . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '')
@@ -239,7 +262,7 @@ CSS
     ?>
 
     <?php
-    if ($this->show_page_heading && $this->page_title) {
+    if ($this->show_page_heading && $headingTitle !== '') {
     ?>
         <h1 class="display-6 mb-4">
             <?php if (!$showTopBar && ($prevRecordId > 0 || $nextRecordId > 0 || $showCloseButton)): ?>
@@ -276,7 +299,7 @@ CSS
                     <?php endif; ?>
                 </span>
             <?php endif; ?>
-            <?php echo $this->page_title; ?>
+            <?php echo $headingTitle; ?>
         </h1>
     <?php
     }
