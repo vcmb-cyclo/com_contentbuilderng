@@ -147,6 +147,24 @@ $wa->addInlineStyle(
 .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn{
     white-space:nowrap;
 }
+@media (prefers-color-scheme: dark){
+    .cbDetailsWrapper .cbToolBar.cbToolBar--top{
+        border-color:rgba(173,193,216,.3);
+        background:rgba(26,36,49,.94);
+        box-shadow:0 .38rem .95rem rgba(0,0,0,.42);
+    }
+    .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn-outline-secondary{
+        border-color:rgba(173,193,216,.34);
+        color:#d8e5f5;
+        background-color:transparent;
+    }
+    .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn-outline-secondary:hover,
+    .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn-outline-secondary:focus{
+        border-color:rgba(173,193,216,.45);
+        background:#22344a;
+        color:#f2f7ff;
+    }
+}
 @media (max-width:767.98px){
     .cbDetailsWrapper .cbToolBar.cbToolBar--top{
         top:0;
