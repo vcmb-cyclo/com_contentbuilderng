@@ -46,10 +46,11 @@ $wa->useScript('com_contentbuilderng.contentbuilderng');
 ?>
 <?php
 $themeCss = trim((string) ($this->theme_css ?? ''));
-$themeJs = trim((string) ($this->theme_js ?? ''));
 if ($themeCss !== '') {
     $wa->addInlineStyle($themeCss);
 }
+
+$themeJs = trim((string) ($this->theme_js ?? ''));
 if ($themeJs !== '') {
     $wa->addInlineScript($themeJs);
 }

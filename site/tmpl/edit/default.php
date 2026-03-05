@@ -78,6 +78,8 @@ if ($previewFormName === '') {
     $previewFormName = Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE');
 }
 $previewFormName = htmlspecialchars($previewFormName, ENT_QUOTES, 'UTF-8');
+$editableTemplateMissing = $isAdminPreview && trim((string) ($this->tpl ?? '')) === '';
+$editScreenAdminUrl = Uri::root() . 'administrator/index.php?option=com_contentbuilderng&view=form&layout=edit&id=' . (int) $id . '&tab=tab5&force_view_tab=tab5';
 if ($previewEnabled && $previewUntil > 0 && $previewSig !== '') {
     $previewQuery = '&cb_preview=1'
         . '&cb_preview_until=' . (int) $previewUntil
@@ -186,11 +188,14 @@ if ($showColumnHeader) {
 
 if (!empty($this->theme_css) || !empty($this->theme_js)) {
     $wa = $app->getDocument()->getWebAssetManager();
-    if (!empty($this->theme_css)) {
-        $wa->addInlineStyle((string) $this->theme_css);
+    $themeCss = trim((string) ($this->theme_css ?? ''));
+    if ($themeCss !== '') {
+        $wa->addInlineStyle($themeCss);
     }
-    if (!empty($this->theme_js)) {
-        $wa->addInlineScript((string) $this->theme_js);
+
+    $themeJs = trim((string) ($this->theme_js ?? ''));
+    if ($themeJs !== '') {
+        $wa->addInlineScript($themeJs);
     }
 }
 ?>
@@ -448,11 +453,23 @@ if (!empty($this->theme_css) || !empty($this->theme_js)) {
         <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <span>
                 <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE') . ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName) . ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CONFIG_TAB', Text::_('COM_CONTENTBUILDERNG_PREVIEW_TAB_EDITABLE_TEMPLATE')); ?>
+                <?php if ($editableTemplateMissing): ?>
+                    <br />
+                    <strong><?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_EDITABLE_TEMPLATE_MISSING'); ?></strong>
+                <?php endif; ?>
             </span>
-            <a class="btn btn-sm btn-outline-secondary" href="<?php echo $adminReturnUrl; ?>">
-                <span class="fa-solid fa-arrow-left me-1" aria-hidden="true"></span>
-                <?php echo Text::_('COM_CONTENTBUILDERNG_BACK_TO_ADMIN'); ?>
-            </a>
+            <span class="d-inline-flex flex-wrap align-items-center gap-2">
+                <?php if ($editableTemplateMissing): ?>
+                    <a class="btn btn-sm btn-outline-warning" href="<?php echo htmlspecialchars($editScreenAdminUrl, ENT_QUOTES, 'UTF-8'); ?>">
+                        <span class="fa-solid fa-triangle-exclamation me-1" aria-hidden="true"></span>
+                        <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_OPEN_EDIT_SCREEN'); ?>
+                    </a>
+                <?php endif; ?>
+                <a class="btn btn-sm btn-outline-secondary" href="<?php echo $adminReturnUrl; ?>">
+                    <span class="fa-solid fa-arrow-left me-1" aria-hidden="true"></span>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_BACK_TO_ADMIN'); ?>
+                </a>
+            </span>
         </div>
     <?php endif; ?>
     <?php

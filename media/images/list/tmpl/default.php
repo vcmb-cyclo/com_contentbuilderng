@@ -106,9 +106,11 @@ $wa->addInlineStyle(
 	. '@media (max-width: 767.98px){.cb-list-titlebar{padding:.55rem .65rem;margin-bottom:.75rem}.cb-list-title{font-size:1.18rem}}'
 );
 
-if (!empty($this->theme_js)) {
-	$wa->addInlineScript((string) $this->theme_js);
+$themeJs = (string) ($this->theme_js ?? '');
+if (trim($themeJs) !== '') {
+    $wa->addInlineScript($themeJs);
 }
+
 ?>
 <script>
 	Joomla.tableOrdering = function(order, dir, task) {

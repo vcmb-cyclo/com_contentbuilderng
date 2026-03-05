@@ -21,13 +21,16 @@ $app = Factory::getApplication();
 
 $wa = $app->getDocument()->getWebAssetManager();
 
-if (!empty($this->theme_css)) {
-    $wa->addInlineStyle((string) $this->theme_css);
+$themeCss = trim((string) ($this->theme_css ?? ''));
+if ($themeCss !== '') {
+    $wa->addInlineStyle($themeCss);
 }
 
-if (!empty($this->theme_js)) {
-    $wa->addInlineScript((string) $this->theme_js);
+$themeJs = (string) ($this->theme_js ?? '');
+if (trim($themeJs) !== '') {
+    $wa->addInlineScript($themeJs);
 }
+
 
 ?>
 
