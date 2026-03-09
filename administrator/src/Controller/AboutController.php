@@ -648,6 +648,13 @@ final class AboutController extends BaseController
                 throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_INVALID'));
             }
 
+            $payload = $this->filterConfigurationImportPayload(
+                $payload,
+                $selectedSections,
+                $this->getSelectedConfigImportNames('cb_config_import_form_names'),
+                $this->getSelectedConfigImportNames('cb_config_import_storage_names')
+            );
+
             $summary = $this->applyConfigurationImportPayload($payload, $selectedSections, $importMode);
             $app->setUserState('com_contentbuilderng.about.import', [
                 'generated_at' => Factory::getDate()->format('Y-m-d H:i:s'),
@@ -779,6 +786,21 @@ final class AboutController extends BaseController
         return $this->getSelectedNumericIds('cb_config_storage_ids');
     }
 
+    private function getSelectedConfigImportNames(string $inputKey): array
+    {
+        $selectedRaw = (array) Factory::getApplication()->input->get($inputKey, [], 'array');
+        $selected = [];
+
+        foreach ($selectedRaw as $selectedName) {
+            $name = trim((string) $selectedName);
+            if ($name !== '') {
+                $selected[] = $name;
+            }
+        }
+
+        return array_values(array_unique($selected));
+    }
+
     private function expandConfigSections(array $selectedSections): array
     {
         $expanded = [];
@@ -855,6 +877,126 @@ final class AboutController extends BaseController
         }
 
         return array_values(array_unique($selected));
+    }
+
+    private function filterConfigurationImportPayload(
+        array $payload,
+        array $selectedSections,
+        array $selectedFormNames,
+        array $selectedStorageNames
+    ): array {
+        $dataSections = is_array($payload['data'] ?? null) ? $payload['data'] : [];
+
+        if (in_array('forms', $selectedSections, true) && $selectedFormNames !== []) {
+            $formRows = is_array($dataSections['forms']['rows'] ?? null) ? $dataSections['forms']['rows'] : [];
+            $selectedFormMap = array_fill_keys($selectedFormNames, true);
+            $selectedFormIds = [];
+            $filteredFormRows = [];
+
+            foreach ($formRows as $row) {
+                if (!is_array($row)) {
+                    continue;
+                }
+
+                $formName = trim((string) ($row['name'] ?? ''));
+                if ($formName === '' || !isset($selectedFormMap[$formName])) {
+                    continue;
+                }
+
+                $filteredFormRows[] = $row;
+                $rowId = (int) ($row['id'] ?? 0);
+                if ($rowId > 0) {
+                    $selectedFormIds[$rowId] = true;
+                }
+            }
+
+            if (isset($dataSections['forms']) && is_array($dataSections['forms'])) {
+                $dataSections['forms']['rows'] = array_values($filteredFormRows);
+                $dataSections['forms']['row_count'] = count($filteredFormRows);
+            }
+
+            $sourceFormIds = array_keys($selectedFormIds);
+            foreach (self::CONFIG_FORM_DEPENDENT_SECTIONS as $sectionKey) {
+                $rows = is_array($dataSections[$sectionKey]['rows'] ?? null) ? $dataSections[$sectionKey]['rows'] : [];
+                $filteredRows = [];
+
+                foreach ($rows as $row) {
+                    if (!is_array($row)) {
+                        continue;
+                    }
+
+                    $formId = (int) ($row['form_id'] ?? 0);
+                    if ($formId > 0 && isset($selectedFormIds[$formId])) {
+                        $filteredRows[] = $row;
+                    }
+                }
+
+                if (isset($dataSections[$sectionKey]) && is_array($dataSections[$sectionKey])) {
+                    $dataSections[$sectionKey]['rows'] = array_values($filteredRows);
+                    $dataSections[$sectionKey]['row_count'] = count($filteredRows);
+                }
+            }
+
+            if (isset($payload['filters']) && is_array($payload['filters'])) {
+                $payload['filters']['form_ids'] = array_map('intval', $sourceFormIds);
+            }
+        }
+
+        if (in_array('storages', $selectedSections, true) && $selectedStorageNames !== []) {
+            $storageRows = is_array($dataSections['storages']['rows'] ?? null) ? $dataSections['storages']['rows'] : [];
+            $selectedStorageMap = array_fill_keys($selectedStorageNames, true);
+            $selectedStorageIds = [];
+            $filteredStorageRows = [];
+
+            foreach ($storageRows as $row) {
+                if (!is_array($row)) {
+                    continue;
+                }
+
+                $storageName = trim((string) ($row['name'] ?? ''));
+                if ($storageName === '' || !isset($selectedStorageMap[$storageName])) {
+                    continue;
+                }
+
+                $filteredStorageRows[] = $row;
+                $rowId = (int) ($row['id'] ?? 0);
+                if ($rowId > 0) {
+                    $selectedStorageIds[$rowId] = true;
+                }
+            }
+
+            if (isset($dataSections['storages']) && is_array($dataSections['storages'])) {
+                $dataSections['storages']['rows'] = array_values($filteredStorageRows);
+                $dataSections['storages']['row_count'] = count($filteredStorageRows);
+            }
+
+            $storageFieldRows = is_array($dataSections['storage_fields']['rows'] ?? null) ? $dataSections['storage_fields']['rows'] : [];
+            $filteredFieldRows = [];
+
+            foreach ($storageFieldRows as $row) {
+                if (!is_array($row)) {
+                    continue;
+                }
+
+                $storageId = (int) ($row['storage_id'] ?? 0);
+                if ($storageId > 0 && isset($selectedStorageIds[$storageId])) {
+                    $filteredFieldRows[] = $row;
+                }
+            }
+
+            if (isset($dataSections['storage_fields']) && is_array($dataSections['storage_fields'])) {
+                $dataSections['storage_fields']['rows'] = array_values($filteredFieldRows);
+                $dataSections['storage_fields']['row_count'] = count($filteredFieldRows);
+            }
+
+            if (isset($payload['filters']) && is_array($payload['filters'])) {
+                $payload['filters']['storage_ids'] = array_map('intval', array_keys($selectedStorageIds));
+            }
+        }
+
+        $payload['data'] = $dataSections;
+
+        return $payload;
     }
 
     private function buildConfigTransferRedirect(string $fallbackMode = 'export'): string
@@ -1409,6 +1551,7 @@ final class AboutController extends BaseController
                 if ($existingId > 0) {
                     $updateData = $filtered;
                     unset($updateData['id']);
+                    $updateData = $this->stripImportManagedAuditColumns($tableAlias, $updateData);
 
                     if ($importMode === self::CONFIG_IMPORT_MODE_MERGE && $extraUpdateColumns !== []) {
                         $allowedUpdateColumns = array_fill_keys(array_merge($keyColumns, $extraUpdateColumns), true);
@@ -1420,6 +1563,7 @@ final class AboutController extends BaseController
                     }
 
                     if ($this->rowHasDifferences($existingRow, $updateData)) {
+                        $updateData = $this->applyImportAuditColumns($tableAlias, $updateData, false);
                         if ($hasIdColumn) {
                             $this->updateRowById($db, $tableAlias, $existingId, $updateData);
                         } else {
@@ -1432,6 +1576,8 @@ final class AboutController extends BaseController
                 }
 
                 unset($filtered['id']);
+                $filtered = $this->stripImportManagedAuditColumns($tableAlias, $filtered);
+                $filtered = $this->applyImportAuditColumns($tableAlias, $filtered, true);
                 $insertedId = $this->insertRow($db, $tableAlias, $filtered);
                 if ($trackSourceIds && $sourceId > 0 && $insertedId > 0) {
                     $trackedIds[$sourceId] = $insertedId;
@@ -1535,6 +1681,72 @@ final class AboutController extends BaseController
         }
 
         return false;
+    }
+
+    private function stripImportManagedAuditColumns(string $tableAlias, array $row): array
+    {
+        foreach ($this->getImportManagedAuditColumns($tableAlias) as $columnName) {
+            unset($row[$columnName]);
+        }
+
+        return $row;
+    }
+
+    private function applyImportAuditColumns(string $tableAlias, array $row, bool $isNew): array
+    {
+        $now = Factory::getDate()->toSql();
+        $user = Factory::getApplication()->getIdentity();
+
+        if ($tableAlias === '#__contentbuilderng_forms') {
+            if ($isNew) {
+                if (empty($row['created']) || str_starts_with((string) $row['created'], '0000-00-00')) {
+                    $row['created'] = $now;
+                }
+                if (empty($row['created_by'])) {
+                    $row['created_by'] = (int) ($user->id ?? 0);
+                }
+            }
+
+            $row['modified'] = $now;
+            $row['modified_by'] = (int) ($user->id ?? 0);
+            $row['last_update'] = $now;
+
+            return $row;
+        }
+
+        if ($tableAlias === '#__contentbuilderng_storages') {
+            $actor = trim((string) (($user->username ?? '') !== '' ? $user->username : ($user->name ?? '')));
+            if ($actor === '') {
+                $actor = 'system';
+            }
+
+            if ($isNew) {
+                if (empty($row['created']) || str_starts_with((string) $row['created'], '0000-00-00')) {
+                    $row['created'] = $now;
+                }
+                if (trim((string) ($row['created_by'] ?? '')) === '') {
+                    $row['created_by'] = $actor;
+                }
+            }
+
+            $row['modified'] = $now;
+            $row['modified_by'] = $actor;
+        }
+
+        return $row;
+    }
+
+    private function getImportManagedAuditColumns(string $tableAlias): array
+    {
+        if ($tableAlias === '#__contentbuilderng_forms') {
+            return ['modified', 'modified_by', 'last_update'];
+        }
+
+        if ($tableAlias === '#__contentbuilderng_storages') {
+            return ['modified', 'modified_by'];
+        }
+
+        return [];
     }
 
     private function updateRowById(DatabaseInterface $db, string $tableAlias, int $id, array $row): void

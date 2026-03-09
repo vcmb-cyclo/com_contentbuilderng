@@ -243,12 +243,46 @@ $selectedStorageIds = array_fill_keys(array_map('intval', (array) ($this->select
                                         >
                                         <small class="text-muted d-block mt-1"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_FILE_HELP'); ?></small>
                                     </div>
+                                    <div class="border rounded p-3 d-none" id="cb-config-import-preview">
+                                        <div class="alert alert-info py-2 mb-3" id="cb-config-import-preview-summary"></div>
+                                        <div class="row g-3">
+                                            <div class="col-lg-6" id="cb-config-import-forms-box">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <label class="form-label fw-semibold mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_CONFIG_SELECT_FORMS'); ?></label>
+                                                    <span class="d-inline-flex gap-1">
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="cb-config-import-forms-check-all">
+                                                            <?php echo Text::_('JGLOBAL_SELECTION_ALL'); ?>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="cb-config-import-forms-uncheck-all">
+                                                            <?php echo Text::_('JGLOBAL_SELECTION_NONE'); ?>
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                                <div class="border rounded p-3" id="cb-config-import-forms-list" style="max-height: 220px; overflow-y: auto;"></div>
+                                            </div>
+                                            <div class="col-lg-6" id="cb-config-import-storages-box">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <label class="form-label fw-semibold mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_CONFIG_SELECT_STORAGES'); ?></label>
+                                                    <span class="d-inline-flex gap-1">
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="cb-config-import-storages-check-all">
+                                                            <?php echo Text::_('JGLOBAL_SELECTION_ALL'); ?>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="cb-config-import-storages-uncheck-all">
+                                                            <?php echo Text::_('JGLOBAL_SELECTION_NONE'); ?>
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                                <div class="border rounded p-3" id="cb-config-import-storages-list" style="max-height: 220px; overflow-y: auto;"></div>
+                                            </div>
+                                        </div>
+                                        <div id="cb-config-import-hidden-inputs"></div>
+                                    </div>
                                 <?php endif; ?>
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 mt-3">
-                            <button type="submit" class="btn <?php echo $isExportMode ? 'btn-success cb-config-export-btn' : 'btn-primary'; ?>">
+                            <button type="submit" id="cb-config-submit-button" class="btn <?php echo $isExportMode ? 'btn-success cb-config-export-btn' : 'btn-primary'; ?>">
                                 <span class="fa <?php echo $isExportMode ? 'fa-download' : 'fa-upload'; ?> me-1" aria-hidden="true"></span>
                                 <?php echo $isExportMode ? Text::_('COM_CONTENTBUILDERNG_ABOUT_EXPORT_CONFIGURATION') : Text::_('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION'); ?>
                             </button>
@@ -327,12 +361,86 @@ $selectedStorageIds = array_fill_keys(array_map('intval', (array) ($this->select
             }
         }
 
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function setImportPreviewGroupState(containerId, itemSelector, enabled) {
+            var container = document.getElementById(containerId);
+            if (!container) {
+                return;
+            }
+
+            container.style.opacity = enabled ? '1' : '.55';
+
+            var items = container.querySelectorAll(itemSelector);
+            for (var i = 0; i < items.length; i++) {
+                items[i].disabled = !enabled;
+            }
+        }
+
+        function syncImportSubmitState() {
+            var submitButton = document.getElementById('cb-config-submit-button');
+            if (!submitButton) {
+                return;
+            }
+
+            if (<?php echo $isExportMode ? 'true' : 'false'; ?>) {
+                submitButton.disabled = false;
+                return;
+            }
+
+            var importFormsEnabled = isSectionChecked('forms');
+            var importStoragesEnabled = isSectionChecked('storages');
+            var hasSelectedForms = importFormsEnabled && document.querySelectorAll('.cb-config-import-form-item:checked').length > 0;
+            var hasSelectedStorages = importStoragesEnabled && document.querySelectorAll('.cb-config-import-storage-item:checked').length > 0;
+
+            submitButton.disabled = !(hasSelectedForms || hasSelectedStorages);
+        }
+
+        function syncImportHiddenInputs() {
+            var hiddenContainer = document.getElementById('cb-config-import-hidden-inputs');
+            if (!hiddenContainer) {
+                return;
+            }
+
+            var markup = '';
+            var importFormsEnabled = isSectionChecked('forms');
+            var importStoragesEnabled = isSectionChecked('storages');
+            var formItems = document.querySelectorAll('.cb-config-import-form-item:checked');
+            var storageItems = document.querySelectorAll('.cb-config-import-storage-item:checked');
+
+            if (importFormsEnabled) {
+                for (var i = 0; i < formItems.length; i++) {
+                    markup += '<input type="hidden" name="cb_config_import_form_names[]" value="' + escapeHtml(formItems[i].value) + '">';
+                }
+            }
+
+            if (importStoragesEnabled) {
+                for (var j = 0; j < storageItems.length; j++) {
+                    markup += '<input type="hidden" name="cb_config_import_storage_names[]" value="' + escapeHtml(storageItems[j].value) + '">';
+                }
+            }
+
+            hiddenContainer.innerHTML = markup;
+            syncImportSubmitState();
+        }
+
         function syncSectionFilters() {
             var formFiltersEnabled = isSectionChecked('forms');
             var storageFiltersEnabled = isSectionChecked('storages');
 
             setGroupState('cb-config-forms-box', '.cb-config-form-item', formFiltersEnabled);
             setGroupState('cb-config-storages-box', '.cb-config-storage-item', storageFiltersEnabled);
+            setImportPreviewGroupState('cb-config-import-forms-box', '.cb-config-import-form-item', formFiltersEnabled);
+            setImportPreviewGroupState('cb-config-import-storages-box', '.cb-config-import-storage-item', storageFiltersEnabled);
+            syncImportHiddenInputs();
+            syncImportSubmitState();
         }
 
         function bindCheckButtons(checkButtonId, uncheckButtonId, selector, onChange) {
@@ -360,12 +468,173 @@ $selectedStorageIds = array_fill_keys(array_map('intval', (array) ($this->select
         bindCheckButtons('cb-config-sections-check-all', 'cb-config-sections-uncheck-all', '.cb-config-section-toggle', syncSectionFilters);
         bindCheckButtons('cb-config-forms-check-all', 'cb-config-forms-uncheck-all', '.cb-config-form-item');
         bindCheckButtons('cb-config-storages-check-all', 'cb-config-storages-uncheck-all', '.cb-config-storage-item');
+        bindCheckButtons('cb-config-import-forms-check-all', 'cb-config-import-forms-uncheck-all', '.cb-config-import-form-item', syncImportHiddenInputs);
+        bindCheckButtons('cb-config-import-storages-check-all', 'cb-config-import-storages-uncheck-all', '.cb-config-import-storage-item', syncImportHiddenInputs);
 
         var sectionToggles = document.querySelectorAll('.cb-config-section-toggle');
         for (var i = 0; i < sectionToggles.length; i++) {
             sectionToggles[i].addEventListener('change', syncSectionFilters);
         }
 
+        function extractPreviewRows(payload, sectionKey) {
+            if (!payload || typeof payload !== 'object') {
+                return [];
+            }
+
+            var data = payload.data;
+            if (data && typeof data === 'object' && data[sectionKey] && Array.isArray(data[sectionKey].rows)) {
+                return data[sectionKey].rows;
+            }
+
+            if (Array.isArray(payload.tables)) {
+                var legacyTables = {
+                    forms: '#__contentbuilderng_forms',
+                    storages: '#__contentbuilderng_storages'
+                };
+                for (var i = 0; i < payload.tables.length; i++) {
+                    var entry = payload.tables[i];
+                    if (entry && entry.table === legacyTables[sectionKey] && Array.isArray(entry.rows)) {
+                        return entry.rows;
+                    }
+                }
+            }
+
+            return [];
+        }
+
+        function renderImportPreviewList(listId, itemClass, inputName, rows, getValue, getLabel) {
+            var list = document.getElementById(listId);
+            if (!list) {
+                return;
+            }
+
+            if (!rows.length) {
+                list.innerHTML = '<div class="alert alert-secondary mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'); ?></div>';
+                return;
+            }
+
+            var markup = '';
+            for (var i = 0; i < rows.length; i++) {
+                var value = getValue(rows[i]);
+                if (!value) {
+                    continue;
+                }
+                var label = getLabel(rows[i]);
+                var id = inputName + '_' + i;
+                markup += ''
+                    + '<div class="form-check mb-1">'
+                    + '<input class="form-check-input ' + itemClass + '" type="checkbox" id="' + escapeHtml(id) + '" value="' + escapeHtml(value) + '" checked="checked">'
+                    + '<label class="form-check-label" for="' + escapeHtml(id) + '">' + escapeHtml(label) + '</label>'
+                    + '</div>';
+            }
+
+            list.innerHTML = markup !== '' ? markup : '<div class="alert alert-secondary mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'); ?></div>';
+        }
+
+        function bindImportPreviewCheckboxes() {
+            var previewItems = document.querySelectorAll('.cb-config-import-form-item, .cb-config-import-storage-item');
+            for (var i = 0; i < previewItems.length; i++) {
+                previewItems[i].addEventListener('change', syncImportHiddenInputs);
+            }
+        }
+
+        function renderImportPreview(payload) {
+            var preview = document.getElementById('cb-config-import-preview');
+            var summary = document.getElementById('cb-config-import-preview-summary');
+            if (!preview || !summary) {
+                return;
+            }
+
+            var formRows = extractPreviewRows(payload, 'forms');
+            var storageRows = extractPreviewRows(payload, 'storages');
+
+            renderImportPreviewList(
+                'cb-config-import-forms-list',
+                'cb-config-import-form-item',
+                'cb_config_import_form',
+                formRows,
+                function (row) {
+                    return row && row.name ? String(row.name) : '';
+                },
+                function (row) {
+                    var name = row && row.name ? String(row.name) : '';
+                    var type = row && row.type ? String(row.type) : '';
+                    return type ? (name + ' (' + type + ')') : name;
+                }
+            );
+
+            renderImportPreviewList(
+                'cb-config-import-storages-list',
+                'cb-config-import-storage-item',
+                'cb_config_import_storage',
+                storageRows,
+                function (row) {
+                    return row && row.name ? String(row.name) : '';
+                },
+                function (row) {
+                    var title = row && row.title ? String(row.title) : '';
+                    var name = row && row.name ? String(row.name) : '';
+                    return title && title !== name ? (title + ' (' + name + ')') : name;
+                }
+            );
+
+            summary.textContent = 'Fichier analyse : ' + formRows.length + ' form(s), ' + storageRows.length + ' storage(s).';
+            preview.classList.remove('d-none');
+            bindImportPreviewCheckboxes();
+            syncSectionFilters();
+            syncImportHiddenInputs();
+        }
+
+        function resetImportPreview(message) {
+            var preview = document.getElementById('cb-config-import-preview');
+            var summary = document.getElementById('cb-config-import-preview-summary');
+            var formsList = document.getElementById('cb-config-import-forms-list');
+            var storagesList = document.getElementById('cb-config-import-storages-list');
+            var hiddenContainer = document.getElementById('cb-config-import-hidden-inputs');
+
+            if (preview) {
+                preview.classList.add('d-none');
+            }
+            if (summary) {
+                summary.textContent = message || '';
+            }
+            if (formsList) {
+                formsList.innerHTML = '';
+            }
+            if (storagesList) {
+                storagesList.innerHTML = '';
+            }
+            if (hiddenContainer) {
+                hiddenContainer.innerHTML = '';
+            }
+            syncImportSubmitState();
+        }
+
+        var importFileInput = document.getElementById('cb_config_import_file');
+        if (importFileInput && typeof window.FileReader === 'function') {
+            importFileInput.addEventListener('change', function () {
+                if (!importFileInput.files || !importFileInput.files.length) {
+                    resetImportPreview('');
+                    return;
+                }
+
+                var reader = new FileReader();
+                reader.onload = function () {
+                    try {
+                        var payload = JSON.parse(String(reader.result || ''));
+                        renderImportPreview(payload);
+                    } catch (error) {
+                        resetImportPreview('Impossible de lire le contenu du fichier pour afficher un apercu.');
+                    }
+                };
+                reader.onerror = function () {
+                    resetImportPreview('Impossible de lire le contenu du fichier pour afficher un apercu.');
+                };
+                reader.readAsText(importFileInput.files[0]);
+            });
+        }
+
         syncSectionFilters();
+        syncImportSubmitState();
     }());
 </script>
