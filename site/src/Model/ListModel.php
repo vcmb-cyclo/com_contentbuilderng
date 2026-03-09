@@ -31,6 +31,10 @@ class ListModel extends BaseListModel
 
     protected ?array $_data = null; // si tu veux être propre avec _data aussi
 
+    protected bool $directStorageMode = false;
+
+    protected int $directStorageId = 0;
+
     /**
      * Items total
      * @var integer
@@ -82,6 +86,7 @@ class ListModel extends BaseListModel
         }
 
         $id = $app->input->getInt('id', 0);
+        $this->directStorageId = max(0, $app->input->getInt('storage_id', 0));
 
         if (!$id && $this->frontend) {
             $menu = $app->getMenu();
@@ -93,8 +98,9 @@ class ListModel extends BaseListModel
         }
 
         $this->setId($id);
+        $this->directStorageMode = $this->_id <= 0 && $this->directStorageId > 0;
 
-        if (!$this->_id) {
+        if (!$this->_id && !$this->directStorageMode) {
             throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
         }
 
@@ -222,7 +228,7 @@ class ListModel extends BaseListModel
 
         @natsort($this->_menu_filter_order);
 
-        $app->getSession()->set($option . 'formsd_id', $this->_id);
+        $app->getSession()->set($option . 'formsd_id', $this->directStorageMode ? 0 : $this->_id);
     }
 
     function setId($id)
@@ -230,6 +236,16 @@ class ListModel extends BaseListModel
         // Set id and wipe data
         $this->_id      = $id;
         $this->_data    = null;
+    }
+
+    protected function isDirectStorageMode(): bool
+    {
+        return $this->directStorageMode && $this->directStorageId > 0;
+    }
+
+    protected function getDirectStorageId(): int
+    {
+        return $this->directStorageId;
     }
 
     protected function populateState($ordering = null, $direction = null)
@@ -284,6 +300,9 @@ class ListModel extends BaseListModel
         $option = 'com_contentbuilderng';
 
         $formId = (int) $this->_id;
+        if ($this->isDirectStorageMode()) {
+            $formId = (int) $this->directStorageId;
+        }
         if ($formId < 1) {
             $formId = (int) $app->input->getInt('id', 0);
         }
@@ -302,7 +321,9 @@ class ListModel extends BaseListModel
 
         $itemId = (int) $app->input->getInt('Itemid', 0);
 
-        return $option . '.liststate.' . $formId . '.' . $layout . '.' . $itemId;
+        $scope = $this->isDirectStorageMode() ? ('storage.' . $formId) : (string) $formId;
+
+        return $option . '.liststate.' . $scope . '.' . $layout . '.' . $itemId;
     }
 
     private function getScopedListStateKey(string $suffix): string
@@ -332,6 +353,188 @@ class ListModel extends BaseListModel
         $session->clear('com_contentbuilderng.calendar_formats.' . $this->_id);
         $session->clear('com_contentbuilderng.filter_keywords.' . $this->_id);
         $session->clear('com_contentbuilderng.filter_article_categories.' . $this->_id);
+    }
+
+    protected function loadDirectStorageDefinition(): object
+    {
+        $storageId = $this->getDirectStorageId();
+        $db = $this->getDatabase();
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('id'),
+                $db->quoteName('name'),
+                $db->quoteName('title'),
+                $db->quoteName('bytable'),
+                $db->quoteName('published'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_storages'))
+            ->where($db->quoteName('id') . ' = ' . (int) $storageId);
+        $db->setQuery($query, 0, 1);
+        $storage = $db->loadObject();
+
+        if (!$storage || (int) ($storage->bytable ?? 0) === 1) {
+            throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
+        }
+
+        $storage->form = FormSourceFactory::getForm('com_contentbuilderng', $storageId);
+        if ((!$storage->form || !$storage->form->exists) && class_exists('CB\\Component\\Contentbuilderng\\Administrator\\types\\contentbuilderng_com_contentbuilderng')) {
+            $storage->form = new \CB\Component\Contentbuilderng\Administrator\types\contentbuilderng_com_contentbuilderng($storageId, false);
+        }
+        if (!$storage->form || !$storage->form->exists) {
+            throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
+        }
+
+        if (method_exists($storage->form, 'synchRecords')) {
+            $storage->form->synchRecords();
+        }
+
+        $fieldQuery = $db->getQuery(true)
+            ->select([
+                $db->quoteName('id'),
+                $db->quoteName('name'),
+                $db->quoteName('title'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_storage_fields'))
+            ->where($db->quoteName('storage_id') . ' = ' . (int) $storageId)
+            ->where('COALESCE(' . $db->quoteName('published') . ', 1) = 1')
+            ->order($db->quoteName('ordering') . ' ASC, ' . $db->quoteName('id') . ' ASC');
+        $db->setQuery($fieldQuery);
+        $storage->fieldRows = (array) $db->loadAssocList();
+
+        return $storage;
+    }
+
+    protected function getDirectStorageListSubject(): object
+    {
+        $app = $this->app;
+        $option = 'com_contentbuilderng';
+        $storage = $this->loadDirectStorageDefinition();
+        $ids = [];
+        $labels = [];
+        $orderTypes = [];
+
+        foreach ($storage->fieldRows as $fieldRow) {
+            $fieldId = (int) ($fieldRow['id'] ?? 0);
+            if ($fieldId <= 0) {
+                continue;
+            }
+
+            $ids[] = $fieldId;
+            $labels[$fieldId] = (string) (($fieldRow['title'] ?? '') !== '' ? $fieldRow['title'] : ($fieldRow['name'] ?? $fieldId));
+            $orderTypes['col' . $fieldId] = 'CHAR';
+        }
+
+        $data = (object) [
+            'type' => 'com_contentbuilderng',
+            'reference_id' => (int) $storage->id,
+            'theme_plugin' => 'joomla6',
+            'show_filter' => 1,
+            'show_records_per_page' => 1,
+            'button_bar_sticky' => 0,
+            'show_preview_link' => 1,
+            'show_page_heading' => $this->_show_page_heading,
+            'page_class' => $this->_page_class,
+            'name' => (string) ($storage->title ?: $storage->name),
+            'slug' => (string) ($storage->title ?: $storage->name),
+            'slug2' => '',
+            'form_id' => 0,
+            'direct_storage_mode' => 1,
+            'direct_storage_id' => (int) $storage->id,
+            'direct_storage_unpublished' => (int) ($storage->published ?? 0) === 0 ? 1 : 0,
+            'labels' => $labels,
+            'visible_cols' => $ids,
+            'linkable_elements' => [],
+            'show_id_column' => 1,
+            'page_title' => (string) (($this->_page_title !== '' && $this->_show_page_heading) ? $this->_page_title : ($storage->title ?: $storage->name)),
+            'intro_text' => '',
+            'export_xls' => 0,
+            'display_filter' => !empty($ids),
+            'edit_button' => 0,
+            'new_button' => 0,
+            'select_column' => 0,
+            'states' => [],
+            'list_state' => 0,
+            'list_publish' => 0,
+            'list_language' => 0,
+            'list_article' => 0,
+            'list_author' => 0,
+            'list_rating' => 0,
+            'rating_slots' => 0,
+            'state_colors' => [],
+            'state_titles' => [],
+            'published_items' => [],
+            'languages' => [],
+            'lang_codes' => [],
+            'title_field' => $ids[0] ?? 0,
+            'preview_no_list_fields' => empty($ids),
+            'own_only' => 0,
+            'own_only_fe' => 0,
+            'form' => $storage->form,
+            'items' => [],
+            'published_only' => 0,
+            'show_all_languages_fe' => 1,
+        ];
+
+        $list = (array) $app->input->get('list', [], 'array');
+        $ordering = isset($list['ordering']) ? preg_replace('/[^A-Za-z0-9_\\.]/', '', (string) $list['ordering']) : '';
+        $direction = isset($list['direction']) ? strtolower((string) $list['direction']) : '';
+        if ($ordering === '' && isset($list['fullordering'])) {
+            $parts = preg_split('/\s+/', trim((string) $list['fullordering']));
+            $ordering = isset($parts[0]) ? preg_replace('/[^A-Za-z0-9_\\.]/', '', (string) $parts[0]) : '';
+            $direction = isset($parts[1]) ? strtolower((string) $parts[1]) : $direction;
+        }
+        if ($ordering === '') {
+            $ordering = (string) $this->getState('formsd_filter_order');
+        } else {
+            $app->setUserState($option . 'formsd_filter_order', $ordering);
+        }
+        if ($direction === '') {
+            $direction = $this->getState('formsd_filter_order_Dir')
+                ? (string) $this->getState('formsd_filter_order_Dir')
+                : 'asc';
+        } else {
+            $app->setUserState($option . 'formsd_filter_order_Dir', $direction);
+        }
+        if ($direction !== 'asc' && $direction !== 'desc') {
+            $direction = 'asc';
+        }
+        if ($ordering !== '' && !isset($orderTypes[$ordering]) && $ordering !== 'colRecord') {
+            $ordering = '';
+        }
+
+        $searchableElements = $ids;
+        if ($ids !== []) {
+            $data->items = $storage->form->getListRecords(
+                $ids,
+                $this->getState('formsd_filter'),
+                $searchableElements,
+                $this->getState('list.start'),
+                $this->getState('list.limit'),
+                $ordering,
+                $orderTypes,
+                $direction,
+                0,
+                false,
+                -1,
+                0,
+                -1,
+                -1,
+                -1,
+                -1,
+                [],
+                true,
+                null,
+                [],
+                $data,
+                -1
+            );
+            $this->_total = $storage->form->getListRecordsTotal($ids, $this->getState('formsd_filter'), $searchableElements);
+        } else {
+            $data->items = [];
+            $this->_total = 0;
+        }
+
+        return $data;
     }
 
 
@@ -381,6 +584,10 @@ class ListModel extends BaseListModel
     {
         $app = $this->app;
         $option = 'com_contentbuilderng';
+
+        if ($this->isDirectStorageMode()) {
+            return $this->getDirectStorageListSubject();
+        }
 
         // Lets load the data if it doesn't already exist
         if (empty($this->_data)) {

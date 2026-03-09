@@ -40,6 +40,7 @@ class StoragesModel extends ListModel
                 'a.id',
                 'a.name',
                 'a.title',
+                'a.bytable',
                 'a.display_in',
                 'a.published',
                 'a.modified'
@@ -130,7 +131,7 @@ class StoragesModel extends ListModel
         }
 
         // Optionnel : whitelist rapide des colonnes triables
-        $allowedOrdering = ['a.id', 'a.name', 'a.title', 'a.published', 'a.ordering', 'a.modified'];
+        $allowedOrdering = ['a.id', 'a.name', 'a.title', 'a.bytable', 'a.published', 'a.ordering', 'a.modified'];
         if (!in_array($ordering, $allowedOrdering, true)) {
             $ordering = 'a.ordering';
         }

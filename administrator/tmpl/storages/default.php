@@ -158,6 +158,10 @@ setValue('task', task);
                         <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_STORAGE_TITLE'), 'a.title', $listDirn, $listOrder); ?>
                     </th>
 
+                    <th class="text-nowrap">
+                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_STORAGE_MODE'), 'a.bytable', $listDirn, $listOrder); ?>
+                    </th>
+
                     <th class="w-10 text-nowrap">
                         <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_ORDERBY'), 'a.ordering', $listDirn, $listOrder); ?>
                     </th>
@@ -175,7 +179,7 @@ setValue('task', task);
             <tbody>
                 <?php if ($n === 0) : ?>
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
+                        <td colspan="8" class="text-center text-muted py-4">
                             <?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
                         </td>
                     </tr>
@@ -185,6 +189,9 @@ setValue('task', task);
                         $id        = (int) ($row->id ?? 0);
                         $name      = htmlspecialchars((string) ($row->name ?? ''), ENT_QUOTES, 'UTF-8');
                         $title     = htmlspecialchars((string) ($row->title ?? ''), ENT_QUOTES, 'UTF-8');
+                        $storageMode = ((int) ($row->bytable ?? 0) === 1)
+                            ? Text::_('COM_CONTENTBUILDERNG_STORAGE_MODE_EXTERNAL')
+                            : Text::_('COM_CONTENTBUILDERNG_STORAGE_MODE_INTERNAL');
                         $lastUpdateRaw = $row->modified ?? ($row->created ?? '');
                         $lastUpdate = $lastUpdateRaw
                             ? HTMLHelper::_('date', $lastUpdateRaw, Text::_('DATE_FORMAT_LC5'))
@@ -203,6 +210,7 @@ setValue('task', task);
 
                         <td><a href="<?php echo $link; ?>"><?php echo $name; ?></a></td>
                         <td><a href="<?php echo $link; ?>"><?php echo $title; ?></a></td>
+                        <td class="text-nowrap"><?php echo htmlspecialchars($storageMode, ENT_QUOTES, 'UTF-8'); ?></td>
 
                         <td class="order text-nowrap">
                             <?php if ($saveOrder) : ?>
@@ -229,7 +237,7 @@ setValue('task', task);
 
             <tfoot>
                 <tr>
-                    <td colspan="7">
+                    <td colspan="8">
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
 
                             <div class="d-flex flex-wrap align-items-center gap-2">

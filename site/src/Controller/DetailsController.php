@@ -117,12 +117,16 @@ class DetailsController extends BaseController
             }
         }
 
-        ContentbuilderLegacyHelper::setPermissions($this->siteApp->input->getInt('id', 0), $this->siteApp->input->getCmd('record_id', 0), $this->frontend ? '_fe' : '');
+        if ($this->siteApp->input->getInt('storage_id', 0) <= 0 || $this->siteApp->input->getInt('id', 0) > 0) {
+            ContentbuilderLegacyHelper::setPermissions($this->siteApp->input->getInt('id', 0), $this->siteApp->input->getCmd('record_id', 0), $this->frontend ? '_fe' : '');
+        }
     }
 
     function display($cachable = false, $urlparams = array())
     {
         $this->input->set('view', 'details');
+        $storageId = $this->input->getInt('storage_id', 0);
+        $isDirectStorageMode = $storageId > 0 && $this->input->getInt('id', 0) <= 0;
 
         // Si tu gardes le suffixe pour compat legacy :
         //$frontend = $this->siteApp->isClient('site');
@@ -155,11 +159,13 @@ class DetailsController extends BaseController
             $this->siteApp->input->set('record_id', $recordId);
         }
 
-        ContentbuilderLegacyHelper::setPermissions($form_id, $recordId, $suffix);
-        $isAdminPreview = $this->isValidAdminPreviewRequest($form_id);
+        if (!$isDirectStorageMode) {
+            ContentbuilderLegacyHelper::setPermissions($form_id, $recordId, $suffix);
+        }
+        $isAdminPreview = !$isDirectStorageMode && $this->isValidAdminPreviewRequest($form_id);
         $this->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
         $this->siteApp->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
-        if (!$isAdminPreview) {
+        if (!$isDirectStorageMode && !$isAdminPreview) {
             ContentbuilderLegacyHelper::checkPermissions('view', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_VIEW_NOT_ALLOWED'), $this->frontend ? '_fe' : '');
         }
 

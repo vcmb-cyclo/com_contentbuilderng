@@ -283,6 +283,8 @@ class ListController extends BaseController
     {
         /** @var SiteApplication $app */
         $app   = Factory::getApplication();
+        $storageId = $this->input->getInt('storage_id', 0);
+        $isDirectStorageMode = $storageId > 0 && $this->input->getInt('id', 0) <= 0;
 
         // Si tu gardes le suffixe pour compat legacy :
         //$frontend = Factory::getApplication()->isClient('site');
@@ -313,14 +315,16 @@ class ListController extends BaseController
         Factory::getApplication()->input->set('view', 'list');
 
         // Permissions
-        ContentbuilderLegacyHelper::setPermissions($formId, $recordId, $suffix);
-        $isAdminPreview = $this->isValidAdminPreviewRequest($formId);
+        if (!$isDirectStorageMode) {
+            ContentbuilderLegacyHelper::setPermissions($formId, $recordId, $suffix);
+        }
+        $isAdminPreview = !$isDirectStorageMode && $this->isValidAdminPreviewRequest($formId);
         $this->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
         Factory::getApplication()->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
         if ($isAdminPreview) {
             $this->enqueueUnpublishedPreviewNotice($formId);
         }
-        if (!$isAdminPreview) {
+        if (!$isDirectStorageMode && !$isAdminPreview) {
             ContentbuilderLegacyHelper::checkPermissions(
                 'listaccess',
                 Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_LISTACCESS_NOT_ALLOWED'),

@@ -87,6 +87,9 @@ class HtmlView extends BaseHtmlView
         $this->show_records_per_page = $subject->show_records_per_page;
         $this->button_bar_sticky = (int) ($subject->button_bar_sticky ?? 0);
         $this->show_preview_link = (int) ($subject->show_preview_link ?? 0);
+        $this->direct_storage_mode = (int) ($subject->direct_storage_mode ?? 0);
+        $this->direct_storage_id = (int) ($subject->direct_storage_id ?? 0);
+        $this->direct_storage_unpublished = (int) ($subject->direct_storage_unpublished ?? 0);
 
         $this->page_class = $subject->page_class;
         $this->show_page_heading = $subject->show_page_heading;

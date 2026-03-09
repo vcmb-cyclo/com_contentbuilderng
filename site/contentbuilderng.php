@@ -134,6 +134,7 @@ $requestedTask = strtolower($input->getCmd('task', ''));
 
 if (
     $input->getInt('id', 0) <= 0
+    && $input->getInt('storage_id', 0) <= 0
     && ($requestedView === 'list' || $requestedTask === 'list.display')
 ) {
     $input->set('controller', 'publicforms');

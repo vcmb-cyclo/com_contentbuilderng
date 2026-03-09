@@ -21,6 +21,7 @@ use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 
 class DetailsModel extends ListModel
 {
@@ -44,6 +45,7 @@ class DetailsModel extends ListModel
 
     private $_page_heading = '';
     private SiteApplication $app;
+    private int $directStorageId = 0;
 
     public function __construct(
         $config,
@@ -56,6 +58,7 @@ class DetailsModel extends ListModel
         $this->app = $app;
         $option = 'com_contentbuilderng';
         $this->frontend = $app->isClient('site');
+        $this->directStorageId = max(0, $app->input->getInt('storage_id', 0));
 
         // ATTTENTION: ALSO DEFINED IN DETAILS CONTROLLER!
         if ($this->frontend && $app->input->getInt('Itemid', 0)) {
@@ -139,8 +142,59 @@ class DetailsModel extends ListModel
         $this->_data = null;
     }
 
+    private function isDirectStorageMode(): bool
+    {
+        return $this->directStorageId > 0 && (int) $this->_id <= 0;
+    }
+
+    private function getDirectStorageId(): int
+    {
+        return $this->directStorageId;
+    }
+
+    private function loadDirectStorageDefinition(): object
+    {
+        $storageId = $this->getDirectStorageId();
+        $db = $this->getDatabase();
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('id'),
+                $db->quoteName('name'),
+                $db->quoteName('title'),
+                $db->quoteName('bytable'),
+                $db->quoteName('published'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_storages'))
+            ->where($db->quoteName('id') . ' = ' . (int) $storageId);
+        $db->setQuery($query, 0, 1);
+        $storage = $db->loadObject();
+
+        if (!$storage || (int) ($storage->bytable ?? 0) === 1) {
+            throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
+        }
+
+        $storage->form = FormSourceFactory::getForm('com_contentbuilderng', $storageId);
+        if ((!$storage->form || !$storage->form->exists) && class_exists('CB\\Component\\Contentbuilderng\\Administrator\\types\\contentbuilderng_com_contentbuilderng')) {
+            $storage->form = new \CB\Component\Contentbuilderng\Administrator\types\contentbuilderng_com_contentbuilderng($storageId, false);
+        }
+
+        if (!$storage->form || !$storage->form->exists) {
+            throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
+        }
+
+        if (method_exists($storage->form, 'synchRecords')) {
+            $storage->form->synchRecords();
+        }
+
+        return $storage;
+    }
+
     private function _buildQuery()
     {
+        if ($this->isDirectStorageMode()) {
+            return '';
+        }
+
         $isAdminPreview = $this->app->input->getBool('cb_preview_ok', false);
         $query = 'Select * From #__contentbuilderng_forms Where id = ' . intval($this->_id);
 
@@ -158,6 +212,53 @@ class DetailsModel extends ListModel
     function getData()
     {
         $app = $this->app;
+
+        if ($this->isDirectStorageMode()) {
+            $storage = $this->loadDirectStorageDefinition();
+            $recordId = (int) $this->_record_id;
+
+            if ($recordId <= 0) {
+                throw new \Exception(Text::_('COM_CONTENTBUILDERNG_RECORD_NOT_FOUND'), 404);
+            }
+
+            $items = $storage->form->getRecord($recordId, false, -1, true);
+            if (!is_array($items) || count($items) === 0) {
+                throw new \Exception(Text::_('COM_CONTENTBUILDERNG_RECORD_NOT_FOUND'), 404);
+            }
+
+            $metadata = $storage->form->getRecordMetadata($recordId);
+
+            return (object) [
+                'type' => 'com_contentbuilderng',
+                'reference_id' => (int) $storage->id,
+                'theme_plugin' => 'joomla6',
+                'form_id' => 0,
+                'direct_storage_mode' => 1,
+                'direct_storage_id' => (int) $storage->id,
+                'direct_storage_unpublished' => (int) ($storage->published ?? 0) === 0 ? 1 : 0,
+                'record_id' => $recordId,
+                'show_page_heading' => $this->_show_page_heading,
+                'show_back_button' => $this->_show_back_button,
+                'name' => (string) ($storage->title ?: $storage->name),
+                'page_title' => (string) (($this->_page_title !== '' && $this->_show_page_heading) ? $this->_page_title : ($storage->title ?: $storage->name)),
+                'items' => $items,
+                'template' => $this->buildDirectStorageDetailsTemplate($items),
+                'created' => (string) ($metadata->created ?? ''),
+                'created_by' => (string) ($metadata->created_by ?? ''),
+                'modified' => (string) ($metadata->modified ?? ''),
+                'modified_by' => (string) ($metadata->modified_by ?? ''),
+                'metadesc' => (string) ($metadata->metadesc ?? ''),
+                'metakey' => (string) ($metadata->metakey ?? ''),
+                'author' => (string) ($metadata->author ?? ''),
+                'rights' => (string) ($metadata->rights ?? ''),
+                'robots' => (string) ($metadata->robots ?? ''),
+                'xreference' => (string) ($metadata->xreference ?? ''),
+                'print_button' => 0,
+                'show_id_column' => 1,
+                'published_only' => 0,
+            ];
+        }
+
         // Lets load the data if it doesn't already exist
         if (empty($this->_data)) {
             $query = $this->_buildQuery();
@@ -416,6 +517,29 @@ class DetailsModel extends ListModel
         return null;
     }
 
+    private function buildDirectStorageDetailsTemplate(array $items): string
+    {
+        $html = '<ul class="category list-striped list-condensed">';
+
+        foreach ($items as $item) {
+            if (!is_object($item)) {
+                continue;
+            }
+
+            $title = htmlspecialchars((string) ($item->recTitle ?? ''), ENT_QUOTES, 'UTF-8');
+            $value = (string) ($item->recValue ?? '');
+            if (trim(strip_tags($value)) === '') {
+                $value = '&nbsp;';
+            }
+
+            $html .= '<li><strong class="list-title">' . $title . '</strong><div>' . $value . '</div></li>';
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
     private function resolveListState(): array
     {
         /** @var SiteApplication $app */
@@ -458,6 +582,9 @@ class DetailsModel extends ListModel
         $option = 'com_contentbuilderng';
 
         $formId = (int) $this->_id;
+        if ($this->isDirectStorageMode()) {
+            $formId = (int) $this->getDirectStorageId();
+        }
         if ($formId < 1) {
             $formId = (int) $app->input->getInt('id', 0);
         }
@@ -475,6 +602,8 @@ class DetailsModel extends ListModel
 
         $itemId = (int) $app->input->getInt('Itemid', 0);
 
-        return $option . '.liststate.' . $formId . '.' . $layout . '.' . $itemId;
+        $scope = $this->isDirectStorageMode() ? ('storage.' . $formId) : (string) $formId;
+
+        return $option . '.liststate.' . $scope . '.' . $layout . '.' . $itemId;
     }
 }

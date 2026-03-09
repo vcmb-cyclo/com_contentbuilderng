@@ -57,6 +57,18 @@ if ($previewFormName === '') {
     $previewFormName = Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE');
 }
 $previewFormName = htmlspecialchars($previewFormName, ENT_QUOTES, 'UTF-8');
+$directStorageMode = !empty($this->direct_storage_mode);
+$directStorageId = (int) ($this->direct_storage_id ?? 0);
+$directStorageUnpublished = !empty($this->direct_storage_unpublished);
+if ($directStorageMode && $directStorageId > 0) {
+    $adminReturnUrl = Uri::root() . 'administrator/index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . $directStorageId;
+}
+$listTarget = $directStorageMode
+    ? ('storage_id=' . $directStorageId)
+    : ('id=' . (int) $input->getInt('id', 0));
+if ($directStorageMode) {
+    $view_allowed = true;
+}
 if ($previewEnabled && $previewUntil > 0 && $previewSig !== '') {
     $previewQuery = '&cb_preview=1'
         . '&cb_preview_until=' . $previewUntil
@@ -331,10 +343,13 @@ CSS
 		</h1>
 	</div>
 <?php endif; ?>
-<?php if ($isAdminPreview): ?>
+<?php if ($isAdminPreview || $directStorageMode): ?>
 		<div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
 			<span>
-				<?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE') . ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName) . ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CONFIG_TAB', Text::_('COM_CONTENTBUILDERNG_PREVIEW_TAB_VIEW')); ?>
+				<?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE') . ' - ' . Text::sprintf($directStorageMode ? 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_STORAGE' : 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName); ?>
+				<?php if (!$directStorageMode) : ?>
+					<?php echo ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CONFIG_TAB', Text::_('COM_CONTENTBUILDERNG_PREVIEW_TAB_VIEW')); ?>
+				<?php endif; ?>
 			</span>
 			<a class="btn btn-sm btn-outline-secondary" href="<?php echo $adminReturnUrl; ?>">
 				<span class="fa-solid fa-arrow-left me-1" aria-hidden="true"></span>
@@ -342,9 +357,14 @@ CSS
 			</a>
 		</div>
 	<?php endif; ?>
+<?php if ($directStorageMode && $directStorageUnpublished): ?>
+	<div class="alert alert-warning mb-3">
+		<?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_UNPUBLISHED_STORAGE_NOTICE'); ?>
+	</div>
+<?php endif; ?>
 <?php if (!empty($this->preview_no_list_fields)): ?>
 	<div class="alert alert-warning mb-3">
-		<?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_NO_LIST_FIELDS'); ?>
+		<?php echo Text::_($directStorageMode ? 'COM_CONTENTBUILDERNG_PREVIEW_NO_STORAGE_FIELDS' : 'COM_CONTENTBUILDERNG_PREVIEW_NO_LIST_FIELDS'); ?>
 	</div>
 <?php endif; ?>
 <?php echo $this->intro_text; ?>
@@ -354,7 +374,7 @@ CSS
 Fix search, delete, pagination and 404 behavior.
 Replace line 144 of media/com_contentbuilderng/images/list/tmpl/default.php
 by this block. -->
-	<form action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=list.display&id=' . (int) Factory::getApplication()->input->getInt('id') . '&Itemid=' . (int) Factory::getApplication()->input->getInt('Itemid', 0) . $previewQuery); ?>"
+	<form action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=list.display&' . $listTarget . '&Itemid=' . (int) Factory::getApplication()->input->getInt('Itemid', 0) . $previewQuery); ?>"
 		method="<?php echo $___getpost; ?>" name="adminForm" id="adminForm">
 
 	<!-- 2023-12-19 END -->
@@ -687,7 +707,7 @@ by this block. -->
 			$n = count($this->items);
 			for ($i = 0; $i < $n; $i++) {
 				$row = $this->items[$i];
-				$link = Route::_('index.php?option=com_contentbuilderng&task=details.display&id=' . $this->form_id . '&record_id=' . $row->colRecord . '&Itemid=' . Factory::getApplication()->input->getInt('Itemid', 0) . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '') . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '') . $previewQuery);
+				$link = Route::_('index.php?option=com_contentbuilderng&task=details.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . $this->form_id) . '&record_id=' . $row->colRecord . '&Itemid=' . Factory::getApplication()->input->getInt('Itemid', 0) . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '') . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '') . $previewQuery);
 				$edit_link = Route::_('index.php?option=com_contentbuilderng&task=edit.display&backtolist=1&id=' . $this->form_id . '&record_id=' . $row->colRecord . '&Itemid=' . Factory::getApplication()->input->getInt('Itemid', 0) . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '') . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '') . $previewQuery);
 					$isPublished = isset($this->published_items[$row->colRecord]) && $this->published_items[$row->colRecord];
 					$togglePublish = $isPublished ? 0 : 1;
@@ -700,10 +720,10 @@ by this block. -->
 					?>
 						<td>
 							<?php if ($view_allowed || $this->own_only) : ?>
-								<a class="text-primary" href="<?php echo $link; ?>"
-									title="<?php echo Text::_('COM_CONTENTBUILDERNG_DETAILS'); ?>">
+								<a class="<?php echo $directStorageMode ? 'btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1' : 'text-primary'; ?>" href="<?php echo $link; ?>"
+									title="<?php echo $directStorageMode ? Text::_('COM_CONTENTBUILDERNG_PREVIEW') : Text::_('COM_CONTENTBUILDERNG_DETAILS'); ?>">
 									<span class="fa-solid fa-eye" aria-hidden="true"></span>
-									<span class="visually-hidden"><?php echo Text::_('COM_CONTENTBUILDERNG_DETAILS'); ?></span>
+									<span class="visually-hidden"><?php echo $directStorageMode ? Text::_('COM_CONTENTBUILDERNG_PREVIEW') : Text::_('COM_CONTENTBUILDERNG_DETAILS'); ?></span>
 								</a>
 							<?php endif; ?>
 						</td>

@@ -50,8 +50,14 @@ $previewActorId = $input->getInt('cb_preview_actor_id', 0);
 $previewActorName = (string) $input->getString('cb_preview_actor_name', '');
 $isAdminPreview = $input->getBool('cb_preview_ok', false);
 $showTopBar = $input->getInt('cb_show_details_top_bar', 1) === 1;
+$directStorageMode = !empty($this->direct_storage_mode);
+$directStorageId = (int) ($this->direct_storage_id ?? 0);
+$directStorageUnpublished = !empty($this->direct_storage_unpublished);
 $adminReturnContext = trim((string) $input->getCmd('cb_admin_return', ''));
 $adminReturnUrl = Uri::root() . 'administrator/index.php?option=com_contentbuilderng&task=form.edit&id=' . (int) $input->getInt('id', 0);
+if ($directStorageMode && $directStorageId > 0) {
+    $adminReturnUrl = Uri::root() . 'administrator/index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . $directStorageId;
+}
 
 if ($adminReturnContext === 'forms') {
     $adminReturnUrl = Uri::root() . 'administrator/index.php?option=com_contentbuilderng&view=forms';
@@ -199,17 +205,20 @@ CSS
 <?php endif; ?>
 <div class="cbDetailsWrapper">
 
-    <?php if ($isAdminPreview): ?>
+    <?php if ($isAdminPreview || $directStorageMode): ?>
         <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <span>
-                <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE') . ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName) . ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CONFIG_TAB', Text::_('COM_CONTENTBUILDERNG_PREVIEW_TAB_CONTENT_TEMPLATE')); ?>
-                <?php if ($detailsTemplateMissing): ?>
+                <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE') . ' - ' . Text::sprintf($directStorageMode ? 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_STORAGE' : 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName); ?>
+                <?php if (!$directStorageMode) : ?>
+                    <?php echo ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CONFIG_TAB', Text::_('COM_CONTENTBUILDERNG_PREVIEW_TAB_CONTENT_TEMPLATE')); ?>
+                <?php endif; ?>
+                <?php if ($isAdminPreview && $detailsTemplateMissing): ?>
                     <br />
                     <strong><?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_DETAILS_TEMPLATE_MISSING'); ?></strong>
                 <?php endif; ?>
             </span>
             <span class="d-inline-flex flex-wrap align-items-center gap-2">
-                <?php if ($detailsTemplateMissing): ?>
+                <?php if ($isAdminPreview && $detailsTemplateMissing): ?>
                     <a class="btn btn-sm btn-outline-warning" href="<?php echo htmlspecialchars($detailsScreenAdminUrl, ENT_QUOTES, 'UTF-8'); ?>">
                         <span class="fa-solid fa-triangle-exclamation me-1" aria-hidden="true"></span>
                         <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_OPEN_DETAIL_SCREEN'); ?>
@@ -220,6 +229,11 @@ CSS
                     <?php echo Text::_('COM_CONTENTBUILDERNG_BACK_TO_ADMIN'); ?>
                 </a>
             </span>
+        </div>
+    <?php endif; ?>
+    <?php if ($directStorageMode && $directStorageUnpublished): ?>
+        <div class="alert alert-warning mb-3">
+            <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_UNPUBLISHED_STORAGE_NOTICE'); ?>
         </div>
     <?php endif; ?>
 
@@ -239,7 +253,7 @@ CSS
         }
     }
     $detailsNavBaseLink = 'index.php?option=com_contentbuilderng&title=' . $input->get('title', '', 'string')
-        . '&task=details.display&id=' . $input->getInt('id', 0)
+        . '&task=details.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . $input->getInt('id', 0))
         . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '')
         . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '')
         . '&Itemid=' . $input->getInt('Itemid', 0)
@@ -247,7 +261,7 @@ CSS
         . $previewQuery;
 
     $showCloseButton = $this->show_back_button && Factory::getApplication()->input->getBool('cb_show_details_back_button', 1);
-    $closeListLink = Route::_('index.php?option=com_contentbuilderng&title=' . Factory::getApplication()->input->get('title', '', 'string') . '&view=list&task=list.display&id=' . Factory::getApplication()->input->getInt('id', 0) . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '') . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . Factory::getApplication()->input->getInt('Itemid', 0) . $previewQuery);
+    $closeListLink = Route::_('index.php?option=com_contentbuilderng&title=' . Factory::getApplication()->input->get('title', '', 'string') . '&view=list&task=list.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . Factory::getApplication()->input->getInt('id', 0)) . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '') . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . Factory::getApplication()->input->getInt('Itemid', 0) . $previewQuery);
     $showActionToolbar = (
         (Factory::getApplication()->input->getInt('cb_show_details_back_button', 1) && $this->show_back_button)
         || $delete_allowed

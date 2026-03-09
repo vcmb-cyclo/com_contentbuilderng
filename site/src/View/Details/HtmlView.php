@@ -89,13 +89,15 @@ class HtmlView extends BaseHtmlView
         $app = Factory::getApplication();
         $option = 'com_contentbuilderng';
         $layout = (string) $app->input->getCmd('layout', 'default');
+        $storageId = (int) $app->input->getInt('storage_id', 0);
 
         if ($layout === '') {
             $layout = 'default';
         }
 
         $itemId = (int) $app->input->getInt('Itemid', 0);
-        $prefix = $option . '.liststate.' . $formId . '.' . $layout . '.' . $itemId;
+        $scope = $storageId > 0 && $formId <= 0 ? ('storage.' . $storageId) : (string) $formId;
+        $prefix = $option . '.liststate.' . $scope . '.' . $layout . '.' . $itemId;
 
         return [
             'limit' => $prefix . '.limit',
@@ -437,6 +439,9 @@ CSS;
 		$this->print_button = $subject->print_button;
 		$this->show_back_button = $subject->show_back_button;
 		$this->show_id_column = (int) ($subject->show_id_column ?? 0);
+		$this->direct_storage_mode = (int) ($subject->direct_storage_mode ?? 0);
+		$this->direct_storage_id = (int) ($subject->direct_storage_id ?? 0);
+		$this->direct_storage_unpublished = (int) ($subject->direct_storage_unpublished ?? 0);
 		$siblings = $this->resolveSiblingRecordIds($subject);
 		$this->prev_record_id = (int) ($siblings['previous'] ?? 0);
 		$this->next_record_id = (int) ($siblings['next'] ?? 0);

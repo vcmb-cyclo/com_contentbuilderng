@@ -137,7 +137,134 @@ class HtmlView extends BaseHtmlView
         $id = (int) ($this->item->id ?? 0);
         $isExternalTable = ((int) ($this->item->bytable ?? 0) === 1);
 
+        $wa->addInlineStyle('.cb-toolbar-preview{margin-inline-start:auto!important;}');
+        $wa->addInlineScript(
+            "(function () {
+                function getToolbarHost() {
+                    return document.getElementById('toolbar')
+                        || document.querySelector('joomla-toolbar')
+                        || document.querySelector('.toolbar');
+                }
+
+                function resolveToolbarButtonHost(node) {
+                    if (!node) {
+                        return null;
+                    }
+
+                    var host = node.closest('joomla-toolbar-button, .toolbar-button, .btn-wrapper');
+                    if (host) {
+                        return host;
+                    }
+
+                    if (typeof node.getRootNode === 'function') {
+                        var root = node.getRootNode();
+                        if (root && root.host) {
+                            return root.host;
+                        }
+                    }
+
+                    return node.parentElement || null;
+                }
+
+                function findHostByHref(fragment) {
+                    var selector = 'a[href*=\"' + fragment + '\"],button[href*=\"' + fragment + '\"]';
+                    var direct = document.querySelector(selector);
+                    if (direct) {
+                        return resolveToolbarButtonHost(direct);
+                    }
+
+                    var toolbarButtons = document.querySelectorAll('joomla-toolbar-button');
+                    for (var i = 0; i < toolbarButtons.length; i++) {
+                        var host = toolbarButtons[i];
+                        var shadow = host.shadowRoot;
+                        if (shadow && shadow.querySelector(selector)) {
+                            return host;
+                        }
+                    }
+
+                    return null;
+                }
+
+                function getHelpHost() {
+                    var helpById = document.getElementById('toolbar-help')
+                        || document.querySelector('[id*=\"toolbar-help\"]');
+                    if (helpById) {
+                        return resolveToolbarButtonHost(helpById);
+                    }
+
+                    var byHref = findHostByHref('layout=help');
+                    if (byHref) {
+                        return byHref;
+                    }
+
+                    return null;
+                }
+
+                function getPreviewHost() {
+                    var previewById = document.getElementById('toolbar-preview')
+                        || document.querySelector('[id*=\"toolbar-preview\"]');
+                    if (previewById) {
+                        return resolveToolbarButtonHost(previewById);
+                    }
+
+                    return findHostByHref('task=list.display&storage_id=');
+                }
+
+                function alignPreviewNearHelp() {
+                    var previewHost = getPreviewHost();
+                    if (!previewHost) {
+                        return;
+                    }
+
+                    previewHost.classList.add('cb-toolbar-preview');
+
+                    var helpHost = getHelpHost();
+                    if (!helpHost || !helpHost.parentNode || previewHost === helpHost) {
+                        return;
+                    }
+
+                    if (previewHost.parentNode !== helpHost.parentNode || previewHost.nextElementSibling !== helpHost) {
+                        helpHost.parentNode.insertBefore(previewHost, helpHost);
+                    }
+                }
+
+                function init() {
+                    var toolbarHost = getToolbarHost();
+                    alignPreviewNearHelp();
+
+                    if (toolbarHost && typeof MutationObserver === 'function') {
+                        var observer = new MutationObserver(alignPreviewNearHelp);
+                        observer.observe(toolbarHost, { childList: true, subtree: true });
+                        window.setTimeout(function () {
+                            observer.disconnect();
+                        }, 6000);
+                    }
+
+                    window.setTimeout(alignPreviewNearHelp, 0);
+                    window.setTimeout(alignPreviewNearHelp, 120);
+                    window.setTimeout(alignPreviewNearHelp, 400);
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', init, { once: true });
+                } else {
+                    init();
+                }
+            }());"
+        );
+
         if ($id > 0 && !$isExternalTable) {
+            $previewUrl = Uri::root()
+                . 'index.php?option=com_contentbuilderng&task=list.display&storage_id='
+                . $id;
+            $toolbar->appendButton(
+                'Link',
+                'eye',
+                Text::_('COM_CONTENTBUILDERNG_PREVIEW'),
+                $previewUrl,
+                '_blank'
+            );
+
             ToolbarHelper::custom('datatable.sync', 'refresh', '', Text::_('COM_CONTENTBUILDERNG_DATATABLE_SYNC'), false);
 
             $syncTip = json_encode(Text::_('COM_CONTENTBUILDERNG_DATATABLE_SYNC_TIP'), JSON_UNESCAPED_UNICODE);
