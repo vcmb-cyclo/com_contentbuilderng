@@ -12,6 +12,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Controller;
 \defined('_JEXEC') or die('Restricted access');
 
 use CB\Component\Contentbuilderng\Administrator\Helper\DatabaseAuditHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataMigrationHelper;
 use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\Factory;
@@ -611,6 +612,8 @@ final class AboutController extends BaseController
         /** @var AdministratorApplication $app */
         $app = Factory::getApplication();
         $user = $app->getIdentity();
+        $selectedSections = [];
+        $importMode = self::CONFIG_IMPORT_MODE_MERGE;
 
         if (!$user->authorise('core.manage', 'com_contentbuilderng')) {
             throw new \RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'), 403);
@@ -660,6 +663,7 @@ final class AboutController extends BaseController
                 'generated_at' => Factory::getDate()->format('Y-m-d H:i:s'),
                 'summary' => $summary,
             ]);
+            $this->logConfigurationImportReport($summary, $selectedSections, $importMode);
 
             $rowsImported = (int) ($summary['rows'] ?? 0);
             $tablesImported = (int) ($summary['tables'] ?? 0);
@@ -678,6 +682,11 @@ final class AboutController extends BaseController
                     'status' => 'error',
                     'details' => [(string) $e->getMessage()],
                 ],
+            ]);
+            Logger::error('Configuration import failed', [
+                'mode' => $importMode,
+                'sections' => $selectedSections,
+                'error' => $e->getMessage(),
             ]);
             $this->setMessage(
                 Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_FAILED', $e->getMessage()),
@@ -1192,6 +1201,30 @@ final class AboutController extends BaseController
             'rows' => $tableRowsImported,
             'details' => $details,
         ];
+    }
+
+    private function logConfigurationImportReport(array $summary, array $selectedSections, string $importMode): void
+    {
+        $details = array_values(array_filter(
+            array_map('strval', (array) ($summary['details'] ?? [])),
+            static fn(string $detail): bool => trim($detail) !== ''
+        ));
+
+        Logger::info('Configuration import completed', [
+            'mode' => $importMode,
+            'status' => (string) ($summary['status'] ?? 'ok'),
+            'sections' => array_values($selectedSections),
+            'tables' => (int) ($summary['tables'] ?? 0),
+            'rows' => (int) ($summary['rows'] ?? 0),
+            'details_count' => count($details),
+        ]);
+
+        foreach ($details as $detail) {
+            Logger::info('Configuration import detail', [
+                'mode' => $importMode,
+                'detail' => $detail,
+            ]);
+        }
     }
 
     private function importConfigTableRows(DatabaseInterface $db, string $tableAlias, array $rows, string $importMode): int

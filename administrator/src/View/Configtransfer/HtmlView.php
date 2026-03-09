@@ -16,6 +16,7 @@ use Joomla\CMS\Document\HtmlDocument;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
+use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseInterface;
@@ -70,21 +71,27 @@ class HtmlView extends BaseHtmlView
             }'
         );
 
+        $this->mode = $app->input->getCmd('mode', 'export');
+        if (!in_array($this->mode, ['export', 'import'], true)) {
+            $this->mode = 'export';
+        }
+
+        $importReport = $app->getUserState('com_contentbuilderng.about.import', []);
+        $this->importReport = is_array($importReport) ? $importReport : [];
+        $app->setUserState('com_contentbuilderng.about.import', []);
+
         ToolbarHelper::title(
             Text::_('COM_CONTENTBUILDERNG') . ' :: ' . Text::_('COM_CONTENTBUILDERNG_ABOUT_CONFIG_TRANSFER_TITLE'),
             'logo_left'
         );
+
+        $this->configureToolbar($document);
 
         ToolbarHelper::help(
             'COM_CONTENTBUILDERNG_HELP_CONFIG_TRANSFER_TITLE',
             false,
             Uri::base() . 'index.php?option=com_contentbuilderng&view=configtransfer&layout=help&tmpl=component'
         );
-
-        $this->mode = $app->input->getCmd('mode', 'export');
-        if (!in_array($this->mode, ['export', 'import'], true)) {
-            $this->mode = 'export';
-        }
 
         $this->configSections = [
             'component_params' => [
@@ -104,11 +111,28 @@ class HtmlView extends BaseHtmlView
         $this->forms = $this->loadForms();
         $this->storages = $this->loadStorages();
         $this->hydrateSelectionState($app);
-        $importReport = $app->getUserState('com_contentbuilderng.about.import', []);
-        $this->importReport = is_array($importReport) ? $importReport : [];
-        $app->setUserState('com_contentbuilderng.about.import', []);
 
         parent::display($tpl);
+    }
+
+    private function configureToolbar(HtmlDocument $document): void
+    {
+        /** @var Toolbar $toolbar */
+        $toolbar = $document->getToolbar('toolbar');
+
+        $toolbar->standardButton('configtransfer_back')
+            ->task('configtransfer.back')
+            ->text('COM_CONTENTBUILDERNG_ABOUT')
+            ->icon('fa fa-arrow-left')
+            ->listCheck(false);
+
+        if ($this->mode === 'import' && $this->importReport !== []) {
+            $toolbar->standardButton('configtransfer_last_log')
+                ->task('about.showLog')
+                ->text('COM_CONTENTBUILDERNG_ABOUT_LAST_LOG')
+                ->icon('fa fa-file-text-o')
+                ->listCheck(false);
+        }
     }
 
     private function loadForms(): array
