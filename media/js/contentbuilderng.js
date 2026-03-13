@@ -31,6 +31,9 @@ var cbLastId = null;
 function cbRetrieveRatingResults(value){
     var result = JSON.parse(value);
     if(typeof result == "object"){
+        if(typeof result.success !== "undefined"){
+            result = result.success ? (result.data || {}) : {code: 1, msg: result.message || ''};
+        }
         if(document.getElementById(cbLastId)){
             document.getElementById(cbLastId).style.display='block';
             document.getElementById(cbLastId).innerHTML = result["msg"];

@@ -100,9 +100,9 @@ final class RatingHelper
         if ($rating_allowed) {
             if ($app->isClient('site')) {
                 $rating_link = Uri::root(true) . ($app->isClient('administrator') ? '/administrator' : ($app->input->getCmd('lang', '') &&
-                (bool) $app->get('sef') && (bool) $app->get('sef_rewrite') ? '/' . $app->input->getCmd('lang', '') : '')) . '/?option=com_contentbuilderng&lang=' . $lang . '&view=ajax&format=raw&subject=rating&id=' . $form_id . '&record_id=' . $record_id;
+                (bool) $app->get('sef') && (bool) $app->get('sef_rewrite') ? '/' . $app->input->getCmd('lang', '') : '')) . '/?option=com_contentbuilderng&lang=' . $lang . '&task=api.display&format=json&action=rating&id=' . $form_id . '&record_id=' . $record_id;
             } else {
-                $rating_link = 'index.php?option=com_contentbuilderng&lang=' . $lang . '&view=ajax&format=raw&subject=rating&id=' . $form_id . '&record_id=' . $record_id;
+                $rating_link = 'index.php?option=com_contentbuilderng&lang=' . $lang . '&task=api.display&format=json&action=rating&id=' . $form_id . '&record_id=' . $record_id;
             }
         }
         for ($x = 1; $x <= $rating_slots; $x++) {

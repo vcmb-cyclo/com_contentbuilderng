@@ -23,6 +23,7 @@ use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Input\Input;
+use Joomla\CMS\Session\Session;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 
 class ApiController extends BaseController
@@ -51,6 +52,7 @@ class ApiController extends BaseController
         try {
             $formId = (int) $this->input->getInt('id', 0);
             $recordId = (int) $this->input->getInt('record_id', 0);
+            $action = trim((string) $this->input->getCmd('action', ''));
             $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 
             Logger::info('API request', [
@@ -87,6 +89,12 @@ class ApiController extends BaseController
                 throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_API_NOT_ALLOWED'), 403);
             }
 
+            if ($action !== '') {
+                $payload = $this->handleAction($action, $formId, $recordId);
+                $this->sendJson($payload);
+                return;
+            }
+
             if ($method === 'GET') {
                 $payload = $recordId > 0
                     ? $this->getDetailPayload($formId, $recordId)
@@ -119,6 +127,204 @@ class ApiController extends BaseController
         } catch (\Throwable $e) {
             $this->sendJsonError($e);
         }
+    }
+
+    private function handleAction(string $action, int $formId, int $recordId): array
+    {
+        return match ($action) {
+            'get-unique-values' => $this->getUniqueValuesPayload($formId),
+            'rating' => $this->ratePayload($formId, $recordId),
+            default => throw new \RuntimeException(Text::_('JGLOBAL_RESOURCE_NOT_FOUND'), 404),
+        };
+    }
+
+    private function getUniqueValuesPayload(int $formId): array
+    {
+        if (!$this->can('listaccess')) {
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_VIEW_NOT_ALLOWED'), 403);
+        }
+
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $query = $db->getQuery(true)
+            ->select([$db->quoteName('type'), $db->quoteName('reference_id')])
+            ->from($db->quoteName('#__contentbuilderng_forms'))
+            ->where($db->quoteName('id') . ' = ' . $formId);
+        $db->setQuery($query);
+        $result = $db->loadAssoc();
+
+        $form = is_array($result)
+            ? FormSourceFactory::getForm((string) $result['type'], (string) $result['reference_id'])
+            : null;
+
+        if (!$form || !$form->exists) {
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_FORM_ERROR'), 404);
+        }
+
+        $values = $form->getUniqueValues(
+            $this->input->getCmd('field_reference_id', ''),
+            $this->input->getCmd('where_field', ''),
+            $this->input->get('where', '', 'string')
+        );
+
+        return [
+            'code' => 0,
+            'field_reference_id' => $this->input->getCmd('field_reference_id', ''),
+            'msg' => $values,
+        ];
+    }
+
+    private function ratePayload(int $formId, int $recordId): array
+    {
+        if (!$this->can('rating')) {
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_RATING_NOT_ALLOWED'), 403);
+        }
+
+        if (strtoupper((string) $this->input->getMethod()) !== 'POST') {
+            throw new \RuntimeException(Text::_('JINVALID_TOKEN'), 403);
+        }
+
+        if (!Session::checkToken('post') && !Session::checkToken('get')) {
+            throw new \RuntimeException(Text::_('JINVALID_TOKEN'), 403);
+        }
+
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $query = $db->getQuery(true)
+            ->select([$db->quoteName('type'), $db->quoteName('reference_id'), $db->quoteName('rating_slots')])
+            ->from($db->quoteName('#__contentbuilderng_forms'))
+            ->where($db->quoteName('id') . ' = ' . $formId);
+        $db->setQuery($query);
+        $result = $db->loadAssoc();
+
+        $form = is_array($result)
+            ? FormSourceFactory::getForm((string) $result['type'], (string) $result['reference_id'])
+            : null;
+
+        if (!$form || !$form->exists) {
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_FORM_ERROR'), 404);
+        }
+
+        $ratingSlots = (int) ($result['rating_slots'] ?? 0);
+        $rating = 0;
+
+        switch ($ratingSlots) {
+            case 1:
+                $rating = 1;
+                break;
+            case 2:
+                $rating = max(0, min(5, (int) $this->input->getInt('rate', 5)));
+                if ($rating < 4) {
+                    $rating = 0;
+                }
+                break;
+            case 3:
+                $rating = max(1, min(3, (int) $this->input->getInt('rate', 3)));
+                break;
+            case 4:
+                $rating = max(1, min(4, (int) $this->input->getInt('rate', 4)));
+                break;
+            case 5:
+                $rating = max(1, min(5, (int) $this->input->getInt('rate', 5)));
+                break;
+        }
+
+        if ($ratingSlots !== 2 && !$rating) {
+            return ['code' => 0, 'msg' => Text::_('COM_CONTENTBUILDERNG_THANK_YOU_FOR_RATING')];
+        }
+
+        $now = Factory::getDate();
+        $nowSql = $now->toSql();
+
+        $db->setQuery("Delete From #__contentbuilderng_rating_cache Where Datediff(" . $db->quote($nowSql) . ", `date`) >= 1");
+        $db->execute();
+
+        $clientIp = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+        $db->setQuery(
+            "Select `form_id` From #__contentbuilderng_rating_cache"
+            . " Where `record_id` = " . $db->quote((string) $recordId)
+            . " And `form_id` = " . $formId
+            . " And `ip` = " . $db->quote($clientIp)
+        );
+        $cached = $db->loadResult();
+        $rated = $this->siteApp->getSession()->get('rated' . $formId . $recordId, false, 'com_contentbuilderng.rating');
+
+        if ($rated || $cached) {
+            return ['code' => 1, 'msg' => Text::_('COM_CONTENTBUILDERNG_RATED_ALREADY')];
+        }
+
+        $this->siteApp->getSession()->set('rated' . $formId . $recordId, true, 'com_contentbuilderng.rating');
+
+        $db->setQuery(
+            "Update #__contentbuilderng_records"
+            . " Set rating_count = rating_count + 1, rating_sum = rating_sum + " . $rating . ", lastip = " . $db->quote($clientIp)
+            . " Where `type` = " . $db->quote((string) $result['type'])
+            . " And `reference_id` = " . $db->quote((string) $result['reference_id'])
+            . " And `record_id` = " . $db->quote((string) $recordId)
+        );
+        $db->execute();
+
+        $db->setQuery(
+            "Insert Into #__contentbuilderng_rating_cache (`record_id`,`form_id`,`ip`,`date`) Values ("
+            . $db->quote((string) $recordId) . ", "
+            . $formId . ", "
+            . $db->quote($clientIp) . ", "
+            . $db->quote($nowSql) . ")"
+        );
+        $db->execute();
+
+        $db->setQuery(
+            "Select a.article_id From #__contentbuilderng_articles As a, #__content As c"
+            . " Where c.id = a.article_id And (c.state = 1 Or c.state = 0)"
+            . " And a.form_id = " . $formId
+            . " And a.record_id = " . $db->quote((string) $recordId)
+        );
+        $articleId = (int) $db->loadResult();
+
+        if ($articleId > 0) {
+            $db->setQuery("Select content_id From #__content_rating Where content_id = " . $articleId);
+            $exists = $db->loadResult();
+
+            if ($exists) {
+                $db->setQuery("
+                    Update 
+                        #__content_rating As cr, 
+                        #__contentbuilderng_records As cbr, 
+                        #__contentbuilderng_articles As cba
+                    Set
+                        cr.rating_count = cbr.rating_count,
+                        cr.rating_sum = cbr.rating_sum,
+                        cr.lastip = cbr.lastip
+                    Where
+                        cbr.record_id = " . $db->quote((string) $recordId) . "
+                    And
+                        cbr.record_id = cba.record_id
+                    And
+                        cbr.reference_id = " . $db->quote((string) $result['reference_id']) . "
+                    And
+                        cbr.`type` = " . $db->quote((string) $result['type']) . " 
+                    And 
+                        cba.form_id = " . $formId . "
+                    And
+                        cr.content_id = cba.article_id
+                ");
+                $db->execute();
+            } else {
+                $db->setQuery("
+                    Insert Into #__content_rating (
+                        content_id,
+                        rating_sum,
+                        rating_count,
+                        lastip
+                    ) Values (
+                        " . $articleId . ",
+                        " . $rating . ",
+                        1,
+                        " . $db->quote($clientIp) . "
+                    )");
+                $db->execute();
+            }
+        }
+
+        return ['code' => 0, 'msg' => Text::_('COM_CONTENTBUILDERNG_THANK_YOU_FOR_RATING')];
     }
 
     private function getListModel(): ListModel

@@ -46,6 +46,49 @@ To prepare for Joomla 6 compatibility:
 
 These changes may impact older custom integrations.
 
+### AJAX Endpoint Migration
+
+The old component-specific AJAX stack has been removed.
+
+Removed:
+- `task=ajax.display`
+
+Replacement:
+- use the component API endpoint with JSON responses
+- endpoint format:
+  - `index.php?option=com_contentbuilderng&task=api.display&format=json&action=...`
+
+Current migrated actions:
+- `action=rating`
+- `action=get-unique-values`
+
+URL migration example:
+
+Old:
+
+```text
+index.php?option=com_contentbuilder&task=ajax.display&id=25&subject=rating&record_id=16
+```
+
+New:
+
+```text
+index.php?option=com_contentbuilderng&task=api.display&format=json&action=rating&id=25&record_id=16
+```
+
+Response format:
+
+```json
+{
+  "success": true,
+  "message": null,
+  "messages": null,
+  "data": {}
+}
+```
+
+There is no backward compatibility for `task=ajax.display`.
+
 ---
 
 ## Download
