@@ -20,6 +20,18 @@ use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 
 class plgContentbuilderng_validationEmail extends CMSPlugin implements SubscriberInterface
 {
+    private function pushEventResult(Event $event, string $value): string
+    {
+        $results = $event->getArgument('result') ?: [];
+        if (!is_array($results)) {
+            $results = [$results];
+        }
+        $results[] = $value;
+        $event->setArgument('result', $results);
+
+        return $value;
+    }
+
     public static function getSubscribedEvents(): array
     {
         return ['onValidate' => 'onValidate'];
@@ -42,7 +54,7 @@ class plgContentbuilderng_validationEmail extends CMSPlugin implements Subscribe
 
         if (!is_array($value)) {
             if (!ContentbuilderngHelper::isEmail($value)) {
-                return Text::_('COM_CONTENTBUILDERNG_VALIDATION_EMAIL_INVALID') . ': ' . $field['label'];
+                return $this->pushEventResult($event, Text::_('COM_CONTENTBUILDERNG_VALIDATION_EMAIL_INVALID') . ': ' . $field['label']);
             }
         } else {
             foreach ($value as $val) {
@@ -51,10 +63,10 @@ class plgContentbuilderng_validationEmail extends CMSPlugin implements Subscribe
                 }
             }
             if ($msg) {
-                return Text::_('COM_CONTENTBUILDERNG_VALIDATION_EMAIL_INVALID') . ': ' . $field['label'] . ' (' . $msg . ')';
+                return $this->pushEventResult($event, Text::_('COM_CONTENTBUILDERNG_VALIDATION_EMAIL_INVALID') . ': ' . $field['label'] . ' (' . $msg . ')');
             }
         }
 
-        return $msg;
+        return $this->pushEventResult($event, $msg);
     }
 }

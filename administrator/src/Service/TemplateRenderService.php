@@ -673,6 +673,19 @@ class TemplateRenderService
                 $options = new \stdClass();
             }
 
+            $normalizeScalarValue = static function ($value): string {
+                if (is_array($value)) {
+                    $value = array_values(array_filter($value, static fn($v) => $v !== null && $v !== '' && $v !== 'cbGroupMark'));
+                    return implode(', ', array_map(static fn($v) => (string) $v, $value));
+                }
+
+                if ($value === null) {
+                    return '';
+                }
+
+                return (string) $value;
+            };
+
             $theItem = '';
 
             switch ($elementType) {
@@ -693,7 +706,8 @@ class TemplateRenderService
                     $options->maxlength = $options->maxlength ?? '';
                     $options->password = $options->password ?? '';
                     $options->readonly = $options->readonly ?? '';
-                    $theItem = '<div class="cbFormField cbTextField"><input class="form-control form-control-sm" ' . $autocomplete . '' . ($options->readonly ? 'readonly="readonly" ' : '') . 'style="' . ($options->length ? 'width:' . $options->length . ';' : '') . '" ' . ($options->maxlength ? 'maxlength="' . (int) $options->maxlength . '" ' : '') . 'type="' . (isset($element['force_password']) || $options->password ? 'password' : 'text') . '" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '" value="' . htmlentities($failedValues !== null && isset($failedValues[$element['reference_id']]) ? $failedValues[$element['reference_id']] : ($hasRecords ? $item['value'] : $element['default_value']), ENT_QUOTES, 'UTF-8') . '"/></div>';
+                    $textValue = $normalizeScalarValue($failedValues !== null && isset($failedValues[$element['reference_id']]) ? $failedValues[$element['reference_id']] : ($hasRecords ? $item['value'] : $element['default_value']));
+                    $theItem = '<div class="cbFormField cbTextField"><input class="form-control form-control-sm" ' . $autocomplete . '' . ($options->readonly ? 'readonly="readonly" ' : '') . 'style="' . ($options->length ? 'width:' . $options->length . ';' : '') . '" ' . ($options->maxlength ? 'maxlength="' . (int) $options->maxlength . '" ' : '') . 'type="' . (isset($element['force_password']) || $options->password ? 'password' : 'text') . '" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '" value="' . htmlentities($textValue, ENT_QUOTES, 'UTF-8') . '"/></div>';
                     break;
                 case 'textarea':
                     $options->width = $options->width ?? '';
@@ -702,11 +716,12 @@ class TemplateRenderService
                     $options->readonly = $options->readonly ?? '';
                     $options->allow_html = $options->allow_html ?? false;
                     $options->allow_raw = $options->allow_raw ?? false;
+                    $textareaValue = $normalizeScalarValue($failedValues !== null && isset($failedValues[$element['reference_id']]) ? $failedValues[$element['reference_id']] : ($hasRecords ? $item['value'] : $element['default_value']));
                     if ($options->allow_html || $options->allow_raw) {
                         $editor = Editor::getInstance(Factory::getApplication()->get('editor'));
-                        $theItem = '<div class="cbFormField cbTextArea">' . $editor->display('cb_' . $item['id'], htmlentities($failedValues !== null && isset($failedValues[$element['reference_id']]) ? $failedValues[$element['reference_id']] : ($hasRecords ? $item['value'] : $element['default_value']), ENT_QUOTES, 'UTF-8'), $options->width ? $options->width : '100%', $options->height ? $options->height : '550', '75', '20') . '</div>';
+                        $theItem = '<div class="cbFormField cbTextArea">' . $editor->display('cb_' . $item['id'], htmlentities($textareaValue, ENT_QUOTES, 'UTF-8'), $options->width ? $options->width : '100%', $options->height ? $options->height : '550', '75', '20') . '</div>';
                     } else {
-                        $theItem = '<div class="cbFormField cbTextArea form-control form-control-sm"><textarea class="form-control form-control-sm" ' . ($options->readonly ? 'readonly="readonly" ' : '') . 'style="' . ($options->width || $options->height ? ($options->width ? 'width:' . $options->width . ';' : '') . ($options->height ? 'height:' . $options->height . ';' : '') : '') . '" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '">' . htmlentities($failedValues !== null && isset($failedValues[$element['reference_id']]) ? $failedValues[$element['reference_id']] : ($hasRecords ? $item['value'] : $element['default_value']), ENT_QUOTES, 'UTF-8') . '</textarea></div>';
+                        $theItem = '<div class="cbFormField cbTextArea form-control form-control-sm"><textarea class="form-control form-control-sm" ' . ($options->readonly ? 'readonly="readonly" ' : '') . 'style="' . ($options->width || $options->height ? ($options->width ? 'width:' . $options->width . ';' : '') . ($options->height ? 'height:' . $options->height . ';' : '') : '') . '" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '">' . htmlentities($textareaValue, ENT_QUOTES, 'UTF-8') . '</textarea></div>';
                     }
                     break;
                 case 'checkboxgroup':
@@ -791,7 +806,7 @@ class TemplateRenderService
                     $options->readonly = $options->readonly ?? '';
                     $options->format = $options->format ?? '%Y-%m-%d';
                     $options->transfer_format = $options->transfer_format ?? 'YYYY-mm-dd';
-                    $calval = htmlentities($failedValues !== null && isset($failedValues[$element['reference_id']]) ? $failedValues[$element['reference_id']] : ($hasRecords ? $item['value'] : $element['default_value']), ENT_QUOTES, 'UTF-8');
+                    $calval = htmlentities($normalizeScalarValue($failedValues !== null && isset($failedValues[$element['reference_id']]) ? $failedValues[$element['reference_id']] : ($hasRecords ? $item['value'] : $element['default_value'])), ENT_QUOTES, 'UTF-8');
                     $calval = $this->callContentbuilderngHelper('convertDate', $calval, $options->transfer_format, $options->format);
                     $calAttr = ['class' => 'cb_' . $item['id'], 'showTime' => true, 'timeFormat' => '24', 'singleHeader' => false, 'todayBtn' => true, 'weekNumbers' => true, 'minYear' => '', 'maxYear' => '', 'firstDay' => '1'];
                     $theItem = '<div class="cbFormField cbCalendarField">' . "\n" . '<div id="field-calendar_cb_' . $item['id'] . '">' . "\n" . '<div class="input-group">' . "\n";
@@ -799,7 +814,8 @@ class TemplateRenderService
                     $theItem .= "</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>";
                     break;
                 case 'hidden':
-                    $theItem = '<input type="hidden" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '" value="' . htmlentities($failedValues !== null && $elementReferenceId !== '' && isset($failedValues[$elementReferenceId]) ? $failedValues[$elementReferenceId] : ($hasRecords ? $item['value'] : $element['default_value']), ENT_QUOTES, 'UTF-8') . '"/>';
+                    $hiddenValue = $normalizeScalarValue($failedValues !== null && $elementReferenceId !== '' && isset($failedValues[$elementReferenceId]) ? $failedValues[$elementReferenceId] : ($hasRecords ? $item['value'] : $element['default_value']));
+                    $theItem = '<input type="hidden" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '" value="' . htmlentities($hiddenValue, ENT_QUOTES, 'UTF-8') . '"/>';
                     break;
             }
 

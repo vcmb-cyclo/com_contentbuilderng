@@ -20,6 +20,18 @@ use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 
 class plgContentbuilderng_validationDate_is_valid extends CMSPlugin implements SubscriberInterface
 {
+    private function pushEventResult(Event $event, string $value): string
+    {
+        $results = $event->getArgument('result') ?: [];
+        if (!is_array($results)) {
+            $results = [$results];
+        }
+        $results[] = $value;
+        $event->setArgument('result', $results);
+
+        return $value;
+    }
+
     public static function getSubscribedEvents(): array
     {
         return ['onValidate' => 'onValidate'];
@@ -52,10 +64,10 @@ class plgContentbuilderng_validationDate_is_valid extends CMSPlugin implements S
 
         foreach ($values as $val) {
             if (!ContentbuilderngHelper::isValidDate($val, isset($options->transfer_format) ? $options->transfer_format : 'YYYY-mm-dd')) {
-                return Text::_('COM_CONTENTBUILDERNG_VALIDATION_DATE_IS_VALID') . ': ' . $field['label'] . ($val ? ' (' . $val . ')' : '');
+                return $this->pushEventResult($event, Text::_('COM_CONTENTBUILDERNG_VALIDATION_DATE_IS_VALID') . ': ' . $field['label'] . ($val ? ' (' . $val . ')' : ''));
             }
         }
 
-        return '';
+        return $this->pushEventResult($event, '');
     }
 }

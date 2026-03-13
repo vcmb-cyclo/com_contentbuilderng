@@ -20,6 +20,18 @@ use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 
 class plgContentbuilderng_validationDate_not_before extends CMSPlugin implements SubscriberInterface
 {
+        private function pushEventResult(Event $event, string $value): string
+        {
+            $results = $event->getArgument('result') ?: [];
+            if (!is_array($results)) {
+                $results = [$results];
+            }
+            $results[] = $value;
+            $event->setArgument('result', $results);
+
+            return $value;
+        }
+
         public static function getSubscribedEvents(): array
         {
             return ['onValidate' => 'onValidate'];
@@ -41,7 +53,7 @@ class plgContentbuilderng_validationDate_not_before extends CMSPlugin implements
                 if(isset($other_field['name']) && isset($other_field['value']) && isset($field['name']) && $field['name'].'_later' == $other_field['name']){
                  
                     if(is_array($value)){
-                       return Text::_('COM_CONTENTBUILDERNG_VALIDATION_DATE_NOT_BEFORE_GROUPS');
+                       return $this->pushEventResult($event, Text::_('COM_CONTENTBUILDERNG_VALIDATION_DATE_NOT_BEFORE_GROUPS'));
                     }
                     
                     $other_value = $other_field['value'];
@@ -49,20 +61,20 @@ class plgContentbuilderng_validationDate_not_before extends CMSPlugin implements
                     $value = ContentbuilderngHelper::convertDate($value, $field['options']->transfer_format, 'YYYY-MM-DD');
                     
                     if(is_array($other_value)){
-                        return Text::_('COM_CONTENTBUILDERNG_VALIDATION_DATE_NOT_BEFORE_GROUPS');
+                        return $this->pushEventResult($event, Text::_('COM_CONTENTBUILDERNG_VALIDATION_DATE_NOT_BEFORE_GROUPS'));
                     }
                     
                     $value = preg_replace("/[^0-9]/",'',$value);
                     $other_value = preg_replace("/[^0-9]/",'',$other_value);
                     
                     if($other_value < $value){
-                        return Text::_('COM_CONTENTBUILDERNG_VALIDATION_DATE_NOT_BEFORE') . ': ' . $other_field['label'] . ' (' . $other_field['value'] . ')';
+                        return $this->pushEventResult($event, Text::_('COM_CONTENTBUILDERNG_VALIDATION_DATE_NOT_BEFORE') . ': ' . $other_field['label'] . ' (' . $other_field['value'] . ')');
                     }
                     
-                    return '';
+                    return $this->pushEventResult($event, '');
                 }
             }
             
-            return '';
+            return $this->pushEventResult($event, '');
         }
 }

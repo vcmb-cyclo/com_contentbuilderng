@@ -58,60 +58,86 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 };
 ?>
 <style type="text/css">
-    label {
-        display: inline;
+    label { display: inline; }
+    .cb-elementoptions-shell{padding:.85rem .95rem 1rem;background:linear-gradient(180deg,var(--bs-body-bg),var(--bs-tertiary-bg));border:1px solid var(--bs-border-color);border-radius:1rem}
+    .cb-elementoptions-toolbar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.8rem;padding:.65rem .75rem;background:var(--bs-body-bg);border:1px solid var(--bs-border-color);border-radius:.9rem;box-shadow:0 .2rem .65rem rgba(16,24,40,.06)}
+    .cb-elementoptions-toolbar .form-select{min-width:220px;max-width:360px}
+    .cb-elementoptions-title{margin:0;font-size:1rem;font-weight:700;color:var(--bs-emphasis-color)}
+    .cb-elementoptions-type-label{margin:0 0 0 .2rem;color:var(--bs-secondary-color);font-size:.82rem;font-weight:600;white-space:nowrap}
+    .cb-elementoptions-shell fieldset legend{padding:0 .35rem;margin-bottom:.85rem;font-size:.96rem;font-weight:700}
+    .cb-elementoptions-shell .admintable{width:100%!important;margin:0}
+    .cb-elementoptions-shell .admintable td{padding:.45rem .4rem;vertical-align:top}
+    .cb-elementoptions-shell .admintable td.key{width:170px;color:var(--bs-emphasis-color);font-weight:600}
+    .cb-elementoptions-shell textarea.form-control{min-height:110px}
+    .cb-elementoptions-shell .form-check-input{margin-right:.35rem}
+    .cb-elementoptions-shell .cb-inline-grid{display:grid;grid-template-columns:170px minmax(0,1fr) 170px minmax(0,1fr);gap:.45rem .7rem;align-items:center}
+    .cb-elementoptions-shell .cb-inline-grid label{font-weight:600;color:var(--bs-emphasis-color)}
+    .cb-elementoptions-shell .cb-inline-flags{display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap}
+    .cb-validation-help{margin-top:.45rem;color:var(--bs-secondary-color);font-size:.82rem}
+    @media (max-width:767.98px){
+        .cb-elementoptions-shell{padding:.8rem}
+        .cb-elementoptions-toolbar{align-items:stretch}
+        .cb-elementoptions-toolbar .form-select,
+        .cb-elementoptions-toolbar .btn{width:100%;max-width:none}
+        .cb-elementoptions-type-label{margin-left:0}
+        .cb-elementoptions-shell .admintable td,
+        .cb-elementoptions-shell .admintable td.key{display:block;width:100%!important;padding:.3rem 0}
+        .cb-elementoptions-shell .cb-inline-grid{grid-template-columns:1fr}
     }
 </style>
 
 <form action="index.php" method="post" name="adminForm" id="adminForm">
+    <div class="cb-elementoptions-shell">
+        <div class="cb-elementoptions-toolbar">
+            <p class="cb-elementoptions-title me-auto"><?php echo htmlentities($this->element->label, ENT_QUOTES, 'UTF-8'); ?></p>
+            <label class="cb-elementoptions-type-label" for="type_selection"><?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE'); ?></label>
+            <select class="form-select form-select-sm" name="type_selection"
+                id="type_selection"
+                onchange="document.getElementById('type_change').value='1';">
+                <option value="text" <?php echo $this->element->type == 'text' || $this->element->type == '' ? ' selected="selected"' : ''; ?>>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_TEXT'); ?>
+                </option>
+                <option value="textarea" <?php echo $this->element->type == 'textarea' ? ' selected="selected"' : ''; ?>>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_TEXTAREA'); ?>
+                </option>
+                <option value="checkboxgroup" <?php echo $this->element->type == 'checkboxgroup' ? ' selected="selected"' : ''; ?>>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_CHECKBOXGROUP'); ?>
+                </option>
+                <option value="radiogroup" <?php echo $this->element->type == 'radiogroup' ? ' selected="selected"' : ''; ?>>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_RADIO'); ?>
+                </option>
+                <option value="select" <?php echo $this->element->type == 'select' ? ' selected="selected"' : ''; ?>>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_SELECT'); ?>
+                </option>
+                <option value="upload" <?php echo $this->element->type == 'upload' ? ' selected="selected"' : ''; ?>>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_UPLOAD'); ?>
+                </option>
+                <option value="calendar" <?php echo $this->element->type == 'calendar' ? ' selected="selected"' : ''; ?>>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_CALENDAR'); ?>
+                </option>
+                <option value="hidden" <?php echo $this->element->type == 'hidden' ? ' selected="selected"' : ''; ?>>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_HIDDEN'); ?>
+                </option>
+                <option value="captcha" <?php echo $this->element->type == 'captcha' ? ' selected="selected"' : ''; ?>>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_CAPTCHA'); ?>
+                </option>
+                <?php
+                foreach ($plugins as $plugin) {
+                ?>
+                    <option value="<?php echo $plugin; ?>" <?php echo $this->element->type == $plugin ? ' selected="selected"' : ''; ?>>
+                        <?php echo $plugin; ?>
+                    </option>
+                <?php
+                }
+                ?>
+            </select>
+            <button type="submit" class="btn btn-sm btn-primary" onclick="document.getElementById('task').value='elementoptions.save';">
+                <span class="fa-solid fa-floppy-disk me-1" aria-hidden="true"></span>
+                <?php echo Text::_('COM_CONTENTBUILDERNG_SAVE'); ?>
+            </button>
+        </div>
 
-    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE'); ?>
-    <select class="form-select-sm" name="type_selection"
-        onchange="document.getElementById('type_change').value='1';">
-        <option value="text" <?php echo $this->element->type == 'text' || $this->element->type == '' ? ' selected="selected"' : ''; ?>>
-            <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_TEXT'); ?>
-        </option>
-        <option value="textarea" <?php echo $this->element->type == 'textarea' ? ' selected="selected"' : ''; ?>>
-            <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_TEXTAREA'); ?>
-        </option>
-        <option value="checkboxgroup" <?php echo $this->element->type == 'checkboxgroup' ? ' selected="selected"' : ''; ?>>
-            <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_CHECKBOXGROUP'); ?>
-        </option>
-        <option value="radiogroup" <?php echo $this->element->type == 'radiogroup' ? ' selected="selected"' : ''; ?>>
-            <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_RADIO'); ?>
-        </option>
-        <option value="select" <?php echo $this->element->type == 'select' ? ' selected="selected"' : ''; ?>>
-            <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_SELECT'); ?>
-        </option>
-        <option value="upload" <?php echo $this->element->type == 'upload' ? ' selected="selected"' : ''; ?>>
-            <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_UPLOAD'); ?>
-        </option>
-        <option value="calendar" <?php echo $this->element->type == 'calendar' ? ' selected="selected"' : ''; ?>>
-            <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_CALENDAR'); ?>
-        </option>
-        <option value="hidden" <?php echo $this->element->type == 'hidden' ? ' selected="selected"' : ''; ?>>
-            <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_HIDDEN'); ?>
-        </option>
-        <option value="captcha" <?php echo $this->element->type == 'captcha' ? ' selected="selected"' : ''; ?>>
-            <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE_CAPTCHA'); ?>
-        </option>
-        <?php
-        foreach ($plugins as $plugin) {
-        ?>
-            <option value="<?php echo $plugin; ?>" <?php echo $this->element->type == $plugin ? ' selected="selected"' : ''; ?>>
-                <?php echo $plugin; ?>
-            </option>
-        <?php
-        }
-        ?>
-    </select>
-    <button type="submit" class="btn btn-sm btn-primary" onclick="document.getElementById('task').value='elementoptions.save';">
-        <?php echo Text::_('COM_CONTENTBUILDERNG_SAVE'); ?>
-    </button>
-
-    <hr />
-
-    <div class="w-100">
+        <div class="w-100">
         <?php
 
         // Démarrer les onglets
@@ -655,27 +681,17 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                             </td>
                         </tr>
                         <tr>
-                            <td width="100" align="left" class="key">
-                                <label for="length">
-                                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_OPTIONS_LENGTH'); ?>:
-                                </label>
-                            </td>
-                            <td align="left">
-                                <input class="form-control form-control-sm" style="width:95%;" type="text" name="length"
-                                    id="length"
-                                    value="<?php echo isset($this->element->options->length) ? $this->element->options->length : ''; ?>" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td width="100" align="left" class="key">
-                                <label for="maxlength">
-                                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_OPTIONS_MAXLENGTH'); ?>:
-                                </label>
-                            </td>
-                            <td align="left">
-                                <input class="form-control form-control-sm" style="width:95%;" type="text" name="maxlength"
-                                    id="maxlength"
-                                    value="<?php echo isset($this->element->options->maxlength) ? $this->element->options->maxlength : ''; ?>" />
+                            <td colspan="2" align="left">
+                                <div class="cb-inline-grid">
+                                    <label for="length"><?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_OPTIONS_LENGTH'); ?>:</label>
+                                    <input class="form-control form-control-sm" type="text" name="length"
+                                        id="length"
+                                        value="<?php echo isset($this->element->options->length) ? $this->element->options->length : ''; ?>" />
+                                    <label for="maxlength"><?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_OPTIONS_MAXLENGTH'); ?>:</label>
+                                    <input class="form-control form-control-sm" type="text" name="maxlength"
+                                        id="maxlength"
+                                        value="<?php echo isset($this->element->options->maxlength) ? $this->element->options->maxlength : ''; ?>" />
+                                </div>
                             </td>
                         </tr>
                         <tr>
@@ -691,25 +707,19 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                             </td>
                         </tr>
                         <tr>
-                            <td width="100" align="left" class="key">
-                                <label for="password">
-                                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_OPTIONS_PASSWORD'); ?>:
-                                </label>
-                                </td>
-                                <td align="left">
-                                    <?php echo $renderCheckbox('password', 'password', isset($this->element->options->password) && intval($this->element->options->password)); ?>
-                                </td>
-                            </tr>
-                        <tr>
-                            <td width="100" align="left" class="key">
-                                <label for="readonly">
-                                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_OPTIONS_READONLY'); ?>:
-                                </label>
-                                </td>
-                                <td align="left">
-                                    <?php echo $renderCheckbox('readonly', 'readonly', isset($this->element->options->readonly) && intval($this->element->options->readonly)); ?>
-                                </td>
-                            </tr>
+                            <td colspan="2" align="left">
+                                <div class="cb-inline-flags">
+                                    <span>
+                                        <label for="password"><?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_OPTIONS_PASSWORD'); ?>:</label>
+                                        <?php echo $renderCheckbox('password', 'password', isset($this->element->options->password) && intval($this->element->options->password)); ?>
+                                    </span>
+                                    <span>
+                                        <label for="readonly"><?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_OPTIONS_READONLY'); ?>:</label>
+                                        <?php echo $renderCheckbox('readonly', 'readonly', isset($this->element->options->readonly) && intval($this->element->options->readonly)); ?>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
                         <tr>
                             <td width="100" align="left" class="key">
                                 <label for="allow_encoding">
@@ -824,7 +834,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                                 </label>
                             </td>
                             <td align="left">
-                                <select class="form-select-sm" style="width: 95%;height: 100px;" multiple="multiple"
+                                <select class="form-select form-select-sm" style="width:95%;min-height:140px;" multiple="multiple" size="6"
                                     name="validations[]" id="validations">
                                     <?php
                                     $selected_validations = explode(',', (string) ($this->element->validations ?? ''));
@@ -837,6 +847,9 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                                     }
                                     ?>
                                 </select>
+                                <div class="cb-validation-help">
+                                    <?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_SELECT_VALIDATIONS'); ?>: Ctrl/Cmd+click pour selection multiple.
+                                </div>
                             </td>
                         </tr>
                         <tr>
@@ -914,6 +927,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         }
         echo HTMLHelper::_('uitab.endTabSet');
         ?>
+        </div>
     </div>
 
 

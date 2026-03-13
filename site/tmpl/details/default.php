@@ -49,6 +49,19 @@ $previewSig = (string) $input->getString('cb_preview_sig', '');
 $previewActorId = $input->getInt('cb_preview_actor_id', 0);
 $previewActorName = (string) $input->getString('cb_preview_actor_name', '');
 $isAdminPreview = $input->getBool('cb_preview_ok', false);
+$currentUser = Factory::getApplication()->getIdentity();
+$currentSessionLabel = trim((string) ($currentUser->name ?? ''));
+if ($currentSessionLabel === '') {
+    $currentSessionLabel = trim((string) ($currentUser->username ?? ''));
+}
+if ($currentSessionLabel === '') {
+    $currentSessionLabel = Text::_('JGLOBAL_GUEST');
+}
+$previewActorLabel = trim($previewActorName);
+if ($previewActorLabel === '' && $previewActorId > 0) {
+    $previewActorLabel = '#' . $previewActorId;
+}
+$showPreviewSessionBadge = $isAdminPreview && $currentSessionLabel !== '' && $currentSessionLabel !== $previewActorLabel;
 $showTopBar = $input->getInt('cb_show_details_top_bar', 1) === 1;
 $directStorageMode = !empty($this->direct_storage_mode);
 $directStorageId = (int) ($this->direct_storage_id ?? 0);
@@ -209,6 +222,12 @@ CSS
         <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <span>
                 <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE') . ' - ' . Text::sprintf($directStorageMode ? 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_STORAGE' : 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName); ?>
+                <?php if ($previewActorLabel !== ''): ?>
+                    <span class="badge text-bg-light border ms-2">Preview actor: <?php echo htmlspecialchars($previewActorLabel, ENT_QUOTES, 'UTF-8'); ?><?php echo $previewActorId > 0 ? ' (#' . (int) $previewActorId . ')' : ''; ?></span>
+                <?php endif; ?>
+                <?php if ($showPreviewSessionBadge): ?>
+                    <span class="badge text-bg-secondary ms-1">Session: <?php echo htmlspecialchars($currentSessionLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                <?php endif; ?>
                 <?php if (!$directStorageMode) : ?>
                     <?php echo ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CONFIG_TAB', Text::_('COM_CONTENTBUILDERNG_PREVIEW_TAB_CONTENT_TEMPLATE')); ?>
                 <?php endif; ?>

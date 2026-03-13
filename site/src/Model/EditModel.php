@@ -73,6 +73,23 @@ class EditModel extends BaseDatabaseModel
 
     private $_page_heading = '';
 
+    private function getEffectiveOwnershipUserId(bool $useOwnOnly): int
+    {
+        if (!$useOwnOnly) {
+            return -1;
+        }
+
+        if ($this->app->input->getBool('cb_preview_ok', false)) {
+            $previewActorId = (int) $this->app->input->getInt('cb_preview_actor_id', 0);
+
+            if ($previewActorId > 0) {
+                return $previewActorId;
+            }
+        }
+
+        return (int) ($this->app->getIdentity()->id ?? 0);
+    }
+
     private function cleanComponentCaches(): void
     {
         $cacheFactory = Factory::getContainer()->get(CacheControllerFactoryInterface::class);
@@ -462,7 +479,12 @@ class EditModel extends BaseDatabaseModel
                         }
                     }
 
-                    $data->items = $data->form->getRecord($this->_record_id, $data->published_only, $this->frontend ? ($data->own_only_fe ? (int) ($this->app->getIdentity()->id ?? 0) : -1) : ($data->own_only ? (int) ($this->app->getIdentity()->id ?? 0) : -1), $this->frontend ? $data->show_all_languages_fe : true);
+                    $data->items = $data->form->getRecord(
+                        $this->_record_id,
+                        $data->published_only,
+                        $this->frontend ? $this->getEffectiveOwnershipUserId((bool) $data->own_only_fe) : $this->getEffectiveOwnershipUserId((bool) $data->own_only),
+                        $this->frontend ? $data->show_all_languages_fe : true
+                    );
 
                     if (count($data->items)) {
 
@@ -949,7 +971,12 @@ var contentbuilderng = new function(){
 
                     $form_elements_objects = array();
 
-                    $_items = $data->form->getRecord($this->_record_id, $data->published_only, $this->frontend ? ($data->own_only_fe ? (int) ($this->app->getIdentity()->id ?? 0) : -1) : ($data->own_only ? (int) ($this->app->getIdentity()->id ?? 0) : -1), $this->frontend ? $data->show_all_languages_fe : true);
+                    $_items = $data->form->getRecord(
+                        $this->_record_id,
+                        $data->published_only,
+                        $this->frontend ? $this->getEffectiveOwnershipUserId((bool) $data->own_only_fe) : $this->getEffectiveOwnershipUserId((bool) $data->own_only),
+                        $this->frontend ? $data->show_all_languages_fe : true
+                    );
 
                     // asigning the proper names first
                     foreach ($names as $id => $name) {
@@ -1508,7 +1535,12 @@ var contentbuilderng = new function(){
                     $record_return = $this->app->input->getCmd('record_id', 0);
                 }
 
-                $data->items = $data->form->getRecord($record_return, $data->published_only, $this->frontend ? ($data->own_only_fe ? (int) ($this->app->getIdentity()->id ?? 0) : -1) : ($data->own_only ? (int) ($this->app->getIdentity()->id ?? 0) : -1), true);
+                $data->items = $data->form->getRecord(
+                    $record_return,
+                    $data->published_only,
+                    $this->frontend ? $this->getEffectiveOwnershipUserId((bool) $data->own_only_fe) : $this->getEffectiveOwnershipUserId((bool) $data->own_only),
+                    true
+                );
 
                 $data_email_items = $data->form->getRecord($record_return, false, -1, true);
 

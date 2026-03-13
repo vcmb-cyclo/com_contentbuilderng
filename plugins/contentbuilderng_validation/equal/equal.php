@@ -20,6 +20,18 @@ use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 
 class plgContentbuilderng_validationEqual extends CMSPlugin implements SubscriberInterface
 {
+        private function pushEventResult(Event $event, string $value): string
+        {
+            $results = $event->getArgument('result') ?: [];
+            if (!is_array($results)) {
+                $results = [$results];
+            }
+            $results[] = $value;
+            $event->setArgument('result', $results);
+
+            return $value;
+        }
+
         public static function getSubscribedEvents(): array
         {
             return ['onValidate' => 'onValidate'];
@@ -61,13 +73,13 @@ class plgContentbuilderng_validationEqual extends CMSPlugin implements Subscribe
                     }
                     
                     if( $value == $other_value ){
-                        return '';
+                        return $this->pushEventResult($event, '');
                     } else {
-                        return Text::_('COM_CONTENTBUILDERNG_VALIDATION_NOT_EQUAL') . ': ' . $field['label'] . ' / ' . $other_field['label'];
+                        return $this->pushEventResult($event, Text::_('COM_CONTENTBUILDERNG_VALIDATION_NOT_EQUAL') . ': ' . $field['label'] . ' / ' . $other_field['label']);
                     }
                 }
             }
             
-            return '';
+            return $this->pushEventResult($event, '');
         }
 }

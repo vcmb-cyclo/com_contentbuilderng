@@ -20,6 +20,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\TextUtilityService;
 ?>
 <?php
@@ -39,6 +40,10 @@ $wa->addInlineStyle(
         . '.cb-order-head .saveorder{float:none!important;margin-left:6px}'
         . '.cb-item-label-cell{display:flex;flex-direction:column;gap:4px}'
         . '.cb-item-label-display{cursor:pointer;width:100%;display:block}'
+        . '.cb-item-type-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .5rem;border-radius:999px;border:1px solid transparent;font-size:.72rem;font-weight:700;line-height:1.2;text-transform:uppercase}'
+        . '.cb-item-type-badge a{text-decoration:none;color:inherit}'
+        . '.cb-item-type-badge.is-default{color:var(--bs-secondary-color);background:var(--bs-secondary-bg);border-color:var(--bs-border-color)}'
+        . '.cb-item-type-badge.is-modified{color:#842029;background:#f8d7da;border-color:#f1aeb5}'
         . '.cb-item-order-type-select{align-self:flex-start;width:auto!important;max-width:100%}'
         . '.cb-wordwrap-input{width:8ch!important;min-width:8ch!important;max-width:8ch!important;text-align:center}'
         . '.cb-prepare-tools{row-gap:.5rem}'
@@ -253,6 +258,64 @@ if (is_object($this->item->form ?? null) && method_exists($this->item->form, 'ge
         }
     }
 }
+
+$isModifiedElementSettings = static function ($row): bool {
+    $type = trim((string) ($row->type ?? ''));
+    if ($type !== '' && $type !== 'text') {
+        return true;
+    }
+
+    foreach ([
+        'hint',
+        'default_value',
+        'validations',
+        'custom_init_script',
+        'custom_action_script',
+        'custom_validation_script',
+        'validation_message',
+    ] as $field) {
+        if (trim((string) ($row->{$field} ?? '')) !== '') {
+            return true;
+        }
+    }
+
+    $options = PackedDataHelper::decodePackedData((string) ($row->options ?? ''), null);
+    if (is_object($options)) {
+        $options = (array) $options;
+    }
+    if (!is_array($options)) {
+        $options = [];
+    }
+
+    $ignoreDefaults = [
+        'length' => '',
+        'maxlength' => '',
+        'password' => 0,
+        'readonly' => 0,
+        'seperator' => ',',
+        'class' => '',
+        'allow_raw' => false,
+        'allow_html' => false,
+    ];
+
+    foreach ($options as $key => $value) {
+        if (is_string($value)) {
+            $value = trim($value);
+        }
+
+        if (array_key_exists((string) $key, $ignoreDefaults) && $ignoreDefaults[(string) $key] === $value) {
+            continue;
+        }
+
+        if ($value === '' || $value === null || $value === false || $value === 0 || $value === '0') {
+            continue;
+        }
+
+        return true;
+    }
+
+    return false;
+};
 
 $hasPublishedEditableElements = false;
 foreach ($availableEditablePrepareElements as $elementRow) {
@@ -2419,6 +2482,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                             $search_include = ContentbuilderngHelper::listIncludeInSearch('form', $row, $i);
                             $linkable = ContentbuilderngHelper::listLinkable('form', $row, $i);
                             $editable = ContentbuilderngHelper::listEditable('form', $row, $i);
+                            $isModifiedElement = $isModifiedElementSettings($row);
                         ?>
                             <tr id="cb-row-<?php echo (int) $row->id; ?>" class="<?php echo "row$k"; ?>" data-cb-row-id="<?php echo (int) $row->id; ?>">
                                 <td valign="top">
@@ -2484,7 +2548,9 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                                     <?php echo $editable; ?>
                                     <?php
                                     if ($row->editable && !$this->item->edit_by_type) {
-                                        echo '<div class="mt-1">[<a href="index.php?option=com_contentbuilderng&amp;view=elementoptions&amp;tmpl=component&amp;element_id=' . $row->id . '&amp;id=' . $this->item->id . '" title="" data-bs-toggle="modal" data-bs-target="#text-type-modal">' . $row->type . '</a>]</div>';
+                                        $typeBadgeClass = $isModifiedElement ? 'is-modified' : 'is-default';
+                                        $typeBadgeTitle = $isModifiedElement ? ' title="' . htmlentities('Element settings changed from default', ENT_QUOTES, 'UTF-8') . '"' : '';
+                                        echo '<div class="mt-1"><a class="cb-item-type-badge ' . $typeBadgeClass . '" href="index.php?option=com_contentbuilderng&amp;view=elementoptions&amp;tmpl=component&amp;element_id=' . $row->id . '&amp;id=' . $this->item->id . '" data-bs-toggle="modal" data-bs-target="#text-type-modal"' . $typeBadgeTitle . '>' . ($isModifiedElement ? 'Modified' : 'Default') . '</a></div>';
                                     }
                                     ?>
                                 </td>

@@ -20,6 +20,18 @@ use Joomla\Event\SubscriberInterface;
 
 class plgContentbuilderng_validationNotempty extends CMSPlugin implements SubscriberInterface
 {
+    private function pushEventResult(Event $event, string $value): string
+    {
+        $results = $event->getArgument('result') ?: [];
+        if (!is_array($results)) {
+            $results = [$results];
+        }
+        $results[] = $value;
+        $event->setArgument('result', $results);
+
+        return $value;
+    }
+
     public static function getSubscribedEvents(): array
     {
         return ['onValidate' => 'onValidate'];
@@ -76,6 +88,7 @@ class plgContentbuilderng_validationNotempty extends CMSPlugin implements Subscr
                 $msg = trim($field['validation_message']) ? trim($field['validation_message']) : Text::_('COM_CONTENTBUILDERNG_VALIDATION_VALUE_EMPTY') . ': ' . $field['label'];
             }
         }
-        return $msg;
+
+        return $this->pushEventResult($event, $msg);
     }
 }
