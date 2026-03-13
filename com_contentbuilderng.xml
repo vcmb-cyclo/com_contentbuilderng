@@ -40,7 +40,6 @@
     <filename>controller.php</filename>
     <filename>router.php</filename>
     <filename>contentbuilderng.php</filename>
-    <folder>elements</folder>
     <folder>src</folder>
     <folder>tmpl</folder>
  </files>

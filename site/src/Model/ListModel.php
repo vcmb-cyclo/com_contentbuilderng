@@ -599,6 +599,18 @@ class ListModel extends BaseListModel
             }
 
             foreach ($this->_data as $data) {
+                $data->items = [];
+                $data->published_items = [];
+                $data->states = [];
+                $data->state_colors = [];
+                $data->state_titles = [];
+                $data->languages = [];
+                $data->lang_codes = [];
+                $data->labels = [];
+                $data->visible_cols = [];
+                $data->linkable_elements = [];
+                $data->preview_no_list_fields = false;
+                $data->invalid_list_setup = false;
                 $isAdminPreview = $app->input->getBool('cb_preview_ok', false);
 
                 if (!$isAdminPreview) {
@@ -1024,6 +1036,10 @@ class ListModel extends BaseListModel
 
                         $data->page_title = '';
                     }
+                } else {
+                    $data->invalid_list_setup = true;
+                    $data->preview_no_list_fields = true;
+                    $this->_total = 0;
                 }
 
                 return $data;

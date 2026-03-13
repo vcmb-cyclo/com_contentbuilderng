@@ -93,7 +93,7 @@ $style->getAlignment()
     ->setVertical(PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
 
 // 1 -- Labels.
-$labels = $this->data->visible_labels;
+$labels = is_array($this->data->visible_labels ?? null) ? $this->data->visible_labels : [];
 $colreserved = 0;
 
 // Case of show_id_column true -> First column reserved.
@@ -129,7 +129,7 @@ foreach ($labels as $label) {
 
 // 2 -- Data.
 $row = 2;
-foreach ($this->data->items as $item) {
+foreach ((array) ($this->data->items ?? []) as $item) {
     $i = 1; // Colonne de départ
     
     // Si on veut mettre l'ID
@@ -189,7 +189,7 @@ foreach ($this->data->items as $item) {
     }
  
     // Les autres colonnes.
-    foreach($this->data->visible_cols as $id) {
+    foreach ((array) ($this->data->visible_cols ?? []) as $id) {
         $worksheet1->setCellValue([$i++, $row], $item->{"col$id"});          
     }
 

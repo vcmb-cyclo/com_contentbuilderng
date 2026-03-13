@@ -364,7 +364,9 @@ CSS
 <?php endif; ?>
 <?php if (!empty($this->preview_no_list_fields)): ?>
 	<div class="alert alert-warning mb-3">
-		<?php echo Text::_($directStorageMode ? 'COM_CONTENTBUILDERNG_PREVIEW_NO_STORAGE_FIELDS' : 'COM_CONTENTBUILDERNG_PREVIEW_NO_LIST_FIELDS'); ?>
+		<?php echo !empty($this->invalid_list_setup)
+			? 'This view is incomplete and cannot render a list.'
+			: Text::_($directStorageMode ? 'COM_CONTENTBUILDERNG_PREVIEW_NO_STORAGE_FIELDS' : 'COM_CONTENTBUILDERNG_PREVIEW_NO_LIST_FIELDS'); ?>
 	</div>
 <?php endif; ?>
 <?php echo $this->intro_text; ?>
@@ -532,7 +534,7 @@ by this block. -->
 						</div>
 
 						<!-- DROITE : actions + limitbox + excel -->
-							<?php if ($showNewButton || $delete_allowed || $this->show_records_per_page || $this->export_xls) : ?>
+						<?php if ($showNewButton || $delete_allowed || $this->show_records_per_page || ($this->export_xls && empty($this->invalid_list_setup))) : ?>
 								<div class="d-flex align-items-center gap-2 ms-auto">
 
 										<?php if ($showNewButton) : ?>
@@ -577,7 +579,7 @@ by this block. -->
 										</div>
 									<?php endif; ?>
 
-										<?php if ($this->export_xls) : ?>
+										<?php if ($this->export_xls && empty($this->invalid_list_setup)) : ?>
 											<a class="btn btn-sm btn-outline-success align-self-center d-inline-flex align-items-center gap-1 rounded-pill"
 												href="<?php echo Route::_('index.php?option=com_contentbuilderng&view=export&id=' . (int) Factory::getApplication()->input->getInt('id', 0) . '&type=xls&format=raw&tmpl=component'); ?>"
 												title="<?php echo Text::_('COM_CONTENTBUILDERNG_EXPORT_XLSX_TOOLTIP'); ?>">
@@ -704,7 +706,7 @@ by this block. -->
 			</thead>
 			<?php
 			$k = 0;
-			$n = count($this->items);
+			$n = count((array) $this->items);
 			for ($i = 0; $i < $n; $i++) {
 				$row = $this->items[$i];
 				$link = Route::_('index.php?option=com_contentbuilderng&task=details.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . $this->form_id) . '&record_id=' . $row->colRecord . '&Itemid=' . Factory::getApplication()->input->getInt('Itemid', 0) . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '') . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '') . $previewQuery);

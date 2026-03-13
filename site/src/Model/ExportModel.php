@@ -169,6 +169,11 @@ class ExportModel extends BaseDatabaseModel
 
             $labels = [];
             foreach ($this->_data as $data) {
+                $data->items = [];
+                $data->labels = [];
+                $data->visible_cols = [];
+                $data->visible_labels = [];
+                $data->invalid_list_setup = false;
                 if (!$this->frontend && $data->display_in == 0) {
                     throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
                 } else if ($this->frontend && $data->display_in == 1) {
@@ -370,6 +375,8 @@ class ExportModel extends BaseDatabaseModel
                         $data,
                         $this->getState('article_category_filter')
                     );
+                } else {
+                    $data->invalid_list_setup = true;
                 }
 
                 return $data;
