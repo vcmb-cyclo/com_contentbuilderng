@@ -18,7 +18,6 @@ use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 
 class PublicformsModel extends ListModel

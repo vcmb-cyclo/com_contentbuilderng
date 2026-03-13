@@ -21,7 +21,6 @@ use Joomla\Filesystem\Folder;
 use Joomla\Filesystem\File;
 use Joomla\Utilities\ArrayHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\PathService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;

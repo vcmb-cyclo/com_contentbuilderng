@@ -457,8 +457,7 @@ li#jform_access_label {
 }
 
 fieldset.adminform fieldset.radio,
-fieldset.panelform fieldset.radio,
-fieldset.adminform-legacy fieldset.radio {
+fieldset.panelform fieldset.radio {
 	border: 0;
 	float: left;
 	padding: 0;
@@ -479,8 +478,7 @@ fieldset.panelform fieldset.radio label {
 
 /* checkboxes */
 fieldset.adminform fieldset.checkboxes,
-fieldset.panelform fieldset.checkboxes,
-fieldset.adminform-legacy fieldset.checkboxes  {
+fieldset.panelform fieldset.checkboxes  {
 	border: 0;
 	float:left;
 	padding: 0;
@@ -523,19 +521,19 @@ fieldset.panelform span.spacer > span.text label {
 
 /* end spacer */
 
-fieldset.panelform-legacy label,
-fieldset.adminform-legacy label {
+fieldset.panelform label,
+fieldset.adminform label {
 	min-width: 150px;
 	float: left;
 }
 
 /* JParameter classes on radio button labels  */
-fieldset.panelform-legacy label.radiobtn-jno,
-fieldset.panelform-legacy label.radiobtn-jyes,
-fieldset.panelform-legacy label.radiobtn-show,
-fieldset.panelform-legacy label.radiobtn-hide,
-fieldset.panelform-legacy label.radiobtn-off,
-fieldset.panelform-legacy label.radiobtn-on	{
+fieldset.panelform label.radiobtn-jno,
+fieldset.panelform label.radiobtn-jyes,
+fieldset.panelform label.radiobtn-show,
+fieldset.panelform label.radiobtn-hide,
+fieldset.panelform label.radiobtn-off,
+fieldset.panelform label.radiobtn-on	{
 	min-width: 40px !important;
 	clear: none !important;
 }

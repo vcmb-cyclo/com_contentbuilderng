@@ -128,7 +128,6 @@ namespace Joomla\CMS\MVC\Model {
 }
 
 namespace {
-    require_once \dirname(__DIR__) . '/src/Helper/ContentbuilderLegacyHelper.php';
     require_once \dirname(__DIR__) . '/src/Model/StorageModel.php';
     require_once \dirname(__DIR__) . '/src/Model/VerifyModel.php';
 }

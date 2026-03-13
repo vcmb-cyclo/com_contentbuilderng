@@ -61,7 +61,7 @@ class StorageController extends BaseFormController
     }
 
     /**
-     * Surcharge save pour rester compatible avec ton modèle legacy (save/storeCsv).
+     * Surcharge save pour appeler les méthodes spécifiques du modèle (save/storeCsv).
      * Task: storage.save / storage.apply
      */
     public function save($key = null, $urlVar = null)

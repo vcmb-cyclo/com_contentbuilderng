@@ -19,13 +19,12 @@ use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
-use CB\Component\Contentbuilderng\Administrator\Service\LegacyUtilityService;
+use CB\Component\Contentbuilderng\Administrator\Service\RuntimeUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
 
 class ExportModel extends BaseDatabaseModel
 {
-    private readonly LegacyUtilityService $legacyUtilityService;
+    private readonly RuntimeUtilityService $runtimeUtilityService;
     private readonly ListSupportService $listSupportService;
 
     private $frontend = false;
@@ -46,7 +45,7 @@ class ExportModel extends BaseDatabaseModel
         /** @var SiteApplication $app */
         $app = Factory::getApplication();
         $this->app = $app;
-        $this->legacyUtilityService = new LegacyUtilityService();
+        $this->runtimeUtilityService = new RuntimeUtilityService();
         $this->listSupportService = new ListSupportService();
         $this->frontend = $app->isClient('site');
         $option = 'com_contentbuilderng';
@@ -107,7 +106,7 @@ class ExportModel extends BaseDatabaseModel
             foreach ($lines as $line) {
                 $keyval = explode("\t", $line);
                 if (count($keyval) == 2) {
-                    $keyval[1] = $this->legacyUtilityService->sanitizeHiddenFilterValue($keyval[1]);
+                    $keyval[1] = $this->runtimeUtilityService->sanitizeHiddenFilterValue($keyval[1]);
                     if ($keyval[1] != '') {
                         $this->_menu_filter[$keyval[0]] = explode('|', $keyval[1]);
                     }

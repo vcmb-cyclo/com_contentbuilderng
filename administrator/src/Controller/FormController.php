@@ -123,7 +123,7 @@ class FormController extends BaseFormController
         }
 
         try {
-            $id = $model->store(); // legacy
+            $id = $model->store();
 
             if (!$id) {
                 $this->setRedirect(
@@ -165,7 +165,7 @@ class FormController extends BaseFormController
         }
 
         try {
-            $id = $model->store(); // legacy
+            $id = $model->store();
 
             if (!$id) {
                 $this->setRedirect(

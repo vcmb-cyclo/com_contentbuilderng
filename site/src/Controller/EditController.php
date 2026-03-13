@@ -21,7 +21,6 @@ use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Site\Model\EditModel;
 
@@ -214,7 +213,7 @@ class EditController extends BaseController
         $model = $this->getEditModel(['ignore_request' => true]);
         $ok = true;
         try {
-            // Legacy model may not return a strict boolean; treat "no exception" as success.
+            // The model may not return a strict boolean; treat "no exception" as success.
             $model->delete();
         } catch (\Throwable $e) {
             $ok = false;
@@ -443,7 +442,7 @@ class EditController extends BaseController
             }
         }
 
-        // Synchroniser l'input pour les appels legacy encore présents.
+        // Keep both input bags aligned for downstream model/view access.
         $this->input->set('id', $formId);
         $this->siteApp->input->set('id', $formId);
         $this->input->set('view', 'edit');
@@ -454,7 +453,7 @@ class EditController extends BaseController
         }
 
         // Contexte CB correct pour cette page
-        $this->siteApp->input->set('view', 'list');
+        $this->siteApp->input->set('view', 'edit');
 
         // Permissions
         $this->getPermissionService()->setPermissions($formId, $recordId, $suffix);
@@ -472,7 +471,7 @@ class EditController extends BaseController
 
         $this->siteApp->input->set('tmpl', $this->siteApp->input->getWord('tmpl', null));
         $this->siteApp->input->set('layout', $this->siteApp->input->getWord('layout', null) == 'latest' ? null : $this->siteApp->input->getWord('layout', null));
-        $this->siteApp->input->set('view', 'Edit');
+        $this->siteApp->input->set('view', 'edit');
 
         parent::display();
     }
@@ -522,14 +521,6 @@ class EditController extends BaseController
                 return true;
             }
 
-            if (hash_equals($expected, $sig)) {
-                // Legacy preview links (without actor) stay valid, but without actor propagation.
-                $this->input->set('cb_preview_actor_id', 0);
-                $this->input->set('cb_preview_actor_name', '');
-                $this->siteApp->input->set('cb_preview_actor_id', 0);
-                $this->siteApp->input->set('cb_preview_actor_name', '');
-                return true;
-            }
         }
 
         return false;

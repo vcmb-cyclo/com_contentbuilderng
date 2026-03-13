@@ -368,8 +368,7 @@ class contentbuilderng_com_contentbuilderng
             }
         }
 
-        $selectors = $selectors . $bottom;
-        $selectors = rtrim($selectors, ',');
+        $selectors = rtrim($selectors . $bottom, ',');
 
         ///////////////
         // preparing the search

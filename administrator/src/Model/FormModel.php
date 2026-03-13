@@ -28,7 +28,6 @@ use Joomla\Filesystem\File;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\PathService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
@@ -1044,10 +1043,10 @@ class FormModel extends AdminModel
             }
         }
 
-        // On restaure le format legacy upload_directory avec tokens (comme avant)
+        // On restaure le format upload_directory avec tokens (comme avant)
         $jform['upload_directory'] = $tmp_upload_directory . $tokens;
 
-        // 6) Permissions/config legacy : on reconstruit proprement (sans 200 if)
+        // 6) Permissions/config : on reconstruit proprement (sans 200 if)
         $config = [
             'permissions'    => [],
             'permissions_fe' => [],
@@ -1181,13 +1180,13 @@ class FormModel extends AdminModel
             $jform['editable_template'] = '';
         }
 
-        // Config legacy
+        // Config
         $jform['config'] = PackedDataHelper::encodePackedData($config);
 
         // Last_update.
         $jform['last_update'] = Factory::getDate()->toSql();
 
-        // 7) Ajustements legacy divers (si nécessaire)
+        // 7) Ajustements divers (si nécessaire)
         // - default_category depuis sectioncategories (comme avant)
         if (isset($jform['sectioncategories'])) {
             $jform['default_category'] = (int) $jform['sectioncategories'];
@@ -1514,7 +1513,7 @@ class FormModel extends AdminModel
                 $db->insertObject('#__contentbuilderng_list_states', $element);
             }
             // XDA-Gil fix 'Copy of Form' in Component Menu in Backen CB View
-            // ContentbuilderLegacyHelper::createBackendMenuItem($insertId, $obj->name, true);
+            // MenuService::createBackendMenuItem($insertId, $obj->name, true);
         }
 
         $table->reorder();

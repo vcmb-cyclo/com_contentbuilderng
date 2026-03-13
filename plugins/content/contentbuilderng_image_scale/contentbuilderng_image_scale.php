@@ -21,7 +21,6 @@ use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Event\SubscriberInterface;
 use Joomla\Registry\Registry;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 

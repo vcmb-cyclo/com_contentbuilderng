@@ -53,7 +53,7 @@ class StorageModel extends AdminModel
             return '';
         }
 
-        // Some CSV headers may arrive in legacy single-byte encodings.
+        // Some CSV headers may arrive in older single-byte encodings.
         if (preg_match('//u', $value) !== 1 && function_exists('iconv')) {
             foreach (['Windows-1252', 'ISO-8859-1'] as $legacyEncoding) {
                 $converted = iconv($legacyEncoding, 'UTF-8//IGNORE', $value);
@@ -343,7 +343,7 @@ class StorageModel extends AdminModel
     }
 
     /**
-     * Toute la logique legacy (table, champs, rename, sync...) APRES le save core
+     * Toute la logique de table/champs/rename/sync APRES le save core
      */
 
     /*
@@ -1002,7 +1002,7 @@ class StorageModel extends AdminModel
     }
 
     /**
-     * Legacy compatibility helper used by csv_file_to_table().
+     * Helper used by csv_file_to_table().
      * Creates a storage field definition if missing and ensures the data table column exists.
      *
      * @param array<string,mixed> $data

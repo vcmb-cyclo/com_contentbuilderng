@@ -27,7 +27,6 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 
@@ -62,7 +61,7 @@ class FormsModel extends ListModel
         // ✅ appels standard ListModel
         parent::populateState($ordering, $direction);
 
-        // Joomla 6 admin lists post list[limit]; also accept legacy limit.
+        // Joomla 6 admin lists post list[limit]; also accept the flat limit field.
         $list = $app->input->get('list', [], 'array');
         if (is_array($list) && array_key_exists('limit', $list)) {
             $limit = (int) $list['limit'];

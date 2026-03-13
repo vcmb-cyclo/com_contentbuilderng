@@ -98,14 +98,14 @@ final class AboutController extends BaseController
             $pluginDuplicateWarnings = is_array($pluginDuplicates['warnings'] ?? null)
                 ? $pluginDuplicates['warnings']
                 : [];
-            $legacyMenuEntries = is_array($summary['legacy_menu_entries'] ?? null) ? $summary['legacy_menu_entries'] : [];
-            $legacyMenuScanned = (int) ($legacyMenuEntries['scanned'] ?? 0);
-            $legacyMenuIssues = (int) ($legacyMenuEntries['issues'] ?? 0);
-            $legacyMenuRepaired = (int) ($legacyMenuEntries['repaired'] ?? 0);
-            $legacyMenuUnchanged = (int) ($legacyMenuEntries['unchanged'] ?? 0);
-            $legacyMenuErrors = (int) ($legacyMenuEntries['errors'] ?? 0);
-            $legacyMenuWarnings = is_array($legacyMenuEntries['warnings'] ?? null)
-                ? $legacyMenuEntries['warnings']
+            $historicalMenuEntries = is_array($summary['historical_menu_entries'] ?? null) ? $summary['historical_menu_entries'] : [];
+            $historicalMenuScanned = (int) ($historicalMenuEntries['scanned'] ?? 0);
+            $historicalMenuIssues = (int) ($historicalMenuEntries['issues'] ?? 0);
+            $historicalMenuRepaired = (int) ($historicalMenuEntries['repaired'] ?? 0);
+            $historicalMenuUnchanged = (int) ($historicalMenuEntries['unchanged'] ?? 0);
+            $historicalMenuErrors = (int) ($historicalMenuEntries['errors'] ?? 0);
+            $historicalMenuWarnings = is_array($historicalMenuEntries['warnings'] ?? null)
+                ? $historicalMenuEntries['warnings']
                 : [];
 
             if (
@@ -118,8 +118,8 @@ final class AboutController extends BaseController
                 && $auditErrors === 0
                 && $pluginDuplicateIssues === 0
                 && $pluginDuplicateErrors === 0
-                && $legacyMenuIssues === 0
-                && $legacyMenuErrors === 0
+                && $historicalMenuIssues === 0
+                && $historicalMenuErrors === 0
             ) {
                 $message = Text::sprintf(
                     'COM_CONTENTBUILDERNG_PACKED_MIGRATION_UP_TO_DATE',
@@ -135,8 +135,8 @@ final class AboutController extends BaseController
                     $pluginDuplicateScanned
                 );
                 $message .= ' ' . Text::sprintf(
-                    'COM_CONTENTBUILDERNG_LEGACY_MENU_REPAIR_UP_TO_DATE',
-                    $legacyMenuScanned
+                    'COM_CONTENTBUILDERNG_HISTORICAL_MENU_REPAIR_UP_TO_DATE',
+                    $historicalMenuScanned
                 );
                 $this->setMessage($message, 'message');
                 $this->setRedirect(Route::_('index.php?option=com_contentbuilderng&view=about', false));
@@ -174,12 +174,12 @@ final class AboutController extends BaseController
                 $pluginDuplicateErrors
             );
             $message .= ' ' . Text::sprintf(
-                'COM_CONTENTBUILDERNG_LEGACY_MENU_REPAIR_SUMMARY',
-                $legacyMenuScanned,
-                $legacyMenuIssues,
-                $legacyMenuRepaired,
-                $legacyMenuUnchanged,
-                $legacyMenuErrors
+                'COM_CONTENTBUILDERNG_HISTORICAL_MENU_REPAIR_SUMMARY',
+                $historicalMenuScanned,
+                $historicalMenuIssues,
+                $historicalMenuRepaired,
+                $historicalMenuUnchanged,
+                $historicalMenuErrors
             );
 
             $tableMessages = [];
@@ -340,22 +340,22 @@ final class AboutController extends BaseController
                 }
             }
 
-            $legacyMenuRows = $legacyMenuEntries['entries'] ?? [];
-            if (is_array($legacyMenuRows)) {
-                foreach ($legacyMenuRows as $legacyMenuRow) {
-                    if (!is_array($legacyMenuRow)) {
+            $historicalMenuRows = $historicalMenuEntries['entries'] ?? [];
+            if (is_array($historicalMenuRows)) {
+                foreach ($historicalMenuRows as $historicalMenuRow) {
+                    if (!is_array($historicalMenuRow)) {
                         continue;
                     }
 
-                    $status = (string) ($legacyMenuRow['status'] ?? '');
-                    $menuId = (int) ($legacyMenuRow['menu_id'] ?? 0);
-                    $oldTitle = trim((string) ($legacyMenuRow['old_title'] ?? ''));
-                    $newTitle = trim((string) ($legacyMenuRow['new_title'] ?? ''));
-                    $errorMessage = trim((string) ($legacyMenuRow['error'] ?? ''));
+                    $status = (string) ($historicalMenuRow['status'] ?? '');
+                    $menuId = (int) ($historicalMenuRow['menu_id'] ?? 0);
+                    $oldTitle = trim((string) ($historicalMenuRow['old_title'] ?? ''));
+                    $newTitle = trim((string) ($historicalMenuRow['new_title'] ?? ''));
+                    $errorMessage = trim((string) ($historicalMenuRow['error'] ?? ''));
 
                     if ($status === 'repaired') {
                         $tableMessages[] = Text::sprintf(
-                            'COM_CONTENTBUILDERNG_LEGACY_MENU_REPAIR_ENTRY_REPAIRED',
+                            'COM_CONTENTBUILDERNG_HISTORICAL_MENU_REPAIR_ENTRY_REPAIRED',
                             $menuId,
                             $oldTitle !== '' ? $oldTitle : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'),
                             $newTitle !== '' ? $newTitle : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE')
@@ -365,7 +365,7 @@ final class AboutController extends BaseController
 
                     if ($status === 'error') {
                         $tableMessages[] = Text::sprintf(
-                            'COM_CONTENTBUILDERNG_LEGACY_MENU_REPAIR_ENTRY_ERROR',
+                            'COM_CONTENTBUILDERNG_HISTORICAL_MENU_REPAIR_ENTRY_ERROR',
                             $menuId,
                             $oldTitle !== '' ? $oldTitle : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'),
                             $newTitle !== '' ? $newTitle : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'),
@@ -421,16 +421,16 @@ final class AboutController extends BaseController
                 );
             }
 
-            foreach ($legacyMenuWarnings as $legacyMenuWarning) {
-                $legacyMenuWarning = trim((string) $legacyMenuWarning);
+            foreach ($historicalMenuWarnings as $historicalMenuWarning) {
+                $historicalMenuWarning = trim((string) $historicalMenuWarning);
 
-                if ($legacyMenuWarning === '') {
+                if ($historicalMenuWarning === '') {
                     continue;
                 }
 
                 $tableMessages[] = Text::sprintf(
-                    'COM_CONTENTBUILDERNG_LEGACY_MENU_REPAIR_WARNING',
-                    $legacyMenuWarning
+                    'COM_CONTENTBUILDERNG_HISTORICAL_MENU_REPAIR_WARNING',
+                    $historicalMenuWarning
                 );
             }
 
@@ -444,7 +444,7 @@ final class AboutController extends BaseController
                 || !$repairSupported
                 || $auditErrors > 0
                 || $pluginDuplicateErrors > 0
-                || $legacyMenuErrors > 0
+                || $historicalMenuErrors > 0
             )
                 ? 'warning'
                 : 'message';

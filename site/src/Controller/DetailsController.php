@@ -20,7 +20,6 @@ use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Input\Input;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 
@@ -134,8 +133,6 @@ class DetailsController extends BaseController
         $storageId = $this->input->getInt('storage_id', 0);
         $isDirectStorageMode = $storageId > 0 && $this->input->getInt('id', 0) <= 0;
 
-        // Si tu gardes le suffixe pour compat legacy :
-        //$frontend = $this->siteApp->isClient('site');
         $suffix = '_fe';
 
         // 1) d'abord depuis l'URL
@@ -149,7 +146,7 @@ class DetailsController extends BaseController
             }
         }
 
-        // Synchroniser l'input pour les appels legacy encore présents.
+        // Keep both input bags aligned for downstream model/view access.
         $this->input->set('id', $form_id);
         $this->siteApp->input->set('id', $form_id);
 

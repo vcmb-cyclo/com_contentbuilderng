@@ -27,9 +27,9 @@ use CB\Component\Contentbuilderng\Administrator\Service\TemplateSampleService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Service\ArticleService;
 use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
-use CB\Component\Contentbuilderng\Administrator\Service\LegacyUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\MenuService;
 use CB\Component\Contentbuilderng\Administrator\Service\FormResolverService;
+use CB\Component\Contentbuilderng\Administrator\Service\RuntimeUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
 use CB\Component\Contentbuilderng\Administrator\Service\TextUtilityService;
 
@@ -77,8 +77,8 @@ return new class implements ServiceProviderInterface
             static fn(Container $c) => new ListSupportService()
         );
         $container->set(
-            LegacyUtilityService::class,
-            static fn(Container $c) => new LegacyUtilityService()
+            RuntimeUtilityService::class,
+            static fn(Container $c) => new RuntimeUtilityService()
         );
         $container->set(
             MenuService::class,

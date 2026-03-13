@@ -19,7 +19,6 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Event\SubscriberInterface;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 class plgContentContentbuilderng_download extends CMSPlugin implements SubscriberInterface

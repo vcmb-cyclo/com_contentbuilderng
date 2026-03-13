@@ -10,7 +10,7 @@ use Joomla\CMS\Log\Log;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 
-class LegacyUtilityService
+class RuntimeUtilityService
 {
     public function sanitizeHiddenFilterValue(string $value): string
     {
@@ -22,7 +22,7 @@ class LegacyUtilityService
 
         if ($this->startsWithIgnoreCase($value, '$value') || $this->startsWithIgnoreCase($value, '<?php')) {
             Log::add(
-                'Blocked legacy PHP expression in hidden filter value.',
+                'Blocked PHP expression in hidden filter value.',
                 Log::WARNING,
                 'com_contentbuilderng'
             );

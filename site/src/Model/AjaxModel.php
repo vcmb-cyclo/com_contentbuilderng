@@ -17,7 +17,6 @@ use Joomla\CMS\Application\CMSWebApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Session\Session;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;

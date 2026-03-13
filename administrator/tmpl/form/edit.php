@@ -18,7 +18,6 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\TextUtilityService;
@@ -3748,7 +3747,7 @@ TXT;
         </table>
         <?php
         echo HTMLHelper::_('uitab.endTab');
-        // Legacy backend permissions block removed in favor of Joomla 6 frontend permissions UI.
+        // The old backend permissions block was removed in favor of Joomla 6 frontend permissions UI.
 
 
         echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab2', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_USERS'));

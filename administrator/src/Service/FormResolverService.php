@@ -14,7 +14,7 @@ class FormResolverService
     {
         static $forms;
 
-        Logger::info('Instanciation Legacy', [
+        Logger::info('Form resolver instantiation', [
             'type' => $type,
             'reference_id' => $referenceId,
         ]);
@@ -38,11 +38,7 @@ class FormResolverService
         if ((!$form || !($form->exists ?? false)) && $allowUnpublishedSource) {
             $namespace = 'CB\\Component\\Contentbuilderng\\Administrator\\types\\';
             $classCandidates = [$namespace . 'contentbuilderng_' . $type];
-            if ($type === 'com_contentbuilderng') {
-                $classCandidates[] = $namespace . 'contentbuilderng_com_contentbuilder';
-            } elseif ($type === 'com_contentbuilder') {
-                $classCandidates[] = $namespace . 'contentbuilderng_com_contentbuilderng';
-            } else {
+            if ($type !== 'com_contentbuilderng') {
                 $siteCandidate = JPATH_SITE . '/media/contentbuilderng/types/' . $type . '.php';
                 if (file_exists($siteCandidate)) {
                     require_once $siteCandidate;

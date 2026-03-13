@@ -15,7 +15,6 @@ use Joomla\Database\DatabaseInterface;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Event\SubscriberInterface;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 class plgContentContentbuilderng_permission_observer extends CMSPlugin implements SubscriberInterface

@@ -18,7 +18,6 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Session\Session;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\Database\DatabaseInterface;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Site\Model\EditModel;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 
@@ -83,7 +82,7 @@ class ListController extends BaseController
 
         $ok = true;
         try {
-            // Legacy model may not return a strict boolean; treat "no exception" as success.
+            // The model may not return a strict boolean; treat "no exception" as success.
             $model->delete();
         } catch (\Throwable $e) {
             $ok = false;
@@ -292,8 +291,6 @@ class ListController extends BaseController
         $storageId = $this->input->getInt('storage_id', 0);
         $isDirectStorageMode = $storageId > 0 && $this->input->getInt('id', 0) <= 0;
 
-        // Si tu gardes le suffixe pour compat legacy :
-        //$frontend = Factory::getApplication()->isClient('site');
         $suffix = '_fe';
 
         // 1) d'abord depuis l'URL
@@ -308,7 +305,7 @@ class ListController extends BaseController
             }
         }
 
-        // Synchroniser l'input pour les appels legacy encore présents.
+        // Keep both input bags aligned for downstream model/view access.
         $this->input->set('id', $formId);
         Factory::getApplication()->input->set('id', $formId);
 

@@ -183,7 +183,7 @@ class ElementsModel extends ListModel
 
         $this->setState('list.limit', $effectiveLimit);
         $this->setState('list.start', $effectiveStart);
-        // Keep legacy aliases in sync for old helper calls still using these keys.
+        // Keep alias fields in sync for consumers still using these keys.
         $this->setState('limit', $effectiveLimit);
         $this->setState('limitstart', $effectiveStart);
 
@@ -416,7 +416,7 @@ class ElementsModel extends ListModel
         return "Select * From #__contentbuilderng_elements Where form_id = " . $this->formId . $filter_state . $this->buildOrderBy();
     }
 
-    // Legacy
+    // Deprecated compatibility path
     function getData(int $formId)
     {
         $this->formId = $formId;
@@ -426,7 +426,7 @@ class ElementsModel extends ListModel
         return $elements;
     }
 
-    // Legacy : pas utilisé ?
+    // Deprecated path: unused?
     function getAllElements(int $formId)
     {
         $this->formId = $formId;

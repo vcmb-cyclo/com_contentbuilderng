@@ -26,8 +26,8 @@ final class DatabaseAuditHelper
      *   scanned_tables:int,
      *   tables:array<int,string>,
      *   duplicate_indexes:array<int,array{table:string,indexes:array<int,string>,keep:string,drop:array<int,string>}>,
-     *   legacy_tables:array<int,string>,
-     *   legacy_menu_entries:array<int,array{
+     *   historical_tables:array<int,string>,
+     *   historical_menu_entries:array<int,array{
      *     menu_id:int,
      *     title:string,
      *     normalized_title:string,
@@ -81,7 +81,7 @@ final class DatabaseAuditHelper
      *       tables_ng_expected:int,
      *       tables_ng_present:int,
      *       tables_ng_missing:int,
-     *       tables_legacy_total:int,
+     *       tables_historical_total:int,
      *       tables_storage_total:int,
      *       rows_total:int,
      *       data_bytes_total:int,
@@ -102,8 +102,8 @@ final class DatabaseAuditHelper
      *   summary:array{
      *     duplicate_index_groups:int,
      *     duplicate_indexes_to_drop:int,
-     *     legacy_tables:int,
-     *     legacy_menu_entries:int,
+     *     historical_tables:int,
+     *     historical_menu_entries:int,
      *     table_encoding_issues:int,
      *     column_encoding_issues:int,
      *     mixed_table_collations:int,
@@ -132,10 +132,10 @@ final class DatabaseAuditHelper
         [$duplicateIndexes, $duplicateErrors] = self::findDuplicateIndexes($db, $tables, $prefix);
         $errors = array_merge($errors, $duplicateErrors);
 
-        $legacyTables = self::findLegacyContentbuilderTables($tables, $prefix);
-        [$legacyMenuEntries, $legacyMenuErrors] = self::findLegacyMenuEntries($db);
-        $errors = array_merge($errors, $legacyMenuErrors);
-        [$cbTableStats, $cbTableStatsErrors] = self::collectCbTableStats($db, $tables, $prefix, $legacyTables);
+        $historicalTables = self::findLegacyContentbuilderTables($tables, $prefix);
+        [$historicalMenuEntries, $historicalMenuErrors] = self::findLegacyMenuEntries($db);
+        $errors = array_merge($errors, $historicalMenuErrors);
+        [$cbTableStats, $cbTableStatsErrors] = self::collectCbTableStats($db, $tables, $prefix, $historicalTables);
         $errors = array_merge($errors, $cbTableStatsErrors);
 
         [$tableEncodingIssues, $columnEncodingIssues, $mixedTableCollations, $encodingErrors] =
@@ -180,8 +180,8 @@ final class DatabaseAuditHelper
         }
 
         $issuesTotal = count($duplicateIndexes)
-            + count($legacyTables)
-            + count($legacyMenuEntries)
+            + count($historicalTables)
+            + count($historicalMenuEntries)
             + count($tableEncodingIssues)
             + count($columnEncodingIssues)
             + count($missingAuditColumns)
@@ -200,8 +200,8 @@ final class DatabaseAuditHelper
                 $tables
             ),
             'duplicate_indexes' => $duplicateIndexes,
-            'legacy_tables' => $legacyTables,
-            'legacy_menu_entries' => $legacyMenuEntries,
+            'historical_tables' => $historicalTables,
+            'historical_menu_entries' => $historicalMenuEntries,
             'table_encoding_issues' => $tableEncodingIssues,
             'column_encoding_issues' => $columnEncodingIssues,
             'mixed_table_collations' => $mixedTableCollations,
@@ -213,8 +213,8 @@ final class DatabaseAuditHelper
             'summary' => [
                 'duplicate_index_groups' => count($duplicateIndexes),
                 'duplicate_indexes_to_drop' => $duplicateToDrop,
-                'legacy_tables' => count($legacyTables),
-                'legacy_menu_entries' => count($legacyMenuEntries),
+                'historical_tables' => count($historicalTables),
+                'historical_menu_entries' => count($historicalMenuEntries),
                 'table_encoding_issues' => count($tableEncodingIssues),
                 'column_encoding_issues' => count($columnEncodingIssues),
                 'mixed_table_collations' => count($mixedTableCollations),
@@ -359,7 +359,7 @@ final class DatabaseAuditHelper
      */
     private static function findLegacyContentbuilderTables(array $tables, string $prefix): array
     {
-        $legacy = [];
+        $historical = [];
 
         foreach ($tables as $tableName) {
             if (strpos($tableName, $prefix) !== 0) {
@@ -372,13 +372,13 @@ final class DatabaseAuditHelper
             }
 
             if (strpos($withoutPrefix, 'contentbuilder_') === 0 && strpos($withoutPrefix, 'contentbuilderng_') !== 0) {
-                $legacy[] = self::toAlias($tableName, $prefix);
+                $historical[] = self::toAlias($tableName, $prefix);
             }
         }
 
-        sort($legacy, SORT_NATURAL | SORT_FLAG_CASE);
+        sort($historical, SORT_NATURAL | SORT_FLAG_CASE);
 
-        return $legacy;
+        return $historical;
     }
 
     /**
@@ -420,7 +420,7 @@ final class DatabaseAuditHelper
             $db->setQuery($query);
             $rows = $db->loadAssocList() ?: [];
         } catch (\Throwable $e) {
-            $errors[] = 'Could not inspect legacy menu entries: ' . $e->getMessage();
+            $errors[] = 'Could not inspect historical menu entries: ' . $e->getMessage();
             return [[], $errors];
         }
 

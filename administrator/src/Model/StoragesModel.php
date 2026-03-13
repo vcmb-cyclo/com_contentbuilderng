@@ -59,7 +59,7 @@ class StoragesModel extends ListModel
         // ✅ appels standard StorageModel
         parent::populateState($ordering, $direction);
 
-        // Joomla 6 admin lists post list[limit]; also accept legacy limit.
+        // Joomla 6 admin lists post list[limit]; also accept the flat limit field.
         $list = $app->input->get('list', [], 'array');
         if (is_array($list) && array_key_exists('limit', $list)) {
             $limit = (int) $list['limit'];

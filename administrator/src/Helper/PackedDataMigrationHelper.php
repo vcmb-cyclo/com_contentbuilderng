@@ -49,7 +49,7 @@ final class PackedDataMigrationHelper
     }
 
     /**
-     * Migrate legacy packed payloads in database columns to the JSON-based packed format.
+     * Migrate packed payloads in database columns to the JSON-based packed format.
      *
      * @return array{
      *   scanned:int,
@@ -105,7 +105,7 @@ final class PackedDataMigrationHelper
      *     }>,
      *     warnings:array<int,string>
      *   },
-     *   legacy_menu_entries:array{
+     *   historical_menu_entries:array{
      *     scanned:int,
      *     issues:int,
      *     repaired:int,
@@ -130,7 +130,7 @@ final class PackedDataMigrationHelper
         $summary['repair'] = self::repairTableCollations($db);
         $summary['audit_columns'] = StorageAuditColumnsHelper::repair($db);
         $summary['plugin_duplicates'] = PluginExtensionDedupHelper::repair($db);
-        $summary['legacy_menu_entries'] = self::repairLegacyMenuEntries($db);
+        $summary['historical_menu_entries'] = self::repairLegacyMenuEntries($db);
 
         return $summary;
     }
@@ -630,7 +630,7 @@ final class PackedDataMigrationHelper
             $db->setQuery($query);
             $rows = $db->loadAssocList() ?: [];
         } catch (\Throwable $e) {
-            $warnings[] = 'Could not inspect legacy menu entries: ' . $e->getMessage();
+            $warnings[] = 'Could not inspect historical menu entries: ' . $e->getMessage();
             return [[], $warnings];
         }
 

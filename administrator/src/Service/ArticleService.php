@@ -4,7 +4,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 \defined('_JEXEC') or die;
 
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Cache\CacheControllerFactoryInterface;

@@ -22,9 +22,8 @@ use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Event\Content\ContentPrepareEvent;
 use Joomla\CMS\MVC\Model\ListModel as BaseListModel;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
-use CB\Component\Contentbuilderng\Administrator\Service\LegacyUtilityService;
+use CB\Component\Contentbuilderng\Administrator\Service\RuntimeUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
@@ -32,7 +31,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 class ListModel extends BaseListModel
 {
     private readonly ListSupportService $listSupportService;
-    private readonly LegacyUtilityService $legacyUtilityService;
+    private readonly RuntimeUtilityService $runtimeUtilityService;
     private readonly TemplateRenderService $templateRenderService;
 
     protected int $_id = 0;
@@ -76,7 +75,7 @@ class ListModel extends BaseListModel
         $app = Factory::getApplication();
         $this->app = $app;
         $this->listSupportService = new ListSupportService();
-        $this->legacyUtilityService = new LegacyUtilityService();
+        $this->runtimeUtilityService = new RuntimeUtilityService();
         $this->templateRenderService = new TemplateRenderService();
 
         $this->frontend = $app->isClient('site');
@@ -169,7 +168,7 @@ class ListModel extends BaseListModel
             $app->setUserState($option . 'formsd_filter_order_Dir', $filter_order_Dir);
         }
 
-        // Keep legacy list state in sync when switching views/forms.
+        // Keep list state keys aligned when switching views/forms.
         // Without this, a previous form filter can be restored on pagination.
         $app->setUserState($option . 'formsd_filter', (string) $filter);
         $app->setUserState($option . 'formsd_filter_state', (int) $filter_state);
@@ -214,7 +213,7 @@ class ListModel extends BaseListModel
             foreach ($lines as $line) {
                 $keyval = explode("\t", $line);
                 if (count($keyval) == 2) {
-                    $keyval[1] = $this->legacyUtilityService->sanitizeHiddenFilterValue($keyval[1]);
+                    $keyval[1] = $this->runtimeUtilityService->sanitizeHiddenFilterValue($keyval[1]);
                     if ($keyval[1] != '') {
                         $this->_menu_filter[$keyval[0]] = explode('|', $keyval[1]);
                     }
@@ -348,7 +347,7 @@ class ListModel extends BaseListModel
         $session = $app->getSession();
         $option = 'com_contentbuilderng';
 
-        // Reset legacy list state keys.
+        // Reset list state keys.
         $app->setUserState($option . 'formsd_filter', '');
         $app->setUserState($option . 'formsd_filter_state', 0);
         $app->setUserState($option . 'formsd_filter_publish', -1);

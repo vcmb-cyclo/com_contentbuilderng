@@ -25,7 +25,6 @@ $permissionService = new PermissionService();
 $edit_allowed = $frontend ? $permissionService->authorizeFe('edit') : $permissionService->authorize('edit');
 $delete_allowed = $frontend ? $permissionService->authorizeFe('delete') : $permissionService->authorize('delete');
 $view_allowed = $frontend ? $permissionService->authorizeFe('view') : $permissionService->authorize('view');
-
 $input = Factory::getApplication()->input;
 
 $list = (array) $input->get('list', [], 'array');

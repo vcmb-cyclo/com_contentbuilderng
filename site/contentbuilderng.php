@@ -118,15 +118,6 @@ if (is_object($item)) {
     $input->set('cb_category_menu_filter', $params->get('cb_category_menu_filter', 0));
 }
 
-// Legacy URL support: accept form_id as alias for id on list routes.
-if ($input->getInt('id', 0) <= 0) {
-    $fallbackFormId = $input->getInt('form_id', 0);
-
-    if ($fallbackFormId > 0) {
-        $input->set('id', $fallbackFormId);
-    }
-}
-
 // If list is requested without a target form id, fallback to publicforms
 // instead of throwing "form/view not found".
 $requestedView = strtolower($input->getCmd('view', ''));

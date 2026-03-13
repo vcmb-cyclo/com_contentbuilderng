@@ -55,7 +55,7 @@ final class FormSourceFactory
 
     /**
      * Resolve a source form object using Joomla 6 namespaced type classes first,
-     * and fallback to legacy dynamic loader for custom/third-party types.
+     * and fallback to the dynamic loader for custom/third-party types.
      *
      * @param   string     $type
      * @param   int|string $referenceId

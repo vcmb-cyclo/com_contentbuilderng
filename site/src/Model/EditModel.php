@@ -37,11 +37,10 @@ use Joomla\CMS\User\UserHelper;
 use Joomla\CMS\Event\Model\PrepareFormEvent;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Service\ArticleService;
-use CB\Component\Contentbuilderng\Administrator\Service\LegacyUtilityService;
+use CB\Component\Contentbuilderng\Administrator\Service\RuntimeUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\PathService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
@@ -50,7 +49,7 @@ use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
 class EditModel extends BaseDatabaseModel
 {
     private AdministratorApplication|SiteApplication $app;
-    private readonly LegacyUtilityService $legacyUtilityService;
+    private readonly RuntimeUtilityService $runtimeUtilityService;
     private readonly ListSupportService $listSupportService;
     private readonly TemplateRenderService $templateRenderService;
 
@@ -203,7 +202,7 @@ class EditModel extends BaseDatabaseModel
         /** @var AdministratorApplication|SiteApplication $app */
         $app = Factory::getApplication();
         $this->app = $app;
-        $this->legacyUtilityService = new LegacyUtilityService();
+        $this->runtimeUtilityService = new RuntimeUtilityService();
         $this->listSupportService = new ListSupportService();
         $this->templateRenderService = new TemplateRenderService();
         $this->_db = Factory::getContainer()->get(DatabaseInterface::class);
@@ -253,7 +252,7 @@ class EditModel extends BaseDatabaseModel
                 $keyval = explode("\t", $line);
                 if (count($keyval) == 2) {
                     $keyval[1] = str_replace(array("\n", "\r"), "", $keyval[1]);
-                    $keyval[1] = $this->legacyUtilityService->sanitizeHiddenFilterValue($keyval[1]);
+                    $keyval[1] = $this->runtimeUtilityService->sanitizeHiddenFilterValue($keyval[1]);
                     if ($keyval[1] != '') {
                         $this->_menu_filter[$keyval[0]] = explode('|', $keyval[1]);
                     }

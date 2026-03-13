@@ -27,7 +27,6 @@ use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 
 class VerifyModel extends BaseDatabaseModel

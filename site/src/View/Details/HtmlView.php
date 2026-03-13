@@ -216,7 +216,7 @@ CSS;
 
     private function toUnicodeSlug(string $string): string
     {
-        // Keep legacy slug behavior while decoupling from ContentbuilderLegacyHelper.
+        // Preserve the established Unicode slug normalization.
         $str = preg_replace('/\xE3\x80\x80/', ' ', $string) ?? $string;
         $str = str_replace('-', ' ', $str);
         $str = preg_replace('#[:\#\*"@+=;!&\.%()\]\/\'\\\\|\[]#', ' ', $str) ?? $str;
@@ -230,8 +230,8 @@ CSS;
 	function display($tpl = null)
 	{
 		// Get data from the model
-        $this->frontend = Factory::getApplication()->isClient('site');
-		$subject = $this->get('Data');
+		$this->frontend = Factory::getApplication()->isClient('site');
+        $subject = $this->get('Data');
 
 		if (!$this->frontend) {
             // 1️⃣ Récupération du WebAssetManager

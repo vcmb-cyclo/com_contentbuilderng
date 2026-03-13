@@ -20,12 +20,12 @@ use Joomla\Registry\Registry;
 class TemplateRenderService
 {
     private readonly FormResolverService $formResolverService;
-    private readonly LegacyUtilityService $legacyUtilityService;
+    private readonly RuntimeUtilityService $runtimeUtilityService;
 
     public function __construct()
     {
         $this->formResolverService = new FormResolverService();
-        $this->legacyUtilityService = new LegacyUtilityService();
+        $this->runtimeUtilityService = new RuntimeUtilityService();
     }
 
     private function getTextUtilityService(): TextUtilityService
@@ -66,7 +66,7 @@ class TemplateRenderService
 
     private function execPhp($result)
     {
-        return $this->legacyUtilityService->execPhp($result);
+        return $this->runtimeUtilityService->execPhp($result);
     }
 
     private function normalizeTemplateMarkers(string $template): string

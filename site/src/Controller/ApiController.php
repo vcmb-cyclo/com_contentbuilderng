@@ -10,7 +10,6 @@ namespace CB\Component\Contentbuilderng\Site\Controller;
 
 \defined('_JEXEC') or die('Restricted access');
 
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Site\Model\DetailsModel;

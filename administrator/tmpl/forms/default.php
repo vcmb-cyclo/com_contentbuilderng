@@ -133,7 +133,7 @@ $sortLink = function (string $label, string $field) use ($order, $orderDir, $lim
                                 name="filter_state"
                                 id="filter_state"
                                 class="form-select form-select-sm js-select-submit-on-change"
-                                onchange="var form=document.adminForm;if(form){var start=form.elements['list[start]'];if(start){start.value=0;}var legacy=form.elements['limitstart'];if(legacy){legacy.value=0;}form.submit();}">
+                                onchange="var form=document.adminForm;if(form){var start=form.elements['list[start]'];if(start){start.value=0;}var limitStart=form.elements['limitstart'];if(limitStart){limitStart.value=0;}form.submit();}">
                                 <option value=""><?php echo Text::_('JOPTION_SELECT_PUBLISHED'); ?></option>
                                 <option value="P" <?php echo $filterState === 'P' ? 'selected="selected"' : ''; ?>>
                                     <?php echo Text::_('JPUBLISHED'); ?>
@@ -150,7 +150,7 @@ $sortLink = function (string $label, string $field) use ($order, $orderDir, $lim
                                 class="form-select form-select-sm js-select-submit-on-change"
                                 id="filter_tag"
                                 name="filter_tag"
-                                onchange="var form=document.adminForm;if(form){var start=form.elements['list[start]'];if(start){start.value=0;}var legacy=form.elements['limitstart'];if(legacy){legacy.value=0;}form.submit();}">
+                                onchange="var form=document.adminForm;if(form){var start=form.elements['list[start]'];if(start){start.value=0;}var limitStart=form.elements['limitstart'];if(limitStart){limitStart.value=0;}form.submit();}">
                                 <option value="">
                                     <?php echo htmlentities(Text::_('COM_CONTENTBUILDERNG_FILTER_TAG_ALL'), ENT_QUOTES, 'UTF-8'); ?>
                                 </option>

@@ -39,8 +39,8 @@ $labelShowLogButton = Text::_('COM_CONTENTBUILDERNG_ABOUT_SHOW_LOG');
 $auditReport = is_array($this->auditReport ?? null) ? $this->auditReport : [];
 $auditSummary = (array) ($auditReport['summary'] ?? []);
 $duplicateIndexes = (array) ($auditReport['duplicate_indexes'] ?? []);
-$legacyTables = (array) ($auditReport['legacy_tables'] ?? []);
-$legacyMenuEntries = (array) ($auditReport['legacy_menu_entries'] ?? []);
+$historicalTables = (array) ($auditReport['historical_tables'] ?? []);
+$historicalMenuEntries = (array) ($auditReport['historical_menu_entries'] ?? []);
 $tableEncodingIssues = (array) ($auditReport['table_encoding_issues'] ?? []);
 $columnEncodingIssues = (array) ($auditReport['column_encoding_issues'] ?? []);
 $mixedTableCollations = (array) ($auditReport['mixed_table_collations'] ?? []);
@@ -72,7 +72,7 @@ if ($missingAuditColumnsTotal === 0 && $missingAuditColumns !== []) {
 $bfFieldSyncViews = (int) ($auditSummary['bf_view_field_sync_views'] ?? count($bfFieldSyncIssues));
 $bfFieldSyncMissingTotal = (int) ($auditSummary['bf_view_field_sync_missing_in_cb'] ?? 0);
 $bfFieldSyncOrphanTotal = (int) ($auditSummary['bf_view_field_sync_orphan_in_cb'] ?? 0);
-$legacyMenuEntriesCount = (int) ($auditSummary['legacy_menu_entries'] ?? count($legacyMenuEntries));
+$historicalMenuEntriesCount = (int) ($auditSummary['historical_menu_entries'] ?? count($historicalMenuEntries));
 
 if (($bfFieldSyncMissingTotal === 0 || $bfFieldSyncOrphanTotal === 0) && $bfFieldSyncIssues !== []) {
     $fallbackMissingTotal = 0;
@@ -561,12 +561,12 @@ $formatAuditIssueList = static function (array $values, int $limit = 8): string 
                         <td><?php echo (int) ($auditSummary['duplicate_indexes_to_drop'] ?? 0); ?></td>
                     </tr>
                     <tr class="<?php echo $hasLegacyTableIssues ? 'table-warning' : ''; ?>">
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_LEGACY_TABLES'); ?></th>
-                        <td><?php echo (int) ($auditSummary['legacy_tables'] ?? 0); ?></td>
+                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_HISTORICAL_TABLES'); ?></th>
+                        <td><?php echo (int) ($auditSummary['historical_tables'] ?? 0); ?></td>
                     </tr>
                     <tr class="<?php echo $hasLegacyMenuIssues ? 'table-warning' : ''; ?>">
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_LEGACY_MENU_ENTRIES'); ?></th>
-                        <td><?php echo $legacyMenuEntriesCount; ?></td>
+                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_HISTORICAL_MENU_ENTRIES'); ?></th>
+                        <td><?php echo $historicalMenuEntriesCount; ?></td>
                     </tr>
                     <tr class="<?php echo $hasTableEncodingIssues ? 'table-warning' : ''; ?>">
                         <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TABLE_ENCODING_ISSUES'); ?></th>
@@ -734,23 +734,23 @@ $formatAuditIssueList = static function (array $values, int $limit = 8): string 
                 </div>
             <?php endif; ?>
 
-            <h4 class="h6 mt-3<?php echo $hasLegacyTableIssues ? ' text-warning' : ''; ?>"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_LEGACY_TABLES'); ?></h4>
-            <?php if (empty($legacyTables)) : ?>
+            <h4 class="h6 mt-3<?php echo $hasLegacyTableIssues ? ' text-warning' : ''; ?>"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_HISTORICAL_TABLES'); ?></h4>
+            <?php if (empty($historicalTables)) : ?>
                 <div class="alert cb-audit-ok-alert">
-                    <?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_LEGACY_TABLES'); ?>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_HISTORICAL_TABLES'); ?>
                 </div>
             <?php else : ?>
                 <ul class="mb-0">
-                    <?php foreach ($legacyTables as $legacyTable) : ?>
-                        <li><?php echo htmlspecialchars((string) $legacyTable, ENT_QUOTES, 'UTF-8'); ?></li>
+                    <?php foreach ($historicalTables as $historicalTable) : ?>
+                        <li><?php echo htmlspecialchars((string) $historicalTable, ENT_QUOTES, 'UTF-8'); ?></li>
                     <?php endforeach; ?>
                 </ul>
             <?php endif; ?>
 
-            <h4 class="h6 mt-3<?php echo $hasLegacyMenuIssues ? ' text-warning' : ''; ?>"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_LEGACY_MENU_ENTRIES'); ?></h4>
-            <?php if (empty($legacyMenuEntries)) : ?>
+            <h4 class="h6 mt-3<?php echo $hasLegacyMenuIssues ? ' text-warning' : ''; ?>"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_HISTORICAL_MENU_ENTRIES'); ?></h4>
+            <?php if (empty($historicalMenuEntries)) : ?>
                 <div class="alert cb-audit-ok-alert">
-                    <?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_LEGACY_MENU_ENTRIES'); ?>
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_HISTORICAL_MENU_ENTRIES'); ?>
                 </div>
             <?php else : ?>
                 <div class="table-responsive">
@@ -764,12 +764,12 @@ $formatAuditIssueList = static function (array $values, int $limit = 8): string 
                         </tr>
                         </thead>
                         <tbody>
-                        <?php foreach ($legacyMenuEntries as $legacyMenuEntry) : ?>
+                        <?php foreach ($historicalMenuEntries as $historicalMenuEntry) : ?>
                             <tr>
-                                <td><?php echo (int) ($legacyMenuEntry['menu_id'] ?? 0); ?></td>
-                                <td><?php echo htmlspecialchars((string) ($legacyMenuEntry['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td><?php echo htmlspecialchars((string) ($legacyMenuEntry['normalized_title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td><?php echo htmlspecialchars((string) ($legacyMenuEntry['link'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo (int) ($historicalMenuEntry['menu_id'] ?? 0); ?></td>
+                                <td><?php echo htmlspecialchars((string) ($historicalMenuEntry['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars((string) ($historicalMenuEntry['normalized_title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars((string) ($historicalMenuEntry['link'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>

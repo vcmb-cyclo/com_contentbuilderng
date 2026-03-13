@@ -34,7 +34,7 @@ class StorageFieldService
             throw new \RuntimeException('Storage name vide : impossible de créer la colonne');
         }
 
-        // 2) Normaliser le nom de champ comme legacy
+        // 2) Normalize the field name using the established storage format
         $rawName = trim((string) ($fieldData['name'] ?? ''));
         $name = preg_replace("/[^a-zA-Z0-9_\s]/isU", "_", $rawName);
         $name = str_replace([' ', "\n", "\r", "\t"], ['_'], $name);
@@ -99,7 +99,7 @@ class StorageFieldService
             return;
         }
 
-        // 8) ALTER TABLE (colonne TEXT NULL comme legacy)
+        // 8) ALTER TABLE (TEXT NULL column, matching the established storage format)
         $db->setQuery('ALTER TABLE `#__' . $storageName . '` ADD `' . $name . '` TEXT NULL');
         $db->execute();
     }

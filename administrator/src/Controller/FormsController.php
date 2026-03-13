@@ -46,7 +46,7 @@ final class FormsController extends AdminController
         // IMPORTANT : on transmet factory/app/input à BaseController
         parent::__construct($config, $factory, $app, $input);
 
-        // Si tu veux absolument garder ces paramètres en session (legacy),
+        // Si tu veux absolument garder ces paramètres en session,
         // tu peux le faire proprement via $this->input.
         /** @var CMSApplication $application */
         $application = Factory::getApplication();

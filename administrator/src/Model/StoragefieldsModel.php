@@ -108,7 +108,7 @@ class StoragefieldsModel extends ListModel
 
         $this->setState('list.limit', $effectiveLimit);
         $this->setState('list.start', $effectiveStart);
-        // Keep legacy aliases in sync for helpers/components still reading these keys.
+        // Keep alias fields in sync for consumers still reading these keys.
         $this->setState('limit', $effectiveLimit);
         $this->setState('limitstart', $effectiveStart);
 

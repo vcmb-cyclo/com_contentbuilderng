@@ -123,7 +123,7 @@ setValue('task', task);
                             name="filter_state"
                             id="filter_state"
                             class="form-select form-select-sm js-select-submit-on-change"
-                            onchange="var form=document.adminForm;if(form){var start=form.elements['list[start]'];if(start){start.value=0;}var legacy=form.elements['limitstart'];if(legacy){legacy.value=0;}form.submit();}">
+                            onchange="var form=document.adminForm;if(form){var start=form.elements['list[start]'];if(start){start.value=0;}var limitStart=form.elements['limitstart'];if(limitStart){limitStart.value=0;}form.submit();}">
                             <option value=""><?php echo Text::_('JOPTION_SELECT_PUBLISHED'); ?></option>
                             <option value="P" <?php echo $filterState === 'P' ? 'selected="selected"' : ''; ?>>
                                 <?php echo Text::_('JPUBLISHED'); ?>

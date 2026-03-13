@@ -17,7 +17,6 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Event\SubscriberInterface;
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\ArticleService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 
@@ -87,7 +86,7 @@ class plgSystemContentbuilderng_system extends CMSPlugin implements SubscriberIn
      */
     private function bootstrapContentbuilder(): bool
     {
-        if (class_exists(ContentbuilderLegacyHelper::class)) {
+        if (class_exists(FormSourceFactory::class)) {
             return true;
         }
 
@@ -100,7 +99,6 @@ class plgSystemContentbuilderng_system extends CMSPlugin implements SubscriberIn
             $base . '/src/Helper/PackedDataHelper.php',
             $base . '/src/Helper/Logger.php',
             $base . '/src/Helper/ContentbuilderngHelper.php',
-            $base . '/src/Helper/ContentbuilderLegacyHelper.php',
             $base . '/src/Helper/FormSourceFactory.php',
         ];
 
@@ -111,7 +109,7 @@ class plgSystemContentbuilderng_system extends CMSPlugin implements SubscriberIn
             require_once $file;
         }
 
-        return class_exists(ContentbuilderLegacyHelper::class);
+        return class_exists(FormSourceFactory::class);
     }
 
     public static function getSubscribedEvents(): array

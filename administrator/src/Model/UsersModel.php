@@ -112,7 +112,7 @@ class UsersModel extends ListModel
         }
 
         // filter.state : exemple (à adapter à ton UI)
-        // Ici je laisse le comportement "legacy" : P=published, U=unpublished sur a.published
+        // On conserve ici le mapping historique : P=published, U=unpublished sur a.published
         $state = (string) $this->getState('filter.state');
         if ($state === 'P') {
             $query->where('COALESCE(a.published, 1) = 1');
