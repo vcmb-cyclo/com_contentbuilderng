@@ -4,7 +4,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 \defined('_JEXEC') or die;
 
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Filesystem\File;
@@ -106,7 +106,7 @@ class FormSupportService
                     . $db->quote($formId) . ','
                     . $db->quote($referenceId) . ","
                     . "'text',"
-                    . $db->quote(ContentbuilderLegacyHelper::encodePackedData($options)) . ', '
+                    . $db->quote(PackedDataHelper::encodePackedData($options)) . ', '
                     . ($ordering ? $ordering : 0) . ')'
                 );
                 $db->execute();

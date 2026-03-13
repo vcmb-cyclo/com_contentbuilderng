@@ -21,11 +21,13 @@ use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
+use CB\Component\Contentbuilderng\Administrator\Service\TextUtilityService;
 ?>
 <?php
 /** @var AdministratorApplication $app */
 $app = Factory::getApplication();
 $session = $app->getSession();
+$textUtilityService = new TextUtilityService();
 $wa = $app->getDocument()->getWebAssetManager();
 $wa->addInlineStyle(
     '.saveorder.btn{background-color:var(--bs-body-bg);border-color:var(--bs-border-color);color:var(--bs-body-color)}'
@@ -2388,7 +2390,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                             </th>
                             <th width="150">
                                 <span class="editlinktip hasTip"
-                                    title="<?php echo ContentbuilderLegacyHelper::allhtmlentities(Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER_TIP')); ?>">
+                                    title="<?php echo $textUtilityService->allhtmlentities(Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER_TIP')); ?>">
                                     <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER'); ?>
                                 </span>
                             </th>

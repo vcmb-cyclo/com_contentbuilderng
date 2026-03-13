@@ -4,7 +4,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 \defined('_JEXEC') or die;
 
-use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Access\Exception\NotAllowed;
 use Joomla\CMS\Application\CMSApplication;
@@ -14,6 +14,13 @@ use Joomla\Database\DatabaseInterface;
 
 class PermissionService
 {
+    private readonly FormResolverService $formResolverService;
+
+    public function __construct()
+    {
+        $this->formResolverService = new FormResolverService();
+    }
+
     public function setPermissions($formId, $recordId = 0, string $suffix = ''): void
     {
         /** @var CMSApplication $app */
@@ -110,7 +117,7 @@ class PermissionService
             return;
         }
 
-        $config = ContentbuilderLegacyHelper::decodePackedData($result['config'] ?? '', [], true);
+        $config = PackedDataHelper::decodePackedData($result['config'] ?? '', [], true);
 
         if (!is_array($config)) {
             $config = [];
@@ -232,7 +239,7 @@ class PermissionService
                 }
 
                 if (is_array($typerefid)) {
-                    $form = ContentbuilderLegacyHelper::getForm($typerefid['type'], $typerefid['reference_id']);
+                    $form = $this->formResolverService->getForm($typerefid['type'], $typerefid['reference_id']);
 
                     if ($form && !isset($userReturn['record_id'])) {
                         $allowed = true;

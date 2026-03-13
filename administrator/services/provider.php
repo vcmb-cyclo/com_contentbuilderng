@@ -26,6 +26,12 @@ use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\TemplateSampleService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Service\ArticleService;
+use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
+use CB\Component\Contentbuilderng\Administrator\Service\LegacyUtilityService;
+use CB\Component\Contentbuilderng\Administrator\Service\MenuService;
+use CB\Component\Contentbuilderng\Administrator\Service\FormResolverService;
+use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
+use CB\Component\Contentbuilderng\Administrator\Service\TextUtilityService;
 
 //\Joomla\CMS\Factory::getApplication()->enqueueMessage('provider.php chargé', 'warning');
 return new class implements ServiceProviderInterface
@@ -65,6 +71,30 @@ return new class implements ServiceProviderInterface
         $container->set(
             ArticleService::class,
             static fn(Container $c) => new ArticleService()
+        );
+        $container->set(
+            ListSupportService::class,
+            static fn(Container $c) => new ListSupportService()
+        );
+        $container->set(
+            LegacyUtilityService::class,
+            static fn(Container $c) => new LegacyUtilityService()
+        );
+        $container->set(
+            MenuService::class,
+            static fn(Container $c) => new MenuService()
+        );
+        $container->set(
+            FormResolverService::class,
+            static fn(Container $c) => new FormResolverService()
+        );
+        $container->set(
+            TextUtilityService::class,
+            static fn(Container $c) => new TextUtilityService()
+        );
+        $container->set(
+            TemplateRenderService::class,
+            static fn(Container $c) => new TemplateRenderService()
         );
 
         $container->set(

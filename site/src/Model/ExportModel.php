@@ -20,9 +20,13 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
+use CB\Component\Contentbuilderng\Administrator\Service\LegacyUtilityService;
+use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
 
 class ExportModel extends BaseDatabaseModel
 {
+    private readonly LegacyUtilityService $legacyUtilityService;
+    private readonly ListSupportService $listSupportService;
 
     private $frontend = false;
 
@@ -42,6 +46,8 @@ class ExportModel extends BaseDatabaseModel
         /** @var SiteApplication $app */
         $app = Factory::getApplication();
         $this->app = $app;
+        $this->legacyUtilityService = new LegacyUtilityService();
+        $this->listSupportService = new ListSupportService();
         $this->frontend = $app->isClient('site');
         $option = 'com_contentbuilderng';
 
@@ -101,7 +107,7 @@ class ExportModel extends BaseDatabaseModel
             foreach ($lines as $line) {
                 $keyval = explode("\t", $line);
                 if (count($keyval) == 2) {
-                    $keyval[1] = ContentbuilderLegacyHelper::sanitizeHiddenFilterValue($keyval[1]);
+                    $keyval[1] = $this->legacyUtilityService->sanitizeHiddenFilterValue($keyval[1]);
                     if ($keyval[1] != '') {
                         $this->_menu_filter[$keyval[0]] = explode('|', $keyval[1]);
                     }
@@ -189,7 +195,7 @@ class ExportModel extends BaseDatabaseModel
                     if (!$data->form->exists) {
                         throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
                     }
-                    $searchable_elements = ContentbuilderLegacyHelper::getListSearchableElements($this->_id);
+                    $searchable_elements = $this->listSupportService->getListSearchableElements($this->_id);
                     $data->labels = $data->form->getElementLabels();
 
                     if (

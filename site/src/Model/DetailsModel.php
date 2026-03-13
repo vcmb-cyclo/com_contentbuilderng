@@ -21,11 +21,15 @@ use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
+use CB\Component\Contentbuilderng\Administrator\Service\LegacyUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 
 class DetailsModel extends ListModel
 {
+    private readonly TemplateRenderService $templateRenderService;
+    private readonly LegacyUtilityService $legacyUtilityService;
     private $_record_id = 0;
 
     private $frontend = false;
@@ -57,6 +61,8 @@ class DetailsModel extends ListModel
         /** @var SiteApplication $app */
         $app = Factory::getApplication();
         $this->app = $app;
+        $this->templateRenderService = new TemplateRenderService();
+        $this->legacyUtilityService = new LegacyUtilityService();
         $option = 'com_contentbuilderng';
         $this->frontend = $app->isClient('site');
         $this->directStorageId = max(0, $app->input->getInt('storage_id', 0));
@@ -99,7 +105,7 @@ class DetailsModel extends ListModel
                 $keyval = explode("\t", $line);
                 if (count($keyval) == 2) {
                     $keyval[1] = str_replace(array("\n", "\r"), "", $keyval[1]);
-                    $keyval[1] = ContentbuilderLegacyHelper::sanitizeHiddenFilterValue($keyval[1]);
+                    $keyval[1] = $this->legacyUtilityService->sanitizeHiddenFilterValue($keyval[1]);
                     if ($keyval[1] != '') {
                         $this->_menu_filter[$keyval[0]] = explode('|', $keyval[1]);
                     }
@@ -474,7 +480,7 @@ class DetailsModel extends ListModel
                             $document->setTitle(html_entity_decode($data->page_title, ENT_QUOTES, 'UTF-8'));
                         }
 
-                        $data->template = ContentbuilderLegacyHelper::getTemplate($this->_id, $this->_record_id, $data->items, $ids, true);
+                        $data->template = $this->templateRenderService->getTemplate($this->_id, $this->_record_id, $data->items, $ids, true);
 
                         if (
                             $app->isClient('administrator')

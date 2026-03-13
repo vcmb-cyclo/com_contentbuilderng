@@ -41,12 +41,18 @@ use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelpe
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Service\ArticleService;
+use CB\Component\Contentbuilderng\Administrator\Service\LegacyUtilityService;
+use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\PathService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
 
 class EditModel extends BaseDatabaseModel
 {
     private AdministratorApplication|SiteApplication $app;
+    private readonly LegacyUtilityService $legacyUtilityService;
+    private readonly ListSupportService $listSupportService;
+    private readonly TemplateRenderService $templateRenderService;
 
     private $_record_id = 0;
 
@@ -197,6 +203,9 @@ class EditModel extends BaseDatabaseModel
         /** @var AdministratorApplication|SiteApplication $app */
         $app = Factory::getApplication();
         $this->app = $app;
+        $this->legacyUtilityService = new LegacyUtilityService();
+        $this->listSupportService = new ListSupportService();
+        $this->templateRenderService = new TemplateRenderService();
         $this->_db = Factory::getContainer()->get(DatabaseInterface::class);
         $option = 'com_contentbuilderng';
 
@@ -244,7 +253,7 @@ class EditModel extends BaseDatabaseModel
                 $keyval = explode("\t", $line);
                 if (count($keyval) == 2) {
                     $keyval[1] = str_replace(array("\n", "\r"), "", $keyval[1]);
-                    $keyval[1] = ContentbuilderLegacyHelper::sanitizeHiddenFilterValue($keyval[1]);
+                    $keyval[1] = $this->legacyUtilityService->sanitizeHiddenFilterValue($keyval[1]);
                     if ($keyval[1] != '') {
                         $this->_menu_filter[$keyval[0]] = explode('|', $keyval[1]);
                     }
@@ -610,7 +619,7 @@ var contentbuilderng = new function(){
                     );
                     //}
 
-                    $data->template = ContentbuilderLegacyHelper::getEditableTemplate($this->_id, $this->_record_id, $data->items, $ids, !$data->edit_by_type);
+                    $data->template = $this->templateRenderService->getEditableTemplate($this->_id, $this->_record_id, $data->items, $ids, !$data->edit_by_type);
 
                     if (
                         $this->app->isClient('administrator')
@@ -693,7 +702,7 @@ var contentbuilderng = new function(){
                 $meta = $data->form->getRecordMetadata($this->_record_id);
                 if (!$data->edit_by_type) {
 
-                    $noneditable_fields = ContentbuilderLegacyHelper::getListNonEditableElements($this->_id);
+                    $noneditable_fields = $this->listSupportService->getListNonEditableElements($this->_id);
                     $names = $data->form->getElementNames();
 
                     $this->getDatabase()->setQuery("Select * From #__contentbuilderng_elements Where form_id = " . $this->_id . " And published = 1 And editable = 1");
@@ -1645,7 +1654,7 @@ var contentbuilderng = new function(){
 
                             $recipients_checked_admin = array_merge(array($main_recipient), $recipients_checked_admin);
 
-                            $email_admin_template = ContentbuilderLegacyHelper::getEmailTemplate($this->_id, $record_return, $data_email_items, $ids, true);
+                            $email_admin_template = $this->templateRenderService->getEmailTemplate($this->_id, $record_return, $data_email_items, $ids, true);
 
                             // subject
                             $subject_admin = Text::_('COM_CONTENTBUILDERNG_EMAIL_RECORD_RECEIVED');
@@ -1756,7 +1765,7 @@ var contentbuilderng = new function(){
 
                             $recipients_checked = array_merge(array($main_recipient), $recipients_checked);
 
-                            $email_template = ContentbuilderLegacyHelper::getEmailTemplate($this->_id, $record_return, $data_email_items, $ids, false);
+                            $email_template = $this->templateRenderService->getEmailTemplate($this->_id, $record_return, $data_email_items, $ids, false);
 
                             // subject
                             $subject = Text::_('COM_CONTENTBUILDERNG_EMAIL_RECORD_RECEIVED');

@@ -24,10 +24,17 @@ use Joomla\CMS\MVC\Model\ListModel as BaseListModel;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderLegacyHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
+use CB\Component\Contentbuilderng\Administrator\Service\LegacyUtilityService;
+use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
+use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 
 class ListModel extends BaseListModel
 {
+    private readonly ListSupportService $listSupportService;
+    private readonly LegacyUtilityService $legacyUtilityService;
+    private readonly TemplateRenderService $templateRenderService;
+
     protected int $_id = 0;
 
     protected ?array $_data = null; // si tu veux être propre avec _data aussi
@@ -68,6 +75,9 @@ class ListModel extends BaseListModel
         /** @var CMSWebApplication $app */
         $app = Factory::getApplication();
         $this->app = $app;
+        $this->listSupportService = new ListSupportService();
+        $this->legacyUtilityService = new LegacyUtilityService();
+        $this->templateRenderService = new TemplateRenderService();
 
         $this->frontend = $app->isClient('site');
         $option = 'com_contentbuilderng';
@@ -204,7 +214,7 @@ class ListModel extends BaseListModel
             foreach ($lines as $line) {
                 $keyval = explode("\t", $line);
                 if (count($keyval) == 2) {
-                    $keyval[1] = ContentbuilderLegacyHelper::sanitizeHiddenFilterValue($keyval[1]);
+                    $keyval[1] = $this->legacyUtilityService->sanitizeHiddenFilterValue($keyval[1]);
                     if ($keyval[1] != '') {
                         $this->_menu_filter[$keyval[0]] = explode('|', $keyval[1]);
                     }
@@ -530,7 +540,7 @@ class ListModel extends BaseListModel
                 -1
             );
             $this->_total = $storage->form->getListRecordsTotal($ids, $this->getState('formsd_filter'), $searchableElements);
-            $data->published_items = ContentbuilderLegacyHelper::getRecordsPublishInfo($data->items, $data->type, $data->reference_id);
+            $data->published_items = $this->listSupportService->getRecordsPublishInfo($data->items, $data->type, $data->reference_id);
         } else {
             $data->items = [];
             $this->_total = 0;
@@ -868,9 +878,9 @@ class ListModel extends BaseListModel
                     foreach ($data->labels as $reference_id => $label) {
                         $ids[] = $this->getDatabase()->quote($reference_id);
                     }
-                    $searchable_elements = ContentbuilderLegacyHelper::getListSearchableElements($this->_id);
+                    $searchable_elements = $this->listSupportService->getListSearchableElements($this->_id);
                     $data->display_filter = count($searchable_elements) && $data->show_filter;
-                    $data->linkable_elements = ContentbuilderLegacyHelper::getListLinkableElements($this->_id);
+                    $data->linkable_elements = $this->listSupportService->getListLinkableElements($this->_id);
                     $data->labels = array();
                     $order_types = array();
                     if (count($ids)) {
@@ -980,7 +990,7 @@ class ListModel extends BaseListModel
                         $app->setUserState($option . 'formsd_filter_order', '');
                         throw new \Exception(Text::_('Stale list setup detected. Please reload view.'), 500);
                     }
-                    $data->items = ContentbuilderLegacyHelper::applyItemWrappers($this->_id, $data->items, $data);
+                    $data->items = $this->templateRenderService->applyItemWrappers($this->_id, $data->items, $data);
                     $this->_total = $data->form->getListRecordsTotal($ids, $this->getState('formsd_filter'), $searchable_elements);
                     $data->visible_cols = $ids;
 
@@ -988,17 +998,17 @@ class ListModel extends BaseListModel
                     $data->state_colors = array();
                     $data->state_titles = array();
                     $data->published_items = array();
-                    $data->states = ContentbuilderLegacyHelper::getListStates($this->_id);
+                    $data->states = $this->listSupportService->getListStates($this->_id);
                     if ($data->list_state) {
-                        $data->state_colors = ContentbuilderLegacyHelper::getStateColors($data->items, $this->_id);
-                        $data->state_titles = ContentbuilderLegacyHelper::getStateTitles($data->items, $this->_id);
+                        $data->state_colors = $this->listSupportService->getStateColors($data->items, $this->_id);
+                        $data->state_titles = $this->listSupportService->getStateTitles($data->items, $this->_id);
                     }
                     if ($data->list_publish) {
-                        $data->published_items = ContentbuilderLegacyHelper::getRecordsPublishInfo($data->items, $data->type, $data->reference_id);
+                        $data->published_items = $this->listSupportService->getRecordsPublishInfo($data->items, $data->type, $data->reference_id);
                     }
                     $data->lang_codes = array();
                     if ($data->list_language) {
-                        $data->lang_codes = ContentbuilderLegacyHelper::getRecordsLanguage($data->items, $data->type, $data->reference_id);
+                        $data->lang_codes = $this->listSupportService->getRecordsLanguage($data->items, $data->type, $data->reference_id);
                     }
                     $data->languages = (new FormSupportService())->getLanguageCodes();
 

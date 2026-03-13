@@ -15,6 +15,17 @@ use Joomla\Registry\Registry;
 
 class ArticleService
 {
+    private readonly FormResolverService $formResolverService;
+    private readonly TemplateRenderService $templateRenderService;
+    private readonly TextUtilityService $textUtilityService;
+
+    public function __construct()
+    {
+        $this->formResolverService = new FormResolverService();
+        $this->templateRenderService = new TemplateRenderService();
+        $this->textUtilityService = new TextUtilityService();
+    }
+
     public function createArticle($contentbuilderngFormId, $recordId, array $record, array $elementsAllowed, $titleField = '', $metadata = null, $config = [], $full = false, $limitedOptions = true, $menuCatId = null)
     {
         $app = Factory::getApplication();
@@ -34,7 +45,7 @@ class ArticleService
         $tpl = '';
 
         if (!$skipDetailsTemplateOnSave) {
-            $tpl = ContentbuilderLegacyHelper::getTemplate($contentbuilderngFormId, $recordId, $record, $elementsAllowed, true);
+            $tpl = $this->templateRenderService->getTemplate($contentbuilderngFormId, $recordId, $record, $elementsAllowed, true);
 
             if (!$tpl) {
                 return 0;
@@ -57,7 +68,7 @@ class ArticleService
 
         if ($form['act_as_registration']) {
             if ($recordId) {
-                $formObject = ContentbuilderLegacyHelper::getForm($form['type'], $form['reference_id']);
+                $formObject = $this->formResolverService->getForm($form['type'], $form['reference_id']);
                 $meta = $formObject->getRecordMetadata($recordId);
                 $db->setQuery('Select * From #__users Where id = ' . $meta->created_id);
                 $user = $db->loadObject();
@@ -321,7 +332,9 @@ class ArticleService
             $publishDown = null;
         }
 
-        $alias = $alias ? ContentbuilderLegacyHelper::stringURLUnicodeSlug($alias) : ContentbuilderLegacyHelper::stringURLUnicodeSlug($label);
+        $alias = $alias
+            ? $this->textUtilityService->stringURLUnicodeSlug($alias)
+            : $this->textUtilityService->stringURLUnicodeSlug($label);
 
         if (trim(str_replace('-', '', $alias)) == '') {
             $alias = Factory::getDate()->format('%Y-%m-%d-%H-%M-%S');
