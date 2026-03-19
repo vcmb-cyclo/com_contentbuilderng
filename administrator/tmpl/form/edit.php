@@ -60,12 +60,15 @@ $wa->addInlineStyle(
         . '.cb-save-disabled button .icon-save,.cb-save-disabled .btn .icon-save,.cb-save-disabled button .fa-check,.cb-save-disabled .btn .fa-check,.cb-save-disabled button [class*="icon-"],.cb-save-disabled .btn [class*="icon-"]{color:#8a949e!important}'
         . '.cb-save-disabled button svg,.cb-save-disabled .btn svg{color:#8a949e!important;fill:currentColor!important;stroke:currentColor!important}'
         . '.cb-save-disabled,[aria-disabled="true"].cb-save-disabled{pointer-events:none!important;cursor:not-allowed!important}'
-        . '#view-pane .nav-tabs,#perm-pane .nav-tabs{display:flex;gap:.4rem;flex-wrap:wrap;padding:.42rem;margin-bottom:.9rem;border:1px solid var(--bs-border-color);border-bottom:1px solid var(--bs-border-color);border-radius:14px;background:linear-gradient(180deg,var(--bs-tertiary-bg),var(--bs-secondary-bg))}'
-        . '#view-pane .nav-tabs .nav-link,#view-pane .nav-tabs [role="tab"],#perm-pane .nav-tabs .nav-link,#perm-pane .nav-tabs [role="tab"]{border:1px solid transparent;border-radius:10px;padding:.45rem .8rem;font-weight:600;color:var(--bs-secondary-color);background:transparent;transition:all .18s ease}'
-        . '#view-pane .nav-tabs .nav-link:hover,#view-pane .nav-tabs [role="tab"]:hover,#perm-pane .nav-tabs .nav-link:hover,#perm-pane .nav-tabs [role="tab"]:hover{background:var(--bs-body-bg);border-color:var(--bs-border-color);color:var(--bs-emphasis-color);transform:translateY(-1px)}'
-        . '#view-pane .nav-tabs .nav-link:focus-visible,#view-pane .nav-tabs [role="tab"]:focus-visible,#perm-pane .nav-tabs .nav-link:focus-visible,#perm-pane .nav-tabs [role="tab"]:focus-visible{outline:2px solid var(--bs-primary);outline-offset:1px}'
-        . '#view-pane .nav-tabs .nav-link.active,#view-pane .nav-tabs [role="tab"][aria-selected="true"],#perm-pane .nav-tabs .nav-link.active,#perm-pane .nav-tabs [role="tab"][aria-selected="true"]{color:var(--bs-white);background:var(--bs-primary);border-color:var(--bs-primary);box-shadow:0 4px 12px rgba(13,110,253,.28)}'
-        . '@media (max-width:991.98px){#view-pane .nav-tabs,#perm-pane .nav-tabs{flex-wrap:nowrap;overflow:auto;-webkit-overflow-scrolling:touch}#view-pane .nav-tabs .nav-link,#view-pane .nav-tabs [role="tab"],#perm-pane .nav-tabs .nav-link,#perm-pane .nav-tabs [role="tab"]{white-space:nowrap}}'
+        . 'joomla-tab#view-pane > div[role="tablist"],joomla-tab#perm-pane > div[role="tablist"]{display:flex;gap:0;flex-wrap:wrap;padding:0!important;margin-bottom:1rem;background:transparent;white-space:normal;border-block-end:var(--joomla-tablist-border-bottom)}'
+        . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"],joomla-tab#perm-pane > div[role="tablist"] > button[role="tab"]{position:relative;border:0!important;border-radius:0!important;padding:.6rem 1rem!important;font-weight:600;color:var(--body-color)!important;background:var(--body-bg)!important;transition:color .16s ease,background-color .16s ease;display:inline-flex;align-items:center;box-shadow:none!important}'
+        . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"] > span[class*="fa-"],joomla-tab#perm-pane > div[role="tablist"] > button[role="tab"] > span[class*="fa-"]{margin-inline-end:.45rem}'
+        . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"] + button[role="tab"],joomla-tab#perm-pane > div[role="tablist"] > button[role="tab"] + button[role="tab"]{border-inline-start:1px solid #d7dde5!important}'
+        . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"]:hover,joomla-tab#view-pane > div[role="tablist"] > button[role="tab"]:focus,joomla-tab#perm-pane > div[role="tablist"] > button[role="tab"]:hover,joomla-tab#perm-pane > div[role="tablist"] > button[role="tab"]:focus{background:var(--body-bg)!important;border-radius:0!important;color:var(--joomla-tab-btn-hvr)!important;box-shadow:none!important}'
+        . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"]:focus-visible,joomla-tab#perm-pane > div[role="tablist"] > button[role="tab"]:focus-visible{outline:2px solid var(--bs-primary);outline-offset:1px}'
+        . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"][aria-selected="true"],joomla-tab#perm-pane > div[role="tablist"] > button[role="tab"][aria-selected="true"]{color:var(--joomla-tab-btn-hvr)!important;background:var(--joomla-tab-btn-aria-exp-bg)!important;box-shadow:none!important}'
+        . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"][aria-selected="true"]::after,joomla-tab#perm-pane > div[role="tablist"] > button[role="tab"][aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:0;background:var(--btn-primary-bg)}'
+        . '@media (max-width:991.98px){joomla-tab#view-pane > div[role="tablist"],joomla-tab#perm-pane > div[role="tablist"]{flex-wrap:nowrap;overflow:auto;-webkit-overflow-scrolling:touch}joomla-tab#view-pane > div[role="tablist"] > button[role="tab"],joomla-tab#perm-pane > div[role="tablist"] > button[role="tab"]{white-space:nowrap}}'
 );
 
 $listOrder = (string) ($this->listOrder ?? 'ordering');
@@ -227,6 +230,11 @@ $permHeaderLabel = static function (string $labelKey, string $tipKey): string {
     return '<span class="cb-perm-header-tip" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="'
         . htmlspecialchars($tip, ENT_QUOTES, 'UTF-8') . '" title="' . htmlspecialchars($tip, ENT_QUOTES, 'UTF-8') . '">'
         . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span>';
+};
+
+$viewTabLabel = static function (string $iconClass, string $labelKey): string {
+    return '<span class="' . htmlspecialchars($iconClass, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></span> '
+        . htmlspecialchars(Text::_($labelKey), ENT_QUOTES, 'UTF-8');
 };
 
 $permissionColumns = [
@@ -1807,6 +1815,8 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
     var cbDirtyState = false;
     var cbDirtySnapshot = '';
+    var cbEditorObserver = null;
+    var cbEditorPollHandle = null;
 
     function cbShouldTrackField(field) {
         if (!field || field.disabled) {
@@ -1833,6 +1843,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         }
 
         var parts = [];
+        var editorKeys = {};
 
         for (var i = 0; i < form.elements.length; i++) {
             var field = form.elements[i];
@@ -1843,6 +1854,12 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
             var type = String(field.type || '').toLowerCase();
             var key = String(field.name || '');
+            var editorFieldName = '';
+            var editorMatch = key.match(/^jform\[(.+)\]$/);
+
+            if (editorMatch && editorMatch[1]) {
+                editorFieldName = editorMatch[1];
+            }
 
             if (type === 'checkbox' || type === 'radio') {
                 parts.push(key + '=' + (field.checked ? '1' : '0'));
@@ -1860,10 +1877,206 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                 continue;
             }
 
+            if (editorFieldName && !editorKeys[key]) {
+                var editorValue = cbGetEditorFieldValue(editorFieldName);
+                var textarea = document.getElementById('jform_' + editorFieldName);
+
+                if (
+                    textarea
+                    && textarea.tagName
+                    && String(textarea.tagName).toLowerCase() === 'textarea'
+                    && editorValue !== String(field.value || '')
+                ) {
+                    parts.push(key + '=' + editorValue);
+                    editorKeys[key] = true;
+                    continue;
+                }
+            }
+
             parts.push(key + '=' + String(field.value || ''));
         }
 
         return parts.join('\n');
+    }
+
+    function cbSerializeTrackedEditorState(form) {
+        if (!form) {
+            return '';
+        }
+
+        var parts = [];
+        var seen = {};
+        var fields = form.querySelectorAll('textarea[name^="jform["], input[name^="jform["]');
+
+        fields.forEach(function(field) {
+            var key = String(field.name || '');
+            var match = key.match(/^jform\[(.+)\]$/);
+
+            if (!match || !match[1] || seen[key]) {
+                return;
+            }
+
+            var fieldName = match[1];
+            var textarea = document.getElementById('jform_' + fieldName);
+            var hasEditorInstance = !!(
+                window.Joomla
+                && Joomla.editors
+                && Joomla.editors.instances
+                && (Joomla.editors.instances['jform_' + fieldName] || Joomla.editors.instances[fieldName])
+            );
+            var looksLikeEditorField = hasEditorInstance
+                || (
+                    textarea
+                    && textarea.tagName
+                    && String(textarea.tagName).toLowerCase() === 'textarea'
+                    && (
+                        textarea.closest('.tox-tinymce')
+                        || textarea.closest('.editor')
+                        || textarea.dataset.editor === '1'
+                    )
+                );
+
+            if (!looksLikeEditorField) {
+                return;
+            }
+
+            parts.push(key + '=' + cbGetEditorFieldValue(fieldName));
+            seen[key] = true;
+        });
+
+        return parts.join('\n');
+    }
+
+    function cbBindEditorDirtyTracking() {
+        var boundCount = 0;
+
+        if (window.Joomla && Joomla.editors && Joomla.editors.instances) {
+            Object.keys(Joomla.editors.instances).forEach(function(instanceKey) {
+                var instance = Joomla.editors.instances[instanceKey];
+
+                if (!instance || instance.__cbDirtyTrackingBound) {
+                    return;
+                }
+
+                instance.__cbDirtyTrackingBound = true;
+
+                if (typeof instance.on === 'function') {
+                    ['change', 'input', 'keyup', 'undo', 'redo', 'SetContent'].forEach(function(eventName) {
+                        try {
+                            instance.on(eventName, cbRefreshDirtyState);
+                        } catch (e) {
+                        }
+                    });
+                    boundCount++;
+                }
+            });
+        }
+
+        if (window.tinymce && typeof window.tinymce.get === 'function') {
+            document.querySelectorAll('textarea[name^="jform["]').forEach(function(textarea) {
+                var editorId = String(textarea.id || '');
+                if (!editorId) {
+                    return;
+                }
+
+                var editor = window.tinymce.get(editorId);
+                if (!editor || editor.__cbDirtyTrackingBound) {
+                    return;
+                }
+
+                editor.__cbDirtyTrackingBound = true;
+
+                ['input', 'change', 'keyup', 'NodeChange', 'Undo', 'Redo', 'SetContent'].forEach(function(eventName) {
+                    try {
+                        editor.on(eventName, cbRefreshDirtyState);
+                    } catch (e) {
+                    }
+                });
+
+                try {
+                    editor.on('init', function() {
+                        cbRefreshDirtyState();
+                    });
+                } catch (e) {
+                }
+
+                try {
+                    var doc = editor.getDoc && editor.getDoc();
+                    if (doc && !doc.__cbDirtyTrackingBound) {
+                        doc.__cbDirtyTrackingBound = true;
+                        ['input', 'keyup', 'paste', 'cut'].forEach(function(eventName) {
+                            doc.addEventListener(eventName, cbRefreshDirtyState, true);
+                        });
+                    }
+                } catch (e) {
+                }
+
+                try {
+                    var body = editor.getBody && editor.getBody();
+                    if (body && !body.__cbDirtyTrackingBound) {
+                        body.__cbDirtyTrackingBound = true;
+                        ['input', 'keyup', 'paste', 'cut'].forEach(function(eventName) {
+                            body.addEventListener(eventName, cbRefreshDirtyState, true);
+                        });
+                    }
+                } catch (e) {
+                }
+
+                var iframe = document.getElementById(editorId + '_ifr');
+                if (iframe && !iframe.__cbDirtyTrackingBound) {
+                    iframe.__cbDirtyTrackingBound = true;
+                    iframe.addEventListener('load', function() {
+                        cbBindEditorDirtyTracking();
+                        cbRefreshDirtyState();
+                    }, true);
+                }
+
+                var container = textarea.nextElementSibling;
+                if (container && container.classList && container.classList.contains('tox-tinymce') && !container.__cbDirtyTrackingBound) {
+                    container.__cbDirtyTrackingBound = true;
+                    ['input', 'keyup', 'paste', 'cut'].forEach(function(eventName) {
+                        container.addEventListener(eventName, cbRefreshDirtyState, true);
+                    });
+                }
+
+                boundCount++;
+            });
+        }
+
+        return boundCount;
+    }
+
+    function cbBindEditorFieldDirtyTracking(form) {
+        if (!form) {
+            return 0;
+        }
+
+        var fields = form.querySelectorAll('textarea[name^="jform["], input[name^="jform["]');
+        var boundCount = 0;
+
+        fields.forEach(function(field) {
+            var name = String(field.name || '');
+
+            if (!/\]$/.test(name) || field.__cbDirtyTrackingBound) {
+                return;
+            }
+
+            field.__cbDirtyTrackingBound = true;
+            boundCount++;
+
+            ['input', 'change', 'keyup'].forEach(function(eventName) {
+                field.addEventListener(eventName, cbRefreshDirtyState, true);
+            });
+        });
+
+        return boundCount;
+    }
+
+    function cbEnsureEditorDirtyTracking(form) {
+        var editorBindings = cbBindEditorDirtyTracking();
+        var fieldBindings = cbBindEditorFieldDirtyTracking(form);
+
+        return editorBindings + fieldBindings;
     }
 
     function cbGetSaveButtons() {
@@ -1948,6 +2161,35 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
         form.addEventListener('input', cbRefreshDirtyState, true);
         form.addEventListener('change', cbRefreshDirtyState, true);
+        cbEnsureEditorDirtyTracking(form);
+        window.setTimeout(function() {
+            cbEnsureEditorDirtyTracking(form);
+        }, 250);
+        window.setTimeout(function() {
+            cbEnsureEditorDirtyTracking(form);
+        }, 1000);
+        window.addEventListener('focus', cbRefreshDirtyState);
+        document.addEventListener('visibilitychange', cbRefreshDirtyState);
+
+        if (!cbEditorObserver && typeof MutationObserver === 'function') {
+            cbEditorObserver = new MutationObserver(function() {
+                cbEnsureEditorDirtyTracking(form);
+            });
+            cbEditorObserver.observe(form, { childList: true, subtree: true });
+        }
+
+        if (!cbEditorPollHandle) {
+            cbEditorPollHandle = window.setInterval(function() {
+                if (document.visibilityState === 'hidden') {
+                    return;
+                }
+
+                var editorState = cbSerializeTrackedEditorState(form);
+                if (editorState !== '') {
+                    cbRefreshDirtyState();
+                }
+            }, 600);
+        }
 
         window.addEventListener('beforeunload', function(event) {
             if (!cbDirtyState) {
@@ -1973,13 +2215,13 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         if ($activeViewTab === '') {
             $activeViewTab = trim((string) $session->get('tabStartOffset', 'tab0', 'com_contentbuilderng'));
         }
-        $allowedViewTabs = ['tab0', 'tab1', 'tab2', 'tab3', 'tab5', 'tab7', 'tab8', 'tab9'];
+        $allowedViewTabs = ['tab0', 'tab1', 'tab2', 'tab3', 'tab5', 'tab6', 'tab7', 'tab8', 'tab9'];
         if (!in_array($activeViewTab, $allowedViewTabs, true)) {
             $activeViewTab = 'tab0';
         }
         echo HTMLHelper::_('uitab.startTabSet', 'view-pane', ['active' => $activeViewTab]);
         // Premier onglet
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', Text::_('COM_CONTENTBUILDERNG_VIEW'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', $viewTabLabel('fa-regular fa-window-maximize', 'COM_CONTENTBUILDERNG_VIEW'));
         ?>
 
         <table width="100%">
@@ -2614,10 +2856,10 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
         <?php
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab9', Text::_('COM_CONTENTBUILDERNG_ADVANCED_OPTIONS'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab9', $viewTabLabel('fa-solid fa-sliders', 'COM_CONTENTBUILDERNG_ADVANCED_OPTIONS'));
         echo $advancedOptionsContent;
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab2', Text::_('COM_CONTENTBUILDERNG_LIST_INTRO_TEXT'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab2', $viewTabLabel('fa-regular fa-file-lines', 'COM_CONTENTBUILDERNG_LIST_INTRO_TEXT'));
         ?>
         <h3 class="mb-3">
             <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_INTRO_MODE_TITLE'); ?>
@@ -2628,7 +2870,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
         <?php
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab1', Text::_('COM_CONTENTBUILDERNG_LIST_STATES'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab1', $viewTabLabel('fa-solid fa-list-check', 'COM_CONTENTBUILDERNG_LIST_STATES'));
         ?>
         <?php
         echo LayoutHelper::render(
@@ -2643,7 +2885,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         ?>
         <?php
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab3', Text::_('COM_CONTENTBUILDERNG_TAB_DETAILS_DISPLAY'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab3', $viewTabLabel('fa-regular fa-id-card', 'COM_CONTENTBUILDERNG_TAB_DETAILS_DISPLAY'));
 
         ?>
         <?php
@@ -2663,7 +2905,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         ?>
         <?php
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab5', Text::_('COM_CONTENTBUILDERNG_TAB_EDIT_DISPLAY'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab5', $viewTabLabel('fa-regular fa-pen-to-square', 'COM_CONTENTBUILDERNG_TAB_EDIT_DISPLAY'));
         ?>
         <?php
         echo LayoutHelper::render(
@@ -2681,12 +2923,8 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
             ],
             $componentLayoutBase
         );
-        ?>
-
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab6', Text::_('COM_CONTENTBUILDERNG_API_TAB_TITLE'));
-        ?>
-        <?php
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab6', $viewTabLabel('fa-solid fa-plug', 'COM_CONTENTBUILDERNG_API_TAB_TITLE'));
         echo LayoutHelper::render(
             'form.api_tab',
             [
@@ -2704,7 +2942,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         ?>
         <?php
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab7', Text::_('COM_CONTENTBUILDERNG_EMAIL_TEMPLATES'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab7', $viewTabLabel('fa-regular fa-envelope', 'COM_CONTENTBUILDERNG_EMAIL_TEMPLATES'));
         ?>
         <?php
         echo LayoutHelper::render(
@@ -2720,7 +2958,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         );
 
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab8', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab8', $viewTabLabel('fa-solid fa-shield-halved', 'COM_CONTENTBUILDERNG_PERMISSIONS'));
         ?>
         <?php
         echo LayoutHelper::render(
@@ -2839,8 +3077,6 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QU
         // Clés de stockage
         const KEY_VIEW = 'cb_active_view_tab';
         const KEY_PERM = 'cb_active_perm_tab';
-        const urlParams = new URLSearchParams(window.location.search);
-        const forcedViewTab = urlParams.get('force_view_tab') || urlParams.get('tab');
         const tooltipSelector = '[data-bs-toggle="tooltip"]';
         const viewTabTooltips = <?php echo json_encode($viewTabTooltips, $jsonFlags); ?>;
         const permTabTooltips = <?php echo json_encode($permTabTooltips, $jsonFlags); ?>;
@@ -2972,12 +3208,6 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QU
             }, {
                 passive: true
             });
-        }
-
-        // Force requested view tab from URL and override persisted tab selection.
-        if (forcedViewTab && /^tab\d+$/.test(forcedViewTab)) {
-            localStorage.setItem(KEY_VIEW, forcedViewTab);
-            setHidden('tabStartOffset', forcedViewTab);
         }
 
         // 1) onglets principaux view-pane (tab0, tab1, tab2…)

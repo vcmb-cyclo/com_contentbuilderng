@@ -75,7 +75,11 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab1', Text::_('COM_CONTENT
                 ?>
                 <?php echo is_callable($renderCheckbox) ? $renderCheckbox($permName, $permId, $isChecked) : ''; ?>
                 <label class="form-check-label me-2" for="<?php echo $permId; ?>">
-                    <?php echo Text::_($permissionColumn['label']); ?>
+                    <?php
+                    echo is_callable($permHeaderLabel)
+                        ? $permHeaderLabel($permissionColumn['label'], $permissionColumn['tip'])
+                        : Text::_($permissionColumn['label']);
+                    ?>
                 </label>
             <?php endforeach; ?>
         </td>
