@@ -18,6 +18,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 /** @var SiteApplication $app */
 $app = Factory::getApplication();
@@ -32,6 +33,18 @@ $isAdminPreview = $app->input->getBool('cb_preview_ok', false);
 
 $input = $app->input;
 $hasReturn = $input->getString('return', '') !== '';
+$topBarToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_top_bar', 1);
+$bottomBarToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_bottom_bar', 1);
+$showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_author', 1);
+
+$editBackButtonToggle = -1;
+if ($frontend) {
+    $editBackButtonToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_details_back_button', 1, 'show_back_button');
+    if ($editBackButtonToggle >= 0) {
+        $showBack = $editBackButtonToggle === 1 && !$hasReturn;
+    }
+}
+
 $backToList = $input->getInt('backtolist', 0) === 1;
 $jsBack = $input->getInt('jsback', 0) === 1;
 $layout = $input->getString('layout', '');
@@ -146,7 +159,7 @@ $editNavBaseLink = 'index.php?option=com_contentbuilderng&task=edit.display'
     . $previewQuery;
 $showColumnHeader = $input->getInt('cb_show_column_header', 1) === 1;
 $columnHeaderHtml = '';
-$showAuditTrail = $input->getInt('cb_show_author', 1) === 1;
+$showAuditTrail = $showAuthorToggle === 1;
 
 $createdOnText = '';
 if (!empty($this->created)) {
@@ -578,7 +591,7 @@ if (!empty($this->theme_css) || !empty($this->theme_js)) {
     $buttons = ob_get_contents();
     ob_end_clean();
 
-    if (Factory::getApplication()->input->getInt('cb_show_top_bar', 1)) {
+    if ($topBarToggle === 1) {
     ?>
     <?php
         echo $buttons;
@@ -766,7 +779,7 @@ if (!empty($this->theme_css) || !empty($this->theme_js)) {
             <?php echo $auditTrailHtml; ?>
             <br />
             <?php
-            if (Factory::getApplication()->input->getInt('cb_show_bottom_bar', 1)) {
+            if ($bottomBarToggle === 1) {
 
                 echo $buttons;
             ?>
@@ -809,7 +822,7 @@ if (!empty($this->theme_css) || !empty($this->theme_js)) {
             <?php echo $auditTrailHtml; ?>
             <br />
             <?php
-            if (Factory::getApplication()->input->getInt('cb_show_bottom_bar', 1)) {
+            if ($bottomBarToggle === 1) {
 
                 echo $buttons;
             ?>
@@ -843,7 +856,7 @@ if (!empty($this->theme_css) || !empty($this->theme_js)) {
                 <?php echo HTMLHelper::_('form.token'); ?>
             </form>
             <?php
-            if (Factory::getApplication()->input->getInt('cb_show_bottom_bar', 1)) {
+            if ($bottomBarToggle === 1) {
 
                 echo $buttons;
             ?>

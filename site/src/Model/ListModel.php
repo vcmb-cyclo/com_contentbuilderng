@@ -22,6 +22,7 @@ use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Event\Content\ContentPrepareEvent;
 use Joomla\CMS\MVC\Model\ListModel as BaseListModel;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\RuntimeUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
@@ -103,7 +104,7 @@ class ListModel extends BaseListModel
             $item = $menu->getActive();
 
             if ($item) {
-                $id = (int) $item->getParams()->get('form_id', 0);
+                $id = (int) MenuParamHelper::getMenuParam($item->getParams(), 'form_id', 0);
             }
         }
 
@@ -126,17 +127,19 @@ class ListModel extends BaseListModel
             $listDirection = isset($parts[1]) ? strtolower((string) $parts[1]) : $listDirection;
         }
 
-        $previousFormId = (int) $app->getSession()->get($option . 'formsd_id', 0);
-        $formSwitched = $previousFormId > 0 && $previousFormId !== $this->_id;
+        $previousScreenKey = (string) $app->getSession()->get($option . 'formsd_screen', '');
+        $currentScreenKey = $this->getCurrentListScreenKey();
+        $screenSwitched = $previousScreenKey !== '' && $previousScreenKey !== $currentScreenKey;
         $filterLanguageStateKey = $this->getScopedListStateKey('filter_language');
 
-        // Hard reset when moving from one CB view/form to another.
-        // This avoids bringing back any prior filter/sort/pagination state.
-        if ($formSwitched) {
+        // Hard reset when moving from one CB list screen/menu to another.
+        // This avoids bringing back prior filter/sort state that would mask
+        // menu-specific settings such as hidden filters or initial limits.
+        if ($screenSwitched) {
             $this->resetStateOnFormSwitch();
         }
 
-        if ($previousFormId == 0 || $previousFormId == $this->_id) {
+        if (!$screenSwitched) {
             $filter_order     = (string) $app->getUserState($option . 'formsd_filter_order', '');
             $filter_order_Dir = (string) $app->getUserState($option . 'formsd_filter_order_Dir', '');
             $filter           = $app->getUserStateFromRequest($option . 'formsd_filter', 'filter', '', 'string');
@@ -206,7 +209,13 @@ class ListModel extends BaseListModel
             }
         }
 
-        $menu_filter = $app->input->get('cb_list_filterhidden', null, 'string');
+        $menu_filter = $app->input->get('cb_list_filterhidden', null, 'raw');
+        if (($menu_filter === null || $menu_filter === '') && $app->isClient('site')) {
+            $activeMenu = $app->getMenu()->getActive();
+            if ($activeMenu) {
+                $menu_filter = MenuParamHelper::getMenuParam($activeMenu->getParams(), 'cb_list_filterhidden', null);
+            }
+        }
 
         if ($menu_filter !== null) {
             $lines  = explode("\n", $menu_filter);
@@ -221,7 +230,13 @@ class ListModel extends BaseListModel
             }
         }
 
-        $menu_filter_order = $app->input->get('cb_list_orderhidden', null, 'string');
+        $menu_filter_order = $app->input->get('cb_list_orderhidden', null, 'raw');
+        if (($menu_filter_order === null || $menu_filter_order === '') && $app->isClient('site')) {
+            $activeMenu = $app->getMenu()->getActive();
+            if ($activeMenu) {
+                $menu_filter_order = MenuParamHelper::getMenuParam($activeMenu->getParams(), 'cb_list_orderhidden', null);
+            }
+        }
 
         if ($menu_filter_order !== null) {
             $lines  = explode("\n", $menu_filter_order);
@@ -239,6 +254,7 @@ class ListModel extends BaseListModel
         @natsort($this->_menu_filter_order);
 
         $app->getSession()->set($option . 'formsd_id', $this->directStorageMode ? 0 : $this->_id);
+        $app->getSession()->set($option . 'formsd_screen', $currentScreenKey);
     }
 
     function setId($id)
@@ -268,18 +284,30 @@ class ListModel extends BaseListModel
         $paginationStateKey = $this->getPaginationStateKeyPrefix();
         $limitKey = $paginationStateKey . '.limit';
         $startKey = $paginationStateKey . '.start';
+        $configuredLimit = $this->getConfiguredListLimit();
 
-        // Joomla 6-only pagination state.
+        // Priority for state-backed menu overrides:
+        // explicit request > menu setting > persisted session state > global default.
         $limit = isset($list['limit']) ? (int) $list['limit'] : 0;
+        if ($limit === 0) {
+            $limit = $configuredLimit;
+        }
         if ($limit === 0) {
             $limit = (int) $app->getUserState($limitKey, 0);
         }
         if ($limit === 0) {
             $limit = (int) $app->get('list_limit');
         }
+        if ($limit < 1) {
+            $limit = 20;
+        }
 
         if (array_key_exists('start', $list)) {
             $start = max(0, (int) $list['start']);
+        } elseif ($configuredLimit > 0) {
+            // When the menu defines the initial page size, reopen the list from the
+            // first page unless the request explicitly asks for another page.
+            $start = 0;
         } else {
             $start = (int) $app->getUserState($startKey, 0);
         }
@@ -320,7 +348,7 @@ class ListModel extends BaseListModel
         if ($formId < 1 && $app->isClient('site')) {
             $menu = $app->getMenu()->getActive();
             if ($menu) {
-                $formId = (int) $menu->getParams()->get('form_id', 0);
+                $formId = (int) MenuParamHelper::getMenuParam($menu->getParams(), 'form_id', 0);
             }
         }
 
@@ -336,6 +364,30 @@ class ListModel extends BaseListModel
         return $option . '.liststate.' . $scope . '.' . $layout . '.' . $itemId;
     }
 
+    private function getCurrentListScreenKey(): string
+    {
+        /** @var CMSWebApplication $app */
+        $app = Factory::getApplication();
+
+        $scope = $this->isDirectStorageMode()
+            ? 'storage.' . (int) $this->directStorageId
+            : 'form.' . (int) $this->_id;
+        $layout = (string) $app->input->getCmd('layout', 'default');
+        $itemId = (int) $app->input->getInt('Itemid', 0);
+
+        return $scope . '.' . $layout . '.' . $itemId;
+    }
+
+    private function getConfiguredListLimit(): int
+    {
+        return MenuParamHelper::getConfiguredListLimit(Factory::getApplication());
+    }
+
+    private function getMenuToggle(string $key, int $default = 0): int
+    {
+        return MenuParamHelper::resolveInputOrMenuToggle(Factory::getApplication(), $key, $default);
+    }
+
     private function getScopedListStateKey(string $suffix): string
     {
         return $this->getPaginationStateKeyPrefix() . '.' . $suffix;
@@ -346,6 +398,7 @@ class ListModel extends BaseListModel
         $app = $this->app;
         $session = $app->getSession();
         $option = 'com_contentbuilderng';
+        $paginationStateKey = $this->getPaginationStateKeyPrefix();
 
         // Reset list state keys.
         $app->setUserState($option . 'formsd_filter', '');
@@ -354,6 +407,8 @@ class ListModel extends BaseListModel
         $app->setUserState($option . 'formsd_filter_language', '');
         $app->setUserState($option . 'formsd_filter_order', '');
         $app->setUserState($option . 'formsd_filter_order_Dir', '');
+        $app->setUserState($paginationStateKey . '.limit', 0);
+        $app->setUserState($paginationStateKey . '.start', 0);
 
         // Reset current form external filter state.
         $session->clear('com_contentbuilderng.filter_signal.' . $this->_id);
@@ -604,6 +659,8 @@ class ListModel extends BaseListModel
         if (empty($this->_data)) {
             $query = $this->_buildQuery();
             $this->_data = $this->_getList($query, 0, 1);
+            $prefixInTitle = $this->getMenuToggle('cb_prefix_in_title', 0);
+            $filterInTitle = $this->getMenuToggle('cb_filter_in_title', 0);
 
             if (!count($this->_data)) {
                 throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
@@ -633,7 +690,7 @@ class ListModel extends BaseListModel
                 }
 
                 // filter by category if requested by menu item
-                if ($app->input->get('cb_category_menu_filter', null, 'string') !== null && $app->input->get('cb_category_menu_filter', 0, 'string') == 1 && $app->input->get('cb_category_id', null, 'string') !== null) {
+                if ($app->input->getInt('cb_category_menu_filter', 0) === 1) {
                     if ($app->input->getInt('cb_category_id', -1) > -2) {
                         $this->setState('article_category_filter', $app->input->getInt('cb_category_id', -1));
                     } else {
@@ -655,7 +712,7 @@ class ListModel extends BaseListModel
                         $data->form->synchRecords();
                     }
                     $data->page_title = '';
-                    if ($app->input->getInt('cb_prefix_in_title', 1)) {
+                    if ($prefixInTitle === 1) {
                         if (!$this->_menu_item) {
                             $data->page_title = $data->use_view_name_as_title ? $data->name : $data->form->getPageTitle();
                         } else {
@@ -787,8 +844,13 @@ class ListModel extends BaseListModel
                             $i++;
                         }
 
-                        $this->_menu_filter = $new_filters;
-                        $this->_menu_filter_order = $orders;
+                        foreach ($new_filters as $filterKey => $filterTerms) {
+                            $this->_menu_filter[$filterKey] = $filterTerms;
+                        }
+
+                        foreach ($orders as $filterKey => $orderValue) {
+                            $this->_menu_filter_order[$filterKey] = $orderValue;
+                        }
                     }
 
                     $ordered_extra_title = '';
@@ -857,19 +919,24 @@ class ListModel extends BaseListModel
                     $custom_page_heading = '';
 
                     if (!$app->isClient('administrator')) {
+                        $prefixTitle = (string) $data->page_title;
+                        $menuTitle = '';
 
                         if ($this->_show_page_heading && $this->_page_heading != '') {
-                            $data->page_title = $this->_page_heading;
-                        } else if ($this->_show_page_heading && $this->_page_heading == '') {
-                            $data->page_title = $this->_page_title;
-                        } else {
+                            $menuTitle = (string) $this->_page_heading;
+                        } elseif ($this->_show_page_heading && $this->_page_title != '') {
+                            $menuTitle = (string) $this->_page_title;
+                        } elseif ($this->_page_title != '') {
+                            $menuTitle = (string) $this->_page_title;
+                        }
 
-                            $data->page_title = $this->_page_title;
+                        $data->page_title = $prefixTitle !== '' ? $prefixTitle : $menuTitle;
 
-                            if ($app->input->getInt('cb_filter_in_title', 1)) {
-                                $data->slug2      = str_replace(' &raquo; ', '', $ordered_extra_title);
-                                $data->page_title .= $ordered_extra_title;
-                            }
+                        if ($filterInTitle === 1 && $ordered_extra_title !== '') {
+                            $normalizedExtraTitle = ltrim(preg_replace('/^(?:\s*&raquo;\s*)+/', '', $ordered_extra_title) ?? '', ' ');
+                            $normalizedExtraTitle = preg_replace('/\s*:\s*/', ' : ', $normalizedExtraTitle) ?? $normalizedExtraTitle;
+                            $data->slug2 = str_replace(' &raquo; ', '', $ordered_extra_title);
+                            $data->page_title .= ($data->page_title !== '' ? ' ' : '') . $normalizedExtraTitle;
                         }
                     }
 

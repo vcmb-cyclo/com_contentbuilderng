@@ -45,6 +45,7 @@ use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\PathService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 class EditModel extends BaseDatabaseModel
 {
@@ -68,6 +69,11 @@ class EditModel extends BaseDatabaseModel
     private $_menu_filter_order = array();
 
     private $_latest = false;
+
+    private function getMenuToggle(string $key, int $default = 0): int
+    {
+        return MenuParamHelper::resolveInputOrMenuToggle($this->app, $key, $default);
+    }
 
     private $_page_title = '';
 
@@ -237,14 +243,20 @@ class EditModel extends BaseDatabaseModel
             $item = $menu->getActive();
 
             if (is_object($item)) {
-                $this->app->input->set('cb_category_id', $item->getParams()->get('cb_category_id', null));
+                $params = $item->getParams();
+                $this->app->input->set('cb_category_id', (int) MenuParamHelper::getMenuParam($params, 'cb_category_id', 0));
 
                 if ($this->app->input->getString('cb_controller', '') == 'edit') {
-                    $this->_show_back_button = $item->getParams()->get('show_back_button', null);
+                    $this->_show_back_button = MenuParamHelper::getResolvedMenuToggle(
+                        $params,
+                        'cb_show_details_back_button',
+                        1,
+                        'show_back_button'
+                    ) === 1;
                 }
 
-                if ($item->getParams()->get('cb_latest', null) !== null) {
-                    $this->_latest = $item->getParams()->get('cb_latest', null);
+                if (MenuParamHelper::getMenuParam($params, 'cb_latest', null) !== null) {
+                    $this->_latest = MenuParamHelper::getMenuParam($params, 'cb_latest', null);
                 }
 
                 if ($item->getParams()->get('show_page_heading', null) !== null) {
@@ -261,7 +273,13 @@ class EditModel extends BaseDatabaseModel
             }
         }
 
-        $menu_filter = $this->app->input->get('cb_list_filterhidden', null, 'string');
+        $menu_filter = $this->app->input->get('cb_list_filterhidden', null, 'raw');
+        if (($menu_filter === null || $menu_filter === '') && $this->app->isClient('site')) {
+            $activeMenu = $this->app->getMenu()->getActive();
+            if ($activeMenu) {
+                $menu_filter = MenuParamHelper::getMenuParam($activeMenu->getParams(), 'cb_list_filterhidden', null);
+            }
+        }
 
         if ($menu_filter !== null) {
             $lines = explode("\n", $menu_filter);
@@ -277,7 +295,13 @@ class EditModel extends BaseDatabaseModel
             }
         }
 
-        $menu_filter_order = $this->app->input->get('cb_list_orderhidden', null, 'string');
+        $menu_filter_order = $this->app->input->get('cb_list_orderhidden', null, 'raw');
+        if (($menu_filter_order === null || $menu_filter_order === '') && $this->app->isClient('site')) {
+            $activeMenu = $this->app->getMenu()->getActive();
+            if ($activeMenu) {
+                $menu_filter_order = MenuParamHelper::getMenuParam($activeMenu->getParams(), 'cb_list_orderhidden', null);
+            }
+        }
 
         if ($menu_filter_order !== null) {
             $lines = explode("\n", $menu_filter_order);
@@ -456,7 +480,7 @@ class EditModel extends BaseDatabaseModel
                         throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
                     }
                     $data->page_title = '';
-                    if ($this->app->input->getInt('cb_prefix_in_title', 1)) {
+                    if ($this->getMenuToggle('cb_prefix_in_title', 0) === 1) {
                         if (!$this->_menu_item) {
                             $data->page_title = $data->use_view_name_as_title ? $data->name : $data->form->getPageTitle();
                         } else {
@@ -522,10 +546,11 @@ class EditModel extends BaseDatabaseModel
                         }
 
 
-                        // "buddy quaid hack", should be an option in future versions
-
-                        if ($this->_show_page_heading && $this->_page_title != '' && $this->_page_heading != '' && $this->_page_title == $this->_page_heading) {
-                            $data->page_title = $this->_page_title;
+                        // Preserve the computed CB title when Prefix In Title is enabled.
+                        // Fall back to the Joomla menu title only when no CB title was built.
+                        $prefixTitle = (string) $data->page_title;
+                        if ($prefixTitle === '' && $this->_show_page_heading && $this->_page_title !== '') {
+                            $data->page_title = (string) $this->_page_title;
                         }
 
                         if ($this->frontend) {

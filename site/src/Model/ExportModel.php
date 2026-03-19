@@ -21,6 +21,7 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\RuntimeUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 class ExportModel extends BaseDatabaseModel
 {
@@ -56,7 +57,7 @@ class ExportModel extends BaseDatabaseModel
             $menu = $app->getMenu();
             $item = $menu->getActive();
             if ($item) {
-                $id = (int) $item->getParams()->get('form_id', 0);
+                $id = (int) MenuParamHelper::getMenuParam($item->getParams(), 'form_id', 0);
             }
         }
 
@@ -99,7 +100,13 @@ class ExportModel extends BaseDatabaseModel
         $this->setState('formsd_filter_order', $filter_order);
         $this->setState('formsd_filter_order_Dir', $filter_order_Dir);
 
-        $menu_filter = $app->input->get('cb_list_filterhidden', null, 'string');
+        $menu_filter = $app->input->get('cb_list_filterhidden', null, 'raw');
+        if (($menu_filter === null || $menu_filter === '') && $app->isClient('site')) {
+            $activeMenu = $app->getMenu()->getActive();
+            if ($activeMenu) {
+                $menu_filter = MenuParamHelper::getMenuParam($activeMenu->getParams(), 'cb_list_filterhidden', null);
+            }
+        }
 
         if ($menu_filter !== null) {
             $lines  = explode("\n", $menu_filter);
@@ -114,7 +121,13 @@ class ExportModel extends BaseDatabaseModel
             }
         }
 
-        $menu_filter_order = $app->input->get('cb_list_orderhidden', null, 'string');
+        $menu_filter_order = $app->input->get('cb_list_orderhidden', null, 'raw');
+        if (($menu_filter_order === null || $menu_filter_order === '') && $app->isClient('site')) {
+            $activeMenu = $app->getMenu()->getActive();
+            if ($activeMenu) {
+                $menu_filter_order = MenuParamHelper::getMenuParam($activeMenu->getParams(), 'cb_list_orderhidden', null);
+            }
+        }
 
         if ($menu_filter_order !== null) {
             $lines  = explode("\n", $menu_filter_order);

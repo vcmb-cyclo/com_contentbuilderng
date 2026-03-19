@@ -24,6 +24,7 @@ use CB\Component\Contentbuilderng\Administrator\Service\RuntimeUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 class DetailsModel extends ListModel
 {
@@ -75,14 +76,27 @@ class DetailsModel extends ListModel
             $menu = $app->getMenu();
             $item = $menu->getActive();
             if (is_object($item)) {
-                if ($item->getParams()->get('record_id', null) !== null) {
-                    $app->input->set('record_id', $item->getParams()->get('record_id', null));
-                    $this->_show_back_button = $item->getParams()->get('show_back_button', null);
+                $params = $item->getParams();
+                $menuRecordId = MenuParamHelper::getMenuParam($params, 'record_id', null);
+
+                if ($menuRecordId !== null) {
+                    $app->input->set('record_id', $menuRecordId);
+                    $this->_show_back_button = MenuParamHelper::getResolvedMenuToggle(
+                        $params,
+                        'cb_show_details_back_button',
+                        1,
+                        'show_back_button'
+                    ) === 1;
                 }
 
-                if ($item->getParams()->get('cb_latest', null) !== null) {
-                    $this->_latest = $item->getParams()->get('cb_latest', null);
-                    $this->_show_back_button = $item->getParams()->get('show_back_button', null);
+                if (MenuParamHelper::getMenuParam($params, 'cb_latest', null) !== null) {
+                    $this->_latest = MenuParamHelper::getMenuParam($params, 'cb_latest', null);
+                    $this->_show_back_button = MenuParamHelper::getResolvedMenuToggle(
+                        $params,
+                        'cb_show_details_back_button',
+                        1,
+                        'show_back_button'
+                    ) === 1;
                 }
                 if ($item->getParams()->get('show_page_heading', null) !== null) {
                     $this->_show_page_heading = $item->getParams()->get('show_page_heading', null);
@@ -96,7 +110,13 @@ class DetailsModel extends ListModel
             }
         }
 
-        $menu_filter = $app->input->get('cb_list_filterhidden', null, 'string');
+        $menu_filter = $app->input->get('cb_list_filterhidden', null, 'raw');
+        if (($menu_filter === null || $menu_filter === '') && $app->isClient('site')) {
+            $activeMenu = $app->getMenu()->getActive();
+            if ($activeMenu) {
+                $menu_filter = MenuParamHelper::getMenuParam($activeMenu->getParams(), 'cb_list_filterhidden', null);
+            }
+        }
 
         if ($menu_filter !== null) {
             $lines = explode("\n", $menu_filter);
@@ -112,7 +132,13 @@ class DetailsModel extends ListModel
             }
         }
 
-        $menu_filter_order = $app->input->get('cb_list_orderhidden', null, 'string');
+        $menu_filter_order = $app->input->get('cb_list_orderhidden', null, 'raw');
+        if (($menu_filter_order === null || $menu_filter_order === '') && $app->isClient('site')) {
+            $activeMenu = $app->getMenu()->getActive();
+            if ($activeMenu) {
+                $menu_filter_order = MenuParamHelper::getMenuParam($activeMenu->getParams(), 'cb_list_orderhidden', null);
+            }
+        }
 
         if ($menu_filter_order !== null) {
             $lines = explode("\n", $menu_filter_order);
@@ -156,6 +182,11 @@ class DetailsModel extends ListModel
     private function getDirectStorageId(): int
     {
         return $this->directStorageId;
+    }
+
+    private function getMenuToggle(string $key, int $default = 0): int
+    {
+        return MenuParamHelper::resolveInputOrMenuToggle($this->app, $key, $default);
     }
 
     private function loadDirectStorageDefinition(): object
@@ -269,6 +300,7 @@ class DetailsModel extends ListModel
         if (empty($this->_data)) {
             $query = $this->_buildQuery();
             $this->_data = $this->_getList($query, 0, 1);
+            $prefixInTitle = $this->getMenuToggle('cb_prefix_in_title', 0);
 
             if (!count($this->_data)) {
                 throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
@@ -349,7 +381,7 @@ class DetailsModel extends ListModel
                         throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
                     }
                     $data->page_title = '';
-                    if ($app->input->getInt('cb_prefix_in_title', 1)) {
+                    if ($prefixInTitle === 1) {
                         if (!$this->_menu_item) {
                             $data->page_title = $data->use_view_name_as_title ? $data->name : $data->form->getPageTitle();
                         } else {
@@ -469,9 +501,11 @@ class DetailsModel extends ListModel
                             }
                         }
 
-                        // "buddy quaid hack", should be an option in future versions
-                        if ($this->_show_page_heading && $this->_page_title != '' && $this->_page_heading != '' && $this->_page_title == $this->_page_heading) {
-                            $data->page_title = $this->_page_title;
+                        // Preserve the computed CB title when Prefix In Title is enabled.
+                        // Fall back to the Joomla menu title only when no CB title was built.
+                        $prefixTitle = (string) $data->page_title;
+                        if ($prefixTitle === '' && $this->_show_page_heading && $this->_page_title !== '') {
+                            $data->page_title = (string) $this->_page_title;
                         }
 
                         if ($this->frontend) {
@@ -597,7 +631,7 @@ class DetailsModel extends ListModel
         if ($formId < 1 && $app->isClient('site')) {
             $menu = $app->getMenu()->getActive();
             if ($menu) {
-                $formId = (int) $menu->getParams()->get('form_id', 0);
+                $formId = (int) MenuParamHelper::getMenuParam($menu->getParams(), 'form_id', 0);
             }
         }
 

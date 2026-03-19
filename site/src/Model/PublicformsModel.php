@@ -19,6 +19,7 @@ use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 class PublicformsModel extends ListModel
 {
@@ -104,38 +105,20 @@ class PublicformsModel extends ListModel
             $menu = $app->getMenu();
             $item = $menu->getActive();
             if (is_object($item)) {
+                $params = $item->getParams();
 
-                if ($item->getParams()->get('forms', null) !== null) {
-                    $forms = $item->getParams()->get('forms', null);
-                }
-
-                if ($item->getParams()->get('cb_show_permission_column', null) !== null) {
-                    $this->show_permissions = $item->getParams()->get('cb_show_permission_column', null);
-                }
-
-                if ($item->getParams()->get('cb_show_permission_new_column', null) !== null) {
-                    $this->show_permissions_new = $item->getParams()->get('cb_show_permission_new_column', null);
-                }
-
-                if ($item->getParams()->get('cb_show_permission_edit_column', null) !== null) {
-                    $this->show_permissions_edit = $item->getParams()->get('cb_show_permission_edit_column', null);
-                }
+                $forms = MenuParamHelper::getMenuParam($params, 'forms', 0);
+                $this->show_permissions = (bool) MenuParamHelper::getMenuParam($params, 'cb_show_permission_column', 0);
+                $this->show_permissions_new = (bool) MenuParamHelper::getMenuParam($params, 'cb_show_permission_new_column', 0);
+                $this->show_permissions_edit = (bool) MenuParamHelper::getMenuParam($params, 'cb_show_permission_edit_column', 0);
 
                 if ($item->getParams()->get('show_page_heading', null) !== null) {
                     $this->_show_page_heading = $item->getParams()->get('show_page_heading', null);
                 }
 
-                if ($item->getParams()->get('cb_show_introtext', null) !== null) {
-                    $this->show_introtext = $item->getParams()->get('cb_show_introtext', null);
-                }
-
-                if ($item->getParams()->get('cb_show_tags', null) !== null) {
-                    $this->show_tags = $item->getParams()->get('cb_show_tags', null);
-                }
-
-                if ($item->getParams()->get('cb_show_id', null) !== null) {
-                    $this->show_id = $item->getParams()->get('cb_show_id', null);
-                }
+                $this->show_introtext = (bool) MenuParamHelper::getMenuParam($params, 'cb_show_introtext', 0);
+                $this->show_tags = (bool) MenuParamHelper::getMenuParam($params, 'cb_show_tags', 1);
+                $this->show_id = (bool) MenuParamHelper::getMenuParam($params, 'cb_show_id', 0);
             }
 
             if ($forms !== null) {

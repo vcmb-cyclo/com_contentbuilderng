@@ -15,9 +15,11 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Application\CMSApplication;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 $app = Factory::getApplication();
 /** @var CMSApplication $app */
+$showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_author', 1);
 
 $wa = $app->getDocument()->getWebAssetManager();
 
@@ -47,7 +49,7 @@ if (trim($themeJs) !== '') {
 </h1>
 <?php echo $this->event->afterDisplayTitle; ?>
 <?php
-if (Factory::getApplication()->input->getInt('cb_show_author', 1)) {
+if ($showAuthorToggle === 1) {
     ?>
 
     <?php if ($this->created): ?>
@@ -78,7 +80,7 @@ if (Factory::getApplication()->input->getInt('cb_show_author', 1)) {
 
 
 <?php
-if (Factory::getApplication()->input->getInt('cb_show_author', 1)) {
+if ($showAuthorToggle === 1) {
     ?>
 
     <?php if ($this->modified_by): ?>

@@ -13,6 +13,7 @@
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Application\SiteApplication;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 /** @var SiteApplication $app */
 $app = Factory::getApplication();
@@ -37,6 +38,7 @@ $menuParamDefaults = [
     'cb_prefix_in_title' => null,
     'force_menu_item_id' => null,
     'cb_category_menu_filter' => null,
+    'show_back_button' => null,
 ];
 
 foreach ($menuParamDefaults as $key => $default) {
@@ -77,12 +79,12 @@ if (is_object($item)) {
     $hasRequestRecordId = $requestRecordId !== '';
 
     // Préserve l'id explicite de l'URL (ex: task=list.display&id=15), sinon fallback menu form_id.
-    $formId = (int) $params->get('form_id', 0);
+    $formId = (int) MenuParamHelper::getMenuParam($params, 'form_id', 0);
     if ($requestFormId <= 0 && $formId > 0) {
         $input->set('id', $formId);
     }
 
-    $menuRecordId = $params->get('record_id', null);
+    $menuRecordId = MenuParamHelper::getMenuParam($params, 'record_id', null);
     if ($menuRecordId !== null && $queryView === 'details') {
         $input->set('record_id', $menuRecordId);
         $input->set('controller', $hasRequestView ? 'edit' : 'details');
@@ -101,21 +103,36 @@ if (is_object($item)) {
         }
     }
 
-    $input->set('cb_category_id', $params->get('cb_category_id', null));
-    $input->set('cb_controller', $params->get('cb_controller', null));
-    $input->set('cb_list_filterhidden', $params->get('cb_list_filterhidden', null));
-    $input->set('cb_list_orderhidden', $params->get('cb_list_orderhidden', null));
-    $input->set('cb_show_author', $params->get('cb_show_author', null));
-    $input->set('cb_show_bottom_bar', $params->get('cb_show_bottom_bar', null));
-    $input->set('cb_show_top_bar', $params->get('cb_show_top_bar', null));
-    $input->set('cb_show_details_bottom_bar', $params->get('cb_show_details_bottom_bar', null));
-    $input->set('cb_show_details_top_bar', $params->get('cb_show_details_top_bar', null));
-    $input->set('cb_show_details_back_button', $params->get('cb_show_details_back_button', null));
-    $input->set('cb_list_limit', $params->get('cb_list_limit', 20));
-    $input->set('cb_filter_in_title', $params->get('cb_filter_in_title', 1));
-    $input->set('cb_prefix_in_title', $params->get('cb_prefix_in_title', 1));
-    $input->set('force_menu_item_id', $params->get('force_menu_item_id', 0));
-    $input->set('cb_category_menu_filter', $params->get('cb_category_menu_filter', 0));
+    $input->set('cb_category_id', (int) MenuParamHelper::getMenuParam($params, 'cb_category_id', 0));
+    $input->set('cb_controller', MenuParamHelper::getMenuParam($params, 'cb_controller', null));
+    $input->set('cb_list_filterhidden', MenuParamHelper::getMenuParam($params, 'cb_list_filterhidden', null));
+    $input->set('cb_list_orderhidden', MenuParamHelper::getMenuParam($params, 'cb_list_orderhidden', null));
+    $input->set('cb_show_author', MenuParamHelper::getMenuParam($params, 'cb_show_author', null));
+    $input->set('cb_show_bottom_bar', MenuParamHelper::getMenuParam($params, 'cb_show_bottom_bar', null));
+    $input->set('cb_show_top_bar', MenuParamHelper::getMenuParam($params, 'cb_show_top_bar', null));
+    $input->set('cb_show_details_bottom_bar', MenuParamHelper::getMenuParam($params, 'cb_show_details_bottom_bar', null));
+    $input->set('cb_show_details_top_bar', MenuParamHelper::getMenuParam($params, 'cb_show_details_top_bar', null));
+    $detailsBackButton = MenuParamHelper::getMenuParam($params, 'cb_show_details_back_button', null);
+    if ($detailsBackButton === null) {
+        $detailsBackButton = MenuParamHelper::getMenuParam($params, 'show_back_button', null);
+    }
+    $input->set('cb_show_details_back_button', $detailsBackButton);
+    $input->set('show_back_button', $detailsBackButton);
+    $input->set('cb_list_limit', MenuParamHelper::getMenuParam($params, 'cb_list_limit', 20));
+    $input->set('cb_filter_in_title', MenuParamHelper::getMenuParam($params, 'cb_filter_in_title', null));
+    $input->set('cb_prefix_in_title', MenuParamHelper::getMenuParam($params, 'cb_prefix_in_title', null));
+    $input->set('force_menu_item_id', MenuParamHelper::getMenuParam($params, 'force_menu_item_id', 0));
+    $input->set('cb_category_menu_filter', MenuParamHelper::getMenuParam($params, 'cb_category_menu_filter', 0));
+
+    $list = (array) $input->get('list', [], 'array');
+    $menuListLimit = (int) MenuParamHelper::getMenuParam($params, 'cb_list_limit', 0);
+    if (!isset($list['limit']) && $menuListLimit > 0) {
+        $list['limit'] = $menuListLimit;
+        if (!isset($list['start'])) {
+            $list['start'] = 0;
+        }
+        $input->set('list', $list);
+    }
 }
 
 // If list is requested without a target form id, fallback to publicforms

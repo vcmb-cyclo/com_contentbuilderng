@@ -18,6 +18,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Session\Session;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\Database\DatabaseInterface;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Model\EditModel;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 
@@ -301,7 +302,7 @@ class ListController extends BaseController
         if (!$formId) {
             $menu = $app->getMenu()->getActive();
             if ($menu) {
-                $formId = (int) $menu->getParams()->get('form_id', 0);
+                $formId = (int) MenuParamHelper::getMenuParam($menu->getParams(), 'form_id', 0);
             }
         }
 
@@ -351,17 +352,26 @@ class ListController extends BaseController
         $stateKeyPrefix = $this->getPaginationStateKeyPrefix();
         $limitKey = $stateKeyPrefix . '.limit';
         $startKey = $stateKeyPrefix . '.start';
+        $configuredLimit = $this->getConfiguredListLimit();
 
         $limit = isset($list['limit']) ? $this->input->getInt('list[limit]', 0) : 0;
+        if ($limit === 0) {
+            $limit = $configuredLimit;
+        }
         if ($limit === 0) {
             $limit = (int) $app->getUserState($limitKey, 0);
         }
         if ($limit === 0) {
             $limit = (int) $app->get('list_limit');
         }
+        if ($limit < 1) {
+            $limit = 20;
+        }
 
         if (array_key_exists('start', $list)) {
             $start = max(0, $this->input->getInt('list[start]', 0));
+        } elseif ($configuredLimit > 0) {
+            $start = 0;
         } else {
             $start = (int) $app->getUserState($startKey, 0);
         }
@@ -394,7 +404,7 @@ class ListController extends BaseController
         if ($formId < 1) {
             $menu = $app->getMenu()->getActive();
             if ($menu) {
-                $formId = (int) $menu->getParams()->get('form_id', 0);
+                $formId = (int) MenuParamHelper::getMenuParam($menu->getParams(), 'form_id', 0);
             }
         }
 
@@ -406,6 +416,11 @@ class ListController extends BaseController
         $itemId = (int) $this->input->getInt('Itemid', 0);
 
         return $option . '.liststate.' . $formId . '.' . $layout . '.' . $itemId;
+    }
+
+    private function getConfiguredListLimit(): int
+    {
+        return MenuParamHelper::getConfiguredListLimit(Factory::getApplication());
     }
 
     /**

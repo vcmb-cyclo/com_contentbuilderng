@@ -20,6 +20,7 @@ use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\RatingHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 /** @var SiteApplication $app */
 $app = Factory::getApplication();
@@ -150,9 +151,39 @@ $wa->addInlineStyle(
 .cb-list-sticky .cb-list-filters{
 	margin:0;
 }
+.cb-list-titlebar{
+	display:flex;
+	align-items:center;
+	justify-content:space-between;
+	gap:.8rem;
+	margin:0 0 .9rem;
+	padding:0 0 .55rem;
+	border:0;
+	border-bottom:1px solid rgba(0,0,0,.12);
+	background:none;
+	box-shadow:none;
+}
+.cb-list-title{
+	margin:0!important;
+	font-weight:600;
+	letter-spacing:0;
+	color:inherit!important;
+}
+.cb-list-title::after{
+	display:none!important;
+}
+@media (prefers-color-scheme: dark){
+	.cb-list-titlebar{
+		border-bottom-color:rgba(255,255,255,.16);
+	}
+}
 @media (max-width:767.98px){
 	.cb-list-sticky{
 		top:0;
+	}
+	.cb-list-titlebar{
+		padding:0 0 .45rem;
+		margin-bottom:.75rem;
 	}
 }
 CSS
@@ -414,6 +445,8 @@ by this block. -->
 	$showNewButton = ($new_allowed && !empty($this->new_button));
 	$showStickyButtonBar = !empty($this->button_bar_sticky);
 	$showPreviewLink = !empty($this->show_preview_link);
+	$showTopBar = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_top_bar', 1) === 1;
+	$showBottomBar = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_bottom_bar', 1) === 1;
 	$newRecordLink = '';
 	if ($showNewButton) {
 		$newRecordLink = Route::_(
@@ -427,38 +460,39 @@ by this block. -->
 		);
 	}
 	?>
-	<div class="<?php echo $showStickyButtonBar ? 'cb-list-sticky' : ''; ?>">
-		<div class="cb-list-panel cb-list-sticky-panel">
-		<table class="cbFilterTable cb-list-filters" width="100%">
-			<?php if ($language_allowed) : ?>
+	<?php if ($showTopBar) : ?>
+		<div class="<?php echo $showStickyButtonBar ? 'cb-list-sticky' : ''; ?>">
+			<div class="cb-list-panel cb-list-sticky-panel">
+			<table class="cbFilterTable cb-list-filters" width="100%">
+				<?php if ($language_allowed) : ?>
+					<tr>
+						<td>
+							<div class="d-inline-flex align-items-center gap-1 me-2">
+									<select class="form-select form-select-sm" style="max-width: 100px;" name="list_language">
+									<option value="*"> -
+										<?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?> -
+									</option>
+									<option value="*">
+										<?php echo Text::_('COM_CONTENTBUILDERNG_ANY'); ?>
+									</option>
+									<?php foreach ($this->languages as $filter_language) : ?>
+										<option value="<?php echo $filter_language; ?>">
+											<?php echo $filter_language; ?>
+										</option>
+									<?php endforeach; ?>
+									</select>
+									<button class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1" onclick="contentbuilderng_language();">
+										<span class="fa-solid fa-check" aria-hidden="true"></span>
+										<?php echo Text::_('COM_CONTENTBUILDERNG_APPLY'); ?>
+									</button>
+								</div>
+						</td>
+					</tr>
+				<?php endif; ?>
+
 				<tr>
 					<td>
-						<div class="d-inline-flex align-items-center gap-1 me-2">
-								<select class="form-select form-select-sm" style="max-width: 100px;" name="list_language">
-								<option value="*"> -
-									<?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?> -
-								</option>
-								<option value="*">
-									<?php echo Text::_('COM_CONTENTBUILDERNG_ANY'); ?>
-								</option>
-								<?php foreach ($this->languages as $filter_language) : ?>
-									<option value="<?php echo $filter_language; ?>">
-										<?php echo $filter_language; ?>
-									</option>
-								<?php endforeach; ?>
-								</select>
-								<button class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1" onclick="contentbuilderng_language();">
-									<span class="fa-solid fa-check" aria-hidden="true"></span>
-									<?php echo Text::_('COM_CONTENTBUILDERNG_APPLY'); ?>
-								</button>
-							</div>
-					</td>
-				</tr>
-			<?php endif; ?>
-
-			<tr>
-				<td>
-					<div class="d-flex flex-wrap align-items-center gap-2">
+						<div class="d-flex flex-wrap align-items-center gap-2">
 
 						<!-- GAUCHE : filtre + selects + boutons (optionnel) -->
 						<div class="d-flex flex-wrap align-items-center gap-2 flex-grow-1">
@@ -625,8 +659,9 @@ by this block. -->
 					</td>
 				</tr>
 			</table>
+			</div>
 		</div>
-	</div>
+	<?php endif; ?>
 	<div class="cb-scroll-x cb-list-panel cb-list-data-panel">
 			<table class="table table-striped table-hover align-middle cb-list-table">
 			<thead>
@@ -965,7 +1000,7 @@ by this block. -->
 				$rangeStart = $pagTotal > 0 ? $pagStart + 1 : 0;
 				$rangeEnd = $pagTotal > 0 ? min($pagStart + $pagLimit, $pagTotal) : 0;
 
-				if ($showSummary) :
+				if ($showBottomBar && $showSummary) :
 				    $params = Uri::getInstance()->getQuery(true);
 				    $params['option'] = 'com_contentbuilderng';
 				    $params['task'] = 'list.display';

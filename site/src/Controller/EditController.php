@@ -22,6 +22,7 @@ use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Model\EditModel;
 
 class EditController extends BaseController
@@ -109,8 +110,9 @@ class EditController extends BaseController
             $menu = $this->siteApp->getMenu();
             $item = $menu->getActive();
             if (is_object($item)) {
-                $this->siteApp->input->set('cb_controller', $item->getParams()->get('cb_controller', null));
-                $this->siteApp->input->set('cb_category_id', $item->getParams()->get('cb_category_id', null));
+                $params = $item->getParams();
+                $this->siteApp->input->set('cb_controller', MenuParamHelper::getMenuParam($params, 'cb_controller', null));
+                $this->siteApp->input->set('cb_category_id', (int) MenuParamHelper::getMenuParam($params, 'cb_category_id', 0));
             }
         }
 
@@ -386,7 +388,7 @@ class EditController extends BaseController
         if ($formId < 1) {
             $menu = $this->siteApp->getMenu()->getActive();
             if ($menu) {
-                $formId = (int) $menu->getParams()->get('form_id', 0);
+                $formId = (int) MenuParamHelper::getMenuParam($menu->getParams(), 'form_id', 0);
             }
         }
 
@@ -438,7 +440,7 @@ class EditController extends BaseController
         if (!$formId) {
             $menu = $this->siteApp->getMenu()->getActive();
             if ($menu) {
-                $formId = (int) $menu->getParams()->get('form_id', 0);
+                $formId = (int) MenuParamHelper::getMenuParam($menu->getParams(), 'form_id', 0);
             }
         }
 

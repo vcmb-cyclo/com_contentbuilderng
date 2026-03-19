@@ -18,6 +18,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 $frontend = Factory::getApplication()->isClient('site');
 $permissionService = new PermissionService();
@@ -26,6 +27,10 @@ $edit_allowed = $frontend ? $permissionService->authorizeFe('edit') : $permissio
 $delete_allowed = $frontend ? $permissionService->authorizeFe('delete') : $permissionService->authorize('delete');
 $view_allowed = $frontend ? $permissionService->authorizeFe('view') : $permissionService->authorize('view');
 $input = Factory::getApplication()->input;
+$runtimeApp = Factory::getApplication();
+$detailsTopBarToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_top_bar', 0);
+$detailsBackButtonToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_back_button', 1, 'show_back_button');
+$showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_author', 1);
 
 $list = (array) $input->get('list', [], 'array');
 $listStart = isset($list['start']) ? $input->getInt('list[start]', 0) : 0;
@@ -62,7 +67,7 @@ if ($previewActorLabel === '' && $previewActorId > 0) {
     $previewActorLabel = '#' . $previewActorId;
 }
 $showPreviewSessionBadge = $isAdminPreview && $currentSessionLabel !== '' && $currentSessionLabel !== $previewActorLabel;
-$showTopBar = $input->getInt('cb_show_details_top_bar', 1) === 1;
+$showTopBar = $detailsTopBarToggle === 1;
 $directStorageMode = !empty($this->direct_storage_mode);
 $directStorageId = (int) ($this->direct_storage_id ?? 0);
 $directStorageUnpublished = !empty($this->direct_storage_unpublished);
@@ -208,14 +213,6 @@ CSS
     //
     -->
 </script>
-<?php if (!$showTopBar && $this->print_button): ?>
-    <div class="hidden-phone cbPrintBar d-flex justify-content-end mb-2">
-        <a
-            class="btn btn-sm btn-outline-secondary"
-            href="javascript:window.open('<?php echo $printLink; ?>','win2','status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=640,height=480,directories=no,location=no');void(0);"><i
-                class="fa fa-print" aria-hidden="true"></i> <?php echo Text::_('JGLOBAL_PRINT'); ?></a>
-    </div>
-<?php endif; ?>
 <div class="cbDetailsWrapper">
 
     <?php if ($isAdminPreview || $directStorageMode): ?>
@@ -279,15 +276,15 @@ CSS
         . ($listQuery !== '' ? '&' . $listQuery : '')
         . $previewQuery;
 
-    $showCloseButton = $this->show_back_button && Factory::getApplication()->input->getBool('cb_show_details_back_button', 1);
+    $showCloseButton = $this->show_back_button && $detailsBackButtonToggle === 1;
     $closeListLink = Route::_('index.php?option=com_contentbuilderng&title=' . Factory::getApplication()->input->get('title', '', 'string') . '&view=list&task=list.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . Factory::getApplication()->input->getInt('id', 0)) . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '') . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . Factory::getApplication()->input->getInt('Itemid', 0) . $previewQuery);
     $showActionToolbar = (
-        (Factory::getApplication()->input->getInt('cb_show_details_back_button', 1) && $this->show_back_button)
+        ($detailsBackButtonToggle === 1 && $this->show_back_button)
         || $delete_allowed
         || $edit_allowed
         || ($showTopBar && ($this->print_button || $prevRecordId > 0 || $nextRecordId > 0 || $showCloseButton))
     );
-    $showAuditTrail = $input->getInt('cb_show_author', 1) === 1;
+    $showAuditTrail = $showAuthorToggle === 1;
 
     $createdOnText = '';
     if (!empty($this->created)) {
@@ -317,40 +314,6 @@ CSS
     if ($this->show_page_heading && $headingTitle !== '') {
     ?>
         <h1 class="display-6 mb-4">
-            <?php if (!$showTopBar && ($prevRecordId > 0 || $nextRecordId > 0 || $showCloseButton)): ?>
-                <span class="cbTitleRecordNav d-inline-flex flex-wrap gap-2 float-start me-2 mb-2">
-                    <?php if ($showCurrentRecordLabel): ?>
-                        <span class="small text-muted align-self-center px-1 cbCurrentRecordId">#<?php echo htmlspecialchars($currentRecordLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <?php endif; ?>
-                    <?php if ($prevRecordId > 0): ?>
-                        <a
-                            class="btn btn-sm btn-outline-secondary cbButton cbBackButton cbPrevButton"
-                            href="<?php echo Route::_($detailsNavBaseLink . '&record_id=' . $prevRecordId); ?>"
-                            title="<?php echo Text::_('JPREVIOUS'); ?>">
-                            <span class="fa-solid fa-arrow-left me-1" aria-hidden="true"></span>
-                            <?php echo Text::_('JPREVIOUS'); ?>
-                        </a>
-                    <?php endif; ?>
-                    <?php if ($nextRecordId > 0): ?>
-                        <a
-                            class="btn btn-sm btn-outline-secondary cbButton cbBackButton cbNextButton"
-                            href="<?php echo Route::_($detailsNavBaseLink . '&record_id=' . $nextRecordId); ?>"
-                            title="<?php echo Text::_('JNEXT'); ?>">
-                            <?php echo Text::_('JNEXT'); ?>
-                            <span class="fa-solid fa-arrow-right ms-1" aria-hidden="true"></span>
-                        </a>
-                    <?php endif; ?>
-                    <?php if ($showCloseButton): ?>
-                        <a
-                            class="btn btn-sm btn-outline-secondary cbButton cbBackButton cbCloseButton"
-                            href="<?php echo $closeListLink; ?>"
-                            title="<?php echo Text::_('COM_CONTENTBUILDERNG_CLOSE'); ?>">
-                            <span class="fa-solid fa-xmark me-1" aria-hidden="true"></span>
-                            <?php echo Text::_('COM_CONTENTBUILDERNG_CLOSE'); ?>
-                        </a>
-                    <?php endif; ?>
-                </span>
-            <?php endif; ?>
             <?php echo $headingTitle; ?>
         </h1>
     <?php
@@ -482,7 +445,7 @@ CSS
     <br />
 
     <?php
-    if (Factory::getApplication()->input->getInt('cb_show_details_bottom_bar', 1)) {
+    if (MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_bottom_bar', 0) === 1) {
         if ($buttons !== '') {
             echo str_replace('class="cbToolBar ', 'class="cbToolBar cbToolBar--bottom ', $buttons);
         }

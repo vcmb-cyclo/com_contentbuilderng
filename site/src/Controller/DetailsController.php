@@ -22,6 +22,7 @@ use Joomla\Database\DatabaseInterface;
 use Joomla\Input\Input;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
+use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 class DetailsController extends BaseController
 {
@@ -61,9 +62,17 @@ class DetailsController extends BaseController
             $menu = $this->siteApp->getMenu();
             $item = $menu->getActive();
             if (is_object($item)) {
-                if ($item->getParams()->get('record_id', null) !== null) {
-                    $this->siteApp->input->set('record_id', $item->getParams()->get('record_id', null));
-                    $this->_show_back_button = $item->getParams()->get('show_back_button', null);
+                $params = $item->getParams();
+                $menuRecordId = MenuParamHelper::getMenuParam($params, 'record_id', null);
+
+                if ($menuRecordId !== null) {
+                    $this->siteApp->input->set('record_id', $menuRecordId);
+                    $this->_show_back_button = MenuParamHelper::getResolvedMenuToggle(
+                        $params,
+                        'cb_show_details_back_button',
+                        1,
+                        'show_back_button'
+                    ) === 1;
                 }
             }
         }
@@ -142,7 +151,7 @@ class DetailsController extends BaseController
         if (!$form_id) {
             $menu = $this->siteApp->getMenu()->getActive();
             if ($menu) {
-                $form_id = (int) $menu->getParams()->get('form_id', 0);
+                $form_id = (int) MenuParamHelper::getMenuParam($menu->getParams(), 'form_id', 0);
             }
         }
 
@@ -154,7 +163,7 @@ class DetailsController extends BaseController
         if (!$recordId) {
             $menu = $this->siteApp->getMenu()->getActive();
             if ($menu) {
-                $recordId = (int) $menu->getParams()->get('record_id', 0);
+                $recordId = (int) MenuParamHelper::getMenuParam($menu->getParams(), 'record_id', 0);
             }
         }
         if ($recordId) {
@@ -224,7 +233,7 @@ class DetailsController extends BaseController
         if ($formId < 1) {
             $menu = $app->getMenu()->getActive();
             if ($menu) {
-                $formId = (int) $menu->getParams()->get('form_id', 0);
+                $formId = (int) MenuParamHelper::getMenuParam($menu->getParams(), 'form_id', 0);
             }
         }
 
