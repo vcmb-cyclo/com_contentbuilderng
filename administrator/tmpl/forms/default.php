@@ -43,7 +43,7 @@ if (isset($list['start'])) {
 } elseif ($app->input->get('limitstart', null, 'raw') !== null) {
     $listStart = (int) $app->input->getInt('limitstart', 0);
 }
-$limitValue = (int) ($this->pagination->limit ?? 0);
+$limitValue = (int) ($this->state->get('list.limit', (int) ($this->pagination->limit ?? 0)));
 
 $limitOptions = [];
 for ($i = 5; $i <= 30; $i += 5) {

@@ -85,6 +85,7 @@ class HtmlView extends BaseHtmlView
 
         $this->ordering = $ordering;
         $this->tags = $tags;
+        $this->state = $state;
         $this->lists = $lists;
         $this->items = $items;
         $this->pagination = $pagination;
