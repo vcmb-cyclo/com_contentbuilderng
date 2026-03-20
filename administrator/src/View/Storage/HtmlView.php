@@ -29,6 +29,9 @@ class HtmlView extends BaseHtmlView
     public $state;
     public bool $frontend = false;
     public ?int $storageRecordsCount = null;
+    public ?bool $storageTableExists = null;
+    public string $storageTableLookupName = '';
+    public string $storageTableErrorMessage = '';
 
     public function display($tpl = null): void
     {         
@@ -67,6 +70,7 @@ class HtmlView extends BaseHtmlView
 
         // Données (l’item)
         $this->item = $this->getModel()->getItem();
+        $this->loadStorageTableStatus($this->item);
         $this->storageRecordsCount = $this->getStorageRecordsCount($this->item);
 
         $this->tables     = $this->get('DbTables');
@@ -389,26 +393,53 @@ class HtmlView extends BaseHtmlView
 
     private function getStorageRecordsCount(object $item): ?int
     {
-        $name = trim((string) ($item->name ?? ''));
-
-        if ($name === '') {
+        if ($this->storageTableExists !== true || $this->storageTableLookupName === '') {
             return null;
         }
-
-        $isExternalTable = ((int) ($item->bytable ?? 0) === 1);
-        $tableName = $isExternalTable ? $name : ('#__' . $name);
 
         try {
             $db = Factory::getContainer()->get(DatabaseInterface::class);
             $query = $db->getQuery(true)
                 ->select('COUNT(1)')
-                ->from($db->quoteName($tableName));
+                ->from($db->quoteName($this->storageTableLookupName));
 
             $db->setQuery($query);
 
             return (int) $db->loadResult();
         } catch (\Throwable $e) {
             return null;
+        }
+    }
+
+    private function loadStorageTableStatus(object $item): void
+    {
+        $name = trim((string) ($item->name ?? ''));
+
+        $this->storageTableExists = null;
+        $this->storageTableLookupName = '';
+        $this->storageTableErrorMessage = '';
+
+        if ($name === '') {
+            return;
+        }
+
+        $isExternalTable = ((int) ($item->bytable ?? 0) === 1);
+        $lookupName = $isExternalTable ? $name : ('#__' . $name);
+        $this->storageTableLookupName = $lookupName;
+
+        try {
+            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $tableList = array_map('strtolower', (array) $db->getTableList());
+            $resolvedName = strtolower($db->replacePrefix($lookupName));
+
+            $this->storageTableExists = in_array($resolvedName, $tableList, true);
+
+            if ($this->storageTableExists === false) {
+                $this->storageTableErrorMessage = 'Table "' . $db->replacePrefix($lookupName) . '" does not exist.';
+            }
+        } catch (\Throwable $e) {
+            $this->storageTableExists = null;
+            $this->storageTableErrorMessage = $e->getMessage();
         }
     }
 }

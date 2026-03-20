@@ -1,6 +1,6 @@
 <extension type="component" method="upgrade" version="6.0">
     <name>COM_CONTENTBUILDERNG</name>
-    <creationDate>2026-03-09</creationDate>
+    <creationDate>2026-03-20</creationDate>
     <author>XDA+GIL</author>
     <authorEmail>bf@vcmb.fr</authorEmail>
     <authorUrl>https://breezingforms-ng.vcmb.fr</authorUrl>
@@ -78,9 +78,12 @@
     <!-- Un seul bloc <files> avec folder="administrator" -->
     <files folder="administrator">
         <filename>access.xml</filename>
+        <filename>composer.json</filename>
+        <filename>composer.lock</filename>
         <filename>config.xml</filename>
         <filename>index.html</filename>
         <filename>contentbuilderng.php</filename>
+        <filename>controller.php</filename>
         
         <folder>forms</folder>
         <folder>languages</folder>
@@ -88,6 +91,7 @@
         <folder>vendor</folder>
         <folder>src</folder>
         <folder>sql</folder>
+        <folder>layouts</folder>
         <folder>tmpl</folder>
     </files>
 

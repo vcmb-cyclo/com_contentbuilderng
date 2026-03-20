@@ -30,6 +30,9 @@ $limitValue = (int) $this->state?->get('list.limit', 0);
 $fields = $this->fields ?? [];
 $fieldsCount = is_countable($fields) ? count($fields) : 0;
 $recordsCount = isset($this->storageRecordsCount) ? $this->storageRecordsCount : null;
+$storageTableExists = $this->storageTableExists ?? null;
+$storageTableLookupName = trim((string) ($this->storageTableLookupName ?? ''));
+$storageTableErrorMessage = trim((string) ($this->storageTableErrorMessage ?? ''));
 $storageModeKey = ((int) ($this->item->bytable ?? 0) === 1)
     ? 'COM_CONTENTBUILDERNG_STORAGE_MODE_EXTERNAL'
     : 'COM_CONTENTBUILDERNG_STORAGE_MODE_INTERNAL';
@@ -65,6 +68,10 @@ $csvToggleTooltip = 'Show or hide CSV/Excel import options.';
 $addFieldTooltip = 'Add a new field to this storage.';
 $tabStorageTooltip = Text::_('COM_CONTENTBUILDERNG_STORAGE_TAB_TOOLTIP');
 $tabInfoTooltip = Text::_('COM_CONTENTBUILDERNG_STORAGE_INFO_TAB_TOOLTIP');
+$storageTabLabel = static function (string $iconClass, string $labelKey): string {
+    return '<span class="' . htmlspecialchars($iconClass, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></span> '
+        . htmlspecialchars(Text::_($labelKey), ENT_QUOTES, 'UTF-8');
+};
 
 $formatDate = static function ($date): string {
     $value = trim((string) $date);
@@ -125,6 +132,15 @@ $wa->addInlineStyle(
     . '.cb-csv-preview-panel .cb-csv-preview-head{padding:.5rem .75rem;border-bottom:1px solid var(--bs-border-color);font-weight:600}'
     . '.cb-csv-preview-panel .table{margin-bottom:0}'
     . '.cb-csv-preview-panel .table td,.cb-csv-preview-panel .table th{vertical-align:middle}'
+    . 'joomla-tab#view-pane > div[role="tablist"]{display:flex;gap:0;flex-wrap:wrap;padding:0!important;margin-bottom:1rem;background:transparent;white-space:normal;border-block-end:var(--joomla-tablist-border-bottom)}'
+    . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"]{position:relative;border:0!important;border-radius:0!important;padding:.6rem 1rem!important;font-weight:600;color:var(--body-color)!important;background:var(--body-bg)!important;transition:color .16s ease,background-color .16s ease;display:inline-flex;align-items:center;box-shadow:none!important}'
+    . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"] > span[class*="fa-"]{margin-inline-end:.35rem}'
+    . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"] + button[role="tab"]{border-inline-start:1px solid #d7dde5!important}'
+    . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"]:hover,joomla-tab#view-pane > div[role="tablist"] > button[role="tab"]:focus{background:var(--body-bg)!important;border-radius:0!important;color:var(--joomla-tab-btn-hvr)!important;box-shadow:none!important}'
+    . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"]:focus-visible{outline:2px solid var(--bs-primary);outline-offset:1px}'
+    . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"][aria-selected="true"]{color:var(--joomla-tab-btn-hvr)!important;background:var(--joomla-tab-btn-aria-exp-bg)!important;box-shadow:none!important}'
+    . 'joomla-tab#view-pane > div[role="tablist"] > button[role="tab"][aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:0;background:var(--btn-primary-bg)}'
+    . '@media (max-width:991.98px){joomla-tab#view-pane > div[role="tablist"]{flex-wrap:nowrap;overflow:auto;-webkit-overflow-scrolling:touch}joomla-tab#view-pane > div[role="tablist"] > button[role="tab"]{white-space:nowrap}}'
 );
 
 ?>
@@ -532,51 +548,147 @@ function toggleCsvUploadOptions() {
 }
 
 function initStorageTooltips() {
-    var hasBootstrapTooltip = !!(window.bootstrap && window.bootstrap.Tooltip);
-
-    if (hasBootstrapTooltip) {
+    if (window.bootstrap && typeof window.bootstrap.Tooltip === 'function') {
         document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
             window.bootstrap.Tooltip.getOrCreateInstance(el);
         });
     }
+}
 
-    var tabTooltips = {
+function getStorageTabTargetId(el) {
+    if (!el || typeof el.getAttribute !== 'function') {
+        return null;
+    }
+
+    return (
+        el.getAttribute('aria-controls') ||
+        el.getAttribute('data-tab') ||
+        (el.getAttribute('data-bs-target') && el.getAttribute('data-bs-target').startsWith('#') ? el.getAttribute('data-bs-target').slice(1) : null) ||
+        (el.getAttribute('href') && el.getAttribute('href').startsWith('#') ? el.getAttribute('href').slice(1) : null) ||
+        (el.getAttribute('data-target') && el.getAttribute('data-target').startsWith('#') ? el.getAttribute('data-target').slice(1) : null)
+    );
+}
+
+function setStorageHidden(name, value) {
+    var el = document.querySelector('input[name="' + name + '"], input[name="jform[' + name + ']"]');
+    if (el) {
+        el.value = value;
+    }
+}
+
+function persistStorageTabset(tabsetId, storageKey, onSave) {
+    var tabset = document.getElementById(tabsetId);
+    if (!tabset) {
+        return;
+    }
+
+    var jTab = tabset.matches('joomla-tab') ? tabset : tabset.querySelector('joomla-tab');
+    if (!jTab) {
+        return;
+    }
+
+    var saved = localStorage.getItem(storageKey);
+    if (saved) {
+        if (typeof jTab.show === 'function') {
+            try {
+                jTab.show(saved);
+            } catch (e) {
+            }
+        }
+
+        var btn =
+            jTab.querySelector('button[aria-controls="' + saved + '"]') ||
+            jTab.querySelector('button[data-tab="' + saved + '"]') ||
+            jTab.querySelector('button[data-bs-target="#' + saved + '"]') ||
+            jTab.querySelector('button[data-target="#' + saved + '"]') ||
+            jTab.querySelector('a[aria-controls="' + saved + '"]') ||
+            jTab.querySelector('a[href="#' + saved + '"]') ||
+            (jTab.shadowRoot && (
+                jTab.shadowRoot.querySelector('button[aria-controls="' + saved + '"]') ||
+                jTab.shadowRoot.querySelector('button[data-tab="' + saved + '"]') ||
+                jTab.shadowRoot.querySelector('button[data-bs-target="#' + saved + '"]') ||
+                jTab.shadowRoot.querySelector('button[data-target="#' + saved + '"]') ||
+                jTab.shadowRoot.querySelector('a[aria-controls="' + saved + '"]') ||
+                jTab.shadowRoot.querySelector('a[href="#' + saved + '"]')
+            ));
+
+        if (btn) {
+            btn.click();
+            if (typeof btn.blur === 'function') {
+                btn.blur();
+            }
+        }
+    }
+
+    var saveActiveTab = function(ev) {
+        var trigger = (ev.target && typeof ev.target.closest === 'function') ? (ev.target.closest('button,a') || ev.target) : ev.target;
+        var id = getStorageTabTargetId(trigger);
+
+        if (!id) {
+            return;
+        }
+
+        localStorage.setItem(storageKey, id);
+        if (typeof onSave === 'function') {
+            onSave(id);
+        }
+    };
+
+    jTab.addEventListener('click', saveActiveTab, { passive: true });
+
+    if (jTab.shadowRoot) {
+        jTab.shadowRoot.addEventListener('click', saveActiveTab, { passive: true });
+    }
+}
+
+function initStorageTabTooltips(attempt) {
+    var tabset = document.getElementById('view-pane');
+
+    if (!tabset) {
+        return;
+    }
+
+    var jTab = tabset.matches('joomla-tab') ? tabset : tabset.querySelector('joomla-tab');
+    if (!jTab) {
+        return;
+    }
+
+    var roots = [jTab];
+    if (jTab.shadowRoot) {
+        roots.push(jTab.shadowRoot);
+    }
+
+    var selector = 'button[aria-controls],button[data-tab],button[data-target],button[data-bs-target],a[aria-controls],a[data-tab],a[data-target],a[data-bs-target],a[href^="#"]';
+    var tips = {
         tab0: <?php echo json_encode($tabStorageTooltip, JSON_UNESCAPED_UNICODE); ?>,
         tab1: <?php echo json_encode($tabInfoTooltip, JSON_UNESCAPED_UNICODE); ?>
     };
+    var applied = 0;
 
-    var tabTriggers = Array.prototype.slice.call(
-        document.querySelectorAll(
-            '#view-paneTabs [role="tab"], #view-paneTabs .nav-link, .joomla-tab a[role="tab"], .joomla-tab button[role="tab"]'
-        )
-    );
+    roots.forEach(function(root) {
+        root.querySelectorAll(selector).forEach(function(trigger) {
+            var id = getStorageTabTargetId(trigger);
+            var tip = id ? tips[id] : null;
 
-    Object.keys(tabTooltips).forEach(function (tabId) {
-        var label = String(tabTooltips[tabId] || '').trim();
-        if (!label) {
-            return;
-        }
+            if (!tip) {
+                return;
+            }
 
-        var tabTrigger = document.querySelector(
-            '[href=\"#' + tabId + '\"],[data-bs-target=\"#' + tabId + '\"],[aria-controls=\"' + tabId + '\"]'
-        );
-
-        if (!tabTrigger) {
-            tabTrigger = tabTriggers[tabId === 'tab0' ? 0 : 1] || null;
-        }
-
-        if (!tabTrigger) {
-            return;
-        }
-
-        tabTrigger.setAttribute('title', label);
-        tabTrigger.setAttribute('data-bs-title', label);
-        tabTrigger.setAttribute('data-bs-placement', 'bottom');
-
-        if (hasBootstrapTooltip) {
-            window.bootstrap.Tooltip.getOrCreateInstance(tabTrigger);
-        }
+            trigger.setAttribute('title', String(tip));
+            trigger.setAttribute('data-bs-toggle', 'tooltip');
+            trigger.setAttribute('data-bs-placement', 'top');
+            trigger.setAttribute('data-bs-title', String(tip));
+            applied++;
+        });
     });
+
+    initStorageTooltips();
+
+    if (!applied && (attempt || 0) < 12) {
+        window.setTimeout(function() {
+            initStorageTabTooltips((attempt || 0) + 1);
+        }, 120);
+    }
 }
 
 function initStorageAjaxToggles() {
@@ -622,6 +734,64 @@ function initStorageAjaxToggles() {
 function initStorageUi() {
     initStorageTooltips();
     initStorageAjaxToggles();
+    initStorageTabTooltips();
+    persistStorageTabset('view-pane', 'cb_active_storage_tab', function(id) {
+        setStorageHidden('tabStartOffset', id);
+    });
+}
+
+function initStorageTabTooltips(attempt) {
+    var tabset = document.getElementById('view-pane');
+
+    if (!tabset) {
+        return;
+    }
+
+    var jTab = tabset.matches('joomla-tab') ? tabset : tabset.querySelector('joomla-tab');
+    if (!jTab) {
+        return;
+    }
+
+    var roots = [jTab];
+    if (jTab.shadowRoot) {
+        roots.push(jTab.shadowRoot);
+    }
+
+    var selector = 'button[aria-controls],button[data-tab],button[data-target],button[data-bs-target],a[aria-controls],a[data-tab],a[data-target],a[data-bs-target],a[href^="#"]';
+    var tips = {
+        tab0: <?php echo json_encode($tabStorageTooltip, JSON_UNESCAPED_UNICODE); ?>,
+        tab1: <?php echo json_encode($tabInfoTooltip, JSON_UNESCAPED_UNICODE); ?>
+    };
+    var applied = 0;
+
+    roots.forEach(function(root) {
+        root.querySelectorAll(selector).forEach(function(trigger) {
+            var id = trigger.getAttribute('aria-controls')
+                || trigger.getAttribute('data-tab')
+                || (trigger.getAttribute('data-bs-target') || '').replace(/^#/, '')
+                || (trigger.getAttribute('data-target') || '').replace(/^#/, '')
+                || ((trigger.getAttribute('href') || '').charAt(0) === '#' ? trigger.getAttribute('href').slice(1) : '');
+            var tip = tips[id];
+
+            if (!tip) {
+                return;
+            }
+
+            trigger.setAttribute('title', String(tip));
+            trigger.setAttribute('data-bs-toggle', 'tooltip');
+            trigger.setAttribute('data-bs-placement', 'top');
+            trigger.setAttribute('data-bs-title', String(tip));
+            applied++;
+        });
+    });
+
+    initStorageTooltips();
+
+    if (!applied && (attempt || 0) < 12) {
+        window.setTimeout(function() {
+            initStorageTabTooltips((attempt || 0) + 1);
+        }, 120);
+    }
 }
 
 if (document.readyState === 'loading') {
@@ -638,7 +808,7 @@ if (document.readyState === 'loading') {
 // Démarrer les onglets
 echo HTMLHelper::_('uitab.startTabSet', 'view-pane', ['active' => $activeTab]);
 // Premier onglet
-echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', Text::_('COM_CONTENTBUILDERNG_STORAGE'));
+echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', $storageTabLabel('fa-solid fa-database', 'COM_CONTENTBUILDERNG_STORAGE'));
 ?>
 
 <table width="100%">
@@ -1102,8 +1272,22 @@ echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', Text::_('COM_CONTENTBUIL
 
     <?php
     echo HTMLHelper::_('uitab.endTab');
-    echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab1', Text::_('COM_CONTENTBUILDERNG_STORAGE_INFORMATION'));
+    echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab1', $storageTabLabel('fa-solid fa-circle-info', 'COM_CONTENTBUILDERNG_STORAGE_INFORMATION'));
     ?>
+
+    <?php if ($storageTableExists === false) : ?>
+        <div class="alert alert-danger mb-3" role="alert">
+            <strong>Missing storage table</strong><br>
+            <?php echo htmlspecialchars($storageTableErrorMessage !== '' ? $storageTableErrorMessage : 'Storage table not found.', ENT_QUOTES, 'UTF-8'); ?>
+            <?php if ($storageTableLookupName !== '') : ?>
+                <br><code><?php echo htmlspecialchars($storageTableLookupName, ENT_QUOTES, 'UTF-8'); ?></code>
+            <?php endif; ?>
+        </div>
+    <?php elseif ($storageTableErrorMessage !== '') : ?>
+        <div class="alert alert-warning mb-3" role="alert">
+            <?php echo htmlspecialchars($storageTableErrorMessage, ENT_QUOTES, 'UTF-8'); ?>
+        </div>
+    <?php endif; ?>
 
     <div class="mb-2">
         <span class="badge bg-body-tertiary text-body border">

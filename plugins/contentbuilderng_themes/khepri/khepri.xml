@@ -2,7 +2,7 @@
 <extension type="plugin" group="contentbuilderng_themes" method="upgrade">
   <name>ContentBuilder NG - Themes - Khepri</name>
   <author>XDA+GIL</author>
-  <creationDate>2026-03-09</creationDate>
+  <creationDate>2026-03-20</creationDate>
   <copyright>(C) 2026 by XDA+GIL</copyright>
   <license>GNU/GPL v2 or later</license>
   <authorEmail>noreply@vcmb.fr</authorEmail>

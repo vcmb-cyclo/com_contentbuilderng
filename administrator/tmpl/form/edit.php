@@ -1210,19 +1210,55 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         }
     }
 
+    function cbGetJoomlaEditorInstance(fieldName) {
+        var editorId = 'jform_' + fieldName;
+        var api = window.JoomlaEditor;
+
+        if (api && typeof api.get === 'function') {
+            return api.get(editorId) || api.get(fieldName) || null;
+        }
+
+        return null;
+    }
+
+    function cbGetEditorInstancesFromFields(root) {
+        var scope = root || document;
+        var instances = [];
+        var seen = {};
+
+        scope.querySelectorAll('textarea[name^="jform["], input[name^="jform["]').forEach(function(field) {
+            var match = String(field.name || '').match(/^jform\[(.+)\]$/);
+
+            if (!match || !match[1]) {
+                return;
+            }
+
+            var instance = cbGetJoomlaEditorInstance(match[1]);
+            if (!instance) {
+                return;
+            }
+
+            var key = String(match[1]);
+            if (seen[key]) {
+                return;
+            }
+
+            seen[key] = true;
+            instances.push(instance);
+        });
+
+        return instances;
+    }
+
     function cbGetEditorFieldValue(fieldName) {
         var value = '';
-        var editorId = 'jform_' + fieldName;
+        var instance = cbGetJoomlaEditorInstance(fieldName);
 
-        if (window.Joomla && Joomla.editors && Joomla.editors.instances) {
-            var instance = Joomla.editors.instances[editorId] || Joomla.editors.instances[fieldName];
-
-            if (instance) {
-                if (typeof instance.getValue === 'function') {
-                    value = instance.getValue();
-                } else if (typeof instance.getContent === 'function') {
-                    value = instance.getContent();
-                }
+        if (instance) {
+            if (typeof instance.getValue === 'function') {
+                value = instance.getValue();
+            } else if (typeof instance.getContent === 'function') {
+                value = instance.getContent();
             }
         }
 
@@ -1238,28 +1274,24 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
     function cbSetEditorFieldValue(fieldName, value) {
         var stringValue = String(value || '');
-        var editorId = 'jform_' + fieldName;
         var updatedViaEditor = false;
+        var instance = cbGetJoomlaEditorInstance(fieldName);
 
-        if (window.Joomla && Joomla.editors && Joomla.editors.instances) {
-            var instance = Joomla.editors.instances[editorId] || Joomla.editors.instances[fieldName];
+        if (instance) {
+            var currentValue = '';
+            if (typeof instance.getValue === 'function') {
+                currentValue = String(instance.getValue() || '');
+            } else if (typeof instance.getContent === 'function') {
+                currentValue = String(instance.getContent() || '');
+            }
 
-            if (instance) {
-                var currentValue = '';
-                if (typeof instance.getValue === 'function') {
-                    currentValue = String(instance.getValue() || '');
-                } else if (typeof instance.getContent === 'function') {
-                    currentValue = String(instance.getContent() || '');
-                }
-
-                if (currentValue !== stringValue) {
-                    if (typeof instance.setValue === 'function') {
-                        instance.setValue(stringValue);
-                        updatedViaEditor = true;
-                    } else if (typeof instance.setContent === 'function') {
-                        instance.setContent(stringValue);
-                        updatedViaEditor = true;
-                    }
+            if (currentValue !== stringValue) {
+                if (typeof instance.setValue === 'function') {
+                    instance.setValue(stringValue);
+                    updatedViaEditor = true;
+                } else if (typeof instance.setContent === 'function') {
+                    instance.setContent(stringValue);
+                    updatedViaEditor = true;
                 }
             }
         }
@@ -1956,12 +1988,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
             var fieldName = match[1];
             var textarea = document.getElementById('jform_' + fieldName);
-            var hasEditorInstance = !!(
-                window.Joomla
-                && Joomla.editors
-                && Joomla.editors.instances
-                && (Joomla.editors.instances['jform_' + fieldName] || Joomla.editors.instances[fieldName])
-            );
+            var hasEditorInstance = !!cbGetJoomlaEditorInstance(fieldName);
             var looksLikeEditorField = hasEditorInstance
                 || (
                     textarea
@@ -1988,27 +2015,23 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     function cbBindEditorDirtyTracking() {
         var boundCount = 0;
 
-        if (window.Joomla && Joomla.editors && Joomla.editors.instances) {
-            Object.keys(Joomla.editors.instances).forEach(function(instanceKey) {
-                var instance = Joomla.editors.instances[instanceKey];
+        cbGetEditorInstancesFromFields(document).forEach(function(instance) {
+            if (!instance || instance.__cbDirtyTrackingBound) {
+                return;
+            }
 
-                if (!instance || instance.__cbDirtyTrackingBound) {
-                    return;
-                }
+            instance.__cbDirtyTrackingBound = true;
 
-                instance.__cbDirtyTrackingBound = true;
-
-                if (typeof instance.on === 'function') {
-                    ['change', 'input', 'keyup', 'undo', 'redo', 'SetContent'].forEach(function(eventName) {
-                        try {
-                            instance.on(eventName, cbRefreshDirtyState);
-                        } catch (e) {
-                        }
-                    });
-                    boundCount++;
-                }
-            });
-        }
+            if (typeof instance.on === 'function') {
+                ['change', 'input', 'keyup', 'undo', 'redo', 'SetContent'].forEach(function(eventName) {
+                    try {
+                        instance.on(eventName, cbRefreshDirtyState);
+                    } catch (e) {
+                    }
+                });
+                boundCount++;
+            }
+        });
 
         if (window.tinymce && typeof window.tinymce.get === 'function') {
             document.querySelectorAll('textarea[name^="jform["]').forEach(function(textarea) {
@@ -2983,9 +3006,6 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         </h3>
         <?php
         echo $this->form->renderField('intro_text');
-        ?>
-
-        <?php
         echo HTMLHelper::_('uitab.endTab');
         echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab1', $viewTabLabel('fa-solid fa-list-check', 'COM_CONTENTBUILDERNG_LIST_STATES'));
         ?>
@@ -3210,6 +3230,7 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QU
             return (
                 el.getAttribute('aria-controls') ||
                 el.getAttribute('data-tab') ||
+                (el.getAttribute('data-bs-target') && el.getAttribute('data-bs-target').startsWith('#') ? el.getAttribute('data-bs-target').slice(1) : null) ||
                 (el.getAttribute('href') && el.getAttribute('href').startsWith('#') ? el.getAttribute('href').slice(1) : null) ||
                 (el.getAttribute('data-target') && el.getAttribute('data-target').startsWith('#') ? el.getAttribute('data-target').slice(1) : null)
             );
@@ -3238,7 +3259,7 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QU
                 return;
             }
 
-            const selector = 'button[aria-controls],button[data-tab],button[data-target],a[aria-controls],a[data-tab],a[data-target],a[href^="#"]';
+            const selector = 'button[aria-controls],button[data-tab],button[data-target],button[data-bs-target],a[aria-controls],a[data-tab],a[data-target],a[data-bs-target],a[href^="#"]';
             const roots = [jTab];
             if (jTab.shadowRoot) {
                 roots.push(jTab.shadowRoot);
@@ -3271,7 +3292,7 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QU
         }
 
         function setHidden(name, value) {
-            const el = document.querySelector(`input[name="jform[${name}]"]`);
+            const el = document.querySelector(`input[name="${name}"], input[name="jform[${name}]"]`);
             if (el) el.value = value;
         }
 
@@ -3304,9 +3325,18 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QU
                 const btn =
                     jTab.querySelector(`button[aria-controls="${saved}"]`) ||
                     jTab.querySelector(`button[data-tab="${saved}"]`) ||
+                    jTab.querySelector(`button[data-bs-target="#${saved}"]`) ||
                     jTab.querySelector(`button[data-target="#${saved}"]`) ||
                     jTab.querySelector(`a[aria-controls="${saved}"]`) ||
-                    jTab.querySelector(`a[href="#${saved}"]`);
+                    jTab.querySelector(`a[href="#${saved}"]`) ||
+                    (jTab.shadowRoot && (
+                        jTab.shadowRoot.querySelector(`button[aria-controls="${saved}"]`) ||
+                        jTab.shadowRoot.querySelector(`button[data-tab="${saved}"]`) ||
+                        jTab.shadowRoot.querySelector(`button[data-bs-target="#${saved}"]`) ||
+                        jTab.shadowRoot.querySelector(`button[data-target="#${saved}"]`) ||
+                        jTab.shadowRoot.querySelector(`a[aria-controls="${saved}"]`) ||
+                        jTab.shadowRoot.querySelector(`a[href="#${saved}"]`)
+                    ));
 
                 if (btn) {
                     btn.click();
@@ -3315,7 +3345,7 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QU
             }
 
             // Sauvegarde : écouter les clics sur onglets
-            jTab.addEventListener('click', (ev) => {
+            const saveActiveTab = (ev) => {
                 const trigger = ev.target?.closest?.('button,a') || ev.target;
                 const id = getTabTargetId(trigger);
 
@@ -3323,9 +3353,17 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QU
 
                 localStorage.setItem(storageKey, id);
                 if (typeof onSave === 'function') onSave(id);
-            }, {
+            };
+
+            jTab.addEventListener('click', saveActiveTab, {
                 passive: true
             });
+
+            if (jTab.shadowRoot) {
+                jTab.shadowRoot.addEventListener('click', saveActiveTab, {
+                    passive: true
+                });
+            }
         }
 
         // 1) onglets principaux view-pane (tab0, tab1, tab2…)
