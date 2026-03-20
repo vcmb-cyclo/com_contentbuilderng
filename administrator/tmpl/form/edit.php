@@ -85,6 +85,44 @@ $listOrder = (string) ($this->listOrder ?? 'ordering');
 $listDirn  = strtolower((string) ($this->listDirn ?? 'asc'));
 $listDirn  = ($listDirn === 'desc') ? 'desc' : 'asc';
 $formId    = (int) ($this->item->id ?? 0);
+$fullOrdering = trim($listOrder . ' ' . strtoupper($listDirn));
+?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+var form = document.getElementById('adminForm');
+
+if (!form) {
+    return;
+}
+
+var setValue = function(name, value) {
+    var element = form.elements[name];
+    if (element) {
+        element.value = value;
+    }
+};
+
+document.querySelectorAll('#adminForm .js-stools-column-order').forEach(function(link) {
+    link.addEventListener('click', function(event) {
+        event.preventDefault();
+
+        var order = String(link.getAttribute('data-order') || '');
+        var dir = String(link.getAttribute('data-direction') || 'ASC').toUpperCase();
+
+        setValue('filter_order', order);
+        setValue('filter_order_Dir', dir.toLowerCase());
+        setValue('list[ordering]', order);
+        setValue('list[direction]', dir.toLowerCase());
+        setValue('list[fullordering]', order !== '' ? (order + ' ' + dir) : '');
+        setValue('limitstart', 0);
+        setValue('task', 'form.display');
+
+        form.submit();
+    });
+});
+});
+</script>
+<?php
 $apiEndpointBase = Uri::root() . 'index.php?option=com_contentbuilderng&task=api.display&id=' . $formId;
 $apiPreviewQuery = '';
 $apiPreviewUntil = time() + 600;
@@ -218,19 +256,7 @@ $breezingFormsProvidedMessage = '<div class="alert alert-success d-inline-flex a
     . '</div>';
 
 $sortLink = function (string $label, string $field) use ($listOrder, $listDirn, $formId): string {
-    $isActive = ($listOrder === $field);
-    $nextDir = ($isActive && $listDirn === 'asc') ? 'desc' : 'asc';
-    $indicator = $isActive
-        ? ($listDirn === 'asc'
-            ? ' <span class="ms-1 fa-solid fa-sort fa-solid fa-sort-up" aria-hidden="true"></span>'
-            : ' <span class="ms-1 fa-solid fa-sort fa-solid fa-sort-down" aria-hidden="true"></span>')
-        : '';
-    $url = Route::_(
-        'index.php?option=com_contentbuilderng&task=form.display&layout=edit&id=' . $formId
-            . '&list[ordering]=' . $field . '&list[direction]=' . $nextDir
-    );
-
-    return '<a href="' . $url . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . $indicator . '</a>';
+    return HTMLHelper::_('searchtools.sort', $label, $field, $listDirn, $listOrder);
 };
 
 $permHeaderLabel = static function (string $labelKey, string $tipKey): string {
@@ -1990,8 +2016,18 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     var cbDirtyTrackingInitialized = false;
     var cbDirtyUserInteracted = false;
 
+    function cbShouldIgnoreDirtyField(field) {
+        if (!field) {
+            return false;
+        }
+
+        var name = String(field.name || '');
+
+        return /^jform\[order\]\[\d+\]$/.test(name);
+    }
+
     function cbShouldTrackField(field) {
-        if (!field || field.disabled) {
+        if (!field || field.disabled || cbShouldIgnoreDirtyField(field)) {
             return false;
         }
 
@@ -2254,7 +2290,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         fields.forEach(function(field) {
             var name = String(field.name || '');
 
-            if (!/\]$/.test(name) || field.__cbDirtyTrackingBound) {
+            if (!/\]$/.test(name) || field.__cbDirtyTrackingBound || cbShouldIgnoreDirtyField(field)) {
                 return;
             }
 
@@ -2330,6 +2366,12 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     }
 
     function cbHandleDirtyInteraction() {
+        var target = arguments.length > 0 ? arguments[0] : null;
+
+        if (target && target.target && cbShouldIgnoreDirtyField(target.target)) {
+            return;
+        }
+
         cbDirtyUserInteracted = true;
         cbRefreshDirtyState();
     }
@@ -3306,8 +3348,11 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     <input type="hidden" name="limitstart" value="<?php echo (int) Factory::getApplication()->input->getInt('limitstart', 0); ?>" />
     <input type="hidden" name="jform[ordering]" value="<?php echo $this->item->ordering; ?>" />
     <input type="hidden" name="jform[published]" value="<?php echo $this->item->published; ?>" />
+    <input type="hidden" name="filter_order" value="<?php echo htmlspecialchars($listOrder, ENT_QUOTES, 'UTF-8'); ?>" />
+    <input type="hidden" name="filter_order_Dir" value="<?php echo htmlspecialchars($listDirn, ENT_QUOTES, 'UTF-8'); ?>" />
     <input type="hidden" name="list[ordering]" value="<?php echo htmlspecialchars($listOrder, ENT_QUOTES, 'UTF-8'); ?>" />
     <input type="hidden" name="list[direction]" value="<?php echo htmlspecialchars($listDirn, ENT_QUOTES, 'UTF-8'); ?>" />
+    <input type="hidden" id="list_fullordering" name="list[fullordering]" value="<?php echo htmlspecialchars($fullOrdering, ENT_QUOTES, 'UTF-8'); ?>" />
     <input type="hidden" name="boxchecked" value="0" />
     <input type="hidden" name="hidemainmenu" value="0" />
     <input type="hidden" name="tabStartOffset" value="tab0" />

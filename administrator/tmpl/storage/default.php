@@ -84,33 +84,11 @@ $formatDate = static function ($date): string {
     return HTMLHelper::_('date', $value, Text::_('DATE_FORMAT_LC5'));
 };
 
-$sortFields = ['name', 'title', 'group_definition', 'ordering', 'published'];
-$sortLinks = [];
+$fullOrdering = trim($listOrder . ' ' . strtoupper($listDirn));
 
-foreach ($sortFields as $field) {
-    $isActive = ($listOrder === $field);
-    $nextDir = ($isActive && $listDirn === 'asc') ? 'desc' : 'asc';
-    $indicator = '';
-
-    if ($isActive) {
-        $indicator = ($listDirn === 'asc')
-            ? ' <span class="ms-1 fa-solid fa-sort fa-solid fa-sort-up" aria-hidden="true"></span>'
-            : ' <span class="ms-1 fa-solid fa-sort fa-solid fa-sort-down" aria-hidden="true"></span>';
-    }
-
-    $sortLinks[$field] = [
-        'url' => \Joomla\CMS\Router\Route::_(
-            'index.php?option=com_contentbuilderng&task=storage.display&layout=edit&id='
-            . $storageId
-            . '&limitstart=0'
-            . '&list[ordering]=' . $field
-            . '&list[direction]=' . $nextDir
-            . '&list[limit]=' . max(0, $limitValue),
-            false
-        ),
-        'indicator' => $indicator,
-    ];
-}
+$sortLink = static function (string $label, string $field) use ($listDirn, $listOrder): string {
+    return HTMLHelper::_('searchtools.sort', $label, $field, $listDirn, $listOrder);
+};
 
 $renderCheckbox = static function (string $name, string $id, bool $checked = false): string {
     return '<span class="form-check d-inline-block mb-0"><input class="form-check-input" type="checkbox" name="'
@@ -146,6 +124,40 @@ $wa->addInlineStyle(
 
 ?>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('adminForm');
+
+    if (!form) {
+        return;
+    }
+
+    var setValue = function(name, value) {
+        var element = form.elements[name];
+        if (element) {
+            element.value = value;
+        }
+    };
+
+    document.querySelectorAll('#adminForm .js-stools-column-order').forEach(function(link) {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            var order = String(link.getAttribute('data-order') || '');
+            var dir = String(link.getAttribute('data-direction') || 'ASC').toUpperCase();
+
+            setValue('filter_order', order);
+            setValue('filter_order_Dir', dir.toLowerCase());
+            setValue('list[ordering]', order);
+            setValue('list[direction]', dir.toLowerCase());
+            setValue('list[fullordering]', order !== '' ? (order + ' ' + dir) : '');
+            setValue('limitstart', 0);
+            setValue('task', 'storage.display');
+
+            form.submit();
+        });
+    });
+});
+
 const cbSaveAnimationDurationMs = 500;
 const cbPublishedTitle = <?php echo json_encode(Text::_('JPUBLISHED'), JSON_UNESCAPED_UNICODE); ?>;
 const cbUnpublishedTitle = <?php echo json_encode(Text::_('JUNPUBLISHED'), JSON_UNESCAPED_UNICODE); ?>;
@@ -647,7 +659,7 @@ echo LayoutHelper::render('storage.storage_tab', [
     'renderCheckbox' => $renderCheckbox,
     'csvToggleTooltip' => $csvToggleTooltip,
     'addFieldTooltip' => $addFieldTooltip,
-    'sortLinks' => $sortLinks,
+    'sortLink' => $sortLink,
     'fields' => $fields,
     'fieldsCount' => $fieldsCount,
     'pagination' => $this->pagination,
@@ -692,6 +704,7 @@ echo HTMLHelper::_('uitab.endTabSet');
     <input type="hidden" name="filter_order_Dir" value="<?php echo htmlspecialchars($listDirn, ENT_QUOTES, 'UTF-8'); ?>" />
     <input type="hidden" name="list[ordering]" value="<?php echo htmlspecialchars($listOrder, ENT_QUOTES, 'UTF-8'); ?>" />
     <input type="hidden" name="list[direction]" value="<?php echo htmlspecialchars($listDirn, ENT_QUOTES, 'UTF-8'); ?>" />
+    <input type="hidden" id="list_fullordering" name="list[fullordering]" value="<?php echo htmlspecialchars($fullOrdering, ENT_QUOTES, 'UTF-8'); ?>" />
     <input type="hidden" name="limitstart" value="<?php echo (int) Factory::getApplication()->input->getInt('limitstart', 0); ?>" />
     <input type="hidden" name="boxchecked" value="0" />
     <input type="hidden" name="tabStartOffset" value="<?php echo htmlspecialchars($activeTab, ENT_QUOTES, 'UTF-8'); ?>" />

@@ -21,7 +21,7 @@ $storageId = (int) ($displayData['storageId'] ?? 0);
 $renderCheckbox = $displayData['renderCheckbox'] ?? null;
 $csvToggleTooltip = (string) ($displayData['csvToggleTooltip'] ?? '');
 $addFieldTooltip = (string) ($displayData['addFieldTooltip'] ?? '');
-$sortLinks = is_array($displayData['sortLinks'] ?? null) ? $displayData['sortLinks'] : [];
+$sortLink = $displayData['sortLink'] ?? null;
 $fields = is_iterable($displayData['fields'] ?? null) ? $displayData['fields'] : [];
 $fieldsCount = (int) ($displayData['fieldsCount'] ?? 0);
 $pagination = $displayData['pagination'] ?? null;
@@ -340,29 +340,19 @@ Label 3;value3</textarea>
                             <?php echo HTMLHelper::_('grid.checkall'); ?>
                         </th>
                         <th>
-                            <a href="<?php echo htmlspecialchars((string) ($sortLinks['name']['url'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                                <?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_NAME'), ENT_QUOTES, 'UTF-8'); ?><?php echo $sortLinks['name']['indicator'] ?? ''; ?>
-                            </a>
+                            <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_NAME'), 'name') : Text::_('COM_CONTENTBUILDERNG_NAME'); ?>
                         </th>
                         <th>
-                            <a href="<?php echo htmlspecialchars((string) ($sortLinks['title']['url'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                                <?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGE_TITLE'), ENT_QUOTES, 'UTF-8'); ?><?php echo $sortLinks['title']['indicator'] ?? ''; ?>
-                            </a>
+                            <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_STORAGE_TITLE'), 'title') : Text::_('COM_CONTENTBUILDERNG_STORAGE_TITLE'); ?>
                         </th>
                         <th>
-                            <a href="<?php echo htmlspecialchars((string) ($sortLinks['group_definition']['url'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                                <?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGE_GROUP'), ENT_QUOTES, 'UTF-8'); ?><?php echo $sortLinks['group_definition']['indicator'] ?? ''; ?>
-                            </a>
+                            <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_STORAGE_GROUP'), 'group_definition') : Text::_('COM_CONTENTBUILDERNG_STORAGE_GROUP'); ?>
                         </th>
                         <th class="cb-order-col">
-                            <a href="<?php echo htmlspecialchars((string) ($sortLinks['ordering']['url'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                                <?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ORDERBY'), ENT_QUOTES, 'UTF-8'); ?><?php echo $sortLinks['ordering']['indicator'] ?? ''; ?>
-                            </a>
+                            <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ORDERBY'), 'ordering') : Text::_('COM_CONTENTBUILDERNG_ORDERBY'); ?>
                         </th>
                         <th>
-                            <a href="<?php echo htmlspecialchars((string) ($sortLinks['published']['url'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                                <?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_PUBLISHED'), ENT_QUOTES, 'UTF-8'); ?><?php echo $sortLinks['published']['indicator'] ?? ''; ?>
-                            </a>
+                            <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_PUBLISHED'), 'published') : Text::_('COM_CONTENTBUILDERNG_PUBLISHED'); ?>
                         </th>
                     </tr>
                 </thead>

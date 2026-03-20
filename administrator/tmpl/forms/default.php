@@ -70,16 +70,15 @@ $filterState = in_array($filterStateRaw, ['P', '1', 'PUBLISHED'], true)
     : (in_array($filterStateRaw, ['U', '0', 'UNPUBLISHED'], true) ? 'U' : '');
 $filterTag = (string) ($this->lists['filter_tag'] ?? '');
 $previewLinks = is_array($this->previewLinks ?? null) ? $this->previewLinks : [];
-$___tableOrdering = "Joomla.tableOrdering = function";
+$fullOrdering = trim($order . ' ' . strtoupper($orderDir));
 ?>
 <script type="text/javascript">
-<?php echo $___tableOrdering; ?>(order, dir, task) {
-var form = document.adminForm;
+document.addEventListener('DOMContentLoaded', function() {
+var form = document.getElementById('adminForm');
+
 if (!form) {
     return;
 }
-
-task = task || '';
 
 var setValue = function(name, value) {
     var element = form.elements[name];
@@ -88,16 +87,25 @@ var setValue = function(name, value) {
     }
 };
 
-setValue('filter_order', order);
-setValue('filter_order_Dir', dir);
-setValue('list[ordering]', order);
-setValue('list[direction]', dir);
-setValue('limitstart', 0);
-setValue('list[start]', 0);
-setValue('task', task);
+document.querySelectorAll('#adminForm .js-stools-column-order').forEach(function(link) {
+    link.addEventListener('click', function(event) {
+        event.preventDefault();
 
-form.submit();
-};
+        var order = String(link.getAttribute('data-order') || '');
+        var dir = String(link.getAttribute('data-direction') || 'ASC').toUpperCase();
+
+        setValue('filter_order', order);
+        setValue('filter_order_Dir', dir.toLowerCase());
+        setValue('list[ordering]', order);
+        setValue('list[direction]', dir.toLowerCase());
+        setValue('list[fullordering]', order !== '' ? (order + ' ' + dir) : '');
+        setValue('limitstart', 0);
+        setValue('list[start]', 0);
+
+        form.submit();
+    });
+});
+});
 </script>
 <style>
     .cb-forms-preview-link::before,
@@ -180,7 +188,7 @@ form.submit();
             <thead>
                 <tr>
                     <th width="5">
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_ID'), 'a.id', $orderDir, $order); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_ID', 'a.id', $orderDir, $order); ?>
                     </th>
                     <th width="20">
                         <?php echo HTMLHelper::_('grid.checkall'); ?>
@@ -189,30 +197,30 @@ form.submit();
                         <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW'); ?>
                     </th>
                     <th>
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_VIEW_NAME'), 'a.name', $orderDir, $order); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_VIEW_NAME', 'a.name', $orderDir, $order); ?>
                     </th>
                     <th>
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_TAG'), 'a.tag', $orderDir, $order); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_TAG', 'a.tag', $orderDir, $order); ?>
                     </th>
                     <th>
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_FORM_SOURCE'), 'a.title', $orderDir, $order); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_FORM_SOURCE', 'a.title', $orderDir, $order); ?>
                     </th>
                     <th width="90" class="text-center">
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_TYPE'), 'a.type', $orderDir, $order); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_TYPE', 'a.type', $orderDir, $order); ?>
                     </th>
                     <th>
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_DISPLAY'), 'a.display_in', $orderDir, $order); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_DISPLAY', 'a.display_in', $orderDir, $order); ?>
                     </th>
 
 
                     <th class="w-10 text-nowrap">
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_ORDERBY'), 'a.ordering', $orderDir, $order); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_ORDERBY', 'a.ordering', $orderDir, $order); ?>
                     </th>
                     <th class="text-nowrap">
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('JGLOBAL_MODIFIED'), 'a.modified', $orderDir, $order); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'JGLOBAL_MODIFIED', 'a.modified', $orderDir, $order); ?>
                     </th>
                     <th class="w-1 text-center">
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_PUBLISHED'), 'a.published', $orderDir, $order); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_PUBLISHED', 'a.published', $orderDir, $order); ?>
                     </th>
                 </tr>
             </thead>
@@ -352,5 +360,6 @@ form.submit();
     <input type="hidden" name="filter_order_Dir" value="<?php echo htmlspecialchars($orderDir, ENT_QUOTES, 'UTF-8'); ?>">
     <input type="hidden" name="list[ordering]" value="<?php echo htmlspecialchars($order, ENT_QUOTES, 'UTF-8'); ?>">
     <input type="hidden" name="list[direction]" value="<?php echo htmlspecialchars($orderDir, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" id="list_fullordering" name="list[fullordering]" value="<?php echo htmlspecialchars($fullOrdering, ENT_QUOTES, 'UTF-8'); ?>">
     <?php echo HTMLHelper::_('form.token'); ?>
 </form>

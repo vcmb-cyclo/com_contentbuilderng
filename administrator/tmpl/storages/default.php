@@ -54,16 +54,15 @@ $filterStateRaw = strtoupper((string) $this->state->get('filter.state', ''));
 $filterState = in_array($filterStateRaw, ['P', '1', 'PUBLISHED'], true)
     ? 'P'
     : (in_array($filterStateRaw, ['U', '0', 'UNPUBLISHED'], true) ? 'U' : '');
-$___tableOrdering = "Joomla.tableOrdering = function";
+$fullOrdering = trim($listOrder . ' ' . strtoupper($listDirn));
 ?>
 <script type="text/javascript">
-<?php echo $___tableOrdering; ?>(order, dir, task) {
-var form = document.adminForm;
+document.addEventListener('DOMContentLoaded', function() {
+var form = document.getElementById('adminForm');
+
 if (!form) {
     return;
 }
-
-    task = task || 'storages.display';
 
 var setValue = function(name, value) {
     var element = form.elements[name];
@@ -72,20 +71,26 @@ var setValue = function(name, value) {
     }
 };
 
-var setStart = function(value) {
-    setValue('limitstart', value);
-    setValue('list[start]', value);
-};
+document.querySelectorAll('#adminForm .js-stools-column-order').forEach(function(link) {
+    link.addEventListener('click', function(event) {
+        event.preventDefault();
 
-setValue('filter_order', order);
-setValue('filter_order_Dir', dir);
-setValue('list[ordering]', order);
-setValue('list[direction]', dir);
-setStart(0);
-setValue('task', task);
+        var order = String(link.getAttribute('data-order') || '');
+        var dir = String(link.getAttribute('data-direction') || 'ASC').toUpperCase();
 
-    form.submit();
-};
+        setValue('filter_order', order);
+        setValue('filter_order_Dir', dir.toLowerCase());
+        setValue('list[ordering]', order);
+        setValue('list[direction]', dir.toLowerCase());
+        setValue('list[fullordering]', order !== '' ? (order + ' ' + dir) : '');
+        setValue('limitstart', 0);
+        setValue('list[start]', 0);
+        setValue('task', 'storages.display');
+
+        form.submit();
+    });
+});
+});
 </script>
 
 <form action="<?php echo Route::_('index.php?option=com_contentbuilderng&view=storages'); ?>"
@@ -142,7 +147,7 @@ setValue('task', task);
             <thead>
                 <tr>
                     <th class="w-1 text-nowrap">
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_ID'), 'a.id', $listDirn, $listOrder); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_ID', 'a.id', $listDirn, $listOrder); ?>
                     </th>
 
                     <th class="w-1 text-center">
@@ -150,27 +155,27 @@ setValue('task', task);
                     </th>
 
                     <th>
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_NAME'), 'a.name', $listDirn, $listOrder); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_NAME', 'a.name', $listDirn, $listOrder); ?>
                     </th>
 
                     <th>
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_STORAGE_TITLE'), 'a.title', $listDirn, $listOrder); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_STORAGE_TITLE', 'a.title', $listDirn, $listOrder); ?>
                     </th>
 
                     <th class="text-nowrap">
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_STORAGE_MODE'), 'a.bytable', $listDirn, $listOrder); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_STORAGE_MODE', 'a.bytable', $listDirn, $listOrder); ?>
                     </th>
 
                     <th class="w-10 text-nowrap">
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_ORDERBY'), 'a.ordering', $listDirn, $listOrder); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_ORDERBY', 'a.ordering', $listDirn, $listOrder); ?>
                     </th>
 
                     <th class="w-10 text-nowrap">
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('JGLOBAL_MODIFIED'), 'a.modified', $listDirn, $listOrder); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'JGLOBAL_MODIFIED', 'a.modified', $listDirn, $listOrder); ?>
                     </th>
 
                     <th class="w-1 text-center">
-                        <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_PUBLISHED'), 'a.published', $listDirn, $listOrder); ?>
+                        <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_PUBLISHED', 'a.published', $listDirn, $listOrder); ?>
                     </th>
                 </tr>
             </thead>
@@ -268,6 +273,7 @@ setValue('task', task);
     <input type="hidden" name="filter_order_Dir" value="<?php echo htmlspecialchars($listDirn, ENT_QUOTES, 'UTF-8'); ?>">
     <input type="hidden" name="list[ordering]" value="<?php echo htmlspecialchars($listOrder, ENT_QUOTES, 'UTF-8'); ?>">
     <input type="hidden" name="list[direction]" value="<?php echo htmlspecialchars($listDirn, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" id="list_fullordering" name="list[fullordering]" value="<?php echo htmlspecialchars($fullOrdering, ENT_QUOTES, 'UTF-8'); ?>">
 
     <?php echo HTMLHelper::_('form.token'); ?>
 </form>
