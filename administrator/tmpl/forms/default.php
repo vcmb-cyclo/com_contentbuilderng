@@ -116,7 +116,7 @@ var updateClearButtonState = function() {
         return;
     }
 
-    var hasSearch = !!String(searchInput && searchInput.value || '').trim();
+    var hasSearch = !!String(searchInput && searchInput.defaultValue || '').trim();
     var hasState = !!String(stateInput && stateInput.value || '').trim();
     var hasTag = !!String(tagInput && tagInput.value || '').trim();
     var isActive = hasSearch || hasState || hasTag;
@@ -127,14 +127,12 @@ var updateClearButtonState = function() {
     clearButton.setAttribute('aria-disabled', isActive ? 'false' : 'true');
 };
 
-[searchInput, stateInput, tagInput].forEach(function(field) {
+[stateInput, tagInput].forEach(function(field) {
     if (!field) {
         return;
     }
 
-    ['input', 'change'].forEach(function(eventName) {
-        field.addEventListener(eventName, updateClearButtonState);
-    });
+    field.addEventListener('change', updateClearButtonState);
 });
 
 updateClearButtonState();
