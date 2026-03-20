@@ -584,17 +584,17 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-            "version": "5.4.0",
-            "version_normalized": "5.4.0.0",
+            "version": "5.5.0",
+            "version_normalized": "5.5.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "48f2fe37d64c2dece0ef71fb2ac55497566782af"
+                "reference": "eecd31b885a1c8192f12738130f85bbc6e8906ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/48f2fe37d64c2dece0ef71fb2ac55497566782af",
-                "reference": "48f2fe37d64c2dece0ef71fb2ac55497566782af",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/eecd31b885a1c8192f12738130f85bbc6e8906ba",
+                "reference": "eecd31b885a1c8192f12738130f85bbc6e8906ba",
                 "shasum": ""
             },
             "require": {
@@ -641,7 +641,7 @@
                 "mpdf/mpdf": "Option for rendering PDF with PDF Writer",
                 "tecnickcom/tcpdf": "Option for rendering PDF with PDF Writer"
             },
-            "time": "2026-01-11T04:52:00+00:00",
+            "time": "2026-03-01T00:58:56+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -690,7 +690,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
-                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/5.4.0"
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/5.5.0"
             },
             "install-path": "../phpoffice/phpspreadsheet"
         },
@@ -1058,17 +1058,17 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.5.53",
-            "version_normalized": "11.5.53.0",
+            "version": "11.5.55",
+            "version_normalized": "11.5.55.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "a997a653a82845f1240d73ee73a8a4e97e4b0607"
+                "reference": "adc7262fccc12de2b30f12a8aa0b33775d814f00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a997a653a82845f1240d73ee73a8a4e97e4b0607",
-                "reference": "a997a653a82845f1240d73ee73a8a4e97e4b0607",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/adc7262fccc12de2b30f12a8aa0b33775d814f00",
+                "reference": "adc7262fccc12de2b30f12a8aa0b33775d814f00",
                 "shasum": ""
             },
             "require": {
@@ -1103,7 +1103,7 @@
             "suggest": {
                 "ext-soap": "To be able to generate mocks based on WSDL files"
             },
-            "time": "2026-02-10T12:28:25+00:00",
+            "time": "2026-02-18T12:37:06+00:00",
             "bin": [
                 "phpunit"
             ],
@@ -1143,7 +1143,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.53"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.55"
             },
             "funding": [
                 {

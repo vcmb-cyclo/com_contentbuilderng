@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
-        'name' => 'xda-gil/COM_CONTENTBUILDERNG',
+        'name' => 'xda-gil/com_contentbuilderng',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'dc7ea6602afd320ba2c796c334f024710314fa17',
+        'reference' => 'c4580dc7ec9121b217702ea7593f31e3f2654127',
         'type' => 'joomla-component',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -92,9 +92,9 @@
             'dev_requirement' => true,
         ),
         'phpoffice/phpspreadsheet' => array(
-            'pretty_version' => '5.4.0',
-            'version' => '5.4.0.0',
-            'reference' => '48f2fe37d64c2dece0ef71fb2ac55497566782af',
+            'pretty_version' => '5.5.0',
+            'version' => '5.5.0.0',
+            'reference' => 'eecd31b885a1c8192f12738130f85bbc6e8906ba',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpoffice/phpspreadsheet',
             'aliases' => array(),
@@ -146,9 +146,9 @@
             'dev_requirement' => true,
         ),
         'phpunit/phpunit' => array(
-            'pretty_version' => '11.5.53',
-            'version' => '11.5.53.0',
-            'reference' => 'a997a653a82845f1240d73ee73a8a4e97e4b0607',
+            'pretty_version' => '11.5.55',
+            'version' => '11.5.55.0',
+            'reference' => 'adc7262fccc12de2b30f12a8aa0b33775d814f00',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpunit/phpunit',
             'aliases' => array(),
@@ -316,10 +316,10 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
-        'xda-gil/COM_CONTENTBUILDERNG' => array(
+        'xda-gil/com_contentbuilderng' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'dc7ea6602afd320ba2c796c334f024710314fa17',
+            'reference' => 'c4580dc7ec9121b217702ea7593f31e3f2654127',
             'type' => 'joomla-component',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

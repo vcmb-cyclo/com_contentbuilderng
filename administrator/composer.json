@@ -1,5 +1,5 @@
 {
-  "name": "xda-gil/COM_CONTENTBUILDERNG",
+  "name": "xda-gil/com_contentbuilderng",
   "type": "joomla-component",
   "require": {
     "bgli100/securimage": "^4.0",

@@ -2177,6 +2177,8 @@ class Worksheet extends BIFFwriter
     /**
      * Insert a 24bit bitmap image in a worksheet.
      *
+     * @deprecated 5.5.0 No replacement.
+     *
      * @param int $row The row we are going to insert the bitmap into
      * @param int $col The column we are going to insert the bitmap into
      * @param GdImage|string $bitmap The bitmap filename or GD-image resource
@@ -2184,6 +2186,8 @@ class Worksheet extends BIFFwriter
      * @param int $y the vertical position (offset) of the image inside the cell
      * @param float $scale_x The horizontal scale
      * @param float $scale_y The vertical scale
+     *
+     * @codeCoverageIgnore
      */
     public function insertBitmap(int $row, int $col, GdImage|string $bitmap, int $x = 0, int $y = 0, float $scale_x = 1, float $scale_y = 1): void
     {
@@ -2191,10 +2195,6 @@ class Worksheet extends BIFFwriter
             ? $this->processBitmapGd($bitmap)
             : $this->processBitmap($bitmap);
         [$width, $height, $size, $data] = $bitmap_array;
-        /** @var int $width */
-        /** @var int $height */
-        /** @var int $size */
-        /** @var string $data */
 
         // Scale the frame of the image.
         $width *= $scale_x;
@@ -2257,12 +2257,16 @@ class Worksheet extends BIFFwriter
      * The SDK incorrectly states that the height should be expressed as a
      *        percentage of 1024.
      *
+     * @deprecated 5.5.0 No replacement.
+     *
      * @param int $col_start Col containing upper left corner of object
      * @param int $row_start Row containing top left corner of object
      * @param int $x1 Distance to left side of object
      * @param int $y1 Distance to top of object
      * @param int $width Width of image frame
      * @param int $height Height of image frame
+     *
+     * @codeCoverageIgnore
      */
     public function positionImage(int $col_start, int $row_start, int $x1, int $y1, int $width, int $height): void
     {
@@ -2322,6 +2326,8 @@ class Worksheet extends BIFFwriter
      * Store the OBJ record that precedes an IMDATA record. This could be generalised
      * to support other Excel objects.
      *
+     * @deprecated 5.5.0 No replacement.
+     *
      * @param int $colL Column containing upper left corner of object
      * @param int $dxL Distance from left side of cell
      * @param int $rwT Row containing top left corner of object
@@ -2330,6 +2336,8 @@ class Worksheet extends BIFFwriter
      * @param int $dxR Distance from right of cell
      * @param int $rwB Row containing bottom right corner of object
      * @param int $dyB Distance from bottom of cell
+     *
+     * @codeCoverageIgnore
      */
     private function writeObjPicture(int $colL, int $dxL, int $rwT, int|float $dyT, int $colR, int $dxR, int $rwB, int $dyB): void
     {
@@ -2399,9 +2407,13 @@ class Worksheet extends BIFFwriter
     /**
      * Convert a GD-image into the internal format.
      *
+     * @deprecated 5.5.0 No replacement.
+     *
      * @param GdImage $image The image to process
      *
-     * @return array{0: float, 1: float, 2: int, 3: string} Data and properties of the bitmap
+     * @return array{0: int, 1: int, 2: int, 3: string} Data and properties of the bitmap
+     *
+     * @codeCoverageIgnore
      */
     public function processBitmapGd(GdImage $image): array
     {
@@ -2433,9 +2445,13 @@ class Worksheet extends BIFFwriter
      * This is described in BITMAPCOREHEADER and BITMAPCOREINFO structures in the
      * MSDN library.
      *
+     * @deprecated 5.5.0 No replacement.
+     *
      * @param string $bitmap The bitmap to process
      *
-     * @return mixed[] Array with data and properties of the bitmap
+     * @return array{0: int, 1: int, 2: int, 3: string} Data and properties of the bitmap
+     *
+     * @codeCoverageIgnore
      */
     public function processBitmap(string $bitmap): array
     {
@@ -2478,7 +2494,9 @@ class Worksheet extends BIFFwriter
 
         // Read and remove the bitmap width and height. Verify the sizes.
         $width_and_height = unpack('V2', substr($data, 0, 8)) ?: [];
+        /** @var int */
         $width = $width_and_height[1];
+        /** @var int */
         $height = $width_and_height[2];
         $data = substr($data, 8);
         if ($width > 0xFFFF) {
