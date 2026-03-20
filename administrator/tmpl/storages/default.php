@@ -88,7 +88,7 @@ setValue('task', task);
 };
 </script>
 
-<form action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=storages.display'); ?>"
+<form action="<?php echo Route::_('index.php?option=com_contentbuilderng&view=storages'); ?>"
     method="post"
     name="adminForm"
     id="adminForm">
@@ -259,7 +259,8 @@ setValue('task', task);
     </div>
 
     <input type="hidden" name="option" value="com_contentbuilderng">
-    <input type="hidden" name="task" value="storages.display">
+    <input type="hidden" name="task" value="">
+    <input type="hidden" name="view" value="storages">
     <input type="hidden" name="limitstart" value="<?php echo (int) $listStart; ?>">
     <input type="hidden" name="list[start]" value="<?php echo (int) $listStart; ?>">
     <input type="hidden" name="boxchecked" value="0">

@@ -97,7 +97,7 @@ $sortLink = function (string $label, string $field) use ($order, $orderDir, $lim
         display: none !important;
     }
 </style>
-<form action="index.php"
+<form action="<?php echo Route::_('index.php?option=com_contentbuilderng&view=forms'); ?>"
     method="post"
     name="adminForm"
     id="adminForm">
