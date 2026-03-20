@@ -649,32 +649,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
     function cbAnimateSaveButton() {
         var shouldRestoreDisabled = !cbDirtyState;
-        var selectors = [
-            'joomla-toolbar-button#save-group-children-save button',
-            '#save-group-children-save button',
-            '#toolbar .button-save',
-            'joomla-toolbar-button#save-group-children-apply button',
-            '#save-group-children-apply button',
-            '#toolbar .button-apply'
-        ];
-
-        var targets = [];
-        selectors.forEach(function(selector) {
-            document.querySelectorAll(selector).forEach(function(el) {
-                if (!el) {
-                    return;
-                }
-                if (el.classList && el.classList.contains('dropdown-toggle-split')) {
-                    return;
-                }
-                if (typeof el.closest === 'function' && el.closest('.dropdown-menu')) {
-                    return;
-                }
-                if (targets.indexOf(el) === -1) {
-                    targets.push(el);
-                }
-            });
-        });
+        var targets = cbGetSaveButtons();
 
         if (!targets.length) {
             return;
@@ -2313,28 +2288,42 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     }
 
     function cbGetSaveButtons() {
-        var selectors = [
-            'joomla-toolbar-button#save-group-children-apply',
-            'joomla-toolbar-button#save-group-children-save',
-            'joomla-toolbar-button#save-group-children-save2new',
-            'joomla-toolbar-button#save-group-children-apply button',
-            'joomla-toolbar-button#save-group-children-save button',
-            'joomla-toolbar-button#save-group-children-save2new button',
-            '#save-group-children-apply button',
-            '#save-group-children-save button',
-            '#save-group-children-save2new button',
-            '#toolbar .button-apply',
-            '#toolbar .button-save',
-            '#toolbar .button-save-new'
-        ];
+        var tasks = ['form.apply', 'form.save', 'form.save2new'];
         var targets = [];
 
-        selectors.forEach(function(selector) {
-            document.querySelectorAll(selector).forEach(function(el) {
-                if (!el || targets.indexOf(el) !== -1) {
+        var collectTarget = function(el) {
+            if (!el || targets.indexOf(el) !== -1) {
+                return;
+            }
+
+            if (el.classList && el.classList.contains('dropdown-toggle-split')) {
+                return;
+            }
+
+            if (typeof el.closest === 'function' && el.closest('.dropdown-menu')) {
+                return;
+            }
+
+            targets.push(el);
+        };
+
+        tasks.forEach(function(task) {
+            document.querySelectorAll('[data-task="' + task + '"]').forEach(function(el) {
+                collectTarget(el);
+            });
+
+            document.querySelectorAll('[onclick*="' + task + '"]').forEach(function(el) {
+                collectTarget(el);
+            });
+
+            document.querySelectorAll('joomla-toolbar-button').forEach(function(host) {
+                if (!host || !host.shadowRoot) {
                     return;
                 }
-                targets.push(el);
+
+                host.shadowRoot.querySelectorAll('[data-task="' + task + '"], [onclick*="' + task + '"]').forEach(function(el) {
+                    collectTarget(el);
+                });
             });
         });
 
