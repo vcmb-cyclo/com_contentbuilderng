@@ -49,6 +49,21 @@ class StorageController extends BaseFormController
         $this->getApp()->close();
     }
 
+    private function externalStorageTableExists(string $tableName): bool
+    {
+        $tableName = trim($tableName);
+
+        if ($tableName === '') {
+            return false;
+        }
+
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $tableList = array_map('strtolower', (array) $db->getTableList());
+        $resolvedName = strtolower($db->replacePrefix($tableName));
+
+        return in_array($resolvedName, $tableList, true);
+    }
+
     public function edit($key = null, $urlVar = null)
     {
         try {
@@ -185,6 +200,25 @@ class StorageController extends BaseFormController
                     $this->setMessage(
                         $currentMessage !== '' ? ($currentMessage . ' ' . $renameMessage) : $renameMessage
                     );
+                }
+            }
+
+            if (!empty($data['bytable'])) {
+                $externalTableName = trim((string) ($data['name'] ?? ''));
+
+                if ($externalTableName !== '') {
+                    try {
+                        if (!$this->externalStorageTableExists($externalTableName)) {
+                            $db = Factory::getContainer()->get(DatabaseInterface::class);
+                            $missingTableMessage = Text::sprintf(
+                                'COM_CONTENTBUILDERNG_STORAGE_SAVE_EXTERNAL_TABLE_MISSING',
+                                $db->replacePrefix($externalTableName)
+                            );
+                            $this->getApp()->enqueueMessage($missingTableMessage, 'warning');
+                        }
+                    } catch (\Throwable $e) {
+                        Logger::exception($e);
+                    }
                 }
             }
 

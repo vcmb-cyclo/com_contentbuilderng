@@ -14,6 +14,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 \defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Database\ParameterType;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
@@ -516,7 +517,19 @@ class DatatableService
         $prefixed  = $db->getPrefix() . $tableName;
 
         if (!$this->tableExists($prefixed)) {
-            throw new \RuntimeException("La table data `#__{$tableName}` n'existe pas : créez-la d'abord.");
+            $message = Text::sprintf(
+                'COM_CONTENTBUILDERNG_DATATABLE_SYNC_INTERNAL_TABLE_MISSING',
+                '#__' . $tableName
+            );
+
+            if ($message === 'COM_CONTENTBUILDERNG_DATATABLE_SYNC_INTERNAL_TABLE_MISSING') {
+                $message = 'La table de données "#__' . $tableName . '" n\'existe pas encore. '
+                    . 'Pour un storage interne, cliquez d\'abord sur Save pour la créer, puis relancez Sync Data Table.';
+            }
+
+            throw new \RuntimeException(
+                $message
+            );
         }
 
         $this->ensureInternalAuditColumns($storageId);
