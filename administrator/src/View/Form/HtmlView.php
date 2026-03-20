@@ -49,9 +49,16 @@ class HtmlView extends BaseHtmlView
         $wa->useScript('com_contentbuilderng.coloris.js');
 
         $wa->addInlineStyle(
-            '.icon-48-logo_icon_cb{background-image:url('
-            . Uri::root(true)
-            . '/media/com_contentbuilderng/images/logo_icon_cb.png);background-size:contain;background-repeat:no-repeat;}'
+            '.icon-logo_left{'
+            . 'background-image:url(' . Uri::root(true) . '/media/com_contentbuilderng/images/logo_left.png);'
+            . 'background-size:contain;'
+            . 'background-repeat:no-repeat;'
+            . 'background-position:center;'
+            . 'display:inline-block;'
+            . 'width:48px;'
+            . 'height:48px;'
+            . 'vertical-align:middle;'
+            . '}'
         );
 
 
