@@ -185,7 +185,15 @@ foreach ((array) ($this->data->items ?? []) as $item) {
 
     // Si on veut mettre la colonne d'état.
     if ($col_publish > 0) {
-        $i++;
+        $publishedValue = isset($item->colPublished) ? (int) $item->colPublished : null;
+        if ($publishedValue === null && isset($this->data->published_items[$item->colRecord])) {
+            $publishedValue = (int) $this->data->published_items[$item->colRecord];
+        }
+
+        $worksheet1->setCellValue(
+            [$i++, $row],
+            $publishedValue === 1 ? Text::_('JPUBLISHED') : Text::_('JUNPUBLISHED')
+        );
     }
  
     // Les autres colonnes.
