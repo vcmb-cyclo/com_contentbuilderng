@@ -23,6 +23,7 @@ use CB\Component\Contentbuilderng\Administrator\Service\RuntimeUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
+use CB\Component\Contentbuilderng\Site\Helper\PublishedRecordVisibilityHelper;
 
 class ExportModel extends BaseDatabaseModel
 {
@@ -159,7 +160,7 @@ class ExportModel extends BaseDatabaseModel
 
     private function shouldRestrictToPublishedOnly(object $data, bool $isAdminPreview): bool
     {
-        if ($isAdminPreview || !$this->frontend) {
+        if (!$this->frontend) {
             return (bool) ($data->published_only ?? false);
         }
 
@@ -167,7 +168,7 @@ class ExportModel extends BaseDatabaseModel
             return true;
         }
 
-        return (bool) ($data->published_only ?? false);
+        return PublishedRecordVisibilityHelper::shouldRestrictToPublishedOnly($data, $isAdminPreview);
     }
 
     /*
