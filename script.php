@@ -352,11 +352,15 @@ class com_contentbuilderngInstallerScript
                 throw new \RuntimeException('ContentBuilder NG postflight failed: ' . $summary);
             }
 
-            $finishedAt = Factory::getDate('now', $this->resolveJoomlaTimezoneName())->format('Y-m-d H:i:s T');
+            $timezoneName = $this->resolveJoomlaTimezoneName();
+            $finishedAt = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))
+                ->setTimezone(new \DateTimeZone($timezoneName))
+                ->format('Y-m-d H:i:s');
             $durationSeconds = max(0.0, microtime(true) - $this->installStartedAt);
 
             $this->log(
                 '[OK] ContentBuilder NG installation finished. ' . $finishedAt
+                    . ' ' . $timezoneName
                     . '. Duration: ' . number_format($durationSeconds, 2, '.', '') . 's.'
             );
         } catch (\Throwable $e) {
