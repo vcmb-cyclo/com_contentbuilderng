@@ -25,6 +25,7 @@ class contentbuilderng_com_contentbuilderng
     public $view_elements = null;
     private $total = 0;
     private $bytable = false;
+    private ?array $sourceColumns = null;
     public $exists = false;
     public $form_id = 0;
 
@@ -553,6 +554,11 @@ class contentbuilderng_com_contentbuilderng
 
         // SORT CASTING END
 
+        $createdByExpr = $this->buildSourceColumnSelect('created_by', "''");
+        $modifiedByExpr = $this->buildSourceColumnSelect('modified_by', "''");
+        $createdExpr = $this->buildSourceColumnSelect('created', 'NULL');
+        $modifiedExpr = $this->buildSourceColumnSelect('modified', 'NULL');
+
         $selectClause = "
             joined_records.published As colPublished,
             joined_records.lang_code As colLanguage,
@@ -564,12 +570,12 @@ class contentbuilderng_com_contentbuilderng
             " . ($selectors ? $selectors . ',' : '') . "
             joined_articles.article_id As colArticleId,
             list_states.title As colState,
-            r.created_by As colAuthor,
-            r.modified_by As colModifiedBy,
+            " . $createdByExpr . " As colAuthor,
+            " . $modifiedByExpr . " As colModifiedBy,
             COALESCE(
-                NULLIF(r.modified, '0000-00-00 00:00:00'),
+                NULLIF(" . $modifiedExpr . ", '0000-00-00 00:00:00'),
                 NULLIF(joined_records.last_update, '0000-00-00 00:00:00'),
-                NULLIF(r.created, '0000-00-00 00:00:00')
+                NULLIF(" . $createdExpr . ", '0000-00-00 00:00:00')
             ) As colLastModification
         ";
 
@@ -1074,5 +1080,47 @@ class contentbuilderng_com_contentbuilderng
         $db = Factory::getContainer()->get(DatabaseInterface::class);
         $db->setQuery("Select id From " . $this->bytable . $this->properties->name . " Where id = " . intval($record_id) . " And user_id = " . intval($user_id));
         return $db->loadResult() !== null ? true : false;
+    }
+
+    private function getSourceColumns(): array
+    {
+        if ($this->sourceColumns !== null) {
+            return $this->sourceColumns;
+        }
+
+        $tableName = trim((string) ($this->bytable . ($this->properties->name ?? '')));
+        if ($tableName === '') {
+            $this->sourceColumns = [];
+            return $this->sourceColumns;
+        }
+
+        try {
+            $columns = Factory::getContainer()->get(DatabaseInterface::class)->getTableColumns($tableName, false);
+        } catch (\Throwable $e) {
+            $columns = [];
+        }
+
+        $normalized = [];
+        foreach ((array) $columns as $columnName => $_definition) {
+            $normalized[strtolower((string) $columnName)] = true;
+        }
+
+        $this->sourceColumns = $normalized;
+
+        return $this->sourceColumns;
+    }
+
+    private function hasSourceColumn(string $columnName): bool
+    {
+        return isset($this->getSourceColumns()[strtolower($columnName)]);
+    }
+
+    private function buildSourceColumnSelect(string $columnName, string $fallbackSql): string
+    {
+        if ($this->hasSourceColumn($columnName)) {
+            return 'r.' . $columnName;
+        }
+
+        return $fallbackSql;
     }
 }

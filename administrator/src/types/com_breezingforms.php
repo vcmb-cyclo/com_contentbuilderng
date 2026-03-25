@@ -24,6 +24,7 @@ class contentbuilderng_com_breezingforms
     public $properties = null;
     public $elements = null;
     private $total = 0;
+    private ?array $recordColumns = null;
     public $exists = false;
 
     private function getEffectiveActor(): array
@@ -749,6 +750,10 @@ class contentbuilderng_com_breezingforms
             $cbFormId = (int) $this->properties->id;
         }
 
+        $modifiedExpr = $this->buildRecordColumnSelect('modified', 'NULL');
+        $createdExpr = $this->buildRecordColumnSelect('created', 'NULL');
+        $submittedExpr = $this->buildRecordColumnSelect('submitted', 'NULL');
+
         $db->setQuery("
             Select
                 SQL_CALC_FOUND_ROWS
@@ -765,10 +770,10 @@ class contentbuilderng_com_breezingforms
                 joined_articles.article_id As colArticleId,
                 r.user_full_name As colAuthor,
                 COALESCE(
-                    NULLIF(r.modified, '0000-00-00 00:00:00'),
+                    NULLIF(" . $modifiedExpr . ", '0000-00-00 00:00:00'),
                     NULLIF(joined_records.last_update, '0000-00-00 00:00:00'),
-                    NULLIF(r.created, '0000-00-00 00:00:00'),
-                    NULLIF(r.submitted, '0000-00-00 00:00:00')
+                    NULLIF(" . $createdExpr . ", '0000-00-00 00:00:00'),
+                    NULLIF(" . $submittedExpr . ", '0000-00-00 00:00:00')
                 ) As colLastModification
             From
                 (
@@ -1265,5 +1270,41 @@ class contentbuilderng_com_breezingforms
         $db = Factory::getContainer()->get(DatabaseInterface::class);
         $db->setQuery("Select id From #__facileforms_records Where id = " . intval($record_id) . " And user_id = " . intval($user_id));
         return $db->loadResult() !== null ? true : false;
+    }
+
+    private function getRecordColumns(): array
+    {
+        if ($this->recordColumns !== null) {
+            return $this->recordColumns;
+        }
+
+        try {
+            $columns = Factory::getContainer()->get(DatabaseInterface::class)->getTableColumns('#__facileforms_records', false);
+        } catch (\Throwable $e) {
+            $columns = [];
+        }
+
+        $normalized = [];
+        foreach ((array) $columns as $columnName => $_definition) {
+            $normalized[strtolower((string) $columnName)] = true;
+        }
+
+        $this->recordColumns = $normalized;
+
+        return $this->recordColumns;
+    }
+
+    private function hasRecordColumn(string $columnName): bool
+    {
+        return isset($this->getRecordColumns()[strtolower($columnName)]);
+    }
+
+    private function buildRecordColumnSelect(string $columnName, string $fallbackSql): string
+    {
+        if ($this->hasRecordColumn($columnName)) {
+            return 'r.' . $columnName;
+        }
+
+        return $fallbackSql;
     }
 }
