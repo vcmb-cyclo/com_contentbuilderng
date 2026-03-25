@@ -294,7 +294,7 @@ if (!is_callable($renderCheckbox)) {
                     <select class="form-select-sm" name="jform[initial_sort_order]" id="initial_sort_order"
                         style="max-width: 200px;">
                         <option value="">
-                            <?php echo Text::_('COM_CONTENTBUILDERNG_BY_ID'); ?>
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_INITIAL_SORT_ORDER_BY_ID'); ?>
                         </option>
                         <?php foreach ($elements as $sortable) : ?>
                             <option value="<?php echo $sortable->reference_id; ?>" <?php echo ($item->initial_sort_order ?? null) == $sortable->reference_id ? ' selected="selected"' : ''; ?>>
