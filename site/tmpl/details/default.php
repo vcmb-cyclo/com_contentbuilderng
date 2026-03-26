@@ -19,6 +19,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 $frontend = Factory::getApplication()->isClient('site');
@@ -41,12 +42,7 @@ if ($listLimit === 0) {
 }
 $listOrdering = isset($list['ordering']) ? preg_replace('/[^A-Za-z0-9_\\.]/', '', (string) $list['ordering']) : '';
 $listDirection = isset($list['direction']) ? strtolower((string) $list['direction']) : '';
-$listQuery = http_build_query(['list' => [
-    'start' => $listStart,
-    'limit' => $listLimit,
-    'ordering' => $listOrdering,
-    'direction' => $listDirection,
-]]);
+$listQuery = NavigationLinkHelper::buildListQuery($listStart, $listLimit, $listOrdering, $listDirection);
 $previewQuery = '';
 $previewEnabled = $input->getBool('cb_preview', false);
 $previewUntil = $input->getInt('cb_preview_until', 0);
@@ -317,33 +313,39 @@ CSS
         . '&Itemid=' . $input->getInt('Itemid', 0)
         . ($listQuery !== '' ? '&' . $listQuery : '')
         . $previewQuery;
-    $detailsNavigationListQuery = static function (int $start) use ($listLimit, $listOrdering, $listDirection): string {
-        return http_build_query(['list' => [
-            'start' => $start,
-            'limit' => $listLimit,
-            'ordering' => $listOrdering,
-            'direction' => $listDirection,
-        ]]);
-    };
     $detailsPrevHref = $prevRecordId > 0
-        ? Route::_('index.php?option=com_contentbuilderng&title=' . $input->get('title', '', 'string')
-            . '&task=details.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . $input->getInt('id', 0))
-            . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '')
-            . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '')
-            . '&record_id=' . $prevRecordId
-            . '&Itemid=' . $input->getInt('Itemid', 0)
-            . ($detailsNavigationListQuery($prevRecordStart) !== '' ? '&' . $detailsNavigationListQuery($prevRecordStart) : '')
-            . $previewQuery)
+        ? Route::_(
+            NavigationLinkHelper::buildHref(
+                'index.php?option=com_contentbuilderng&title=' . $input->get('title', '', 'string')
+                . '&task=details.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . $input->getInt('id', 0))
+                . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '')
+                . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '')
+                . '&Itemid=' . $input->getInt('Itemid', 0)
+                . $previewQuery,
+                $prevRecordId,
+                $prevRecordStart,
+                $listLimit,
+                $listOrdering,
+                $listDirection
+            )
+        )
         : '';
     $detailsNextHref = $nextRecordId > 0
-        ? Route::_('index.php?option=com_contentbuilderng&title=' . $input->get('title', '', 'string')
-            . '&task=details.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . $input->getInt('id', 0))
-            . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '')
-            . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '')
-            . '&record_id=' . $nextRecordId
-            . '&Itemid=' . $input->getInt('Itemid', 0)
-            . ($detailsNavigationListQuery($nextRecordStart) !== '' ? '&' . $detailsNavigationListQuery($nextRecordStart) : '')
-            . $previewQuery)
+        ? Route::_(
+            NavigationLinkHelper::buildHref(
+                'index.php?option=com_contentbuilderng&title=' . $input->get('title', '', 'string')
+                . '&task=details.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . $input->getInt('id', 0))
+                . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '')
+                . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '')
+                . '&Itemid=' . $input->getInt('Itemid', 0)
+                . $previewQuery,
+                $nextRecordId,
+                $nextRecordStart,
+                $listLimit,
+                $listOrdering,
+                $listDirection
+            )
+        )
         : '';
 
     $showCloseButton = $this->show_back_button && $detailsBackButtonToggle === 1;

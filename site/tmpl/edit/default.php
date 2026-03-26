@@ -19,6 +19,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 /** @var SiteApplication $app */
@@ -61,12 +62,7 @@ if ($listLimit === 0) {
 }
 $listOrdering = isset($list['ordering']) ? preg_replace('/[^A-Za-z0-9_\\.]/', '', (string) $list['ordering']) : '';
 $listDirection = isset($list['direction']) ? strtolower((string) $list['direction']) : '';
-$listQuery = http_build_query(['list' => [
-    'start' => $listStart,
-    'limit' => $listLimit,
-    'ordering' => $listOrdering,
-    'direction' => $listDirection,
-]]);
+$listQuery = NavigationLinkHelper::buildListQuery($listStart, $listLimit, $listOrdering, $listDirection);
 $listHiddenFields = ''
     . '<input type="hidden" name="list[start]" value="' . (int) $listStart . '" />' . "\n"
     . '<input type="hidden" name="list[limit]" value="' . (int) $listLimit . '" />' . "\n"
@@ -174,39 +170,45 @@ $editNavBaseLink = 'index.php?option=com_contentbuilderng&task=edit.display'
     . ($jsBack ? '&jsback=1' : '')
     . $navReturn
     . $previewQuery;
-$editNavigationListQuery = static function (int $start) use ($listLimit, $listOrdering, $listDirection): string {
-    return http_build_query(['list' => [
-        'start' => $start,
-        'limit' => $listLimit,
-        'ordering' => $listOrdering,
-        'direction' => $listDirection,
-    ]]);
-};
 $editPrevHref = $prevRecordId > 0
-    ? Route::_('index.php?option=com_contentbuilderng&task=edit.display'
-        . ($layout !== '' ? '&layout=' . $layout : '')
-        . '&id=' . $id
-        . '&record_id=' . $prevRecordId
-        . ($tmpl !== '' ? '&tmpl=' . $tmpl : '')
-        . '&Itemid=' . $itemId
-        . ($editNavigationListQuery($prevRecordStart) !== '' ? '&' . $editNavigationListQuery($prevRecordStart) : '')
-        . ($backToList ? '&backtolist=1' : '')
-        . ($jsBack ? '&jsback=1' : '')
-        . $navReturn
-        . $previewQuery)
+    ? Route::_(
+        NavigationLinkHelper::buildHref(
+            'index.php?option=com_contentbuilderng&task=edit.display'
+            . ($layout !== '' ? '&layout=' . $layout : '')
+            . '&id=' . $id
+            . ($tmpl !== '' ? '&tmpl=' . $tmpl : '')
+            . '&Itemid=' . $itemId
+            . ($backToList ? '&backtolist=1' : '')
+            . ($jsBack ? '&jsback=1' : '')
+            . $navReturn
+            . $previewQuery,
+            $prevRecordId,
+            $prevRecordStart,
+            $listLimit,
+            $listOrdering,
+            $listDirection
+        )
+    )
     : '';
 $editNextHref = $nextRecordId > 0
-    ? Route::_('index.php?option=com_contentbuilderng&task=edit.display'
-        . ($layout !== '' ? '&layout=' . $layout : '')
-        . '&id=' . $id
-        . '&record_id=' . $nextRecordId
-        . ($tmpl !== '' ? '&tmpl=' . $tmpl : '')
-        . '&Itemid=' . $itemId
-        . ($editNavigationListQuery($nextRecordStart) !== '' ? '&' . $editNavigationListQuery($nextRecordStart) : '')
-        . ($backToList ? '&backtolist=1' : '')
-        . ($jsBack ? '&jsback=1' : '')
-        . $navReturn
-        . $previewQuery)
+    ? Route::_(
+        NavigationLinkHelper::buildHref(
+            'index.php?option=com_contentbuilderng&task=edit.display'
+            . ($layout !== '' ? '&layout=' . $layout : '')
+            . '&id=' . $id
+            . ($tmpl !== '' ? '&tmpl=' . $tmpl : '')
+            . '&Itemid=' . $itemId
+            . ($backToList ? '&backtolist=1' : '')
+            . ($jsBack ? '&jsback=1' : '')
+            . $navReturn
+            . $previewQuery,
+            $nextRecordId,
+            $nextRecordStart,
+            $listLimit,
+            $listOrdering,
+            $listDirection
+        )
+    )
     : '';
 $showColumnHeader = $input->getInt('cb_show_column_header', 1) === 1;
 $columnHeaderHtml = '';
