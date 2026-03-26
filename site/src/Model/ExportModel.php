@@ -372,6 +372,10 @@ class ExportModel extends BaseDatabaseModel
                         ? -1
                         : ($this->frontend && $data->own_only_fe ? (int) ($app->getIdentity()->id ?? 0) : -1);
                     $showAllLanguages = $isAdminPreview ? true : ($this->frontend ? $data->show_all_languages_fe : true);
+                    $exportOrderDirection = $this->getState('formsd_filter_order_Dir')
+                        ? (string) $this->getState('formsd_filter_order_Dir')
+                        : (string) ($data->initial_order_dir ?? 'desc');
+
                     $data->items = $data->form->getListRecords(
                         $ids,
                         $this->getState('formsd_filter'),
@@ -380,7 +384,7 @@ class ExportModel extends BaseDatabaseModel
                         0,
                         $this->getState('formsd_filter_order'),
                         $order_types,
-                        $this->getState('formsd_filter_order_Dir'),
+                        $exportOrderDirection,
                         0,
                         $publishedOnly,
                         $ownerFilterUserId,
