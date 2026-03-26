@@ -296,6 +296,8 @@ CSS
     <?php
     $prevRecordId = property_exists($this, 'prev_record_id') ? (int) $this->prev_record_id : 0;
     $nextRecordId = property_exists($this, 'next_record_id') ? (int) $this->next_record_id : 0;
+    $prevRecordStart = property_exists($this, 'prev_record_start') ? (int) $this->prev_record_start : 0;
+    $nextRecordStart = property_exists($this, 'next_record_start') ? (int) $this->next_record_start : 0;
     $currentRecordLabel = trim((string) $input->getCmd('record_id', ''));
     $showCurrentRecordLabel = !in_array($currentRecordLabel, ['', '0'], true);
     $showCurrentRecordLabel = $showCurrentRecordLabel && (int) ($this->show_id_column ?? 0) === 1;
@@ -315,6 +317,34 @@ CSS
         . '&Itemid=' . $input->getInt('Itemid', 0)
         . ($listQuery !== '' ? '&' . $listQuery : '')
         . $previewQuery;
+    $detailsNavigationListQuery = static function (int $start) use ($listLimit, $listOrdering, $listDirection): string {
+        return http_build_query(['list' => [
+            'start' => $start,
+            'limit' => $listLimit,
+            'ordering' => $listOrdering,
+            'direction' => $listDirection,
+        ]]);
+    };
+    $detailsPrevHref = $prevRecordId > 0
+        ? Route::_('index.php?option=com_contentbuilderng&title=' . $input->get('title', '', 'string')
+            . '&task=details.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . $input->getInt('id', 0))
+            . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '')
+            . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '')
+            . '&record_id=' . $prevRecordId
+            . '&Itemid=' . $input->getInt('Itemid', 0)
+            . ($detailsNavigationListQuery($prevRecordStart) !== '' ? '&' . $detailsNavigationListQuery($prevRecordStart) : '')
+            . $previewQuery)
+        : '';
+    $detailsNextHref = $nextRecordId > 0
+        ? Route::_('index.php?option=com_contentbuilderng&title=' . $input->get('title', '', 'string')
+            . '&task=details.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . $input->getInt('id', 0))
+            . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '')
+            . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '')
+            . '&record_id=' . $nextRecordId
+            . '&Itemid=' . $input->getInt('Itemid', 0)
+            . ($detailsNavigationListQuery($nextRecordStart) !== '' ? '&' . $detailsNavigationListQuery($nextRecordStart) : '')
+            . $previewQuery)
+        : '';
 
     $showCloseButton = $this->show_back_button && $detailsBackButtonToggle === 1;
     $closeListLink = Route::_('index.php?option=com_contentbuilderng&title=' . Factory::getApplication()->input->get('title', '', 'string') . '&view=list&task=list.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . Factory::getApplication()->input->getInt('id', 0)) . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '') . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . Factory::getApplication()->input->getInt('Itemid', 0) . $previewQuery);
@@ -393,6 +423,8 @@ CSS
                 'showCurrentRecordLabel' => $showTopBar && $showCurrentRecordLabel,
                 'prevRecordId' => $showTopBar ? $prevRecordId : 0,
                 'nextRecordId' => $showTopBar ? $nextRecordId : 0,
+                'prevHref' => $showTopBar ? $detailsPrevHref : '',
+                'nextHref' => $showTopBar ? $detailsNextHref : '',
                 'navBaseLink' => $showTopBar ? $detailsNavBaseLink : '',
                 'extraHtml' => $detailsToolbarExtraHtml,
                 'showDelete' => $delete_allowed,

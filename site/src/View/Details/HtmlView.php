@@ -32,9 +32,13 @@ class HtmlView extends BaseHtmlView
     protected $state;
     protected $item;
     protected $form;
+    public int $prev_record_start = 0;
+    public int $next_record_start = 0;
 
     private function resolveSiblingRecordIdsByRecordId(object $subject, int $currentRecordId): array
     {
+        $currentList = (array) Factory::getApplication()->input->get('list', [], 'array');
+        $currentListStart = array_key_exists('start', $currentList) ? max(0, (int) $currentList['start']) : 0;
         if (
             $currentRecordId < 1
             || !isset($subject->type)
@@ -42,7 +46,7 @@ class HtmlView extends BaseHtmlView
             || !isset($subject->reference_id)
             || trim((string) $subject->reference_id) === ''
         ) {
-            return ['previous' => 0, 'next' => 0];
+            return ['previous' => 0, 'next' => 0, 'previous_start' => $currentListStart, 'next_start' => $currentListStart];
         }
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
@@ -78,7 +82,7 @@ class HtmlView extends BaseHtmlView
             $db->setQuery($nextQuery, 0, 1);
             $next = (int) $db->loadResult();
         } catch (\Throwable $e) {
-            return ['previous' => 0, 'next' => 0];
+            return ['previous' => 0, 'next' => 0, 'previous_start' => $currentListStart, 'next_start' => $currentListStart];
         }
 
         return ['previous' => $previous, 'next' => $next];
@@ -114,6 +118,13 @@ class HtmlView extends BaseHtmlView
         }
 
         $originalList = (array) $app->input->get('list', [], 'array');
+        $listLimit = array_key_exists('limit', $originalList) ? (int) $originalList['limit'] : 0;
+        if ($listLimit <= 0) {
+            $listLimit = (int) $app->get('list_limit', 20);
+        }
+        if ($listLimit <= 0) {
+            $listLimit = 20;
+        }
         $formId = (int) $app->input->getInt('id', 0);
         $paginationKeys = $this->getListPaginationStateKeys($formId);
         $limitStateBackup = $app->getUserState($paginationKeys['limit'], null);
@@ -154,9 +165,14 @@ class HtmlView extends BaseHtmlView
                 return ['previous' => 0, 'next' => 0];
             }
 
+            $previousStart = $position > 0 ? (int) (floor(($position - 1) / $listLimit) * $listLimit) : 0;
+            $nextStart = ($position + 1) < count($recordIds) ? (int) (floor(($position + 1) / $listLimit) * $listLimit) : 0;
+
             return [
                 'previous' => $position > 0 ? (int) $recordIds[$position - 1] : 0,
                 'next' => ($position + 1) < count($recordIds) ? (int) $recordIds[$position + 1] : 0,
+                'previous_start' => $previousStart,
+                'next_start' => $nextStart,
             ];
         } catch (\Throwable $e) {
             return $this->resolveSiblingRecordIdsByRecordId($subject, $currentRecordId);
@@ -443,6 +459,8 @@ CSS;
 		$siblings = $this->resolveSiblingRecordIds($subject);
 		$this->prev_record_id = (int) ($siblings['previous'] ?? 0);
 		$this->next_record_id = (int) ($siblings['next'] ?? 0);
+		$this->prev_record_start = (int) ($siblings['previous_start'] ?? 0);
+		$this->next_record_start = (int) ($siblings['next_start'] ?? 0);
 
 		parent::display($tpl);
 	}

@@ -161,6 +161,8 @@ $backHref = ($backToList || !$hasRecord) ? $listHref : $detailsHref;
 $showBack = $this->back_button && !$hasReturn;
 $prevRecordId = property_exists($this, 'prev_record_id') ? (int) $this->prev_record_id : 0;
 $nextRecordId = property_exists($this, 'next_record_id') ? (int) $this->next_record_id : 0;
+$prevRecordStart = property_exists($this, 'prev_record_start') ? (int) $this->prev_record_start : 0;
+$nextRecordStart = property_exists($this, 'next_record_start') ? (int) $this->next_record_start : 0;
 $navReturn = $hasReturn ? '&return=' . rawurlencode($input->getString('return', '')) : '';
 $editNavBaseLink = 'index.php?option=com_contentbuilderng&task=edit.display'
     . ($layout !== '' ? '&layout=' . $layout : '')
@@ -172,6 +174,40 @@ $editNavBaseLink = 'index.php?option=com_contentbuilderng&task=edit.display'
     . ($jsBack ? '&jsback=1' : '')
     . $navReturn
     . $previewQuery;
+$editNavigationListQuery = static function (int $start) use ($listLimit, $listOrdering, $listDirection): string {
+    return http_build_query(['list' => [
+        'start' => $start,
+        'limit' => $listLimit,
+        'ordering' => $listOrdering,
+        'direction' => $listDirection,
+    ]]);
+};
+$editPrevHref = $prevRecordId > 0
+    ? Route::_('index.php?option=com_contentbuilderng&task=edit.display'
+        . ($layout !== '' ? '&layout=' . $layout : '')
+        . '&id=' . $id
+        . '&record_id=' . $prevRecordId
+        . ($tmpl !== '' ? '&tmpl=' . $tmpl : '')
+        . '&Itemid=' . $itemId
+        . ($editNavigationListQuery($prevRecordStart) !== '' ? '&' . $editNavigationListQuery($prevRecordStart) : '')
+        . ($backToList ? '&backtolist=1' : '')
+        . ($jsBack ? '&jsback=1' : '')
+        . $navReturn
+        . $previewQuery)
+    : '';
+$editNextHref = $nextRecordId > 0
+    ? Route::_('index.php?option=com_contentbuilderng&task=edit.display'
+        . ($layout !== '' ? '&layout=' . $layout : '')
+        . '&id=' . $id
+        . '&record_id=' . $nextRecordId
+        . ($tmpl !== '' ? '&tmpl=' . $tmpl : '')
+        . '&Itemid=' . $itemId
+        . ($editNavigationListQuery($nextRecordStart) !== '' ? '&' . $editNavigationListQuery($nextRecordStart) : '')
+        . ($backToList ? '&backtolist=1' : '')
+        . ($jsBack ? '&jsback=1' : '')
+        . $navReturn
+        . $previewQuery)
+    : '';
 $showColumnHeader = $input->getInt('cb_show_column_header', 1) === 1;
 $columnHeaderHtml = '';
 $showAuditTrail = $showAuthorToggle === 1;
@@ -598,6 +634,8 @@ CSS
             'showCurrentRecordLabel' => $showCurrentRecordLabel,
             'prevRecordId' => $prevRecordId,
             'nextRecordId' => $nextRecordId,
+            'prevHref' => $editPrevHref,
+            'nextHref' => $editNextHref,
             'navBaseLink' => $editNavBaseLink,
             'prevTooltip' => Text::_('COM_CONTENTBUILDERNG_EDIT_PREVIOUS_TOOLTIP'),
             'nextTooltip' => Text::_('COM_CONTENTBUILDERNG_EDIT_NEXT_TOOLTIP'),

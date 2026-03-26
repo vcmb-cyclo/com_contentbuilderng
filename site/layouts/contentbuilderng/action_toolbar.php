@@ -27,6 +27,8 @@ $closeTitle = (string) ($displayData['closeTitle'] ?? Text::_('COM_CONTENTBUILDE
 $closeTooltip = (string) ($displayData['closeTooltip'] ?? $closeTitle);
 $closeHref = trim((string) ($displayData['closeHref'] ?? ''));
 $closeOnclick = trim((string) ($displayData['closeOnclick'] ?? ''));
+$prevHref = trim((string) ($displayData['prevHref'] ?? ''));
+$nextHref = trim((string) ($displayData['nextHref'] ?? ''));
 $prevTooltip = (string) ($displayData['prevTooltip'] ?? Text::_('JPREVIOUS'));
 $nextTooltip = (string) ($displayData['nextTooltip'] ?? Text::_('JNEXT'));
 
@@ -45,7 +47,7 @@ if (!$hasActions) {
             <?php endif; ?>
             <?php if ($prevRecordId > 0) : ?>
                 <a class="btn btn-sm btn-outline-secondary cbButton cbBackButton cbPrevButton"
-                    href="<?php echo Route::_($navBaseLink . '&record_id=' . $prevRecordId); ?>"
+                    href="<?php echo Route::_($prevHref !== '' ? $prevHref : ($navBaseLink . '&record_id=' . $prevRecordId)); ?>"
                     title="<?php echo htmlspecialchars($prevTooltip, ENT_QUOTES, 'UTF-8'); ?>">
                     <span class="fa-solid fa-arrow-left me-1" aria-hidden="true"></span>
                     <?php echo Text::_('JPREVIOUS'); ?>
@@ -53,7 +55,7 @@ if (!$hasActions) {
             <?php endif; ?>
             <?php if ($nextRecordId > 0) : ?>
                 <a class="btn btn-sm btn-outline-secondary cbButton cbBackButton cbNextButton"
-                    href="<?php echo Route::_($navBaseLink . '&record_id=' . $nextRecordId); ?>"
+                    href="<?php echo Route::_($nextHref !== '' ? $nextHref : ($navBaseLink . '&record_id=' . $nextRecordId)); ?>"
                     title="<?php echo htmlspecialchars($nextTooltip, ENT_QUOTES, 'UTF-8'); ?>">
                     <?php echo Text::_('JNEXT'); ?>
                     <span class="fa-solid fa-arrow-right ms-1" aria-hidden="true"></span>
