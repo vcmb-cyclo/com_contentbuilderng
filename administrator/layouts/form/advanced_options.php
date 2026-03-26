@@ -293,7 +293,7 @@ if (!is_callable($renderCheckbox)) {
                     </label>
                     <select class="form-select-sm" name="jform[initial_sort_order]" id="initial_sort_order"
                         style="max-width: 200px;">
-                        <option value="">
+                        <option value="" <?php echo (($item->initial_sort_order ?? null) === 0 || (string) ($item->initial_sort_order ?? '') === '0') ? ' selected="selected"' : ''; ?>>
                             <?php echo Text::_('COM_CONTENTBUILDERNG_INITIAL_SORT_ORDER_BY_ID'); ?>
                         </option>
                         <?php foreach ($elements as $sortable) : ?>
@@ -307,7 +307,7 @@ if (!is_callable($renderCheckbox)) {
                         <option value="-1">
                             <?php echo Text::_('COM_CONTENTBUILDERNG_NONE'); ?>
                         </option>
-                        <option value="0">
+                        <option value="0" <?php echo (($item->initial_sort_order2 ?? null) === 0 || (string) ($item->initial_sort_order2 ?? '') === '0') ? ' selected="selected"' : ''; ?>>
                             <?php echo Text::_('COM_CONTENTBUILDERNG_INITIAL_SORT_ORDER_BY_ID'); ?>
                         </option>
                         <?php foreach ($elements as $sortable) : ?>
@@ -321,7 +321,7 @@ if (!is_callable($renderCheckbox)) {
                         <option value="-1">
                             <?php echo Text::_('COM_CONTENTBUILDERNG_NONE'); ?>
                         </option>
-                        <option value="0">
+                        <option value="0" <?php echo (($item->initial_sort_order3 ?? null) === 0 || (string) ($item->initial_sort_order3 ?? '') === '0') ? ' selected="selected"' : ''; ?>>
                             <?php echo Text::_('COM_CONTENTBUILDERNG_INITIAL_SORT_ORDER_BY_ID'); ?>
                         </option>
                         <?php foreach ($elements as $sortable) : ?>

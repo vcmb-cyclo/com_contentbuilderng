@@ -1034,10 +1034,10 @@ class ListModel extends BaseListModel
                         ? 'col' . $data->initial_sort_order
                         : -1;
                     $initialSortOrder2 = (isset($data->initial_sort_order2) && (string) $data->initial_sort_order2 !== '' && (string) $data->initial_sort_order2 !== '-1' && ctype_digit((string) $data->initial_sort_order2))
-                        ? 'col' . $data->initial_sort_order2
+                        ? ((string) $data->initial_sort_order2 === '0' ? 'colRecord' : 'col' . $data->initial_sort_order2)
                         : -1;
                     $initialSortOrder3 = (isset($data->initial_sort_order3) && (string) $data->initial_sort_order3 !== '' && (string) $data->initial_sort_order3 !== '-1' && ctype_digit((string) $data->initial_sort_order3))
-                        ? 'col' . $data->initial_sort_order3
+                        ? ((string) $data->initial_sort_order3 === '0' ? 'colRecord' : 'col' . $data->initial_sort_order3)
                         : -1;
 
                     $data->items = $data->form->getListRecords(

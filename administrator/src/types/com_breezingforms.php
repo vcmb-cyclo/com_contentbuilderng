@@ -830,7 +830,7 @@ class contentbuilderng_com_breezingforms
                 s.record = r.id
             And
                 r.archived = 0
-            Group By s.record $search " . ($order ? " Order By " . $orderExpr . " " : ' Order By ' . ($init_order_by == -1 ? 'colRecord' : "`" . $init_order_by . "`") . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ', ' . ($init_order_by2 == -1 ? 'colRecord' : "`" . $init_order_by2 . "`") . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ', ' . ($init_order_by3 == -1 ? 'colRecord' : "`" . $init_order_by3 . "`") . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ' ') . " " . $orderTail . $secondaryOrder . "
+            Group By s.record $search " . ($order ? " Order By " . $orderExpr . " " : ' Order By ' . (($init_order_by == -1 || $init_order_by == 0) ? 'colRecord' : "`" . $init_order_by . "`") . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ', ' . (($init_order_by2 == -1 || $init_order_by2 == 0) ? 'colRecord' : "`" . $init_order_by2 . "`") . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ', ' . (($init_order_by3 == -1 || $init_order_by3 == 0) ? 'colRecord' : "`" . $init_order_by3 . "`") . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ' ') . " " . $orderTail . $secondaryOrder . "
         ", $limitstart, $limit);
 
         try {

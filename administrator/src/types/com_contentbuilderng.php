@@ -650,7 +650,7 @@ class contentbuilderng_com_contentbuilderng
         if ($order && !isset($order_types[$order]) && !in_array($order, $validOrderKeys, true)) {
             $order = '';
         }
-        $initialOrder1 = $init_order_by == -1 ? 'colRecord' : $init_order_by;
+        $initialOrder1 = $init_order_by == -1 || $init_order_by == 0 ? 'colRecord' : $init_order_by;
         $initialOrder2 = $init_order_by2 == -1 || $init_order_by2 == 0 ? 'colRecord' : $init_order_by2;
         $initialOrder3 = $init_order_by3 == -1 || $init_order_by3 == 0 ? 'colRecord' : $init_order_by3;
         $orderDirection = $order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc';
