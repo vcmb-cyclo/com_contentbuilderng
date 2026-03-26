@@ -307,6 +307,9 @@ if (!is_callable($renderCheckbox)) {
                         <option value="-1">
                             <?php echo Text::_('COM_CONTENTBUILDERNG_NONE'); ?>
                         </option>
+                        <option value="0">
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_INITIAL_SORT_ORDER_BY_ID'); ?>
+                        </option>
                         <?php foreach ($elements as $sortable) : ?>
                             <option value="<?php echo $sortable->reference_id; ?>" <?php echo ($item->initial_sort_order2 ?? null) == $sortable->reference_id ? ' selected="selected"' : ''; ?>>
                                 <?php echo htmlentities($sortable->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
@@ -317,6 +320,9 @@ if (!is_callable($renderCheckbox)) {
                         style="max-width: 200px;">
                         <option value="-1">
                             <?php echo Text::_('COM_CONTENTBUILDERNG_NONE'); ?>
+                        </option>
+                        <option value="0">
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_INITIAL_SORT_ORDER_BY_ID'); ?>
                         </option>
                         <?php foreach ($elements as $sortable) : ?>
                             <option value="<?php echo $sortable->reference_id; ?>" <?php echo ($item->initial_sort_order3 ?? null) == $sortable->reference_id ? ' selected="selected"' : ''; ?>>
