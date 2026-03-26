@@ -73,7 +73,7 @@ class ExportModel extends BaseDatabaseModel
 
         if ($app->getSession()->get($option . 'formsd_id', 0) == 0 || $app->getSession()->get($option . 'formsd_id', 0) == $this->_id) {
             $filter_order     = preg_replace('/[^A-Za-z0-9_\\.]/', '', (string) $app->getUserStateFromRequest($option . 'formsd_filter_order', 'filter_order', '', 'string'));
-            $filter_order_Dir = strtolower((string) $app->getUserStateFromRequest($option . 'formsd_filter_order_Dir', 'filter_order_Dir', 'desc', 'string'));
+            $filter_order_Dir = strtolower((string) $app->getUserStateFromRequest($option . 'formsd_filter_order_Dir', 'filter_order_Dir', '', 'string'));
             $filter           = $app->getUserStateFromRequest($option . 'formsd_filter', 'filter', '', 'string');
             $filter_state     = $app->getUserStateFromRequest($option . 'formsd_filter_state', 'list_state_filter', 0, 'int');
             $filter_publish   = $app->getUserStateFromRequest($option . 'formsd_filter_publish', 'list_publish_filter', -1, 'int');
