@@ -1696,7 +1696,7 @@ by this block. -->
 										<?php endif; ?>
 
 										<?php if ($delete_allowed) : ?>
-											<button class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 rounded-pill" onclick="contentbuilderng_delete();" title="<?php echo Text::_('COM_CONTENTBUILDERNG_DELETE'); ?>">
+											<button class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 rounded-pill" onclick="contentbuilderng_delete();" title="<?php echo Text::_('COM_CONTENTBUILDERNG_DELETE_SELECTED_TOOLTIP'); ?>">
 												<span class="fa-solid fa-trash" aria-hidden="true"></span>
 												<span class="d-none d-md-inline"><?php echo Text::_('COM_CONTENTBUILDERNG_DELETE'); ?></span>
 											</button>
