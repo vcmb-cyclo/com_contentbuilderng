@@ -653,8 +653,11 @@ class contentbuilderng_com_contentbuilderng
         $initialOrder1 = $init_order_by == -1 ? 'colRecord' : $init_order_by;
         $initialOrder2 = $init_order_by2 == -1 || $init_order_by2 == 0 ? 'colRecord' : $init_order_by2;
         $initialOrder3 = $init_order_by3 == -1 || $init_order_by3 == 0 ? 'colRecord' : $init_order_by3;
+        $orderDirection = $order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc';
 
-        $orderClause = ($order ? " Order By " . ($order == 'colRating' && $form !== null && $form->rating_slots == 1 ? 'colRatingCount' : $order) . " " : ' Order By ' . $initialOrder1 . ',' . $initialOrder2 . ',' . $initialOrder3 . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ' ') . " " . ($order ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : '');
+        $orderClause = ($order
+            ? " Order By " . ($order == 'colRating' && $form !== null && $form->rating_slots == 1 ? 'colRatingCount' : $order) . " "
+            : ' Order By ' . $initialOrder1 . ' ' . $orderDirection . ', ' . $initialOrder2 . ' ' . $orderDirection . ', ' . $initialOrder3 . ' ' . $orderDirection . ' ') . " " . ($order ? $orderDirection : '');
 
         $db->setQuery("
             Select
