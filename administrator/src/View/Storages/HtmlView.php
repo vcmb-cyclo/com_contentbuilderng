@@ -140,7 +140,7 @@ class HtmlView extends BaseHtmlView
 
         ToolbarHelper::addNew('storage.add');
         ToolbarHelper::editList('storage.edit');
-        ToolbarHelper::deleteList('JGLOBAL_CONFIRM_DELETE', 'storage.delete');
+        ToolbarHelper::deleteList('COM_CONTENTBUILDERNG_CONFIRM_STORAGE_DELETE_MESSAGE', 'storage.delete');
         /** @var CMSApplication $app */
         $app = Factory::getApplication();
         /** @var HtmlDocument $document */
