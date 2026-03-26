@@ -306,22 +306,26 @@ CSS
             }
         }
     }
-    $detailsNavBaseLink = 'index.php?option=com_contentbuilderng&title=' . $input->get('title', '', 'string')
-        . '&task=details.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . $input->getInt('id', 0))
-        . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '')
-        . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '')
-        . '&Itemid=' . $input->getInt('Itemid', 0)
-        . ($listQuery !== '' ? '&' . $listQuery : '')
-        . $previewQuery;
+    $detailsBaseParams = [
+        'option' => 'com_contentbuilderng',
+        'title' => $input->get('title', '', 'string'),
+        'task' => 'details.display',
+        $directStorageMode ? 'storage_id' : 'id' => $directStorageMode ? $directStorageId : $input->getInt('id', 0),
+        'Itemid' => $input->getInt('Itemid', 0),
+    ];
+    $detailsTmpl = Factory::getApplication()->input->get('tmpl', '', 'string');
+    if ($detailsTmpl !== '') {
+        $detailsBaseParams['tmpl'] = $detailsTmpl;
+    }
+    $detailsLayout = Factory::getApplication()->input->get('layout', '', 'string');
+    if ($detailsLayout !== '') {
+        $detailsBaseParams['layout'] = $detailsLayout;
+    }
+    $detailsNavBaseLink = NavigationLinkHelper::buildRouteLink($detailsBaseParams, $previewQuery);
     $detailsPrevHref = $prevRecordId > 0
         ? Route::_(
             NavigationLinkHelper::buildHref(
-                'index.php?option=com_contentbuilderng&title=' . $input->get('title', '', 'string')
-                . '&task=details.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . $input->getInt('id', 0))
-                . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '')
-                . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '')
-                . '&Itemid=' . $input->getInt('Itemid', 0)
-                . $previewQuery,
+                $detailsNavBaseLink,
                 $prevRecordId,
                 $prevRecordStart,
                 $listLimit,
@@ -333,12 +337,7 @@ CSS
     $detailsNextHref = $nextRecordId > 0
         ? Route::_(
             NavigationLinkHelper::buildHref(
-                'index.php?option=com_contentbuilderng&title=' . $input->get('title', '', 'string')
-                . '&task=details.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . $input->getInt('id', 0))
-                . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '')
-                . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '')
-                . '&Itemid=' . $input->getInt('Itemid', 0)
-                . $previewQuery,
+                $detailsNavBaseLink,
                 $nextRecordId,
                 $nextRecordStart,
                 $listLimit,
@@ -349,7 +348,18 @@ CSS
         : '';
 
     $showCloseButton = $this->show_back_button && $detailsBackButtonToggle === 1;
-    $closeListLink = Route::_('index.php?option=com_contentbuilderng&title=' . Factory::getApplication()->input->get('title', '', 'string') . '&view=list&task=list.display&' . ($directStorageMode ? 'storage_id=' . $directStorageId : 'id=' . Factory::getApplication()->input->getInt('id', 0)) . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '') . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . Factory::getApplication()->input->getInt('Itemid', 0) . $previewQuery);
+    $detailsListParams = $detailsBaseParams;
+    $detailsListParams['view'] = 'list';
+    $detailsListParams['task'] = 'list.display';
+    $detailsListParams['list'] = [
+        'start' => $listStart,
+        'limit' => $listLimit,
+        'ordering' => $listOrdering,
+        'direction' => $listDirection,
+    ];
+    $closeListLink = Route::_(
+        NavigationLinkHelper::buildRouteLink($detailsListParams, $previewQuery)
+    );
     $showActionToolbar = (
         ($detailsBackButtonToggle === 1 && $this->show_back_button)
         || $delete_allowed

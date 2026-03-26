@@ -14,6 +14,22 @@ namespace CB\Component\Contentbuilderng\Site\Helper;
 
 final class NavigationLinkHelper
 {
+    public static function buildRouteLink(array $query, string $suffix = ''): string
+    {
+        $base = 'index.php';
+        $queryString = http_build_query($query);
+
+        if ($queryString !== '') {
+            $base .= '?' . $queryString;
+        }
+
+        if ($suffix !== '') {
+            $base .= $suffix;
+        }
+
+        return $base;
+    }
+
     public static function buildListQuery(int $start, int $limit, string $ordering, string $direction): string
     {
         return http_build_query([

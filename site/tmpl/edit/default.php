@@ -159,29 +159,39 @@ $prevRecordId = property_exists($this, 'prev_record_id') ? (int) $this->prev_rec
 $nextRecordId = property_exists($this, 'next_record_id') ? (int) $this->next_record_id : 0;
 $prevRecordStart = property_exists($this, 'prev_record_start') ? (int) $this->prev_record_start : 0;
 $nextRecordStart = property_exists($this, 'next_record_start') ? (int) $this->next_record_start : 0;
-$navReturn = $hasReturn ? '&return=' . rawurlencode($input->getString('return', '')) : '';
-$editNavBaseLink = 'index.php?option=com_contentbuilderng&task=edit.display'
-    . ($layout !== '' ? '&layout=' . $layout : '')
-    . '&id=' . $id
-    . ($tmpl !== '' ? '&tmpl=' . $tmpl : '')
-    . '&Itemid=' . $itemId
-    . ($listQuery !== '' ? '&' . $listQuery : '')
-    . ($backToList ? '&backtolist=1' : '')
-    . ($jsBack ? '&jsback=1' : '')
-    . $navReturn
-    . $previewQuery;
+$editBaseParams = [
+    'option' => 'com_contentbuilderng',
+    'task' => 'edit.display',
+    'id' => $id,
+    'Itemid' => $itemId,
+];
+if ($layout !== '') {
+    $editBaseParams['layout'] = $layout;
+}
+if ($tmpl !== '') {
+    $editBaseParams['tmpl'] = $tmpl;
+}
+if ($backToList) {
+    $editBaseParams['backtolist'] = 1;
+}
+if ($jsBack) {
+    $editBaseParams['jsback'] = 1;
+}
+if ($hasReturn) {
+    $editBaseParams['return'] = $input->getString('return', '');
+}
+$editNavBaseLink = NavigationLinkHelper::buildRouteLink($editBaseParams + [
+    'list' => [
+        'start' => $listStart,
+        'limit' => $listLimit,
+        'ordering' => $listOrdering,
+        'direction' => $listDirection,
+    ],
+], $previewQuery);
 $editPrevHref = $prevRecordId > 0
     ? Route::_(
         NavigationLinkHelper::buildHref(
-            'index.php?option=com_contentbuilderng&task=edit.display'
-            . ($layout !== '' ? '&layout=' . $layout : '')
-            . '&id=' . $id
-            . ($tmpl !== '' ? '&tmpl=' . $tmpl : '')
-            . '&Itemid=' . $itemId
-            . ($backToList ? '&backtolist=1' : '')
-            . ($jsBack ? '&jsback=1' : '')
-            . $navReturn
-            . $previewQuery,
+            NavigationLinkHelper::buildRouteLink($editBaseParams, $previewQuery),
             $prevRecordId,
             $prevRecordStart,
             $listLimit,
@@ -193,15 +203,7 @@ $editPrevHref = $prevRecordId > 0
 $editNextHref = $nextRecordId > 0
     ? Route::_(
         NavigationLinkHelper::buildHref(
-            'index.php?option=com_contentbuilderng&task=edit.display'
-            . ($layout !== '' ? '&layout=' . $layout : '')
-            . '&id=' . $id
-            . ($tmpl !== '' ? '&tmpl=' . $tmpl : '')
-            . '&Itemid=' . $itemId
-            . ($backToList ? '&backtolist=1' : '')
-            . ($jsBack ? '&jsback=1' : '')
-            . $navReturn
-            . $previewQuery,
+            NavigationLinkHelper::buildRouteLink($editBaseParams, $previewQuery),
             $nextRecordId,
             $nextRecordStart,
             $listLimit,
