@@ -646,11 +646,6 @@ class ListModel extends BaseListModel
         return $query;
     }
 
-    private function shouldRestrictToPublishedOnly(object $data, bool $isAdminPreview): bool
-    {
-        return PublishedRecordVisibilityHelper::shouldRestrictToPublishedOnly($data, $isAdminPreview);
-    }
-
     /**
      * Gets the currencies
      * @return array List of products
@@ -1027,7 +1022,7 @@ class ListModel extends BaseListModel
                     }
 
                     $isAdminPreview = $app->input->getBool('cb_preview_ok', false);
-                    $publishedOnly = $this->shouldRestrictToPublishedOnly($data, $isAdminPreview);
+                    $publishedOnly = PublishedRecordVisibilityHelper::shouldRestrictToPublishedOnly($data, $isAdminPreview);
                     $ownerFilterUserId = $isAdminPreview
                         ? -1
                         : ($this->frontend

@@ -21,7 +21,6 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\RuntimeUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
-use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PublishedRecordVisibilityHelper;
 
@@ -29,8 +28,6 @@ class ExportModel extends BaseDatabaseModel
 {
     private readonly RuntimeUtilityService $runtimeUtilityService;
     private readonly ListSupportService $listSupportService;
-    private readonly PermissionService $permissionService;
-
     private $frontend = false;
 
     private $_menu_filter = array();
@@ -51,7 +48,6 @@ class ExportModel extends BaseDatabaseModel
         $this->app = $app;
         $this->runtimeUtilityService = new RuntimeUtilityService();
         $this->listSupportService = new ListSupportService();
-        $this->permissionService = new PermissionService();
         $this->frontend = $app->isClient('site');
         $option = 'com_contentbuilderng';
 
@@ -156,19 +152,6 @@ class ExportModel extends BaseDatabaseModel
         // Set id and wipe data
         $this->_id      = $id;
         $this->_data    = null;
-    }
-
-    private function shouldRestrictToPublishedOnly(object $data, bool $isAdminPreview): bool
-    {
-        if (!$this->frontend) {
-            return (bool) ($data->published_only ?? false);
-        }
-
-        if (!$this->permissionService->authorizeFe('publish')) {
-            return true;
-        }
-
-        return PublishedRecordVisibilityHelper::shouldRestrictToPublishedOnly($data, $isAdminPreview);
     }
 
     /*
@@ -384,7 +367,7 @@ class ExportModel extends BaseDatabaseModel
                         $act_as_registration[$data->registration_email_field] = 'registration_email_field';
                     }
                     $isAdminPreview = $app->input->getBool('cb_preview_ok', false);
-                    $publishedOnly = $this->shouldRestrictToPublishedOnly($data, $isAdminPreview);
+                    $publishedOnly = PublishedRecordVisibilityHelper::shouldRestrictToPublishedOnly($data, $isAdminPreview);
                     $ownerFilterUserId = $isAdminPreview
                         ? -1
                         : ($this->frontend && $data->own_only_fe ? (int) ($app->getIdentity()->id ?? 0) : -1);
