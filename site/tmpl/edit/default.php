@@ -570,12 +570,12 @@ CSS
     ob_start();
     if ($this->record_id && $edit_allowed && $this->create_articles && $fullarticle_allowed) {
     ?>
-        <button class="btn btn-sm btn-primary cbButton cbArticleSettingsButton" onclick="if(document.getElementById('cbArticleOptions').style.display == 'none'){document.getElementById('cbArticleOptions').style.display='block'}else{document.getElementById('cbArticleOptions').style.display='none'};"><?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_ARTICLE_SETTINGS'); ?></button>
+        <button class="btn btn-sm btn-primary cbButton cbArticleSettingsButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_ARTICLE_SETTINGS_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="if(document.getElementById('cbArticleOptions').style.display == 'none'){document.getElementById('cbArticleOptions').style.display='block'}else{document.getElementById('cbArticleOptions').style.display='none'};"><?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_ARTICLE_SETTINGS'); ?></button>
     <?php
     }
     if (($edit_allowed || $new_allowed) && !$this->edit_by_type) {
     ?>
-        <button class="btn btn-sm btn-primary cbButton cbSaveButton" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SAVE'); ?>" onclick="document.getElementById('contentbuilderng_task').value='edit.apply';contentbuilderng.onSubmit();">
+        <button class="btn btn-sm btn-primary cbButton cbSaveButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_SAVE_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="document.getElementById('contentbuilderng_task').value='edit.apply';contentbuilderng.onSubmit();">
             <span class="fa-solid fa-floppy-disk me-1" aria-hidden="true"></span>
             <?php echo trim($this->save_button_title) != '' ? htmlentities($this->save_button_title, ENT_QUOTES, 'UTF-8') : Text::_('COM_CONTENTBUILDERNG_SAVE'); ?>
         </button>
@@ -583,7 +583,7 @@ CSS
     }
     if ($this->record_id && $edit_allowed && $this->create_articles && $this->edit_by_type && $fullarticle_allowed) {
     ?>
-        <button class="btn btn-sm btn-primary cbButton cbArticleSettingsButton" onclick="document.getElementById('contentbuilderng_task').value='edit.apply';contentbuilderng.onSubmit();">
+        <button class="btn btn-sm btn-primary cbButton cbArticleSettingsButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_APPLY_ARTICLE_SETTINGS_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="document.getElementById('contentbuilderng_task').value='edit.apply';contentbuilderng.onSubmit();">
             <span class="fa-solid fa-check me-1" aria-hidden="true"></span>
             <?php echo Text::_('COM_CONTENTBUILDERNG_APPLY_ARTICLE_SETTINGS'); ?>
         </button>
@@ -599,11 +599,15 @@ CSS
             'prevRecordId' => $prevRecordId,
             'nextRecordId' => $nextRecordId,
             'navBaseLink' => $editNavBaseLink,
+            'prevTooltip' => Text::_('COM_CONTENTBUILDERNG_EDIT_PREVIOUS_TOOLTIP'),
+            'nextTooltip' => Text::_('COM_CONTENTBUILDERNG_EDIT_NEXT_TOOLTIP'),
             'extraHtml' => $editToolbarExtraHtml,
             'showDelete' => $this->record_id && $delete_allowed,
             'deleteTitle' => Text::_('COM_CONTENTBUILDERNG_DELETE'),
+            'deleteTooltip' => Text::_('COM_CONTENTBUILDERNG_EDIT_DELETE_TOOLTIP'),
             'showClose' => $showBack,
             'closeTitle' => Text::_('COM_CONTENTBUILDERNG_BACK'),
+            'closeTooltip' => Text::_('COM_CONTENTBUILDERNG_EDIT_BACK_TOOLTIP'),
             'closeHref' => $jsBack ? '' : $backHref,
             'closeOnclick' => $jsBack ? 'history.back(-1);void(0);' : '',
         ],

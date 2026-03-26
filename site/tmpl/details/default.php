@@ -368,7 +368,7 @@ CSS
         <a
             class="hidden-phone btn btn-sm btn-outline-secondary cbButton cbPrintButton"
             href="javascript:window.open('<?php echo $printLink; ?>','win2','status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=640,height=480,directories=no,location=no');void(0);"
-            title="<?php echo Text::_('JGLOBAL_PRINT'); ?>">
+            title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DETAILS_PRINT_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>">
             <i class="fa fa-print" aria-hidden="true"></i>
             <?php echo Text::_('JGLOBAL_PRINT'); ?>
         </a>
@@ -377,7 +377,7 @@ CSS
     <?php if ($edit_allowed) : ?>
         <a class="btn btn-sm btn-primary cbButton cbEditButton"
             href="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display&id=' . Factory::getApplication()->input->getInt('id', 0) . '&record_id=' . Factory::getApplication()->input->getCmd('record_id', 0) . (Factory::getApplication()->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->input->get('tmpl', '', 'string') : '') . '&Itemid=' . Factory::getApplication()->input->getInt('Itemid', 0) . (Factory::getApplication()->input->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->input->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . $previewQuery); ?>"
-            title="<?php echo Text::_('COM_CONTENTBUILDERNG_EDIT'); ?>">
+            title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DETAILS_EDIT_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>">
             <span class="fa-solid fa-pen me-1" aria-hidden="true"></span>
             <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT'); ?>
         </a>
@@ -397,9 +397,13 @@ CSS
                 'extraHtml' => $detailsToolbarExtraHtml,
                 'showDelete' => $delete_allowed,
                 'deleteTitle' => Text::_('COM_CONTENTBUILDERNG_DELETE'),
+                'deleteTooltip' => Text::_('COM_CONTENTBUILDERNG_DETAILS_DELETE_TOOLTIP'),
                 'showClose' => $showCloseButton,
                 'closeTitle' => Text::_('COM_CONTENTBUILDERNG_BACK'),
+                'closeTooltip' => Text::_('COM_CONTENTBUILDERNG_DETAILS_BACK_TOOLTIP'),
                 'closeHref' => $closeListLink,
+                'prevTooltip' => Text::_('COM_CONTENTBUILDERNG_DETAILS_PREVIOUS_TOOLTIP'),
+                'nextTooltip' => Text::_('COM_CONTENTBUILDERNG_DETAILS_NEXT_TOOLTIP'),
             ],
             JPATH_COMPONENT_SITE . '/layouts'
         )

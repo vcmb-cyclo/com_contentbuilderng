@@ -21,10 +21,14 @@ $navBaseLink = (string) ($displayData['navBaseLink'] ?? '');
 $extraHtml = (string) ($displayData['extraHtml'] ?? '');
 $showDelete = !empty($displayData['showDelete']);
 $deleteTitle = (string) ($displayData['deleteTitle'] ?? Text::_('COM_CONTENTBUILDERNG_DELETE'));
+$deleteTooltip = (string) ($displayData['deleteTooltip'] ?? $deleteTitle);
 $showClose = !empty($displayData['showClose']);
 $closeTitle = (string) ($displayData['closeTitle'] ?? Text::_('COM_CONTENTBUILDERNG_BACK'));
+$closeTooltip = (string) ($displayData['closeTooltip'] ?? $closeTitle);
 $closeHref = trim((string) ($displayData['closeHref'] ?? ''));
 $closeOnclick = trim((string) ($displayData['closeOnclick'] ?? ''));
+$prevTooltip = (string) ($displayData['prevTooltip'] ?? Text::_('JPREVIOUS'));
+$nextTooltip = (string) ($displayData['nextTooltip'] ?? Text::_('JNEXT'));
 
 $hasNav = $navBaseLink !== '' && ($prevRecordId > 0 || $nextRecordId > 0);
 $hasActions = $hasNav || $extraHtml !== '' || $showDelete || $showClose;
@@ -42,7 +46,7 @@ if (!$hasActions) {
             <?php if ($prevRecordId > 0) : ?>
                 <a class="btn btn-sm btn-outline-secondary cbButton cbBackButton cbPrevButton"
                     href="<?php echo Route::_($navBaseLink . '&record_id=' . $prevRecordId); ?>"
-                    title="<?php echo Text::_('JPREVIOUS'); ?>">
+                    title="<?php echo htmlspecialchars($prevTooltip, ENT_QUOTES, 'UTF-8'); ?>">
                     <span class="fa-solid fa-arrow-left me-1" aria-hidden="true"></span>
                     <?php echo Text::_('JPREVIOUS'); ?>
                 </a>
@@ -50,7 +54,7 @@ if (!$hasActions) {
             <?php if ($nextRecordId > 0) : ?>
                 <a class="btn btn-sm btn-outline-secondary cbButton cbBackButton cbNextButton"
                     href="<?php echo Route::_($navBaseLink . '&record_id=' . $nextRecordId); ?>"
-                    title="<?php echo Text::_('JNEXT'); ?>">
+                    title="<?php echo htmlspecialchars($nextTooltip, ENT_QUOTES, 'UTF-8'); ?>">
                     <?php echo Text::_('JNEXT'); ?>
                     <span class="fa-solid fa-arrow-right ms-1" aria-hidden="true"></span>
                 </a>
@@ -63,7 +67,7 @@ if (!$hasActions) {
     <?php if ($showDelete) : ?>
         <button class="btn btn-sm btn-outline-danger cbButton cbDeleteButton d-inline-flex align-items-center gap-1 rounded-pill"
             onclick="contentbuilderng_delete();"
-            title="<?php echo htmlspecialchars($deleteTitle, ENT_QUOTES, 'UTF-8'); ?>">
+            title="<?php echo htmlspecialchars($deleteTooltip, ENT_QUOTES, 'UTF-8'); ?>">
             <span class="fa-solid fa-trash" aria-hidden="true"></span>
             <span><?php echo htmlspecialchars($deleteTitle, ENT_QUOTES, 'UTF-8'); ?></span>
         </button>
@@ -72,14 +76,14 @@ if (!$hasActions) {
     <?php if ($showClose) : ?>
         <?php if ($closeOnclick !== '') : ?>
             <button class="btn btn-sm btn-outline-secondary cbButton cbBackButton cbCloseButton"
-                title="<?php echo htmlspecialchars($closeTitle, ENT_QUOTES, 'UTF-8'); ?>"
+                title="<?php echo htmlspecialchars($closeTooltip, ENT_QUOTES, 'UTF-8'); ?>"
                 onclick="<?php echo htmlspecialchars($closeOnclick, ENT_QUOTES, 'UTF-8'); ?>">
                 <span class="icon-undo me-1" aria-hidden="true"></span>
                 <?php echo htmlspecialchars($closeTitle, ENT_QUOTES, 'UTF-8'); ?>
             </button>
         <?php elseif ($closeHref !== '') : ?>
             <a class="btn btn-sm btn-outline-secondary cbButton cbBackButton cbCloseButton"
-                title="<?php echo htmlspecialchars($closeTitle, ENT_QUOTES, 'UTF-8'); ?>"
+                title="<?php echo htmlspecialchars($closeTooltip, ENT_QUOTES, 'UTF-8'); ?>"
                 href="<?php echo $closeHref; ?>">
                 <span class="icon-undo me-1" aria-hidden="true"></span>
                 <?php echo htmlspecialchars($closeTitle, ENT_QUOTES, 'UTF-8'); ?>
