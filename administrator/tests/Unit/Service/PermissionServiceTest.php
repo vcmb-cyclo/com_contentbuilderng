@@ -6,6 +6,8 @@ namespace CB\Component\Contentbuilderng\Tests\Unit\Service;
 
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Tests\Stubs\Application;
+use CB\Component\Contentbuilderng\Tests\Stubs\Container;
+use CB\Component\Contentbuilderng\Tests\Stubs\Database;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Factory;
 use PHPUnit\Framework\TestCase;
@@ -21,9 +23,12 @@ final class PermissionServiceTest extends TestCase
         $this->service = $reflection->newInstanceWithoutConstructor();
         $this->app = new Application();
         $this->app->setIdentity(0, '', '');
+        Factory::setContainer(new Container([
+            \Joomla\Database\DatabaseInterface::class => new Database(),
+        ]));
         Factory::setApplication($this->app);
         Access::$groupsByUser = [
-            0 => [9, 1],
+            0 => [9],
         ];
     }
 

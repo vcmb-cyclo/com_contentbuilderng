@@ -61,6 +61,55 @@ namespace CB\Component\Contentbuilderng\Tests\Stubs {
         }
     }
 
+    final class Container
+    {
+        /** @var array<string,mixed> */
+        private array $services = [];
+
+        /**
+         * @param array<string,mixed> $services
+         */
+        public function __construct(array $services = [])
+        {
+            $this->services = $services;
+        }
+
+        public function get(string $id): mixed
+        {
+            return $this->services[$id] ?? null;
+        }
+
+        public function set(string $id, mixed $service): void
+        {
+            $this->services[$id] = $service;
+        }
+    }
+
+    final class Database
+    {
+        private string $query = '';
+
+        public function setQuery(string $query): void
+        {
+            $this->query = $query;
+        }
+
+        /**
+         * @return array<int,array{id:int,parent_id:int}>
+         */
+        public function loadAssocList(): array
+        {
+            if ($this->query === 'Select id, parent_id From #__usergroups') {
+                return [
+                    ['id' => 1, 'parent_id' => 0],
+                    ['id' => 9, 'parent_id' => 1],
+                ];
+            }
+
+            return [];
+        }
+    }
+
     final class Identity
     {
         public int $id = 42;
@@ -202,6 +251,7 @@ namespace Joomla\CMS {
         class Factory
         {
             private static ?\CB\Component\Contentbuilderng\Tests\Stubs\Application $application = null;
+            private static ?\CB\Component\Contentbuilderng\Tests\Stubs\Container $container = null;
 
             public static function getApplication(): \CB\Component\Contentbuilderng\Tests\Stubs\Application
             {
@@ -215,6 +265,22 @@ namespace Joomla\CMS {
             public static function setApplication(\CB\Component\Contentbuilderng\Tests\Stubs\Application $application): void
             {
                 self::$application = $application;
+            }
+
+            public static function getContainer(): \CB\Component\Contentbuilderng\Tests\Stubs\Container
+            {
+                if (self::$container === null) {
+                    self::$container = new \CB\Component\Contentbuilderng\Tests\Stubs\Container([
+                        \Joomla\Database\DatabaseInterface::class => new \CB\Component\Contentbuilderng\Tests\Stubs\Database(),
+                    ]);
+                }
+
+                return self::$container;
+            }
+
+            public static function setContainer(\CB\Component\Contentbuilderng\Tests\Stubs\Container $container): void
+            {
+                self::$container = $container;
             }
 
             public static function getDate(): \CB\Component\Contentbuilderng\Tests\Stubs\Date

@@ -62,7 +62,7 @@ final class FrontendPermissionAuditHelper
             }
         }
 
-        $guestGroups = Access::getGroupsByUser(0);
+        $guestGroups = self::getEffectiveGroupIdsForUser(0, $db);
         $actions = ['listaccess', 'view', 'new', 'edit', 'delete', 'state', 'publish', 'language', 'rating', 'api'];
 
         foreach ($forms as $form) {
@@ -158,5 +158,44 @@ final class FrontendPermissionAuditHelper
         }
 
         return false;
+    }
+
+    /**
+     * @return int[]
+     */
+    private static function getEffectiveGroupIdsForUser(int $userId, DatabaseInterface $db): array
+    {
+        $groupIds = array_map('intval', Access::getGroupsByUser($userId));
+
+        if ($groupIds === []) {
+            return [];
+        }
+
+        static $parentByGroupId = null;
+
+        if ($parentByGroupId === null) {
+            $db->setQuery('Select id, parent_id From #__usergroups');
+            $rows = $db->loadAssocList() ?: [];
+
+            $parentByGroupId = [];
+            foreach ($rows as $row) {
+                $groupId = (int) ($row['id'] ?? 0);
+                if ($groupId < 1) {
+                    continue;
+                }
+
+                $parentByGroupId[$groupId] = (int) ($row['parent_id'] ?? 0);
+            }
+        }
+
+        $effectiveGroupIds = [];
+        foreach ($groupIds as $groupId) {
+            while ($groupId > 0 && !isset($effectiveGroupIds[$groupId])) {
+                $effectiveGroupIds[$groupId] = true;
+                $groupId = $parentByGroupId[$groupId] ?? 0;
+            }
+        }
+
+        return array_map('intval', array_keys($effectiveGroupIds));
     }
 }

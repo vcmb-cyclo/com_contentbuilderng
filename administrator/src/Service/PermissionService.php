@@ -37,6 +37,46 @@ class PermissionService
         return (int) ($this->getApp()->getIdentity()->id ?? 0);
     }
 
+    /**
+     * @return int[]
+     */
+    private function getEffectiveGroupIds(): array
+    {
+        $groupIds = array_map('intval', Access::getGroupsByUser($this->getCurrentUserId()));
+
+        if ($groupIds === []) {
+            return [];
+        }
+
+        static $parentByGroupId = null;
+
+        if ($parentByGroupId === null) {
+            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db->setQuery('Select id, parent_id From #__usergroups');
+            $rows = $db->loadAssocList() ?: [];
+
+            $parentByGroupId = [];
+            foreach ($rows as $row) {
+                $groupId = (int) ($row['id'] ?? 0);
+                if ($groupId < 1) {
+                    continue;
+                }
+
+                $parentByGroupId[$groupId] = (int) ($row['parent_id'] ?? 0);
+            }
+        }
+
+        $effectiveGroupIds = [];
+        foreach ($groupIds as $groupId) {
+            while ($groupId > 0 && !isset($effectiveGroupIds[$groupId])) {
+                $effectiveGroupIds[$groupId] = true;
+                $groupId = $parentByGroupId[$groupId] ?? 0;
+            }
+        }
+
+        return array_map('intval', array_keys($effectiveGroupIds));
+    }
+
     public function setPermissions($formId, $recordId = 0, string $suffix = ''): void
     {
         /** @var CMSApplication $app */
@@ -174,7 +214,7 @@ class PermissionService
             }
         }
 
-        $groups = Access::getGroupsByUser($this->getCurrentUserId());
+        $groups = $this->getEffectiveGroupIds();
 
         foreach ($groups as $group) {
             foreach (['view', 'new', 'edit', 'delete', 'state', 'publish', 'fullarticle', 'language', 'rating', 'api', 'listaccess'] as $action) {
@@ -230,7 +270,7 @@ class PermissionService
             }
         }
 
-        $gids = Access::getGroupsByUser($this->getCurrentUserId());
+        $gids = $this->getEffectiveGroupIds();
 
         foreach ($permissions as $groupId => $groupAction) {
             if (isset($groupAction[$action]) && $groupAction[$action] && in_array($groupId, $gids, true)) {
@@ -361,7 +401,7 @@ class PermissionService
             ],
         ];
 
-        foreach (Access::getGroupsByUser($this->getCurrentUserId()) as $groupId) {
+        foreach ($this->getEffectiveGroupIds() as $groupId) {
             $permissions[(int) $groupId] = [
                 'view' => true,
                 'new' => true,
