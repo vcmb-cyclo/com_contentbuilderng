@@ -1767,7 +1767,7 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                 </div>
             <?php endif; ?>
 
-            <h4 class="h6 mt-3"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_TABLE_STATS'); ?></h4>
+            <h4 class="h6 mt-3"><?php echo $renderNumberedAuditTitle(13, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_TABLE_STATS'), false); ?></h4>
             <?php if (empty($cbTableDetails)) : ?>
                 <div class="alert cb-audit-ok-alert">
                     <?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_CB_TABLE_STATS'); ?>
@@ -1803,7 +1803,7 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
             <?php endif; ?>
 
             <?php if ($hasPackedDataAuditRows) : ?>
-                <h4 class="h6 mt-3"><?php echo Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_WORKFLOW_PACKED_DATA_DETAILS_TITLE'); ?></h4>
+                <h4 class="h6 mt-3"><?php echo $renderNumberedAuditTitle(14, Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_WORKFLOW_PACKED_DATA_DETAILS_TITLE'), $hasPackedDataIssues); ?></h4>
                 <?php foreach ($packedDataAuditTables as $packedDataAuditTable) : ?>
                     <?php
                     if (!is_array($packedDataAuditTable)) {
@@ -1917,7 +1917,7 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
             <?php endif; ?>
 
             <?php if (!empty($cbMissingNgTables)) : ?>
-                <h4 class="h6 mt-3"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_NG_TABLES_MISSING'); ?></h4>
+                <h4 class="h6 mt-3"><?php echo $renderNumberedAuditTitle(15, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_NG_TABLES_MISSING'), !empty($cbMissingNgTables)); ?></h4>
                 <ol class="mb-0 ps-3">
                     <?php foreach ($cbMissingNgTables as $missingNgTable) : ?>
                         <li><?php echo htmlspecialchars((string) $missingNgTable, ENT_QUOTES, 'UTF-8'); ?></li>
@@ -1926,7 +1926,7 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
             <?php endif; ?>
 
             <?php if (!empty($auditWarnings)) : ?>
-                <h4 class="h6 mt-3"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_ERRORS'); ?></h4>
+                <h4 class="h6 mt-3"><?php echo $renderNumberedAuditTitle(16, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_ERRORS'), !empty($auditWarnings)); ?></h4>
                 <div class="d-flex flex-column gap-2">
                     <?php foreach ($auditWarnings as $auditWarning) : ?>
                         <div class="alert alert-warning cb-audit-warning-alert mb-0">

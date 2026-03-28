@@ -439,9 +439,16 @@ class ElementsModel extends ListModel
     function getAllElements(int $formId)
     {
         $this->formId = $formId;
-        $this->getDatabase()->setQuery($this->_buildQuery());
-        $elements = $this->getDatabase()->loadObjectList();
-        return $elements;
+        $db = $this->getDatabase();
+        $query = $db->getQuery(true)
+            ->select('*')
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('form_id') . ' = ' . (int) $this->formId)
+            ->order($db->quoteName('ordering') . ' ASC');
+
+        $db->setQuery($query);
+
+        return $db->loadObjectList();
     }
 
     /**

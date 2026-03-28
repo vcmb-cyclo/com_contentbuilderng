@@ -25,6 +25,7 @@ class contentbuilderng_com_breezingforms
     public $elements = null;
     private $total = 0;
     private ?array $recordColumns = null;
+    private ?array $sortableElements = null;
     public $exists = false;
 
     private function getEffectiveActor(): array
@@ -196,6 +197,36 @@ class contentbuilderng_com_breezingforms
             }
         }
         return $elements;
+    }
+
+    private function getSortableElements(): array
+    {
+        if ($this->sortableElements !== null) {
+            return $this->sortableElements;
+        }
+
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db->setQuery("Select * From #__facileforms_elements Where form = " . intval($this->properties->id) . " Order By `ordering`");
+        $e = $db->loadAssocList();
+        $elements = array();
+        if ($e) {
+            foreach ($e as $element) {
+                if (
+                    $element['name'] != 'bfFakeName'  &&
+                    $element['name'] != 'bfFakeName2' &&
+                    $element['name'] != 'bfFakeName3' &&
+                    $element['name'] != 'bfFakeName4' &&
+                    $element['name'] != 'bfFakeName5' &&
+                    $element['name'] != 'bfFakeName6'
+                ) {
+                    $elements[] = $element;
+                }
+            }
+        }
+
+        $this->sortableElements = $elements;
+
+        return $this->sortableElements;
     }
 
     public function getReferenceId()
@@ -425,26 +456,7 @@ class contentbuilderng_com_breezingforms
 
         /////////////
         // we need all elements, so they will be searchable through having
-        $db->setQuery("Select id, `type`, `name` From
-                #__facileforms_elements
-                Where
-                form = " . $this->properties->id . "
-                And
-                published = 1
-                And
-                `name` <> 'bfFakeName'
-                And
-                `name` <> 'bfFakeName2'
-                And
-                `name` <> 'bfFakeName3'
-                And
-                `name` <> 'bfFakeName4'
-                And
-                `name` <> 'bfFakeName5'
-                And
-                `name` <> 'bfFakeName6'
-        ");
-        $elements = $db->loadAssocList();
+        $elements = $this->getSortableElements();
         /////////////
 
         /////////////
@@ -452,6 +464,7 @@ class contentbuilderng_com_breezingforms
         $selectors = '';
         $bottom = '';
         $force = '';
+        $orderExpressions = array();
         $radio_buttons = array();
 
         foreach ($elements as $element) {
@@ -493,6 +506,12 @@ class contentbuilderng_com_breezingforms
                             break;
                     }
                 }
+                if ($element['type'] == 'Checkbox' || $element['type'] == 'Checkbox Group' || $element['type'] == 'Select List') {
+                    $baseExpr = "Trim( Both ', ' From GROUP_CONCAT( ( Case When s.`name` = '{$element['name']}' Then s.`value` Else '' End ) Order By s.`id` SEPARATOR ', ' ) )";
+                } else {
+                    $baseExpr = "max( case when s.`element` = '{$element['id']}' then s.`value` end )";
+                }
+                $orderExpressions[$colKey] = $cast_open . $baseExpr . $cast_close;
                 $forcefield = false;
                 if (isset($force_filter[$element['id']])) {
                     $forcefield = true;
@@ -500,15 +519,15 @@ class contentbuilderng_com_breezingforms
                 if ($element['type'] == 'Checkbox' || $element['type'] == 'Checkbox Group' || $element['type'] == 'Select List') {
                     $radio_buttons[$element['id']] = $element['name'];
                     if (!$forcefield) {
-                        $bottom .= $cast_open . "Trim( Both ', ' From GROUP_CONCAT( ( Case When s.`name` = '{$element['name']}' Then s.`value` Else '' End ) Order By s.`id` SEPARATOR ', ' ) )" . $cast_close . " As `col{$element['id']}`,";
+                        $bottom .= $orderExpressions[$colKey] . " As `col{$element['id']}`,";
                     } else {
-                        $force .= $cast_open . "Trim( Both ', ' From GROUP_CONCAT( ( Case When s.`name` = '{$element['name']}' Then s.`value` Else '' End ) Order By s.`id` SEPARATOR ', ' ) )" . $cast_close . " As `col{$element['id']}`,";
+                        $force .= $orderExpressions[$colKey] . " As `col{$element['id']}`,";
                     }
                 } else {
                     if (!$forcefield) {
-                        $bottom .= $cast_open . "max( case when s.`element` = '{$element['id']}' then s.`value` end )" . $cast_close . " As `col{$element['id']}`,";
+                        $bottom .= $orderExpressions[$colKey] . " As `col{$element['id']}`,";
                     } else {
-                        $force .= $cast_open . "max( case when s.`element` = '{$element['id']}' then s.`value` end )" . $cast_close . " As `col{$element['id']}`,";
+                        $force .= $orderExpressions[$colKey] . " As `col{$element['id']}`,";
                     }
                 }
             }
@@ -725,20 +744,24 @@ class contentbuilderng_com_breezingforms
             $orderKey = ($order === 'colRating' && $form !== null && $form->rating_slots == 1)
                 ? 'colRatingCount'
                 : $order;
-            switch ($orderKey) {
-                case 'colState':
-                    // Sorting by state id is more stable than the title (often NULL).
-                    $orderExpr = 'COALESCE(list.state_id, 0)';
-                    break;
-                case 'colPublished':
-                    $orderExpr = 'joined_records.published';
-                    break;
-                case 'colLanguage':
-                    $orderExpr = 'joined_records.lang_code';
-                    break;
-                default:
-                    $orderExpr = '`' . $orderKey . '`';
-                    break;
+            if (isset($orderExpressions[$orderKey])) {
+                $orderExpr = $orderExpressions[$orderKey];
+            } else {
+                switch ($orderKey) {
+                    case 'colState':
+                        // Sorting by state id is more stable than the title (often NULL).
+                        $orderExpr = 'COALESCE(list.state_id, 0)';
+                        break;
+                    case 'colPublished':
+                        $orderExpr = 'joined_records.published';
+                        break;
+                    case 'colLanguage':
+                        $orderExpr = 'joined_records.lang_code';
+                        break;
+                    default:
+                        $orderExpr = '`' . $orderKey . '`';
+                        break;
+                }
             }
         }
 
@@ -753,6 +776,15 @@ class contentbuilderng_com_breezingforms
         $modifiedExpr = $this->buildRecordColumnSelect('modified', 'NULL');
         $createdExpr = $this->buildRecordColumnSelect('created', 'NULL');
         $submittedExpr = $this->buildRecordColumnSelect('submitted', 'NULL');
+        $initialOrder1Expr = $init_order_by == -1 || $init_order_by == 0
+            ? 'colRecord'
+            : (isset($orderExpressions[$init_order_by]) ? $orderExpressions[$init_order_by] : '`' . $init_order_by . '`');
+        $initialOrder2Expr = $init_order_by2 == -1 || $init_order_by2 == 0
+            ? 'colRecord'
+            : (isset($orderExpressions[$init_order_by2]) ? $orderExpressions[$init_order_by2] : '`' . $init_order_by2 . '`');
+        $initialOrder3Expr = $init_order_by3 == -1 || $init_order_by3 == 0
+            ? 'colRecord'
+            : (isset($orderExpressions[$init_order_by3]) ? $orderExpressions[$init_order_by3] : '`' . $init_order_by3 . '`');
 
         $db->setQuery("
             Select
@@ -830,7 +862,7 @@ class contentbuilderng_com_breezingforms
                 s.record = r.id
             And
                 r.archived = 0
-            Group By s.record $search " . ($order ? " Order By " . $orderExpr . " " : ' Order By ' . (($init_order_by == -1 || $init_order_by == 0) ? 'colRecord' : "`" . $init_order_by . "`") . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ', ' . (($init_order_by2 == -1 || $init_order_by2 == 0) ? 'colRecord' : "`" . $init_order_by2 . "`") . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ', ' . (($init_order_by3 == -1 || $init_order_by3 == 0) ? 'colRecord' : "`" . $init_order_by3 . "`") . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ' ') . " " . $orderTail . $secondaryOrder . "
+            Group By s.record $search " . ($order ? " Order By " . $orderExpr . " " : ' Order By ' . $initialOrder1Expr . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ', ' . $initialOrder2Expr . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ', ' . $initialOrder3Expr . ' ' . ($order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc') . ' ') . " " . $orderTail . $secondaryOrder . "
         ", $limitstart, $limit);
 
         try {

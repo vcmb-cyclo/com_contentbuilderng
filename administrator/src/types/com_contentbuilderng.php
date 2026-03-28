@@ -26,6 +26,7 @@ class contentbuilderng_com_contentbuilderng
     private $total = 0;
     private $bytable = false;
     private ?array $sourceColumns = null;
+    private ?array $sortableElements = null;
     public $exists = false;
     public $form_id = 0;
 
@@ -144,6 +145,39 @@ class contentbuilderng_com_contentbuilderng
             }
         }
         return $elements;
+    }
+
+    private function getSortableElements(): array
+    {
+        if ($this->sortableElements !== null) {
+            return $this->sortableElements;
+        }
+
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db->setQuery(
+            "Select * From #__contentbuilderng_storage_fields"
+            . " Where storage_id = " . intval($this->properties->id)
+            . " Order By `ordering`"
+        );
+        $rows = $db->loadAssocList() ?: [];
+
+        $elements = [];
+        foreach ($rows as $element) {
+            if ((int) ($element['is_group'] ?? 0) === 1) {
+                continue;
+            }
+
+            $name = (string) ($element['name'] ?? '');
+            if ($name === '' || !$this->hasSourceColumn($name)) {
+                continue;
+            }
+
+            $elements[] = $element;
+        }
+
+        $this->sortableElements = $elements;
+
+        return $this->sortableElements;
     }
 
     public function getReferenceId()
@@ -341,7 +375,8 @@ class contentbuilderng_com_contentbuilderng
         $selectors = '';
         $bottom = '';
         $names = array();
-        foreach ($this->elements as $element) {
+        $allElements = $this->getSortableElements();
+        foreach ($allElements as $element) {
             // filtering the ids above, we have them already, but we need all the other fields,
             // so we can search for their values from the fontend
             if (!in_array($element['id'], $ids)) {

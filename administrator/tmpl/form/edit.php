@@ -2873,7 +2873,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                             'form.advanced_options',
                             [
                                 'item' => $this->item,
-                                'elements' => $this->elements,
+                                'elements' => $this->all_elements,
                                 'renderCheckbox' => $renderCheckbox,
                             ],
                             $componentLayoutBase
