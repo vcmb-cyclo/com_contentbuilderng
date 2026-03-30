@@ -11,7 +11,7 @@ namespace CB\Component\Contentbuilderng\Site\Helper;
 
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Factory;
 
 final class MenuParamHelper
 {
@@ -89,7 +89,7 @@ final class MenuParamHelper
         }
 
         if ($value === '') {
-            $globalValue = ComponentHelper::getParams('com_menus')->get('show_page_heading', $globalValue ?? $default);
+            $globalValue = Factory::getApplication()->getParams()->get('show_page_heading', $globalValue ?? $default);
 
             return self::resolveToggleValue($globalValue, $default);
         }
