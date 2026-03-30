@@ -364,6 +364,9 @@ class com_contentbuilderngInstallerScript
                 ->format('Y-m-d H:i:s');
             $durationSeconds = max(0.0, microtime(true) - $this->installStartedAt);
 
+            // Reload after installation so newly deployed language files are available for the final message.
+            $this->loadComponentLanguage();
+
             $finishedMessage = '[OK] ContentBuilder NG installation finished. ' . $finishedAt
                 . ' ' . $timezoneName
                 . '. Duration: ' . number_format($durationSeconds, 2, '.', '') . 's.';
