@@ -56,8 +56,16 @@ if ($themeJs !== '') {
     $wa->addInlineScript($themeJs);
 }
 ?>
+<style>
+    @media (max-width: 575.98px) {
+        .cb-list-compact-select {
+            width: 8.5rem !important;
+            max-width: 8.5rem !important;
+        }
+    }
+</style>
 <script type="text/javascript">
-    <!--
+<!--
     function contentbuilderng_state() {
         document.getElementById('controller').value = 'edit';
         document.getElementById('view').value = 'edit';
@@ -157,7 +165,7 @@ SELECT
                     <?php
                     if ($state_allowed && count($this->states)) {
                         ?>
-                        <select style="max-width: 100px;" name="list_state">
+                        <select class="d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0; max-width: 100px;" name="list_state">
                             <option value="0"> -
                                 <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?> -
                             </option>
@@ -182,7 +190,7 @@ SELECT
                     <?php
                     if ($publish_allowed) {
                         ?>
-                        <select style="max-width: 100px;" name="list_publish">
+                        <select class="d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0; max-width: 100px;" name="list_publish">
                             <option value="-1"> -
                                 <?php echo Text::_('COM_CONTENTBUILDERNG_UPDATE_STATUS'); ?> -
                             </option>
@@ -204,7 +212,7 @@ SELECT
                     <?php
                     if ($language_allowed) {
                         ?>
-                        <select style="max-width: 100px;" name="list_language">
+                        <select class="d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0; max-width: 100px;" name="list_language">
                             <option value="*"> -
                                 <?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?> -
                             </option>
@@ -255,7 +263,7 @@ SELECT
                         <?php
                         if ($this->list_state && count($this->states)) {
                             ?>
-                            <select style="max-width: 100px;" name="list_state_filter" id="list_state_filter"
+                            <select class="d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0; max-width: 100px;" name="list_state_filter" id="list_state_filter"
                                 onchange="document.adminForm.submit();">
                                 <option value="0"> -
                                     <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?> -
@@ -276,7 +284,7 @@ SELECT
                         if ($this->list_publish && $publish_allowed) {
                             ?>
 
-                            <select style=" max-width: 100px;" name="list_publish_filter" id="list_publish_filter"
+                            <select class="d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0; max-width: 100px;" name="list_publish_filter" id="list_publish_filter"
                                 onchange="document.adminForm.submit();">
                                 <option value="-1"> -
                                     <?php echo Text::_('JOPTION_SELECT_PUBLISHED'); ?> -
@@ -293,7 +301,7 @@ SELECT
 
                         if ($this->list_language) {
                             ?>
-                            <select style="max-width: 100px;" name="list_language_filter" id="list_language_filter"
+                            <select class="d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0; max-width: 100px;" name="list_language_filter" id="list_language_filter"
                                 onchange="document.adminForm.submit();">
                                 <option value=""> -
                                     <?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?> -

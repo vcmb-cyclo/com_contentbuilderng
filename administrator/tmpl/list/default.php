@@ -56,6 +56,14 @@ if ($themeJs !== '') {
     $wa->addInlineScript($themeJs);
 }
 ?>
+<style>
+    @media (max-width: 575.98px) {
+        .cb-list-compact-select {
+            width: 8.5rem !important;
+            max-width: 8.5rem !important;
+        }
+    }
+</style>
 <script type="text/javascript">
 <!--
     function contentbuilderng_state() {
@@ -167,7 +175,7 @@ if ($themeJs !== '') {
                     <div class="col-12 col-md-auto">
                         <div class="row g-2 align-items-center flex-sm-nowrap">
                             <div class="col-12 col-sm-auto">
-                                <select class="form-select form-select-sm" name="list_state">
+                                <select class="form-select form-select-sm d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0;" name="list_state">
                                     <option value="0"> -
                                         <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?> -
                                     </option>
@@ -199,7 +207,7 @@ if ($themeJs !== '') {
                     <div class="col-12 col-md-auto">
                         <div class="row g-2 align-items-center flex-sm-nowrap">
                             <div class="col-12 col-sm-auto">
-                                <select class="form-select form-select-sm" name="list_publish">
+                                <select class="form-select form-select-sm d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0;" name="list_publish">
                                     <option value="-1"> -
                                         <?php echo Text::_('COM_CONTENTBUILDERNG_UPDATE_STATUS'); ?> -
                                     </option>
@@ -228,7 +236,7 @@ if ($themeJs !== '') {
                     <div class="col-12 col-md-auto">
                         <div class="row g-2 align-items-center flex-sm-nowrap">
                             <div class="col-12 col-sm-auto">
-                                <select class="form-select form-select-sm" name="list_language">
+                                <select class="form-select form-select-sm d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0;" name="list_language">
                                     <option value="*"> -
                                         <?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?> -
                                     </option>
@@ -278,7 +286,7 @@ if ($themeJs !== '') {
                 if ($this->list_state && count($this->states)) {
                     ?>
                     <div class="col-12 col-md-auto">
-                        <select class="form-select form-select-sm" name="list_state_filter" id="list_state_filter"
+                        <select class="form-select form-select-sm d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0;" name="list_state_filter" id="list_state_filter"
                             onchange="document.adminForm.submit();">
                             <option value="0"> -
                                 <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?> -
@@ -300,7 +308,7 @@ if ($themeJs !== '') {
                 if ($this->list_publish && $publish_allowed) {
                     ?>
                     <div class="col-12 col-md-auto">
-                        <select class="form-select form-select-sm" name="list_publish_filter"
+                        <select class="form-select form-select-sm d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0;" name="list_publish_filter"
                             id="list_publish_filter" onchange="document.adminForm.submit();">
                             <option value="-1"> -
                                 <?php echo Text::_('JOPTION_SELECT_PUBLISHED'); ?> -
@@ -319,7 +327,7 @@ if ($themeJs !== '') {
                 if ($this->list_language) {
                     ?>
                     <div class="col-12 col-md-auto">
-                        <select class="form-select form-select-sm" name="list_language_filter"
+                        <select class="form-select form-select-sm d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0;" name="list_language_filter"
                             id="list_language_filter" onchange="document.adminForm.submit();">
                             <option value=""> -
                                 <?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?> -
