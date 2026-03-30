@@ -1388,7 +1388,7 @@ CSS
 		});
 	</script>
 
-<?php if ($this->page_title): ?>
+<?php if ($this->show_page_heading && $this->page_title): ?>
 	<div class="cb-list-titlebar">
 		<h1 class="h3 cb-list-title">
 			<?php echo $this->page_title; ?>

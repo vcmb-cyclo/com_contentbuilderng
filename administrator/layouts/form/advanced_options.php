@@ -165,6 +165,15 @@ if (!is_callable($renderCheckbox)) {
                                 </span>
                             </label>
                         </div>
+                        <div>
+                            <input type="hidden" name="jform[show_back_button]" value="0" />
+                            <?php echo $renderCheckbox('jform[show_back_button]', 'show_back_button', (bool) ($item->show_back_button ?? true)); ?>
+                            <label class="form-check-label" for="show_back_button">
+                                <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BACK_BUTTON_DESC'); ?>">
+                                    <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BACK_BUTTON'); ?>
+                                </span>
+                            </label>
+                        </div>
                         <div class="w-100"></div>
                         <div>
                             <input type="hidden" name="jform[button_bar_sticky]" value="0" />
@@ -410,15 +419,6 @@ if (!is_callable($renderCheckbox)) {
                     <label class="form-check-label" for="cb_show_author">
                         <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_AUTHOR_DESC'); ?>">
                             <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_AUTHOR'); ?>
-                        </span>
-                    </label>
-                </div>
-                <div>
-                    <input type="hidden" name="jform[show_back_button]" value="0" />
-                    <?php echo $renderCheckbox('jform[show_back_button]', 'show_back_button', (bool) ($item->show_back_button ?? true)); ?>
-                    <label class="form-check-label" for="show_back_button">
-                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BACK_BUTTON_DESC'); ?>">
-                            <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BACK_BUTTON'); ?>
                         </span>
                     </label>
                 </div>
