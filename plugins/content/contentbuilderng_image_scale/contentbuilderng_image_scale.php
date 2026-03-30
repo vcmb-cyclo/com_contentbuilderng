@@ -74,14 +74,6 @@ class plgContentContentbuilderng_image_scale extends CMSPlugin implements Subscr
         return ['onContentPrepare' => 'onContentPrepare'];
     }
 
-	/**
-	 * Joomla 1.5 compatibility
-	 */
-	function onPrepareContent(&$article, &$params, $limitstart = 0, $is_list = false, $form = null, $item = null)
-	{
-		$this->onContentPrepare('', $article, $params, $limitstart, $is_list, $form, $item);
-	}
-
 	function onContentPrepare($context = '', $article = null, $params = null, $limitstart = 0, $is_list = false, $form = null, $item = null)
 	{
 		if ($context instanceof \Joomla\Event\EventInterface) {
@@ -91,7 +83,6 @@ class plgContentContentbuilderng_image_scale extends CMSPlugin implements Subscr
 			$params = $event->getArgument('params') ?? $params;
 			$limitstart = (int) ($event->getArgument('page') ?? $event->getArgument('limitstart') ?? $limitstart);
 		}
-
 
 
 		static $use_title;

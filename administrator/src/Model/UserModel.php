@@ -4,7 +4,7 @@
  * @author      Markus Bopp / XDA+GIL
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @link        https://breezingforms-ng.vcmb.fr
- * @since       6.0.0  Joomla 6 compatibility rewrite.
+ * @since       6.0.0  Joomla 6 rewrite.
  */
 
 namespace CB\Component\Contentbuilderng\Administrator\Model;
