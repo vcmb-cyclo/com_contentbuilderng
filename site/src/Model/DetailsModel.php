@@ -409,13 +409,19 @@ class DetailsModel extends ListModel
                     if (!$data->form->exists) {
                         throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
                     }
-                    $data->page_title = '';
-                    if ($prefixInTitle === 1) {
-                        if (!$this->_menu_item) {
-                            $data->page_title = $data->use_view_name_as_title ? $data->name : $data->form->getPageTitle();
-                        } else {
-                            $data->page_title = $data->use_view_name_as_title ? $data->name : $app->getDocument()->getTitle();
-                        }
+                    $baseTitle = '';
+                    if ($this->_show_page_heading && $this->_page_title !== '') {
+                        $baseTitle = (string) $this->_page_title;
+                    } elseif ($this->_menu_item) {
+                        $baseTitle = (string) $app->getDocument()->getTitle();
+                    } else {
+                        $baseTitle = (string) $data->form->getPageTitle();
+                    }
+
+                    $viewTitle = $data->use_view_name_as_title ? (string) $data->name : $baseTitle;
+                    $data->page_title = $viewTitle;
+                    if ($prefixInTitle === 1 && $data->use_view_name_as_title && $baseTitle !== '') {
+                        $data->page_title = trim($viewTitle . ' - ' . $baseTitle);
                     }
                     if ($this->frontend) {
                         $document = $app->getDocument();

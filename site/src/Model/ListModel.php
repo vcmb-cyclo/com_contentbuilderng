@@ -718,13 +718,19 @@ class ListModel extends BaseListModel
                     }
                     $prefixInTitle = $this->getMenuToggle('cb_prefix_in_title', (int) ($data->cb_prefix_in_title ?? 0));
                     $filterInTitle = $this->getMenuToggle('cb_filter_in_title', (int) ($data->cb_filter_in_title ?? 0));
-                    $data->page_title = '';
-                    if ($prefixInTitle === 1) {
-                        if (!$this->_menu_item) {
-                            $data->page_title = $data->use_view_name_as_title ? $data->name : $data->form->getPageTitle();
-                        } else {
-                            $data->page_title = $data->use_view_name_as_title ? $data->name : $app->getDocument()->getTitle();
-                        }
+                    $baseTitle = '';
+                    if ($this->_show_page_heading && $this->_page_title !== '') {
+                        $baseTitle = (string) $this->_page_title;
+                    } elseif ($this->_menu_item) {
+                        $baseTitle = (string) $app->getDocument()->getTitle();
+                    } else {
+                        $baseTitle = (string) $data->form->getPageTitle();
+                    }
+
+                    $viewTitle = $data->use_view_name_as_title ? (string) $data->name : $baseTitle;
+                    $data->page_title = $viewTitle;
+                    if ($prefixInTitle === 1 && $data->use_view_name_as_title && $baseTitle !== '') {
+                        $data->page_title = trim($viewTitle . ' - ' . $baseTitle);
                     }
 
                     // enables the record randomizer
@@ -946,7 +952,15 @@ class ListModel extends BaseListModel
                             $menuTitle = (string) $this->_page_title;
                         }
 
-                        $data->page_title = $prefixTitle !== '' ? $prefixTitle : $menuTitle;
+                        if ($prefixInTitle === 1) {
+                            if ($prefixTitle !== '' && $menuTitle !== '') {
+                                $data->page_title = trim($prefixTitle . ' ' . $menuTitle);
+                            } else {
+                                $data->page_title = $prefixTitle !== '' ? $prefixTitle : $menuTitle;
+                            }
+                        } else {
+                            $data->page_title = $menuTitle !== '' ? $menuTitle : $prefixTitle;
+                        }
 
                         if ($filterInTitle === 1 && $ordered_extra_title !== '') {
                             $normalizedExtraTitle = ltrim(preg_replace('/^(?:\s*&raquo;\s*)+/', '', $ordered_extra_title) ?? '', ' ');
