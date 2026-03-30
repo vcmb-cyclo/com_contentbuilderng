@@ -93,9 +93,11 @@ class DetailsModel extends ListModel
                 if (MenuParamHelper::getMenuParam($params, 'cb_latest', null) !== null) {
                     $this->_latest = MenuParamHelper::getMenuParam($params, 'cb_latest', null);
                 }
+                $resolvedMenuParams = $menu->getParams((int) $item->id);
                 if ($item->getParams()->get('show_page_heading', null) !== null) {
                     $this->_show_page_heading = MenuParamHelper::resolvePageHeadingToggle(
                         $item->getParams()->get('show_page_heading', null),
+                        $resolvedMenuParams?->get('show_page_heading', null),
                         $this->_show_page_heading ? 1 : 0
                     );
                 }
@@ -416,8 +418,6 @@ class DetailsModel extends ListModel
                     $baseTitle = '';
                     if ($this->_show_page_heading && $this->_page_title !== '') {
                         $baseTitle = (string) $this->_page_title;
-                    } elseif ($this->_menu_item) {
-                        $baseTitle = (string) $app->getDocument()->getTitle();
                     } else {
                         $baseTitle = (string) $data->form->getPageTitle();
                     }
