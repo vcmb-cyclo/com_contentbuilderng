@@ -13,6 +13,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Controller;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\DatabaseAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\DatabaseRepairHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\FormAuditColumnsHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataMigrationHelper;
 use Joomla\CMS\Application\AdministratorApplication;
@@ -38,6 +39,7 @@ final class AboutController extends BaseController
         'table_encoding',
         'packed_data',
         'audit_columns',
+        'form_audit_columns',
         'plugin_duplicates',
         'bf_field_sync',
         'menu_view_consistency',
@@ -2175,6 +2177,8 @@ final class AboutController extends BaseController
             $collationIssueCount = $tableEncodingCount + $columnEncodingCount + $mixedCollationsCount;
             $missingAuditColumnsTotal = (int) ($auditSummary['missing_audit_columns_total'] ?? 0);
             $missingAuditColumnsTables = (int) ($auditSummary['missing_audit_column_tables'] ?? 0);
+            $missingFormAuditColumnsTotal = (int) ($auditSummary['missing_form_audit_columns_total'] ?? 0);
+            $missingFormAuditColumnsTables = (int) ($auditSummary['missing_form_audit_column_tables'] ?? 0);
             $pluginDuplicateRows = (int) ($auditSummary['plugin_duplicate_rows_to_remove'] ?? 0);
             $pluginDuplicateGroups = (int) ($auditSummary['plugin_duplicate_groups'] ?? 0);
             $historicalMenuEntriesCount = (int) ($auditSummary['historical_menu_entries'] ?? 0);
@@ -2238,6 +2242,17 @@ final class AboutController extends BaseController
                     default => $missingAuditColumnsTotal . ' missing audit columns were detected across ' . max(1, $missingAuditColumnsTables) . ' tables and can be repaired in this step.',
                 },
                 'skip_summary' => 'No missing audit column detected by the pre-check. Skipped automatically.',
+                'has_errors' => false,
+            ];
+
+            $prechecks['form_audit_columns'] = [
+                'count' => $missingFormAuditColumnsTotal,
+                'description' => match (true) {
+                    $missingFormAuditColumnsTotal <= 0 => 'No missing form column was detected by the last audit.',
+                    $missingFormAuditColumnsTotal === 1 => '1 missing form column was detected across ' . max(1, $missingFormAuditColumnsTables) . ' table and can be repaired in this step.',
+                    default => $missingFormAuditColumnsTotal . ' missing form columns were detected across ' . max(1, $missingFormAuditColumnsTables) . ' tables and can be repaired in this step.',
+                },
+                'skip_summary' => 'No missing form column detected by the pre-check. Skipped automatically.',
                 'has_errors' => false,
             ];
 
@@ -2393,7 +2408,7 @@ final class AboutController extends BaseController
                 ],
             ];
         } catch (\Throwable $e) {
-            foreach (['duplicate_indexes', 'historical_tables', 'historical_menu_entries', 'table_encoding', 'audit_columns', 'plugin_duplicates', 'bf_field_sync', 'menu_view_consistency', 'frontend_permission_consistency', 'element_reference_consistency'] as $stepId) {
+            foreach (['duplicate_indexes', 'historical_tables', 'historical_menu_entries', 'table_encoding', 'audit_columns', 'form_audit_columns', 'plugin_duplicates', 'bf_field_sync', 'menu_view_consistency', 'frontend_permission_consistency', 'element_reference_consistency'] as $stepId) {
                 $prechecks[$stepId] = [
                     'count' => 1,
                     'description' => 'Pre-check unavailable for this step. You can still run the repair manually.',
@@ -2441,6 +2456,7 @@ final class AboutController extends BaseController
             'table_encoding' => $this->buildTableEncodingStepResult(PackedDataMigrationHelper::repairTableCollationsStep($db)),
             'packed_data' => $this->buildPackedDataStepResult(PackedDataMigrationHelper::migratePackedPayloadsStep($db)),
             'audit_columns' => $this->buildAuditColumnsStepResult(\CB\Component\Contentbuilderng\Administrator\Helper\StorageAuditColumnsHelper::repair($db)),
+            'form_audit_columns' => $this->buildAuditColumnsStepResult(FormAuditColumnsHelper::repair($db)),
             'plugin_duplicates' => $this->buildPluginDuplicateStepResult(\CB\Component\Contentbuilderng\Administrator\Helper\PluginExtensionDedupHelper::repair($db)),
             'historical_menu_entries' => $this->buildHistoricalMenuStepResult(PackedDataMigrationHelper::repairLegacyMenuEntriesStep($db)),
             'bf_field_sync' => $this->buildBfFieldSyncStepResult(DatabaseAuditHelper::run()),
@@ -3073,6 +3089,67 @@ final class AboutController extends BaseController
             'level' => (int) ($summary['errors'] ?? 0) > 0 ? 'warning' : 'message',
             'summary' => Text::sprintf(
                 'COM_CONTENTBUILDERNG_AUDIT_COLUMNS_REPAIR_SUMMARY',
+                (int) ($summary['scanned'] ?? 0),
+                (int) ($summary['issues'] ?? 0),
+                (int) ($summary['repaired'] ?? 0),
+                (int) ($summary['unchanged'] ?? 0),
+                (int) ($summary['errors'] ?? 0)
+            ),
+            'lines' => $lines,
+        ];
+    }
+
+    private function buildFormAuditColumnsStepResult(array $summary): array
+    {
+        $lines = [];
+
+        foreach ((array) ($summary['tables'] ?? []) as $table) {
+            if (!is_array($table)) {
+                continue;
+            }
+
+            $status = (string) ($table['status'] ?? '');
+            $missing = (array) ($table['missing'] ?? []);
+            $added = (array) ($table['added'] ?? []);
+            $missingLabel = $missing !== [] ? implode(', ', $missing) : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE');
+            $addedLabel = $added !== [] ? implode(', ', $added) : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE');
+
+            if ($status === 'repaired') {
+                $lines[] = Text::sprintf(
+                    'COM_CONTENTBUILDERNG_FORM_AUDIT_COLUMNS_REPAIR_TABLE_REPAIRED',
+                    (string) ($table['table'] ?? ''),
+                    $missingLabel,
+                    $addedLabel
+                );
+            } elseif ($status === 'partial') {
+                $lines[] = Text::sprintf(
+                    'COM_CONTENTBUILDERNG_FORM_AUDIT_COLUMNS_REPAIR_TABLE_PARTIAL',
+                    (string) ($table['table'] ?? ''),
+                    $missingLabel,
+                    $addedLabel,
+                    (string) ($table['error'] ?? '')
+                );
+            } elseif ($status === 'error') {
+                $lines[] = Text::sprintf(
+                    'COM_CONTENTBUILDERNG_FORM_AUDIT_COLUMNS_REPAIR_TABLE_ERROR',
+                    (string) ($table['table'] ?? ''),
+                    $missingLabel,
+                    (string) ($table['error'] ?? '')
+                );
+            }
+        }
+
+        foreach ((array) ($summary['warnings'] ?? []) as $warning) {
+            $warning = trim((string) $warning);
+            if ($warning !== '') {
+                $lines[] = Text::sprintf('COM_CONTENTBUILDERNG_FORM_AUDIT_COLUMNS_REPAIR_WARNING', $warning);
+            }
+        }
+
+        return [
+            'level' => (int) ($summary['errors'] ?? 0) > 0 ? 'warning' : 'message',
+            'summary' => Text::sprintf(
+                'COM_CONTENTBUILDERNG_FORM_AUDIT_COLUMNS_REPAIR_SUMMARY',
                 (int) ($summary['scanned'] ?? 0),
                 (int) ($summary['issues'] ?? 0),
                 (int) ($summary['repaired'] ?? 0),

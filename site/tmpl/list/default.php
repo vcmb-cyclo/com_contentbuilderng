@@ -1467,8 +1467,8 @@ by this block. -->
 	$showNewButton = ($new_allowed && !empty($this->new_button));
 	$showStickyButtonBar = !empty($this->button_bar_sticky);
 	$showPreviewLink = !empty($this->show_preview_link);
-	$showTopBar = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_top_bar', 1) === 1;
-	$showBottomBar = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_bottom_bar', 1) === 1;
+	$showTopBar = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_top_bar', (int) ($this->cb_show_top_bar ?? 1)) === 1;
+	$showBottomBar = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_bottom_bar', (int) ($this->cb_show_bottom_bar ?? 1)) === 1;
 	$listEditBaseParams = [
 		'option' => 'com_contentbuilderng',
 		'task' => 'edit.display',

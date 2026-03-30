@@ -32,6 +32,35 @@ $prepareEffectOptions = is_array($displayData['prepareEffectOptions'] ?? null) ?
 <div class="alert alert-info mb-3">
     <?php echo Text::_('COM_CONTENTBUILDERNG_TAB_EDIT_DISPLAY_PERMISSION_HINT'); ?>
 </div>
+<div class="row gx-3 gy-1 mt-0 align-items-stretch mb-3">
+    <div class="col-12 col-xl-4 d-flex" id="cbEditScreenPanels">
+        <div class="border rounded bg-body p-3 d-flex flex-column flex-grow-1">
+            <h4 class="h6 text-body-secondary mb-2">
+                <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BUTTON_OPTIONS'); ?>
+            </h4>
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <div>
+                    <input type="hidden" name="jform[cb_show_top_bar]" value="0" />
+                    <?php echo $renderCheckbox('jform[cb_show_top_bar]', 'cb_show_top_bar', (bool) ($item->cb_show_top_bar ?? true)); ?>
+                    <label class="form-check-label" for="cb_show_top_bar">
+                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_TOP_BAR_DESC'); ?>">
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_TOP_BAR'); ?>
+                        </span>
+                    </label>
+                </div>
+                <div>
+                    <input type="hidden" name="jform[cb_show_bottom_bar]" value="0" />
+                    <?php echo $renderCheckbox('jform[cb_show_bottom_bar]', 'cb_show_bottom_bar', (bool) ($item->cb_show_bottom_bar ?? true)); ?>
+                    <label class="form-check-label" for="cb_show_bottom_bar">
+                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BOTTOM_BAR_DESC'); ?>">
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BOTTOM_BAR'); ?>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <input type="hidden" name="jform[edit_by_type]" value="0" />
 <?php if ($canEditByType) : ?>
     <div class="form-check mb-3">

@@ -201,11 +201,12 @@ class ElementoptionsModel extends BaseDatabaseModel
             $db->execute();
             return 1;
         }
-        $query = '';
+        $setClauses = [];
         $formSupportService = new FormSupportService(new PathService());
         $pathService = new PathService();
         $plugins = $formSupportService->getFormElementsPlugins();
         $type = $input->getCmd('field_type', '');
+        $db = $this->getDatabase();
         switch ($type) {
             case in_array($input->getCmd('field_type', ''), $formSupportService->getFormElementsPlugins()):
 
@@ -224,7 +225,11 @@ class ElementoptionsModel extends BaseDatabaseModel
 
                 $the_item = $results;
 
-                $query = " `options`='" . PackedDataHelper::encodePackedData($the_item['options']) . "', `type`=" . $this->getDatabase()->quote($input->getCmd('field_type', '')) . ", `change_type`=" . $this->getDatabase()->quote($input->getCmd('field_type', '')) . ", `hint`=" . $this->getDatabase()->quote($hint) . ", `default_value`=" . $this->getDatabase()->quote($the_item['default_value']) . " ";
+                $setClauses[] = $db->quoteName('options') . ' = ' . $db->quote(PackedDataHelper::encodePackedData($the_item['options']));
+                $setClauses[] = $db->quoteName('type') . ' = ' . $db->quote($input->getCmd('field_type', ''));
+                $setClauses[] = $db->quoteName('change_type') . ' = ' . $db->quote($input->getCmd('field_type', ''));
+                $setClauses[] = $db->quoteName('hint') . ' = ' . $db->quote($hint);
+                $setClauses[] = $db->quoteName('default_value') . ' = ' . $db->quote($the_item['default_value']);
                 break;
 
             case '':
@@ -248,7 +253,11 @@ class ElementoptionsModel extends BaseDatabaseModel
                 $options->allow_raw = $allow_raw;
                 $options->allow_html = $allow_html;
 
-                $query = " `options`='" . PackedDataHelper::encodePackedData($options) . "', `type`='text', `change_type`='text', `hint`=" . $this->getDatabase()->quote($hint) . ", `default_value`=" . $this->getDatabase()->quote($default_value) . " ";
+                $setClauses[] = $db->quoteName('options') . ' = ' . $db->quote(PackedDataHelper::encodePackedData($options));
+                $setClauses[] = $db->quoteName('type') . ' = ' . $db->quote('text');
+                $setClauses[] = $db->quoteName('change_type') . ' = ' . $db->quote('text');
+                $setClauses[] = $db->quoteName('hint') . ' = ' . $db->quote($hint);
+                $setClauses[] = $db->quoteName('default_value') . ' = ' . $db->quote($default_value);
                 break;
 
             case 'textarea':
@@ -271,7 +280,11 @@ class ElementoptionsModel extends BaseDatabaseModel
                 $options->allow_raw = $allow_raw;
                 $options->allow_html = $allow_html;
 
-                $query = " `options`='" . PackedDataHelper::encodePackedData($options) . "', `type`='textarea', `change_type`='textarea', `hint`=" . $this->getDatabase()->quote($hint) . ", `default_value`=" . $this->getDatabase()->quote($default_value) . " ";
+                $setClauses[] = $db->quoteName('options') . ' = ' . $db->quote(PackedDataHelper::encodePackedData($options));
+                $setClauses[] = $db->quoteName('type') . ' = ' . $db->quote('textarea');
+                $setClauses[] = $db->quoteName('change_type') . ' = ' . $db->quote('textarea');
+                $setClauses[] = $db->quoteName('hint') . ' = ' . $db->quote($hint);
+                $setClauses[] = $db->quoteName('default_value') . ' = ' . $db->quote($default_value);
                 break;
 
             case 'checkboxgroup':
@@ -307,16 +320,19 @@ class ElementoptionsModel extends BaseDatabaseModel
                     $options->horizontal_length = $input->get('horizontal_length', '', 'string');
                 }
 
-                $query = " `options`='" . PackedDataHelper::encodePackedData($options) . "', `type`='" . $type . "', `change_type`='" . $type . "', `hint`=" . $this->getDatabase()->quote($hint) . ", `default_value`=" . $this->getDatabase()->quote($default_value) . " ";
+                $setClauses[] = $db->quoteName('options') . ' = ' . $db->quote(PackedDataHelper::encodePackedData($options));
+                $setClauses[] = $db->quoteName('type') . ' = ' . $db->quote($type);
+                $setClauses[] = $db->quoteName('change_type') . ' = ' . $db->quote($type);
+                $setClauses[] = $db->quoteName('hint') . ' = ' . $db->quote($hint);
+                $setClauses[] = $db->quoteName('default_value') . ' = ' . $db->quote($default_value);
                 break;
 
             case 'upload':
-                $db = $this->getDatabase();
-                $query = $db->getQuery(true)
+                $setupQuery = $db->getQuery(true)
                     ->select([$db->quoteName('upload_directory'), $db->quoteName('protect_upload_directory')])
                     ->from($db->quoteName('#__contentbuilderng_forms'))
                     ->where($db->quoteName('id') . ' = ' . (int)$this->_id);
-                $db->setQuery($query);
+                $db->setQuery($setupQuery);
                 $setup = $db->loadAssoc();
 
                 // rel check for setup
@@ -442,7 +458,11 @@ class ElementoptionsModel extends BaseDatabaseModel
                 $options->allowed_file_extensions = $input->get('allowed_file_extensions', '', 'string');
                 $options->max_filesize = $input->get('max_filesize', '', 'string');
 
-                $query = " `options`='" . PackedDataHelper::encodePackedData($options) . "', `type`='" . $type . "', `change_type`='" . $type . "', `hint`=" . $this->getDatabase()->quote($hint) . ", `default_value`=" . $this->getDatabase()->quote($default_value) . " ";
+                $setClauses[] = $db->quoteName('options') . ' = ' . $db->quote(PackedDataHelper::encodePackedData($options));
+                $setClauses[] = $db->quoteName('type') . ' = ' . $db->quote($type);
+                $setClauses[] = $db->quoteName('change_type') . ' = ' . $db->quote($type);
+                $setClauses[] = $db->quoteName('hint') . ' = ' . $db->quote($hint);
+                $setClauses[] = $db->quoteName('default_value') . ' = ' . $db->quote($default_value);
                 break;
             case 'captcha':
                 $default_value = $input->get('default_value', '', 'string');
@@ -450,7 +470,11 @@ class ElementoptionsModel extends BaseDatabaseModel
 
                 $options = new \stdClass();
 
-                $query = " `options`='" . PackedDataHelper::encodePackedData($options) . "', `type`='" . $type . "', `change_type`='" . $type . "', `hint`=" . $this->getDatabase()->quote($hint) . ", `default_value`=" . $this->getDatabase()->quote($default_value) . " ";
+                $setClauses[] = $db->quoteName('options') . ' = ' . $db->quote(PackedDataHelper::encodePackedData($options));
+                $setClauses[] = $db->quoteName('type') . ' = ' . $db->quote($type);
+                $setClauses[] = $db->quoteName('change_type') . ' = ' . $db->quote($type);
+                $setClauses[] = $db->quoteName('hint') . ' = ' . $db->quote($hint);
+                $setClauses[] = $db->quoteName('default_value') . ' = ' . $db->quote($default_value);
                 break;
             case 'calendar':
                 $length = $input->get('length', '', 'string');
@@ -468,8 +492,11 @@ class ElementoptionsModel extends BaseDatabaseModel
                 $options->format = $format;
                 $options->transfer_format = $transfer_format;
 
-                $query = " `options`='" . PackedDataHelper::encodePackedData($options) . "', `type`='calendar', `change_type`='calendar', `hint`=" . $this->getDatabase()->quote($hint) . ", `default_value`=" . $this->getDatabase()->quote($default_value) . " ";
-
+                $setClauses[] = $db->quoteName('options') . ' = ' . $db->quote(PackedDataHelper::encodePackedData($options));
+                $setClauses[] = $db->quoteName('type') . ' = ' . $db->quote('calendar');
+                $setClauses[] = $db->quoteName('change_type') . ' = ' . $db->quote('calendar');
+                $setClauses[] = $db->quoteName('hint') . ' = ' . $db->quote($hint);
+                $setClauses[] = $db->quoteName('default_value') . ' = ' . $db->quote($default_value);
                 break;
             case 'hidden':
                 $allow_raw = $input->getInt('allow_encoding', 0) == 2 ? true : false; // 0 = filter on, 1 = allow html, 2 = allow raw
@@ -481,11 +508,15 @@ class ElementoptionsModel extends BaseDatabaseModel
                 $options->allow_raw = $allow_raw;
                 $options->allow_html = $allow_html;
 
-                $query = " `options`='" . PackedDataHelper::encodePackedData($options) . "', `type`='" . $type . "', `change_type`='" . $type . "', `hint`=" . $this->getDatabase()->quote($hint) . ", `default_value`=" . $this->getDatabase()->quote($default_value) . " ";
+                $setClauses[] = $db->quoteName('options') . ' = ' . $db->quote(PackedDataHelper::encodePackedData($options));
+                $setClauses[] = $db->quoteName('type') . ' = ' . $db->quote($type);
+                $setClauses[] = $db->quoteName('change_type') . ' = ' . $db->quote($type);
+                $setClauses[] = $db->quoteName('hint') . ' = ' . $db->quote($hint);
+                $setClauses[] = $db->quoteName('default_value') . ' = ' . $db->quote($default_value);
                 break;
         }
 
-        if ($query) {
+        if (!empty($setClauses)) {
             $custom_init_script = $input->post->get('custom_init_script', '', 'raw');
             $custom_action_script = $input->post->get('custom_action_script', '', 'raw');
             $custom_validation_script = $input->post->get('custom_validation_script', '', 'raw');
@@ -493,16 +524,16 @@ class ElementoptionsModel extends BaseDatabaseModel
             $validations = $input->get('validations', [], 'array');
             $validations = is_array($validations) ? $validations : [];
 
-            $other = " `validations`=" . $this->getDatabase()->quote(implode(',', $validations)) . ", ";
-            $other .= " `custom_init_script`=" . $this->getDatabase()->quote($custom_init_script) . ", ";
-            $other .= " `custom_action_script`=" . $this->getDatabase()->quote($custom_action_script) . ", ";
-            $other .= " `custom_validation_script`=" . $this->getDatabase()->quote($custom_validation_script) . ", ";
-            $other .= " `validation_message`=" . $this->getDatabase()->quote($validation_message) . ", ";
+            $setClauses[] = $db->quoteName('validations') . ' = ' . $db->quote(implode(',', $validations));
+            $setClauses[] = $db->quoteName('custom_init_script') . ' = ' . $db->quote($custom_init_script);
+            $setClauses[] = $db->quoteName('custom_action_script') . ' = ' . $db->quote($custom_action_script);
+            $setClauses[] = $db->quoteName('custom_validation_script') . ' = ' . $db->quote($custom_validation_script);
+            $setClauses[] = $db->quoteName('validation_message') . ' = ' . $db->quote($validation_message);
 
-            $db = $this->getDatabase();
-            // Build complete UPDATE query with QueryBuilder
-            $setClause = trim($other . $query, ', ');
-            $updateQuery = "Update " . $db->quoteName('#__contentbuilderng_elements') . " Set " . $setClause . " Where " . $db->quoteName('id') . " = " . (int)$this->_element_id;
+            $updateQuery = $db->getQuery(true)
+                ->update($db->quoteName('#__contentbuilderng_elements'))
+                ->set($setClauses)
+                ->where($db->quoteName('id') . ' = ' . (int)$this->_element_id);
             $db->setQuery($updateQuery);
             $db->execute();
             return true;

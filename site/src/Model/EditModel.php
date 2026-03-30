@@ -479,6 +479,12 @@ class EditModel extends BaseDatabaseModel
                         $data->article_options = $form;
                     }
 
+                    $this->_show_back_button = MenuParamHelper::resolveInputOrMenuToggle(
+                        $this->app,
+                        'cb_show_details_back_button',
+                        (int) ($data->show_back_button ?? 1),
+                        'show_back_button'
+                    ) === 1;
                     $data->back_button = $this->app->input->getBool('latest', 0) && !$this->app->input->getCmd('record_id', 0) ? false : $this->_show_back_button;
                     $data->latest = $this->_latest;
                     $data->frontend = $this->frontend;
@@ -487,7 +493,7 @@ class EditModel extends BaseDatabaseModel
                         throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
                     }
                     $data->page_title = '';
-                    if ($this->getMenuToggle('cb_prefix_in_title', 0) === 1) {
+                    if ($this->getMenuToggle('cb_prefix_in_title', (int) ($data->cb_prefix_in_title ?? 0)) === 1) {
                         if (!$this->_menu_item) {
                             $data->page_title = $data->use_view_name_as_title ? $data->name : $data->form->getPageTitle();
                         } else {

@@ -21,6 +21,11 @@ use CB\Component\Contentbuilderng\Administrator\View\Contentbuilderng\HtmlView a
 class HtmlView extends BaseHtmlView
 {
     private $frontend = true;
+    public int $cb_show_top_bar = 1;
+    public int $cb_show_bottom_bar = 1;
+    public int $cb_show_author = 1;
+    public int $cb_filter_in_title = 0;
+    public int $cb_prefix_in_title = 0;
 
     function display($tpl = null)
     {
@@ -91,6 +96,11 @@ class HtmlView extends BaseHtmlView
         $this->direct_storage_mode = (int) ($subject->direct_storage_mode ?? 0);
         $this->direct_storage_id = (int) ($subject->direct_storage_id ?? 0);
         $this->direct_storage_unpublished = (int) ($subject->direct_storage_unpublished ?? 0);
+        $this->cb_show_top_bar = (int) ($subject->cb_show_top_bar ?? 1);
+        $this->cb_show_bottom_bar = (int) ($subject->cb_show_bottom_bar ?? 1);
+        $this->cb_show_author = (int) ($subject->cb_show_author ?? 1);
+        $this->cb_filter_in_title = (int) ($subject->cb_filter_in_title ?? 0);
+        $this->cb_prefix_in_title = (int) ($subject->cb_prefix_in_title ?? 0);
 
         $this->page_class = $subject->page_class;
         $this->show_page_heading = $subject->show_page_heading;

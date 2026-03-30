@@ -31,6 +31,7 @@ use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\PathService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
+use CB\Component\Contentbuilderng\Administrator\Helper\FormAuditColumnsHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 
@@ -124,12 +125,7 @@ class FormModel extends AdminModel
             $knownColumns[strtolower((string) $columnName)] = true;
         }
 
-        $requiredColumns = [
-            'button_bar_sticky' => 'TINYINT(1) NOT NULL DEFAULT 0',
-            'list_header_sticky' => 'TINYINT(1) NOT NULL DEFAULT 0',
-            'show_preview_link' => 'TINYINT(1) NOT NULL DEFAULT 0',
-            'list_last_modification' => 'TINYINT(1) NOT NULL DEFAULT 0',
-        ];
+        $requiredColumns = FormAuditColumnsHelper::requiredColumns();
 
         foreach ($requiredColumns as $columnName => $definition) {
             if (isset($knownColumns[$columnName])) {
@@ -649,6 +645,14 @@ class FormModel extends AdminModel
             $data->list_author = 0;
             $data->list_last_modification = 0;
             $data->list_rating = 0;
+            $data->cb_show_author = 1;
+            $data->cb_show_top_bar = 1;
+            $data->cb_show_bottom_bar = 1;
+            $data->cb_show_details_top_bar = 1;
+            $data->cb_show_details_bottom_bar = 0;
+            $data->show_back_button = 1;
+            $data->cb_filter_in_title = 0;
+            $data->cb_prefix_in_title = 0;
             $data->email_template = '';
             $data->email_subject = '';
             $data->email_alternative_from = '';
@@ -731,6 +735,38 @@ class FormModel extends AdminModel
 
         if (!isset($data->show_preview_link)) {
             $data->show_preview_link = 0;
+        }
+
+        if (!isset($data->cb_show_author)) {
+            $data->cb_show_author = 1;
+        }
+
+        if (!isset($data->cb_show_top_bar)) {
+            $data->cb_show_top_bar = 1;
+        }
+
+        if (!isset($data->cb_show_bottom_bar)) {
+            $data->cb_show_bottom_bar = 1;
+        }
+
+        if (!isset($data->cb_show_details_top_bar)) {
+            $data->cb_show_details_top_bar = 1;
+        }
+
+        if (!isset($data->cb_show_details_bottom_bar)) {
+            $data->cb_show_details_bottom_bar = 0;
+        }
+
+        if (!isset($data->show_back_button)) {
+            $data->show_back_button = 1;
+        }
+
+        if (!isset($data->cb_filter_in_title)) {
+            $data->cb_filter_in_title = 0;
+        }
+
+        if (!isset($data->cb_prefix_in_title)) {
+            $data->cb_prefix_in_title = 0;
         }
 
         $data->forms = array();
@@ -951,6 +987,14 @@ class FormModel extends AdminModel
             'button_bar_sticky',
             'list_header_sticky',
             'show_preview_link',
+            'cb_show_author',
+            'cb_show_top_bar',
+            'cb_show_bottom_bar',
+            'cb_show_details_top_bar',
+            'cb_show_details_bottom_bar',
+            'show_back_button',
+            'cb_filter_in_title',
+            'cb_prefix_in_title',
             'metadata',
             'export_xls',
             'print_button',

@@ -37,13 +37,13 @@ $isAdminPreview = $app->input->getBool('cb_preview_ok', false);
 $input = $app->input;
 $safeReturn = NavigationLinkHelper::encodeInternalReturn((string) $input->getString('return', ''));
 $hasReturn = $safeReturn !== '';
-$topBarToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_top_bar', 1);
-$bottomBarToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_bottom_bar', 1);
-$showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_author', 1);
+$topBarToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_top_bar', (int) ($this->cb_show_top_bar ?? 1));
+$bottomBarToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_bottom_bar', (int) ($this->cb_show_bottom_bar ?? 1));
+$showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_author', (int) ($this->cb_show_author ?? 1));
 
 $editBackButtonToggle = -1;
 if ($frontend) {
-    $editBackButtonToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_details_back_button', 1, 'show_back_button');
+    $editBackButtonToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_details_back_button', (int) ($this->back_button ?? 1), 'show_back_button');
     if ($editBackButtonToggle >= 0) {
         $showBack = $editBackButtonToggle === 1 && !$hasReturn;
     }

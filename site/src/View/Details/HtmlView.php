@@ -35,6 +35,12 @@ class HtmlView extends BaseHtmlView
     protected $form;
     public int $prev_record_start = 0;
     public int $next_record_start = 0;
+    public int $cb_show_author = 1;
+    public int $cb_show_details_top_bar = 1;
+    public int $cb_show_details_bottom_bar = 0;
+    public int $show_back_button = 1;
+    public int $cb_filter_in_title = 0;
+    public int $cb_prefix_in_title = 0;
 
     private function resolveSiblingRecordIdsByRecordId(object $subject, int $currentRecordId): array
     {
@@ -456,6 +462,11 @@ CSS;
 
 		$this->print_button = $subject->print_button;
 		$this->show_back_button = $subject->show_back_button;
+		$this->cb_show_author = (int) ($subject->cb_show_author ?? 1);
+		$this->cb_show_details_top_bar = (int) ($subject->cb_show_details_top_bar ?? 1);
+		$this->cb_show_details_bottom_bar = (int) ($subject->cb_show_details_bottom_bar ?? 0);
+		$this->cb_filter_in_title = (int) ($subject->cb_filter_in_title ?? 0);
+		$this->cb_prefix_in_title = (int) ($subject->cb_prefix_in_title ?? 0);
 		$this->show_id_column = (int) ($subject->show_id_column ?? 0);
 		$this->direct_storage_mode = (int) ($subject->direct_storage_mode ?? 0);
 		$this->direct_storage_id = (int) ($subject->direct_storage_id ?? 0);

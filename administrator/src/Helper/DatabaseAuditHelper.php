@@ -20,6 +20,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\Audit\EncodingAuditHelper
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\FrontendPermissionAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\HistoricalAssetAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\MenuViewAuditHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\FormAuditColumnsHelper;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
 
@@ -75,6 +76,11 @@ final class DatabaseAuditHelper
      *     storage_id:int,
      *     storage_name:string,
      *     bytable:int,
+     *     missing:array<int,string>
+     *   }>,
+     *   missing_form_audit_columns_scanned:int,
+     *   missing_form_audit_columns:array<int,array{
+     *     table:string,
      *     missing:array<int,string>
      *   }>,
      *   plugin_extension_duplicates:array<int,array{
@@ -205,6 +211,9 @@ final class DatabaseAuditHelper
         $auditColumnsSummary = StorageAuditColumnsHelper::audit($db);
         $missingAuditColumns = (array) ($auditColumnsSummary['issues'] ?? []);
         $errors = array_merge($errors, (array) ($auditColumnsSummary['warnings'] ?? []));
+        $formAuditColumnsSummary = FormAuditColumnsHelper::audit($db);
+        $missingFormAuditColumns = (array) ($formAuditColumnsSummary['issues'] ?? []);
+        $errors = array_merge($errors, (array) ($formAuditColumnsSummary['warnings'] ?? []));
         $pluginDuplicatesSummary = PluginExtensionDedupHelper::audit($db);
         $pluginExtensionDuplicates = (array) ($pluginDuplicatesSummary['groups'] ?? []);
         $errors = array_merge($errors, (array) ($pluginDuplicatesSummary['warnings'] ?? []));

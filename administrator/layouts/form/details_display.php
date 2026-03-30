@@ -51,6 +51,35 @@ TXT;
 <div class="alert alert-info mb-3">
     <?php echo Text::_('COM_CONTENTBUILDERNG_TAB_DETAILS_DISPLAY_PERMISSION_HINT'); ?>
 </div>
+<div class="row gx-3 gy-1 mt-0 align-items-stretch mb-3">
+    <div class="col-12 col-xl-4 d-flex" id="cbDetailScreenPanels">
+        <div class="border rounded bg-body p-3 d-flex flex-column flex-grow-1">
+            <h4 class="h6 text-body-secondary mb-2">
+                <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BUTTON_OPTIONS'); ?>
+            </h4>
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <div>
+                    <input type="hidden" name="jform[cb_show_details_top_bar]" value="0" />
+                    <?php echo $renderCheckbox('jform[cb_show_details_top_bar]', 'cb_show_details_top_bar', (bool) ($item->cb_show_details_top_bar ?? true)); ?>
+                    <label class="form-check-label" for="cb_show_details_top_bar">
+                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_DETAILS_TOP_BAR_DESC'); ?>">
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_DETAILS_TOP_BAR'); ?>
+                        </span>
+                    </label>
+                </div>
+                <div>
+                    <input type="hidden" name="jform[cb_show_details_bottom_bar]" value="0" />
+                    <?php echo $renderCheckbox('jform[cb_show_details_bottom_bar]', 'cb_show_details_bottom_bar', (bool) ($item->cb_show_details_bottom_bar ?? false)); ?>
+                    <label class="form-check-label" for="cb_show_details_bottom_bar">
+                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_DETAILS_BOTTOM_BAR_DESC'); ?>">
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_DETAILS_BOTTOM_BAR'); ?>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <table width="100%" class="table table-striped">
     <tr>
         <td width="20%">

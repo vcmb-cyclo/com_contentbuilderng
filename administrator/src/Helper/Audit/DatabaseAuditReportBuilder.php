@@ -28,6 +28,8 @@ final class DatabaseAuditReportBuilder
      *   mixed_table_collations:array<int,array<string,mixed>>,
      *   missing_audit_columns_scanned:int,
      *   missing_audit_columns:array<int,array<string,mixed>>,
+     *   missing_form_audit_columns_scanned:int,
+     *   missing_form_audit_columns:array<int,array<string,mixed>>,
      *   plugin_extension_duplicates:array<int,array<string,mixed>>,
      *   bf_view_field_sync_issues:array<int,array<string,mixed>>,
      *   menu_view_issues:array<int,array<string,mixed>>,
@@ -51,6 +53,7 @@ final class DatabaseAuditReportBuilder
         $columnEncodingIssues = (array) ($data['column_encoding_issues'] ?? []);
         $mixedTableCollations = (array) ($data['mixed_table_collations'] ?? []);
         $missingAuditColumns = (array) ($data['missing_audit_columns'] ?? []);
+        $missingFormAuditColumns = (array) ($data['missing_form_audit_columns'] ?? []);
         $pluginExtensionDuplicates = (array) ($data['plugin_extension_duplicates'] ?? []);
         $bfFieldSyncIssues = (array) ($data['bf_view_field_sync_issues'] ?? []);
         $menuViewIssues = (array) ($data['menu_view_issues'] ?? []);
@@ -66,6 +69,15 @@ final class DatabaseAuditReportBuilder
             }
 
             $missingAuditColumnsTotal += count((array) ($missingAuditColumn['missing'] ?? []));
+        }
+
+        $missingFormAuditColumnsTotal = 0;
+        foreach ($missingFormAuditColumns as $missingFormAuditColumn) {
+            if (!is_array($missingFormAuditColumn)) {
+                continue;
+            }
+
+            $missingFormAuditColumnsTotal += count((array) ($missingFormAuditColumn['missing'] ?? []));
         }
 
         $bfMissingInCbTotal = 0;
@@ -103,6 +115,7 @@ final class DatabaseAuditReportBuilder
             + count($columnEncodingIssues)
             + $mixedCollationIssueGroups
             + count($missingAuditColumns)
+            + count($missingFormAuditColumns)
             + count($pluginExtensionDuplicates)
             + count($bfFieldSyncIssues)
             + count($menuViewIssues)
@@ -125,6 +138,8 @@ final class DatabaseAuditReportBuilder
             'mixed_table_collations' => $mixedTableCollations,
             'missing_audit_columns_scanned' => (int) ($data['missing_audit_columns_scanned'] ?? 0),
             'missing_audit_columns' => $missingAuditColumns,
+            'missing_form_audit_columns_scanned' => (int) ($data['missing_form_audit_columns_scanned'] ?? 0),
+            'missing_form_audit_columns' => $missingFormAuditColumns,
             'plugin_extension_duplicates' => $pluginExtensionDuplicates,
             'bf_view_field_sync_issues' => $bfFieldSyncIssues,
             'menu_view_issues' => $menuViewIssues,
@@ -142,6 +157,8 @@ final class DatabaseAuditReportBuilder
                 'mixed_table_collations' => $mixedCollationIssueGroups,
                 'missing_audit_column_tables' => count($missingAuditColumns),
                 'missing_audit_columns_total' => $missingAuditColumnsTotal,
+                'missing_form_audit_column_tables' => count($missingFormAuditColumns),
+                'missing_form_audit_columns_total' => $missingFormAuditColumnsTotal,
                 'plugin_duplicate_groups' => count($pluginExtensionDuplicates),
                 'plugin_duplicate_rows_to_remove' => $pluginDuplicateRowsToRemove,
                 'bf_view_field_sync_views' => count($bfFieldSyncIssues),

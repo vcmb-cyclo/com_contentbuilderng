@@ -212,6 +212,24 @@ if (!is_callable($renderCheckbox)) {
                                 </span>
                             </label>
                         </div>
+                        <div>
+                            <input type="hidden" name="jform[cb_filter_in_title]" value="0" />
+                            <?php echo $renderCheckbox('jform[cb_filter_in_title]', 'cb_filter_in_title', (bool) ($item->cb_filter_in_title ?? false)); ?>
+                            <label class="form-check-label" for="cb_filter_in_title">
+                                <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_FILTER_IN_TITLE_DESC'); ?>">
+                                    <?php echo Text::_('COM_CONTENTBUILDERNG_FILTER_IN_TITLE'); ?>
+                                </span>
+                            </label>
+                        </div>
+                        <div>
+                            <input type="hidden" name="jform[cb_prefix_in_title]" value="0" />
+                            <?php echo $renderCheckbox('jform[cb_prefix_in_title]', 'cb_prefix_in_title', (bool) ($item->cb_prefix_in_title ?? false)); ?>
+                            <label class="form-check-label" for="cb_prefix_in_title">
+                                <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_PREFIX_IN_TITLE_DESC'); ?>">
+                                    <?php echo Text::_('COM_CONTENTBUILDERNG_PREFIX_IN_TITLE'); ?>
+                                </span>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -382,6 +400,29 @@ if (!is_callable($renderCheckbox)) {
             </h3>
         </legend>
         <div class="alert">
+            <div class="fw-semibold mb-2">
+                <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BUTTON_OPTIONS'); ?>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                <div>
+                    <input type="hidden" name="jform[cb_show_author]" value="0" />
+                    <?php echo $renderCheckbox('jform[cb_show_author]', 'cb_show_author', (bool) ($item->cb_show_author ?? true)); ?>
+                    <label class="form-check-label" for="cb_show_author">
+                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_AUTHOR_DESC'); ?>">
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_AUTHOR'); ?>
+                        </span>
+                    </label>
+                </div>
+                <div>
+                    <input type="hidden" name="jform[show_back_button]" value="0" />
+                    <?php echo $renderCheckbox('jform[show_back_button]', 'show_back_button', (bool) ($item->show_back_button ?? true)); ?>
+                    <label class="form-check-label" for="show_back_button">
+                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BACK_BUTTON_DESC'); ?>">
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BACK_BUTTON'); ?>
+                        </span>
+                    </label>
+                </div>
+            </div>
             <label for="save_button_title">
                 <span class="editlinktip hasTip"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_SAVE_BUTTON_TITLE_TIP'); ?>"><b>

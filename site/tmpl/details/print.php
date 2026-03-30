@@ -19,7 +19,7 @@ use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 $app = Factory::getApplication();
 /** @var CMSApplication $app */
-$showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_author', 1);
+$showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_author', (int) ($this->cb_show_author ?? 1));
 
 $wa = $app->getDocument()->getWebAssetManager();
 

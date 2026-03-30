@@ -663,8 +663,6 @@ class ListModel extends BaseListModel
         if (empty($this->_data)) {
             $query = $this->_buildQuery();
             $this->_data = $this->_getList($query, 0, 1);
-            $prefixInTitle = $this->getMenuToggle('cb_prefix_in_title', 0);
-            $filterInTitle = $this->getMenuToggle('cb_filter_in_title', 0);
 
             if (!count($this->_data)) {
                 throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
@@ -714,6 +712,8 @@ class ListModel extends BaseListModel
                     if ($isAdminPreview && method_exists($data->form, 'synchRecords')) {
                         $data->form->synchRecords();
                     }
+                    $prefixInTitle = $this->getMenuToggle('cb_prefix_in_title', (int) ($data->cb_prefix_in_title ?? 0));
+                    $filterInTitle = $this->getMenuToggle('cb_filter_in_title', (int) ($data->cb_filter_in_title ?? 0));
                     $data->page_title = '';
                     if ($prefixInTitle === 1) {
                         if (!$this->_menu_item) {

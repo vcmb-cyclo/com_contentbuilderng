@@ -117,6 +117,14 @@ class FormTable extends Table
     public $list_article = 0;
     public $list_author = 0;
     public $list_last_modification = 0;
+    public $cb_show_author = 1;
+    public $cb_show_top_bar = 1;
+    public $cb_show_bottom_bar = 1;
+    public $cb_show_details_top_bar = 1;
+    public $cb_show_details_bottom_bar = 0;
+    public $show_back_button = 1;
+    public $cb_filter_in_title = 0;
+    public $cb_prefix_in_title = 0;
 
     public $act_as_registration = 0;
     public $registration_username_field = '';

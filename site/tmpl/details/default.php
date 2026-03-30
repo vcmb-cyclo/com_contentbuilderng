@@ -31,9 +31,9 @@ $delete_allowed = $frontend ? $permissionService->authorizeFe('delete') : $permi
 $view_allowed = $frontend ? $permissionService->authorizeFe('view') : $permissionService->authorize('view');
 $input = Factory::getApplication()->input;
 $runtimeApp = Factory::getApplication();
-$detailsTopBarToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_top_bar', 1);
-$detailsBackButtonToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_back_button', 1, 'show_back_button');
-$showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_author', 1);
+$detailsTopBarToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_top_bar', (int) ($this->cb_show_details_top_bar ?? 1));
+$detailsBackButtonToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_back_button', (int) ($this->show_back_button ?? 1), 'show_back_button');
+$showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_author', (int) ($this->cb_show_author ?? 1));
 $directStorageMode = !empty($this->direct_storage_mode);
 $directStorageId = (int) ($this->direct_storage_id ?? 0);
 
@@ -495,7 +495,7 @@ CSS
     <br />
 
     <?php
-    if (MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_bottom_bar', 0) === 1) {
+    if (MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_bottom_bar', (int) ($this->cb_show_details_bottom_bar ?? 0)) === 1) {
         if ($buttons !== '') {
             echo str_replace('class="cbToolBar ', 'class="cbToolBar cbToolBar--bottom ', $buttons);
         }

@@ -59,6 +59,11 @@ class HtmlView extends BaseHtmlView
     public $next_record_id = 0;
     public int $prev_record_start = 0;
     public int $next_record_start = 0;
+    public int $cb_show_author = 1;
+    public int $cb_show_top_bar = 1;
+    public int $cb_show_bottom_bar = 1;
+    public int $cb_filter_in_title = 0;
+    public int $cb_prefix_in_title = 0;
 
     protected $state;
     protected $item;
@@ -601,6 +606,8 @@ CSS;
                     'modified', 'modified_by', 'create_articles', 'apply_button_title',
                     'save_button_title', 'id', 'article_options', 'article_settings',
                     'limited_options', 'show_id_column', 'toc', 'tpl',
+                    'cb_show_author', 'cb_show_top_bar', 'cb_show_bottom_bar',
+                    'cb_filter_in_title', 'cb_prefix_in_title',
                 ];
 
                 foreach ($props as $prop) {

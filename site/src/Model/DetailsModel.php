@@ -303,7 +303,7 @@ class DetailsModel extends ListModel
         if (empty($this->_data)) {
             $query = $this->_buildQuery();
             $this->_data = $this->_getList($query, 0, 1);
-            $prefixInTitle = $this->getMenuToggle('cb_prefix_in_title', 0);
+            $prefixInTitle = $this->getMenuToggle('cb_prefix_in_title', (int) ($data->cb_prefix_in_title ?? 0));
 
             if (!count($this->_data)) {
                 throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
@@ -421,6 +421,12 @@ class DetailsModel extends ListModel
                         $document = $app->getDocument();
                         $document->setTitle($data->page_title);
                     }
+                    $this->_show_back_button = MenuParamHelper::resolveInputOrMenuToggle(
+                        $app,
+                        'cb_show_details_back_button',
+                        (int) ($data->show_back_button ?? 1),
+                        'show_back_button'
+                    ) === 1;
                     $data->show_back_button = $this->_show_back_button;
 
                     if (isset($rec2) && count($rec2)) {

@@ -56,6 +56,7 @@ foreach ($packedDataAuditTables as $packedDataAuditTable) {
 $columnEncodingIssues = (array) ($auditReport['column_encoding_issues'] ?? []);
 $mixedTableCollations = (array) ($auditReport['mixed_table_collations'] ?? []);
 $missingAuditColumns = (array) ($auditReport['missing_audit_columns'] ?? []);
+$missingFormAuditColumns = (array) ($auditReport['missing_form_audit_columns'] ?? []);
 $pluginExtensionDuplicates = (array) ($auditReport['plugin_extension_duplicates'] ?? []);
 $bfFieldSyncIssues = (array) ($auditReport['bf_view_field_sync_issues'] ?? []);
 $menuViewIssues = (array) ($auditReport['menu_view_issues'] ?? []);
@@ -65,6 +66,8 @@ $encodingTargetCharset = (string) ($auditSummary['encoding_target_charset'] ?? '
 $encodingTargetCollation = (string) ($auditSummary['encoding_target_collation'] ?? 'utf8mb4_0900_ai_ci');
 $missingAuditColumnsTotal = (int) ($auditSummary['missing_audit_columns_total'] ?? 0);
 $missingAuditColumnsTableCount = (int) ($auditSummary['missing_audit_column_tables'] ?? count($missingAuditColumns));
+$missingFormAuditColumnsTotal = (int) ($auditSummary['missing_form_audit_columns_total'] ?? 0);
+$missingFormAuditColumnsTableCount = (int) ($auditSummary['missing_form_audit_column_tables'] ?? count($missingFormAuditColumns));
 $pluginDuplicateGroups = (int) ($auditSummary['plugin_duplicate_groups'] ?? count($pluginExtensionDuplicates));
 $pluginDuplicateRowsToRemove = (int) ($auditSummary['plugin_duplicate_rows_to_remove'] ?? 0);
 if ($pluginDuplicateRowsToRemove === 0 && $pluginExtensionDuplicates !== []) {
@@ -226,6 +229,7 @@ $repairWorkflowStepLabels = [
         . Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MIXED_COLLATIONS'),
     'packed_data' => Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_STEP_PACKED_DATA_TITLE'),
     'audit_columns' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MISSING_AUDIT_COLUMNS'),
+    'form_audit_columns' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MISSING_FORM_AUDIT_COLUMNS'),
     'plugin_duplicates' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_PLUGIN_DUPLICATES'),
     'bf_field_sync' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BF_FIELD_SYNC'),
     'menu_view_consistency' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_VIEW_CONSISTENCY'),
@@ -238,6 +242,7 @@ $repairWorkflowStepDescriptions = [
     'table_encoding' => Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_STEP_TABLE_ENCODING_DESC'),
     'packed_data' => Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_STEP_PACKED_DATA_DESC'),
     'audit_columns' => Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_STEP_AUDIT_COLUMNS_DESC'),
+    'form_audit_columns' => Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_STEP_FORM_AUDIT_COLUMNS_DESC'),
     'plugin_duplicates' => Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_STEP_PLUGIN_DUPLICATES_DESC'),
     'historical_menu_entries' => Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_STEP_HISTORICAL_MENU_DESC'),
     'bf_field_sync' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BF_FIELD_SYNC'),
@@ -263,6 +268,7 @@ $hasPackedDataIssues = (int) ($auditSummary['packed_data_candidates'] ?? 0) > 0;
 $hasColumnEncodingIssues = $columnEncodingIssueCount > 0;
 $hasMixedCollationIssues = $mixedCollationIssueCount > 0;
 $hasMissingAuditColumnIssues = $missingAuditColumnsTableCount > 0 || $missingAuditColumnsTotal > 0;
+$hasMissingFormAuditColumnIssues = $missingFormAuditColumnsTableCount > 0 || $missingFormAuditColumnsTotal > 0;
 $hasPluginDuplicateIssues = $pluginDuplicateGroups > 0 || $pluginDuplicateRowsToRemove > 0;
 $hasBfFieldSyncIssues = $bfFieldSyncViews > 0 || $bfFieldSyncMissingTotal > 0 || $bfFieldSyncOrphanTotal > 0;
 $hasMenuViewIssues = (int) ($auditSummary['menu_view_issues'] ?? count($menuViewIssues)) > 0;
@@ -322,8 +328,52 @@ $renderAuditTitle = static function (string $label, bool $hasIssues): string {
 
     return $safeLabel;
 };
-$renderNumberedAuditTitle = static function (int $number, string $label, bool $hasIssues) use ($renderAuditTitle): string {
-    return $renderAuditTitle($number . '. ' . $label, $hasIssues);
+$auditSectionNumbers = [
+    'issues_total' => 1,
+    'duplicate_indexes' => 2,
+    'duplicate_indexes_to_drop' => 3,
+    'historical_tables' => 4,
+    'historical_menu_entries' => 5,
+    'table_encoding' => 6,
+    'packed_data' => 7,
+    'column_encoding' => 8,
+    'mixed_collations' => 9,
+    'audit_columns' => 10,
+    'audit_columns_total' => 11,
+    'form_audit_columns' => 12,
+    'form_audit_columns_total' => 13,
+    'plugin_duplicates' => 14,
+    'plugin_duplicate_rows' => 15,
+    'bf_field_sync' => 16,
+    'bf_field_sync_missing' => 17,
+    'bf_field_sync_orphan' => 18,
+    'menu_view_consistency' => 19,
+    'frontend_permission_consistency' => 20,
+    'element_reference_consistency' => 21,
+    'cb_table_stats' => 22,
+    'cb_tables_total' => 23,
+    'cb_ng_tables_expected' => 24,
+    'cb_ng_tables_missing' => 25,
+    'cb_storage_tables' => 26,
+    'cb_estimated_rows' => 27,
+    'cb_estimated_size' => 28,
+];
+$getAuditSectionNumber = static function (string $sectionId) use ($auditSectionNumbers): int {
+    return (int) ($auditSectionNumbers[$sectionId] ?? 0);
+};
+$getAuditSectionHeadingId = static function (string $sectionId): string {
+    return 'cb-audit-section-' . $sectionId;
+};
+$renderAuditSummaryLink = static function (string $sectionId, string $label) use ($getAuditSectionHeadingId): string {
+    $anchorId = htmlspecialchars($getAuditSectionHeadingId($sectionId), ENT_QUOTES, 'UTF-8');
+    $safeLabel = htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
+
+    return '<a class="text-reset text-decoration-none" href="#' . $anchorId . '">' . $safeLabel . '</a>';
+};
+$renderNumberedAuditTitle = static function (string $sectionId, string $label, bool $hasIssues) use ($renderAuditTitle, $getAuditSectionNumber): string {
+    $number = $getAuditSectionNumber($sectionId);
+
+    return $renderAuditTitle(($number > 0 ? $number . '. ' : '') . $label, $hasIssues);
 };
 
 ?>
@@ -590,6 +640,14 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
         align-items: center;
         gap: .45rem;
     }
+    .cb-audit-detail-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .cb-audit-section-block {
+        min-width: 0;
+    }
     .cb-audit-ok-check {
         color: #198754;
         font-size: .95rem;
@@ -803,6 +861,7 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                     $stepIsCurrent = $stepIndex === $repairWorkflowDisplayCurrentIndex;
                     $stepClasses = ['cb-repair-workflow-step'];
                     $statusClasses = ['cb-repair-workflow-status'];
+                    $stepNumber = $getAuditSectionNumber($stepId);
 
                     if ($stepIsCurrent && $stepStatus === 'pending') {
                         $stepClasses[] = 'is-current';
@@ -837,7 +896,7 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                                 <?php if ($showStepCheck) : ?>
                                     <span class="cb-repair-workflow-step-check icon-check-circle" aria-hidden="true"></span>
                                 <?php endif; ?>
-                                <?php echo ($stepIndex + 1) . '. ' . htmlspecialchars($stepLabel, ENT_QUOTES, 'UTF-8'); ?>
+                                <?php echo htmlspecialchars(($stepNumber > 0 ? $stepNumber . '. ' : '') . $stepLabel, ENT_QUOTES, 'UTF-8'); ?>
                             </p>
                             <span class="<?php echo implode(' ', $statusClasses); ?>">
                                 <?php if ($statusIconClass !== '') : ?>
@@ -872,7 +931,9 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
 
             <?php if ($repairWorkflowShowCurrentPanel && is_array($repairWorkflowCurrentStep)) : ?>
                 <?php
-                $currentStepTitle = $repairWorkflowStepLabels[$repairWorkflowCurrentStepId] ?? $repairWorkflowCurrentStepId;
+                $currentStepLabel = $repairWorkflowStepLabels[$repairWorkflowCurrentStepId] ?? $repairWorkflowCurrentStepId;
+                $currentStepNumber = $getAuditSectionNumber($repairWorkflowCurrentStepId);
+                $currentStepTitle = ($currentStepNumber > 0 ? $currentStepNumber . '. ' : '') . $currentStepLabel;
                 $currentStepPrecheck = is_array($repairWorkflowCurrentStep) ? (array) ($repairWorkflowCurrentStep['precheck'] ?? []) : [];
                 $currentStepDescription = trim((string) ($currentStepPrecheck['description'] ?? ($repairWorkflowStepDescriptions[$repairWorkflowCurrentStepId] ?? '')));
                 $currentStepLines = (array) ($repairWorkflowCurrentResult['lines'] ?? []);
@@ -970,135 +1031,145 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                     </tr>
                     </thead>
                     <tbody>
-                    <?php $auditSummaryRowNumber = 1; ?>
+                    <?php $auditSummaryRowNumber = static fn(string $sectionId): int => $getAuditSectionNumber($sectionId); ?>
                     <tr class="<?php echo $hasAuditIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('issues_total'); ?></td>
                         <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_ISSUES_TOTAL'); ?></th>
                         <td><?php echo (int) ($auditSummary['issues_total'] ?? 0); ?></td>
                     </tr>
                     <tr class="<?php echo $hasDuplicateIndexIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_DUPLICATE_GROUPS'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('duplicate_indexes'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('duplicate_indexes', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_DUPLICATE_GROUPS')); ?></th>
                         <td><?php echo (int) ($auditSummary['duplicate_index_groups'] ?? 0); ?></td>
                     </tr>
                     <tr class="<?php echo $hasDuplicateIndexDropIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_DUPLICATE_TO_DROP'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('duplicate_indexes_to_drop'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('duplicate_indexes', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_DUPLICATE_TO_DROP')); ?></th>
                         <td><?php echo (int) ($auditSummary['duplicate_indexes_to_drop'] ?? 0); ?></td>
                     </tr>
                     <tr class="<?php echo $hasLegacyTableIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_HISTORICAL_TABLES'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('historical_tables'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('historical_tables', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_HISTORICAL_TABLES')); ?></th>
                         <td><?php echo (int) ($auditSummary['historical_tables'] ?? 0); ?></td>
                     </tr>
                     <tr class="<?php echo $hasLegacyMenuIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_HISTORICAL_MENU_ENTRIES'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('historical_menu_entries'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('historical_menu_entries', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_HISTORICAL_MENU_ENTRIES')); ?></th>
                         <td><?php echo $historicalMenuEntriesCount; ?></td>
                     </tr>
                     <tr class="<?php echo $hasTableEncodingIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TABLE_ENCODING_ISSUES'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('table_encoding'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('table_encoding', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TABLE_ENCODING_ISSUES')); ?></th>
                         <td><?php echo (int) ($auditSummary['table_encoding_issues'] ?? 0); ?></td>
                     </tr>
                     <tr class="<?php echo $hasPackedDataIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_STEP_PACKED_DATA_TITLE'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('packed_data'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('packed_data', Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_STEP_PACKED_DATA_TITLE')); ?></th>
                         <td><?php echo (int) ($auditSummary['packed_data_candidates'] ?? ($packedDataAudit['candidates'] ?? 0)); ?></td>
                     </tr>
                     <tr class="<?php echo $hasColumnEncodingIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_COLUMN_ENCODING_ISSUES'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('column_encoding'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('column_encoding', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_COLUMN_ENCODING_ISSUES')); ?></th>
                         <td><?php echo (int) ($auditSummary['column_encoding_issues'] ?? 0); ?></td>
                     </tr>
                     <tr class="<?php echo $hasMixedCollationIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MIXED_COLLATIONS'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('mixed_collations'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('mixed_collations', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MIXED_COLLATIONS')); ?></th>
                         <td><?php echo max(0, count($mixedTableCollations) - 1); ?></td>
                     </tr>
                     <tr class="<?php echo $missingAuditColumnsTableCount > 0 ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MISSING_AUDIT_COLUMNS'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('audit_columns'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('audit_columns', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MISSING_AUDIT_COLUMNS')); ?></th>
                         <td><?php echo $missingAuditColumnsTableCount; ?></td>
                     </tr>
                     <tr class="<?php echo $missingAuditColumnsTotal > 0 ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MISSING_AUDIT_COLUMNS_TOTAL'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('audit_columns_total'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('audit_columns', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MISSING_AUDIT_COLUMNS_TOTAL')); ?></th>
                         <td><?php echo $missingAuditColumnsTotal; ?></td>
                     </tr>
+                    <tr class="<?php echo $missingFormAuditColumnsTableCount > 0 ? 'table-warning' : ''; ?>">
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('form_audit_columns'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('form_audit_columns', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MISSING_FORM_AUDIT_COLUMNS')); ?></th>
+                        <td><?php echo $missingFormAuditColumnsTableCount; ?></td>
+                    </tr>
+                    <tr class="<?php echo $missingFormAuditColumnsTotal > 0 ? 'table-warning' : ''; ?>">
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('form_audit_columns_total'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('form_audit_columns', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MISSING_FORM_AUDIT_COLUMNS_TOTAL')); ?></th>
+                        <td><?php echo $missingFormAuditColumnsTotal; ?></td>
+                    </tr>
                     <tr class="<?php echo $hasPluginDuplicateIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_PLUGIN_DUPLICATE_GROUPS'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('plugin_duplicates'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('plugin_duplicates', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_PLUGIN_DUPLICATE_GROUPS')); ?></th>
                         <td><?php echo $pluginDuplicateGroups; ?></td>
                     </tr>
                     <tr class="<?php echo $hasPluginDuplicateIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_PLUGIN_DUPLICATE_ROWS_TO_REMOVE'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('plugin_duplicate_rows'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('plugin_duplicates', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_PLUGIN_DUPLICATE_ROWS_TO_REMOVE')); ?></th>
                         <td><?php echo $pluginDuplicateRowsToRemove; ?></td>
                     </tr>
                     <tr class="<?php echo $hasBfFieldSyncIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BF_FIELD_SYNC_VIEWS'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('bf_field_sync'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('bf_field_sync', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BF_FIELD_SYNC_VIEWS')); ?></th>
                         <td><?php echo $bfFieldSyncViews; ?></td>
                     </tr>
                     <tr class="<?php echo $hasBfFieldSyncIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BF_FIELD_SYNC_MISSING_IN_CB'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('bf_field_sync_missing'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('bf_field_sync', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BF_FIELD_SYNC_MISSING_IN_CB')); ?></th>
                         <td><?php echo $bfFieldSyncMissingTotal; ?></td>
                     </tr>
                     <tr class="<?php echo $hasBfFieldSyncIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BF_FIELD_SYNC_EXTRA_IN_CB'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('bf_field_sync_orphan'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('bf_field_sync', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BF_FIELD_SYNC_EXTRA_IN_CB')); ?></th>
                         <td><?php echo $bfFieldSyncOrphanTotal; ?></td>
                     </tr>
                     <tr class="<?php echo $hasMenuViewIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_VIEW_CONSISTENCY'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('menu_view_consistency'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('menu_view_consistency', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_VIEW_CONSISTENCY')); ?></th>
                         <td><?php echo (int) ($auditSummary['menu_view_issues'] ?? count($menuViewIssues)); ?></td>
                     </tr>
                     <tr class="<?php echo $hasFrontendPermissionIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_FRONTEND_PERMISSION_CONSISTENCY'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('frontend_permission_consistency'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('frontend_permission_consistency', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_FRONTEND_PERMISSION_CONSISTENCY')); ?></th>
                         <td><?php echo (int) ($auditSummary['frontend_permission_issues'] ?? count($frontendPermissionIssues)); ?></td>
                     </tr>
                     <tr class="<?php echo $hasElementReferenceIssues ? 'table-warning' : ''; ?>">
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_ELEMENT_REFERENCE_CONSISTENCY'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('element_reference_consistency'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('element_reference_consistency', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_ELEMENT_REFERENCE_CONSISTENCY')); ?></th>
                         <td><?php echo (int) ($auditSummary['element_reference_issues'] ?? count($elementReferenceIssues)); ?></td>
                     </tr>
                     <tr>
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_TABLES_TOTAL'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('cb_tables_total'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('cb_table_stats', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_TABLES_TOTAL')); ?></th>
                         <td><?php echo (int) ($cbTableSummary['tables_total'] ?? 0); ?></td>
                     </tr>
                     <tr>
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_NG_TABLES'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('cb_ng_tables'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('cb_table_stats', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_NG_TABLES')); ?></th>
                         <td><?php echo (int) ($cbTableSummary['tables_ng_total'] ?? 0); ?></td>
                     </tr>
                     <tr>
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_NG_TABLES_EXPECTED'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('cb_ng_tables_expected'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('cb_table_stats', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_NG_TABLES_EXPECTED')); ?></th>
                         <td><?php echo (int) ($cbTableSummary['tables_ng_expected'] ?? 0); ?></td>
                     </tr>
                     <tr>
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_NG_TABLES_MISSING'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('cb_ng_tables_missing'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('cb_ng_tables_missing', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_NG_TABLES_MISSING')); ?></th>
                         <td><?php echo (int) ($cbTableSummary['tables_ng_missing'] ?? 0); ?></td>
                     </tr>
                     <tr>
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_STORAGE_TABLES'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('cb_storage_tables'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('cb_table_stats', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_STORAGE_TABLES')); ?></th>
                         <td><?php echo (int) ($cbTableSummary['tables_storage_total'] ?? 0); ?></td>
                     </tr>
                     <tr>
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_ESTIMATED_ROWS'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('cb_estimated_rows'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('cb_table_stats', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_ESTIMATED_ROWS')); ?></th>
                         <td><?php echo number_format((int) ($cbTableSummary['rows_total'] ?? 0), 0, '.', ' '); ?></td>
                     </tr>
                     <tr>
-                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber++; ?></td>
-                        <th scope="row"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_ESTIMATED_SIZE'); ?></th>
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('cb_estimated_size'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('cb_table_stats', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_ESTIMATED_SIZE')); ?></th>
                         <td><?php echo $formatBytes((int) ($cbTableSummary['size_bytes_total'] ?? 0)); ?></td>
                     </tr>
                     </tbody>
@@ -1114,197 +1185,249 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                 </div>
             <?php endif; ?>
 
-            <h4 class="h6 mt-3<?php echo $hasDuplicateIndexIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle(1, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_DUPLICATE_GROUPS'), $hasDuplicateIndexIssues); ?></h4>
-            <?php if (empty($duplicateIndexes)) : ?>
-                <div class="alert cb-audit-ok-alert">
-                    <span class="cb-audit-section-title">
-                        <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
-                        <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_DUPLICATE_INDEXES'); ?></span>
-                    </span>
-                </div>
-            <?php else : ?>
-                <div class="table-responsive">
-                    <table id="cb-audit-duplicate-indexes-table" class="table table-sm table-striped align-middle">
-                        <thead>
-                        <tr>
-                            <th scope="col"><?php echo $auditRowNumberLabel; ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TABLE'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_INDEX_KEEP'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_INDEX_DROP'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_INDEXES'); ?></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php $duplicateIndexRowNumber = 1; ?>
-                        <?php foreach ($duplicateIndexes as $duplicateIndex) : ?>
+            <div class="cb-audit-detail-sections">
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('duplicate_indexes'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 2;">
+                <h4 class="h6 mt-3<?php echo $hasDuplicateIndexIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('duplicate_indexes', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_DUPLICATE_GROUPS'), $hasDuplicateIndexIssues); ?></h4>
+                <?php if (empty($duplicateIndexes)) : ?>
+                    <div class="alert cb-audit-ok-alert">
+                        <span class="cb-audit-section-title">
+                            <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
+                            <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_DUPLICATE_INDEXES'); ?></span>
+                        </span>
+                    </div>
+                <?php else : ?>
+                    <div class="table-responsive">
+                        <table id="cb-audit-duplicate-indexes-table" class="table table-sm table-striped align-middle">
+                            <thead>
                             <tr>
-                                <td><?php echo $duplicateIndexRowNumber++; ?></td>
-                                <td><?php echo htmlspecialchars((string) ($duplicateIndex['table'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td><?php echo htmlspecialchars((string) ($duplicateIndex['keep'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td><?php echo htmlspecialchars(implode(', ', (array) ($duplicateIndex['drop'] ?? [])), ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td><?php echo htmlspecialchars(implode(', ', (array) ($duplicateIndex['indexes'] ?? [])), ENT_QUOTES, 'UTF-8'); ?></td>
+                                <th scope="col"><?php echo $auditRowNumberLabel; ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TABLE'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_INDEX_KEEP'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_INDEX_DROP'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_INDEXES'); ?></th>
                             </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
+                            </thead>
+                            <tbody>
+                            <?php $duplicateIndexRowNumber = 1; ?>
+                            <?php foreach ($duplicateIndexes as $duplicateIndex) : ?>
+                                <tr>
+                                    <td><?php echo $duplicateIndexRowNumber++; ?></td>
+                                    <td><?php echo htmlspecialchars((string) ($duplicateIndex['table'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars((string) ($duplicateIndex['keep'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars(implode(', ', (array) ($duplicateIndex['drop'] ?? [])), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars(implode(', ', (array) ($duplicateIndex['indexes'] ?? [])), ENT_QUOTES, 'UTF-8'); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </div>
 
-            <h4 class="h6 mt-3<?php echo $hasPluginDuplicateIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle(2, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_PLUGIN_DUPLICATES'), $hasPluginDuplicateIssues); ?></h4>
-            <?php if (empty($pluginExtensionDuplicates)) : ?>
-                <div class="alert cb-audit-ok-alert">
-                    <span class="cb-audit-section-title">
-                        <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
-                        <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_PLUGIN_DUPLICATES'); ?></span>
-                    </span>
-                </div>
-            <?php else : ?>
-                <div class="table-responsive">
-                    <table id="cb-audit-plugin-duplicates-table" class="table table-sm table-striped align-middle">
-                        <thead>
-                        <tr>
-                            <th scope="col"><?php echo $auditRowNumberLabel; ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CANONICAL_PLUGIN'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_INDEX_KEEP'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_INDEX_DROP'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_PLUGIN_ROWS'); ?></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php $pluginDuplicateRowNumber = 1; ?>
-                        <?php foreach ($pluginExtensionDuplicates as $pluginExtensionDuplicate) : ?>
-                            <?php
-                            $canonicalFolder = trim((string) ($pluginExtensionDuplicate['canonical_folder'] ?? ''));
-                            $canonicalElement = trim((string) ($pluginExtensionDuplicate['canonical_element'] ?? ''));
-                            $canonicalLabel = trim($canonicalFolder . '/' . $canonicalElement, '/');
-                            if ($canonicalLabel === '') {
-                                $canonicalLabel = Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE');
-                            }
-
-                            $keepId = (int) ($pluginExtensionDuplicate['keep_id'] ?? 0);
-                            $dropIds = (array) ($pluginExtensionDuplicate['duplicate_ids'] ?? []);
-                            $rows = (array) ($pluginExtensionDuplicate['rows'] ?? []);
-                            $rowLabels = [];
-
-                            foreach ($rows as $pluginRow) {
-                                if (!is_array($pluginRow)) {
-                                    continue;
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('plugin_duplicates'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 14;">
+                <h4 class="h6 mt-3<?php echo $hasPluginDuplicateIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('plugin_duplicates', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_PLUGIN_DUPLICATES'), $hasPluginDuplicateIssues); ?></h4>
+                <?php if (empty($pluginExtensionDuplicates)) : ?>
+                    <div class="alert cb-audit-ok-alert">
+                        <span class="cb-audit-section-title">
+                            <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
+                            <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_PLUGIN_DUPLICATES'); ?></span>
+                        </span>
+                    </div>
+                <?php else : ?>
+                    <div class="table-responsive">
+                        <table id="cb-audit-plugin-duplicates-table" class="table table-sm table-striped align-middle">
+                            <thead>
+                            <tr>
+                                <th scope="col"><?php echo $auditRowNumberLabel; ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CANONICAL_PLUGIN'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_INDEX_KEEP'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_INDEX_DROP'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_PLUGIN_ROWS'); ?></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php $pluginDuplicateRowNumber = 1; ?>
+                            <?php foreach ($pluginExtensionDuplicates as $pluginExtensionDuplicate) : ?>
+                                <?php
+                                $canonicalFolder = trim((string) ($pluginExtensionDuplicate['canonical_folder'] ?? ''));
+                                $canonicalElement = trim((string) ($pluginExtensionDuplicate['canonical_element'] ?? ''));
+                                $canonicalLabel = trim($canonicalFolder . '/' . $canonicalElement, '/');
+                                if ($canonicalLabel === '') {
+                                    $canonicalLabel = Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE');
                                 }
 
-                                $rowId = (int) ($pluginRow['extension_id'] ?? 0);
-                                $rowFolder = trim((string) ($pluginRow['folder'] ?? ''));
-                                $rowElement = trim((string) ($pluginRow['element'] ?? ''));
-                                $rowEnabled = (int) ($pluginRow['enabled'] ?? 0) === 1
-                                    ? Text::_('JENABLED')
-                                    : Text::_('JDISABLED');
+                                $keepId = (int) ($pluginExtensionDuplicate['keep_id'] ?? 0);
+                                $dropIds = (array) ($pluginExtensionDuplicate['duplicate_ids'] ?? []);
+                                $rows = (array) ($pluginExtensionDuplicate['rows'] ?? []);
+                                $rowLabels = [];
 
-                                $rowLabels[] = '#' . $rowId . ' ' . $rowFolder . '/' . $rowElement . ' [' . $rowEnabled . ']';
-                            }
-                            ?>
-                            <tr>
-                                <td><?php echo $pluginDuplicateRowNumber++; ?></td>
-                                <td><?php echo htmlspecialchars($canonicalLabel, ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td><?php echo $keepId; ?></td>
-                                <td><?php echo htmlspecialchars(implode(', ', $dropIds), ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td><?php echo htmlspecialchars(implode(' | ', $rowLabels), ENT_QUOTES, 'UTF-8'); ?></td>
-                            </tr>
+                                foreach ($rows as $pluginRow) {
+                                    if (!is_array($pluginRow)) {
+                                        continue;
+                                    }
+
+                                    $rowId = (int) ($pluginRow['extension_id'] ?? 0);
+                                    $rowFolder = trim((string) ($pluginRow['folder'] ?? ''));
+                                    $rowElement = trim((string) ($pluginRow['element'] ?? ''));
+                                    $rowEnabled = (int) ($pluginRow['enabled'] ?? 0) === 1
+                                        ? Text::_('JENABLED')
+                                        : Text::_('JDISABLED');
+
+                                    $rowLabels[] = '#' . $rowId . ' ' . $rowFolder . '/' . $rowElement . ' [' . $rowEnabled . ']';
+                                }
+                                ?>
+                                <tr>
+                                    <td><?php echo $pluginDuplicateRowNumber++; ?></td>
+                                    <td><?php echo htmlspecialchars($canonicalLabel, ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo $keepId; ?></td>
+                                    <td><?php echo htmlspecialchars(implode(', ', $dropIds), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars(implode(' | ', $rowLabels), ENT_QUOTES, 'UTF-8'); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('historical_tables'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 4;">
+                <h4 class="h6 mt-3<?php echo $hasLegacyTableIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('historical_tables', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_HISTORICAL_TABLES'), $hasLegacyTableIssues); ?></h4>
+                <?php if (empty($historicalTables)) : ?>
+                    <div class="alert cb-audit-ok-alert">
+                        <span class="cb-audit-section-title">
+                            <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
+                            <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_HISTORICAL_TABLES'); ?></span>
+                        </span>
+                    </div>
+                <?php else : ?>
+                    <ol class="mb-0 ps-3">
+                        <?php foreach ($historicalTables as $historicalTable) : ?>
+                            <li><?php echo htmlspecialchars((string) $historicalTable, ENT_QUOTES, 'UTF-8'); ?></li>
                         <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
+                    </ol>
+                <?php endif; ?>
+            </div>
 
-            <h4 class="h6 mt-3<?php echo $hasLegacyTableIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle(3, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_HISTORICAL_TABLES'), $hasLegacyTableIssues); ?></h4>
-            <?php if (empty($historicalTables)) : ?>
-                <div class="alert cb-audit-ok-alert">
-                    <span class="cb-audit-section-title">
-                        <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
-                        <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_HISTORICAL_TABLES'); ?></span>
-                    </span>
-                </div>
-            <?php else : ?>
-                <ol class="mb-0 ps-3">
-                    <?php foreach ($historicalTables as $historicalTable) : ?>
-                        <li><?php echo htmlspecialchars((string) $historicalTable, ENT_QUOTES, 'UTF-8'); ?></li>
-                    <?php endforeach; ?>
-                </ol>
-            <?php endif; ?>
-
-            <h4 class="h6 mt-3<?php echo $hasLegacyMenuIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle(4, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_HISTORICAL_MENU_ENTRIES'), $hasLegacyMenuIssues); ?></h4>
-            <?php if (empty($historicalMenuEntries)) : ?>
-                <div class="alert cb-audit-ok-alert">
-                    <span class="cb-audit-section-title">
-                        <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
-                        <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_HISTORICAL_MENU_ENTRIES'); ?></span>
-                    </span>
-                </div>
-            <?php else : ?>
-                <div class="table-responsive">
-                    <table id="cb-audit-historical-menu-table" class="table table-sm table-striped align-middle">
-                        <thead>
-                        <tr>
-                            <th scope="col"><?php echo $auditRowNumberLabel; ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ID'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_TITLE'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_NORMALIZED_TITLE'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_LINK'); ?></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php $historicalMenuEntryRowNumber = 1; ?>
-                        <?php foreach ($historicalMenuEntries as $historicalMenuEntry) : ?>
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('historical_menu_entries'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 5;">
+                <h4 class="h6 mt-3<?php echo $hasLegacyMenuIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('historical_menu_entries', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_HISTORICAL_MENU_ENTRIES'), $hasLegacyMenuIssues); ?></h4>
+                <?php if (empty($historicalMenuEntries)) : ?>
+                    <div class="alert cb-audit-ok-alert">
+                        <span class="cb-audit-section-title">
+                            <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
+                            <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_HISTORICAL_MENU_ENTRIES'); ?></span>
+                        </span>
+                    </div>
+                <?php else : ?>
+                    <div class="table-responsive">
+                        <table id="cb-audit-historical-menu-table" class="table table-sm table-striped align-middle">
+                            <thead>
                             <tr>
-                                <td><?php echo $historicalMenuEntryRowNumber++; ?></td>
-                                <td><?php echo (int) ($historicalMenuEntry['menu_id'] ?? 0); ?></td>
-                                <td><?php echo htmlspecialchars((string) ($historicalMenuEntry['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td><?php echo htmlspecialchars((string) ($historicalMenuEntry['normalized_title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td><?php echo htmlspecialchars((string) ($historicalMenuEntry['link'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                <th scope="col"><?php echo $auditRowNumberLabel; ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ID'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_TITLE'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_NORMALIZED_TITLE'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_LINK'); ?></th>
                             </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
+                            </thead>
+                            <tbody>
+                            <?php $historicalMenuEntryRowNumber = 1; ?>
+                            <?php foreach ($historicalMenuEntries as $historicalMenuEntry) : ?>
+                                <tr>
+                                    <td><?php echo $historicalMenuEntryRowNumber++; ?></td>
+                                    <td><?php echo (int) ($historicalMenuEntry['menu_id'] ?? 0); ?></td>
+                                    <td><?php echo htmlspecialchars((string) ($historicalMenuEntry['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars((string) ($historicalMenuEntry['normalized_title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars((string) ($historicalMenuEntry['link'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </div>
 
-            <h4 class="h6 mt-3<?php echo $hasMissingAuditColumnIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle(5, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MISSING_AUDIT_COLUMNS'), $hasMissingAuditColumnIssues); ?></h4>
-            <?php if (empty($missingAuditColumns)) : ?>
-                <div class="alert cb-audit-ok-alert">
-                    <span class="cb-audit-section-title">
-                        <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
-                        <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_MISSING_AUDIT_COLUMNS'); ?></span>
-                    </span>
-                </div>
-            <?php else : ?>
-                <div class="table-responsive">
-                    <table id="cb-audit-missing-audit-columns-table" class="table table-sm table-striped align-middle">
-                        <thead>
-                        <tr>
-                            <th scope="col"><?php echo $auditRowNumberLabel; ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TABLE'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STORAGE_ID'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STORAGE'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BYTABLE'); ?></th>
-                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_COLUMN'); ?></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php $missingAuditColumnRowNumber = 1; ?>
-                        <?php foreach ($missingAuditColumns as $missingAuditColumn) : ?>
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('audit_columns'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 10;">
+                <h4 class="h6 mt-3<?php echo $hasMissingAuditColumnIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('audit_columns', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MISSING_AUDIT_COLUMNS'), $hasMissingAuditColumnIssues); ?></h4>
+                <?php if (empty($missingAuditColumns)) : ?>
+                    <div class="alert cb-audit-ok-alert">
+                        <span class="cb-audit-section-title">
+                            <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
+                            <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_MISSING_AUDIT_COLUMNS'); ?></span>
+                        </span>
+                    </div>
+                <?php else : ?>
+                    <div class="table-responsive">
+                        <table id="cb-audit-missing-audit-columns-table" class="table table-sm table-striped align-middle">
+                            <thead>
                             <tr>
-                                <td><?php echo $missingAuditColumnRowNumber++; ?></td>
-                                <td><?php echo htmlspecialchars((string) ($missingAuditColumn['table'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td><?php echo (int) ($missingAuditColumn['storage_id'] ?? 0); ?></td>
-                                <td><?php echo htmlspecialchars((string) ($missingAuditColumn['storage_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td><?php echo Text::_((int) ($missingAuditColumn['bytable'] ?? 0) === 1 ? 'JYES' : 'JNO'); ?></td>
-                                <td><?php echo htmlspecialchars(implode(', ', (array) ($missingAuditColumn['missing'] ?? [])), ENT_QUOTES, 'UTF-8'); ?></td>
+                                <th scope="col"><?php echo $auditRowNumberLabel; ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TABLE'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STORAGE_ID'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STORAGE'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BYTABLE'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_COLUMN'); ?></th>
                             </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
+                            </thead>
+                            <tbody>
+                            <?php $missingAuditColumnRowNumber = 1; ?>
+                            <?php foreach ($missingAuditColumns as $missingAuditColumn) : ?>
+                                <tr>
+                                    <td><?php echo $missingAuditColumnRowNumber++; ?></td>
+                                    <td><?php echo htmlspecialchars((string) ($missingAuditColumn['table'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo (int) ($missingAuditColumn['storage_id'] ?? 0); ?></td>
+                                    <td><?php echo htmlspecialchars((string) ($missingAuditColumn['storage_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo Text::_((int) ($missingAuditColumn['bytable'] ?? 0) === 1 ? 'JYES' : 'JNO'); ?></td>
+                                    <td><?php echo htmlspecialchars(implode(', ', (array) ($missingAuditColumn['missing'] ?? [])), ENT_QUOTES, 'UTF-8'); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </div>
 
-            <h4 class="h6 mt-3<?php echo $hasBfFieldSyncIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle(6, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BF_FIELD_SYNC'), $hasBfFieldSyncIssues); ?></h4>
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('form_audit_columns'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 12;">
+                <h4 class="h6 mt-3<?php echo $hasMissingFormAuditColumnIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('form_audit_columns', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MISSING_FORM_AUDIT_COLUMNS'), $hasMissingFormAuditColumnIssues); ?></h4>
+                <?php if (empty($missingFormAuditColumns)) : ?>
+                    <div class="alert cb-audit-ok-alert">
+                        <span class="cb-audit-section-title">
+                            <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
+                            <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_MISSING_FORM_AUDIT_COLUMNS'); ?></span>
+                        </span>
+                    </div>
+                <?php else : ?>
+                    <div class="table-responsive">
+                        <table id="cb-audit-missing-form-audit-columns-table" class="table table-sm table-striped align-middle">
+                            <thead>
+                            <tr>
+                                <th scope="col"><?php echo $auditRowNumberLabel; ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TABLE'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_COLUMN'); ?></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php $missingFormAuditColumnRowNumber = 1; ?>
+                            <?php foreach ($missingFormAuditColumns as $missingFormAuditColumn) : ?>
+                                <?php
+                                $missingColumns = array_values(array_filter(array_map(
+                                    static fn($column): string => trim((string) $column),
+                                    (array) ($missingFormAuditColumn['missing'] ?? [])
+                                )));
+                                ?>
+                                <tr>
+                                    <td><?php echo $missingFormAuditColumnRowNumber++; ?></td>
+                                    <td><?php echo htmlspecialchars((string) ($missingFormAuditColumn['table'] ?? '#__contentbuilderng_forms'), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars(implode(', ', $missingColumns), ENT_QUOTES, 'UTF-8'); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('bf_field_sync'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 16;">
+                <h4 class="h6 mt-3<?php echo $hasBfFieldSyncIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('bf_field_sync', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BF_FIELD_SYNC'), $hasBfFieldSyncIssues); ?></h4>
             <?php if (empty($bfFieldSyncIssues)) : ?>
                 <div class="alert cb-audit-ok-alert">
                     <span class="cb-audit-section-title">
@@ -1396,8 +1519,10 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                     </table>
                 </div>
             <?php endif; ?>
+            </div>
 
-            <h4 class="h6 mt-3<?php echo $hasMenuViewIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle(7, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_VIEW_CONSISTENCY'), $hasMenuViewIssues); ?></h4>
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('menu_view_consistency'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 19;">
+                <h4 class="h6 mt-3<?php echo $hasMenuViewIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('menu_view_consistency', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_VIEW_CONSISTENCY'), $hasMenuViewIssues); ?></h4>
             <?php if (empty($menuViewIssues)) : ?>
                 <div class="alert cb-audit-ok-alert">
                     <span class="cb-audit-section-title">
@@ -1460,8 +1585,10 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                     </table>
                 </div>
             <?php endif; ?>
+            </div>
 
-            <h4 class="h6 mt-3<?php echo $hasFrontendPermissionIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle(8, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_FRONTEND_PERMISSION_CONSISTENCY'), $hasFrontendPermissionIssues); ?></h4>
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('frontend_permission_consistency'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 20;">
+                <h4 class="h6 mt-3<?php echo $hasFrontendPermissionIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('frontend_permission_consistency', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_FRONTEND_PERMISSION_CONSISTENCY'), $hasFrontendPermissionIssues); ?></h4>
             <?php if (empty($frontendPermissionIssues)) : ?>
                 <div class="alert cb-audit-ok-alert">
                     <span class="cb-audit-section-title">
@@ -1543,8 +1670,10 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                     </table>
                 </div>
             <?php endif; ?>
+            </div>
 
-            <h4 class="h6 mt-3<?php echo $hasElementReferenceIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle(9, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_ELEMENT_REFERENCE_CONSISTENCY'), $hasElementReferenceIssues); ?></h4>
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('element_reference_consistency'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 21;">
+                <h4 class="h6 mt-3<?php echo $hasElementReferenceIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('element_reference_consistency', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_ELEMENT_REFERENCE_CONSISTENCY'), $hasElementReferenceIssues); ?></h4>
             <?php if (empty($elementReferenceIssues)) : ?>
                 <div class="alert cb-audit-ok-alert">
                     <span class="cb-audit-section-title">
@@ -1635,8 +1764,10 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                     </table>
                 </div>
             <?php endif; ?>
+            </div>
 
-            <h4 class="h6 mt-3<?php echo $hasTableEncodingIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle(10, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TABLE_ENCODING_ISSUES') . ' (' . $tableEncodingIssueCount . ')', $hasTableEncodingIssues); ?></h4>
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('table_encoding'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 6;">
+                <h4 class="h6 mt-3<?php echo $hasTableEncodingIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('table_encoding', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TABLE_ENCODING_ISSUES') . ' (' . $tableEncodingIssueCount . ')', $hasTableEncodingIssues); ?></h4>
             <?php if (empty($tableEncodingIssues)) : ?>
                 <div class="alert cb-audit-ok-alert">
                     <span class="cb-audit-section-title">
@@ -1669,8 +1800,10 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                     </table>
                 </div>
             <?php endif; ?>
+            </div>
 
-            <h4 class="h6 mt-3<?php echo $hasColumnEncodingIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle(11, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_COLUMN_ENCODING_ISSUES') . ' (' . $columnEncodingIssueCount . ')', $hasColumnEncodingIssues); ?></h4>
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('column_encoding'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 8;">
+                <h4 class="h6 mt-3<?php echo $hasColumnEncodingIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('column_encoding', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_COLUMN_ENCODING_ISSUES') . ' (' . $columnEncodingIssueCount . ')', $hasColumnEncodingIssues); ?></h4>
             <?php if (empty($columnEncodingIssuesDisplayed)) : ?>
                 <div class="alert cb-audit-ok-alert">
                     <span class="cb-audit-section-title">
@@ -1720,8 +1853,10 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                     </p>
                 <?php endif; ?>
             <?php endif; ?>
+            </div>
 
-            <h4 class="h6 mt-3<?php echo $hasMixedCollationIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle(12, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MIXED_COLLATIONS') . ' (' . $mixedCollationIssueCount . ')', $hasMixedCollationIssues); ?></h4>
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('mixed_collations'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 9;">
+                <h4 class="h6 mt-3<?php echo $hasMixedCollationIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('mixed_collations', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MIXED_COLLATIONS') . ' (' . $mixedCollationIssueCount . ')', $hasMixedCollationIssues); ?></h4>
             <p class="text-muted small mb-2">
                 <?php echo Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_AUDIT_EXPECTED_TARGET', $encodingTargetCharset, $encodingTargetCollation); ?>
             </p>
@@ -1766,8 +1901,10 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                     </table>
                 </div>
             <?php endif; ?>
+            </div>
 
-            <h4 class="h6 mt-3"><?php echo $renderNumberedAuditTitle(13, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_TABLE_STATS'), false); ?></h4>
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('cb_table_stats'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 22;">
+                <h4 class="h6 mt-3"><?php echo $renderNumberedAuditTitle('cb_table_stats', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_TABLE_STATS'), false); ?></h4>
             <?php if (empty($cbTableDetails)) : ?>
                 <div class="alert cb-audit-ok-alert">
                     <?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_CB_TABLE_STATS'); ?>
@@ -1801,9 +1938,11 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                     </table>
                 </div>
             <?php endif; ?>
+            </div>
 
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('packed_data'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 7;">
             <?php if ($hasPackedDataAuditRows) : ?>
-                <h4 class="h6 mt-3"><?php echo $renderNumberedAuditTitle(14, Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_WORKFLOW_PACKED_DATA_DETAILS_TITLE'), $hasPackedDataIssues); ?></h4>
+                <h4 class="h6 mt-3"><?php echo $renderNumberedAuditTitle('packed_data', Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_WORKFLOW_PACKED_DATA_DETAILS_TITLE'), $hasPackedDataIssues); ?></h4>
                 <?php foreach ($packedDataAuditTables as $packedDataAuditTable) : ?>
                     <?php
                     if (!is_array($packedDataAuditTable)) {
@@ -1915,18 +2054,22 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
+            </div>
 
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('cb_ng_tables_missing'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 25;">
             <?php if (!empty($cbMissingNgTables)) : ?>
-                <h4 class="h6 mt-3"><?php echo $renderNumberedAuditTitle(15, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_NG_TABLES_MISSING'), !empty($cbMissingNgTables)); ?></h4>
+                <h4 class="h6 mt-3"><?php echo $renderNumberedAuditTitle('cb_ng_tables_missing', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_NG_TABLES_MISSING'), !empty($cbMissingNgTables)); ?></h4>
                 <ol class="mb-0 ps-3">
                     <?php foreach ($cbMissingNgTables as $missingNgTable) : ?>
                         <li><?php echo htmlspecialchars((string) $missingNgTable, ENT_QUOTES, 'UTF-8'); ?></li>
                     <?php endforeach; ?>
                 </ol>
             <?php endif; ?>
+            </div>
 
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('errors'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 28;">
             <?php if (!empty($auditWarnings)) : ?>
-                <h4 class="h6 mt-3"><?php echo $renderNumberedAuditTitle(16, Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_ERRORS'), !empty($auditWarnings)); ?></h4>
+                <h4 class="h6 mt-3"><?php echo $renderNumberedAuditTitle('errors', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_ERRORS'), !empty($auditWarnings)); ?></h4>
                 <div class="d-flex flex-column gap-2">
                     <?php foreach ($auditWarnings as $auditWarning) : ?>
                         <div class="alert alert-warning cb-audit-warning-alert mb-0">
@@ -1948,6 +2091,8 @@ $renderNumberedAuditTitle = static function (int $number, string $label, bool $h
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
+            </div>
+            </div>
         <?php endif; ?>
     </div>
 </div>
