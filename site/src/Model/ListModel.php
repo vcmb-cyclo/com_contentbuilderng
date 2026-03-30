@@ -198,7 +198,6 @@ class ListModel extends BaseListModel
                 if ($item->getParams()->get('show_page_heading', null) !== null) {
                     $this->_show_page_heading = MenuParamHelper::resolvePageHeadingToggle(
                         $item->getParams()->get('show_page_heading', null),
-                        (int) Factory::getApplication()->getParams()->get('show_page_heading', $this->_show_page_heading ? 1 : 0),
                         $this->_show_page_heading ? 1 : 0
                     );
                 }
