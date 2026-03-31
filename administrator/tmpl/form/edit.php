@@ -16,6 +16,7 @@ use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
@@ -2692,7 +2693,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
             <tr>
                 <td class="align-top">
 
-                    <fieldset class="border rounded p-3 mb-3">
+                    <fieldset id="cb-form-view-general" class="border rounded p-3 mb-3">
 
                         <div class="row g-3 align-items-end mb-2">
                             <div class="col-12 col-lg-3">
@@ -2838,10 +2839,33 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                                         </select>
                                     <?php
                                     } else {
+                                        $sourceTitle = (string) ($this->item->form->getTitle() ?? '');
+                                        $sourceReferenceId = (int) $this->item->form->getReferenceId();
+                                        $sourceType = (string) ($this->item->type ?? '');
+                                        $sourceTypeName = trim((string) ($this->item->type_name ?? ''));
+                                        $sourceEditLink = '';
+
+                                        if ($sourceType === 'com_breezingforms' && $sourceReferenceId > 0 && $sourceTypeName !== '') {
+                                            $sourceEditLink = Route::_(
+                                                'index.php?option=com_breezingforms&act=quickmode&formName=' . rawurlencode($sourceTypeName) . '&form=' . $sourceReferenceId,
+                                                false
+                                            );
+                                        } elseif ($sourceType === 'com_contentbuilderng' && $sourceReferenceId > 0) {
+                                            $sourceEditLink = Route::_(
+                                                'index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . $sourceReferenceId,
+                                                false
+                                            );
+                                        }
                                     ?>
-                                        <?php echo htmlentities($this->item->form->getTitle() ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                        <?php if ($sourceEditLink !== '') : ?>
+                                            <a href="<?php echo htmlspecialchars($sourceEditLink, ENT_QUOTES, 'UTF-8'); ?>">
+                                                <?php echo htmlentities($sourceTitle, ENT_QUOTES, 'UTF-8'); ?>
+                                            </a>
+                                        <?php else : ?>
+                                            <?php echo htmlentities($sourceTitle, ENT_QUOTES, 'UTF-8'); ?>
+                                        <?php endif; ?>
                                         <input type="hidden" name="jform[reference_id]"
-                                            value="<?php echo $this->item->form->getReferenceId(); ?>" />
+                                            value="<?php echo $sourceReferenceId; ?>" />
                                     <?php
                                     }
                                     ?>
@@ -2875,6 +2899,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                                 'item' => $this->item,
                                 'elements' => $this->all_elements,
                                 'renderCheckbox' => $renderCheckbox,
+                                'referencingMenuItems' => $this->referencingMenuItems ?? [],
                             ],
                             $componentLayoutBase
                         );
@@ -2891,6 +2916,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         <tr>
             <td class="align-top">
                 <?php
+                echo '<div id="cb-form-view-elements">';
                 echo LayoutHelper::render(
                     'form.elements_table',
                     [
@@ -2904,6 +2930,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                     ],
                     $componentLayoutBase
                 );
+                echo '</div>';
                 ?>
 
             </td>
@@ -2918,7 +2945,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         echo HTMLHelper::_('uitab.endTab');
         echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab2', $viewTabLabel('fa-regular fa-file-lines', 'COM_CONTENTBUILDERNG_LIST_INTRO_TEXT'));
         ?>
-        <h3 class="mb-3">
+        <h3 id="cb-form-list-intro-text" class="mb-3">
             <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_INTRO_MODE_TITLE'); ?>
         </h3>
         <?php

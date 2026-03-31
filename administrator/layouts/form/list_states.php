@@ -17,7 +17,8 @@ $renderCheckbox = $displayData['renderCheckbox'] ?? null;
 $listStatesActionPlugins = is_array($displayData['listStatesActionPlugins'] ?? null) ? $displayData['listStatesActionPlugins'] : [];
 $listStates = is_array($item->list_states ?? null) ? $item->list_states : [];
 ?>
-<table class="table table-striped">
+<h3 id="cb-form-list-states" class="mb-3"><?php echo Text::_('COM_CONTENTBUILDERNG_LIST_STATES'); ?></h3>
+<table id="cb-form-list-states-table" class="table table-striped">
     <thead>
         <tr>
             <th>

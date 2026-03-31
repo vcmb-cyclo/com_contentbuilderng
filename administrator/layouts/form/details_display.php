@@ -42,7 +42,7 @@ $items["COUNT"]["value"] = (is_numeric((string) $items["COUNT"]["value"]) && (fl
 $items["DATE_LABEL"]["label"] = (string) $items["DATE_LABEL"]["label"] . " (" . date("Y-m-d") . ")";
 TXT;
 ?>
-<h3 class="mb-3">
+<h3 id="cb-form-details-display" class="mb-3">
     <?php echo Text::_('COM_CONTENTBUILDERNG_TAB_DETAILS_DISPLAY'); ?>
 </h3>
 <p class="text-muted mb-3">
@@ -52,7 +52,7 @@ TXT;
     <?php echo Text::_('COM_CONTENTBUILDERNG_TAB_DETAILS_DISPLAY_PERMISSION_HINT'); ?>
 </div>
 <div class="row gx-3 gy-1 mt-0 align-items-stretch mb-3">
-    <div class="col-12 col-xl-4 d-flex" id="cbDetailScreenPanels">
+    <div class="col-12 col-xl-4 d-flex" id="cb-form-details-show-buttons">
         <div class="border rounded bg-body p-3 d-flex flex-column flex-grow-1">
             <h4 class="h6 text-body-secondary mb-2">
                 <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BUTTON_OPTIONS'); ?>
@@ -80,7 +80,7 @@ TXT;
         </div>
     </div>
 </div>
-<table width="100%" class="table table-striped">
+<table id="cb-form-details-settings" width="100%" class="table table-striped">
     <tr>
         <td width="20%">
             <label for="create_sample"><span class="editlinktip hasTip"
@@ -329,7 +329,7 @@ TXT;
 
 <?php echo $form ? $form->renderField('details_template') : ''; ?>
 <hr />
-<h3 class="mb-3">
+<h3 id="cb-form-details-prepare" class="mb-3">
     <?php echo Text::_('COM_CONTENTBUILDERNG_DETAILS_PREPARE_MODE_TITLE'); ?>
 </h3>
 <?php

@@ -15,10 +15,12 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Form;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Router\Route;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseInterface;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\Registry\Registry;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Administrator\Model\FormModel;
@@ -258,6 +260,7 @@ class HtmlView extends BaseHtmlView
 
         $db->setQuery($q);
         $this->gmap = $db->loadObjectList() ?? [];
+        $this->referencingMenuItems = $this->getReferencingMenuItems($formId);
 
 
         $config = PackedDataHelper::decodePackedData($this->item->config ?? null, null, true);
@@ -270,6 +273,97 @@ class HtmlView extends BaseHtmlView
         HTMLHelper::_('behavior.keepalive');
         $this->setLayout('edit');
         parent::display($tpl);
+    }
+
+    private function getReferencingMenuItems(int $formId): array
+    {
+        if ($formId < 1) {
+            return [];
+        }
+
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('id'),
+                $db->quoteName('title'),
+                $db->quoteName('menutype'),
+                $db->quoteName('link'),
+                $db->quoteName('params'),
+                $db->quoteName('published'),
+            ])
+            ->from($db->quoteName('#__menu'))
+            ->where($db->quoteName('client_id') . ' = 0')
+            ->where($db->quoteName('type') . ' = ' . $db->quote('component'))
+            ->where($db->quoteName('link') . ' LIKE ' . $db->quote('index.php?option=com_contentbuilderng%'))
+            ->order($db->quoteName('menutype') . ' ASC')
+            ->order($db->quoteName('title') . ' ASC');
+        $db->setQuery($query);
+
+        $rows = (array) $db->loadObjectList();
+        $items = [];
+
+        foreach ($rows as $row) {
+            if (!is_object($row)) {
+                continue;
+            }
+
+            $menuFormId = $this->extractMenuFormId((string) ($row->params ?? ''), (string) ($row->link ?? ''));
+
+            if ($menuFormId !== $formId) {
+                continue;
+            }
+
+            $menuId = (int) ($row->id ?? 0);
+            $items[] = [
+                'id' => $menuId,
+                'title' => trim((string) ($row->title ?? '')) ?: ('#' . $menuId),
+                'menutype' => (string) ($row->menutype ?? ''),
+                'link' => (string) ($row->link ?? ''),
+                'published' => (int) ($row->published ?? 0),
+                'edit_link' => $menuId > 0
+                    ? Route::_('index.php?option=com_menus&view=item&client_id=0&layout=edit&id=' . $menuId, false)
+                    : '',
+            ];
+        }
+
+        return $items;
+    }
+
+    private function extractMenuFormId(string $paramsJson, string $link): int
+    {
+        if ($link !== '') {
+            $queryString = parse_url($link, PHP_URL_QUERY);
+
+            if (is_string($queryString)) {
+                parse_str($queryString, $queryParams);
+
+                if (!empty($queryParams['id'])) {
+                    return (int) $queryParams['id'];
+                }
+            }
+        }
+
+        if ($paramsJson === '') {
+            return 0;
+        }
+
+        $registry = new Registry();
+        $registry->loadString($paramsJson);
+        $settings = $registry->get('settings');
+
+        if (is_object($settings) && method_exists($settings, 'get')) {
+            return (int) $settings->get('form_id', 0);
+        }
+
+        if (is_array($settings) && array_key_exists('form_id', $settings)) {
+            return (int) $settings['form_id'];
+        }
+
+        if (is_object($settings) && isset($settings->form_id)) {
+            return (int) $settings->form_id;
+        }
+
+        return (int) $registry->get('settings.form_id', $registry->get('form_id', 0));
     }
 
 }

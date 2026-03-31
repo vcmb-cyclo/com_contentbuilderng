@@ -57,7 +57,7 @@ $activePermTab = $session ? $session->get('slideStartOffset', 'permtab1', 'com_c
 echo HTMLHelper::_('uitab.startTabSet', 'perm-pane', ['active' => $activePermTab]);
 echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab1', Text::_('COM_CONTENTBUILDERNG_DISPLAY_FRONTEND'));
 ?>
-<table class="table table-striped">
+<table id="cb-form-permissions-frontend" class="table table-striped">
     <tr class="row0">
         <td class="key text-end" style="width: 20%;">
             <label for="own_only_fe">
@@ -153,7 +153,7 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab1', Text::_('COM_CONTENT
         </tr>
     <?php endif; ?>
 </table>
-<table class="table table-striped">
+<table id="cb-form-permissions-frontend-groups" class="table table-striped">
     <thead>
         <tr>
             <th>
@@ -261,7 +261,7 @@ echo HTMLHelper::_('uitab.endTab');
 echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab2', Text::_('COM_CONTENTBUILDERNG_EMAIL_USERS'));
 ?>
 <div class="cb-perm-users-grid">
-    <section class="cb-perm-users-card">
+    <section id="cb-form-permissions-users" class="cb-perm-users-card">
         <?php echo $permSectionTitle('COM_CONTENTBUILDERNG_PERMISSIONS_USERS', 'fa-solid fa-user-shield', 'COM_CONTENTBUILDERNG_PERM_USERS_TIP'); ?>
         <div class="cb-perm-users-fields">
             <div class="cb-perm-users-field">
@@ -285,7 +285,7 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab2', Text::_('COM_CONTENT
         </div>
     </section>
 
-    <section class="cb-perm-users-card">
+    <section id="cb-form-permissions-verification" class="cb-perm-users-card">
         <?php echo $permSectionTitle('COM_CONTENTBUILDERNG_PERM_VERIFICATION_REQUIRED', 'fa-solid fa-user-check', 'COM_CONTENTBUILDERNG_PERM_VERIFICATION_REQUIRED_TIP'); ?>
         <div class="cb-perm-verify-stack">
             <?php foreach (['view' => 'COM_CONTENTBUILDERNG_PERM_VIEW', 'new' => 'COM_CONTENTBUILDERNG_PERM_NEW', 'edit' => 'COM_CONTENTBUILDERNG_PERM_EDIT'] as $permSuffix => $permLabelKey) : ?>
@@ -318,7 +318,7 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab2', Text::_('COM_CONTENT
     </section>
 
     <?php if (empty($item->edit_by_type)) : ?>
-        <section class="cb-perm-users-card cb-perm-users-card-wide">
+        <section id="cb-form-permissions-registration" class="cb-perm-users-card cb-perm-users-card-wide">
             <?php echo $permSectionTitle('COM_CONTENTBUILDERNG_PERM_ACT_AS_REGISTRATION', 'fa-solid fa-id-card', 'COM_CONTENTBUILDERNG_PERM_ACT_AS_REGISTRATION_TIP'); ?>
             <div class="cb-perm-users-fields">
                 <div class="cb-perm-users-field cb-perm-users-field-wide">

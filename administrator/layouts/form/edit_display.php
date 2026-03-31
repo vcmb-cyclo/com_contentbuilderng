@@ -23,7 +23,7 @@ $breezingFormsEditableToken = (string) ($displayData['breezingFormsEditableToken
 $editablePrepareSnippetOptions = is_array($displayData['editablePrepareSnippetOptions'] ?? null) ? $displayData['editablePrepareSnippetOptions'] : [];
 $prepareEffectOptions = is_array($displayData['prepareEffectOptions'] ?? null) ? $displayData['prepareEffectOptions'] : [];
 ?>
-<h3 class="mb-3">
+<h3 id="cb-form-edit-display" class="mb-3">
     <?php echo Text::_('COM_CONTENTBUILDERNG_TAB_EDIT_DISPLAY'); ?>
 </h3>
 <p class="text-muted mb-3">
@@ -33,7 +33,7 @@ $prepareEffectOptions = is_array($displayData['prepareEffectOptions'] ?? null) ?
     <?php echo Text::_('COM_CONTENTBUILDERNG_TAB_EDIT_DISPLAY_PERMISSION_HINT'); ?>
 </div>
 <div class="row gx-3 gy-1 mt-0 align-items-stretch mb-3">
-    <div class="col-12 col-xl-4 d-flex" id="cbEditScreenPanels">
+    <div class="col-12 col-xl-4 d-flex" id="cb-form-edit-show-buttons">
         <div class="border rounded bg-body p-3 d-flex flex-column flex-grow-1">
             <h4 class="h6 text-body-secondary mb-2">
                 <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BUTTON_OPTIONS'); ?>
@@ -78,7 +78,7 @@ $prepareEffectOptions = is_array($displayData['prepareEffectOptions'] ?? null) ?
     <input type="hidden" name="jform[upload_directory]" value="<?php echo htmlspecialchars(trim((string) ($item->upload_directory ?? '')) ?: JPATH_SITE . '/media/com_contentbuilderng/upload', ENT_QUOTES, 'UTF-8'); ?>" />
 <?php else : ?>
     <input type="hidden" name="jform[protect_upload_directory]" value="0" />
-    <div class="cb-upload-box">
+    <div id="cb-form-edit-upload" class="cb-upload-box">
         <div class="row g-3 align-items-end">
             <div class="col-lg-8">
                 <label for="upload_directory" class="form-label mb-2"><span class="editlinktip hasTip"
@@ -117,7 +117,7 @@ $prepareEffectOptions = is_array($displayData['prepareEffectOptions'] ?? null) ?
     <?php echo $form ? $form->renderField('editable_template') : ''; ?>
 <?php endif; ?>
 <hr />
-<h3 class="mb-3">
+<h3 id="cb-form-edit-prepare" class="mb-3">
     <?php echo Text::_('COM_CONTENTBUILDERNG_DETAILS_PREPARE_MODE_TITLE'); ?>
 </h3>
 <?php if (!empty($item->edit_by_type)) : ?>

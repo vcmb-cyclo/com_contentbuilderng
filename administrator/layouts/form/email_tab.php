@@ -18,14 +18,14 @@ $session = $displayData['session'] ?? null;
 $renderCheckbox = $displayData['renderCheckbox'] ?? null;
 $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMessage'] ?? '');
 ?>
-<h3 class="mb-3"><?php echo Text::_('COM_CONTENTBUILDERNG_EMAIL_TEMPLATES'); ?></h3>
+<h3 id="cb-form-email" class="mb-3"><?php echo Text::_('COM_CONTENTBUILDERNG_EMAIL_TEMPLATES'); ?></h3>
 <p class="text-muted mb-3">
     <?php echo Text::_('COM_CONTENTBUILDERNG_EMAIL_TAB_INTRO'); ?>
 </p>
 <div class="alert alert-info mb-3">
     <?php echo Text::_('COM_CONTENTBUILDERNG_EMAIL_TAB_PERMISSION_HINT'); ?>
 </div>
-<div class="border rounded-3 p-3 mb-3 bg-body-tertiary">
+<div id="cb-form-email-notifications" class="border rounded-3 p-3 mb-3 bg-body-tertiary">
     <div class="row g-3 align-items-start">
         <div class="col-lg-4 d-flex align-items-start gap-2">
             <input type="hidden" name="jform[email_notifications]" value="0" />
@@ -67,7 +67,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
     <input type="hidden" name="jform[email_recipients_attach_uploads]" value="<?php echo htmlentities($item->email_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
     <input type="hidden" name="jform[email_html]" value="<?php echo htmlentities($item->email_html ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
 <?php else : ?>
-    <div id="email_admins" style="cursor:pointer; width: 100%; background-color: var(--bs-body-bg);"
+    <div id="cb-form-email-admins" style="cursor:pointer; width: 100%; background-color: var(--bs-body-bg);"
         onclick="if(document.adminForm.email_admins.value=='none'){document.adminForm.email_admins.value='';document.getElementById('email_admins_div').style.display='';}else{document.adminForm.email_admins.value='none';document.getElementById('email_admins_div').style.display='none';}">
         <h3>
             <?php echo Text::_('COM_CONTENTBUILDERNG_EMAIL_ADMINS'); ?>
@@ -169,7 +169,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
         <?php echo $form ? $form->renderField('email_admin_template') : ''; ?>
     </div>
 
-    <div id="email_users" style="cursor:pointer; width: 100%; background-color: var(--bs-body-bg);">
+    <div id="cb-form-email-users" style="cursor:pointer; width: 100%; background-color: var(--bs-body-bg);">
         <h3>
             <?php echo Text::_('COM_CONTENTBUILDERNG_EMAIL_USERS'); ?>
         </h3>

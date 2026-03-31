@@ -14,6 +14,7 @@ use Joomla\CMS\Language\Text;
 
 $item = $displayData['item'] ?? null;
 $elements = is_array($displayData['elements'] ?? null) ? $displayData['elements'] : [];
+$referencingMenuItems = is_array($displayData['referencingMenuItems'] ?? null) ? $displayData['referencingMenuItems'] : [];
 $renderCheckbox = $displayData['renderCheckbox'] ?? null;
 
 if (!is_callable($renderCheckbox)) {
@@ -22,9 +23,9 @@ if (!is_callable($renderCheckbox)) {
 ?>
 <div class="bg-body-tertiary p-3" id="advancedOptions">
 
-    <fieldset>
+    <fieldset id="cb-form-advanced-show" aria-labelledby="cb-form-advanced-show-title">
         <legend>
-            <h3 class="editlinktip hasTip"
+            <h3 id="cb-form-advanced-show-title" class="editlinktip hasTip"
                 title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_COLUMNS_TIP'); ?>">
                 <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW'); ?>
             </h3>
@@ -303,11 +304,35 @@ if (!is_callable($renderCheckbox)) {
 
     <hr />
 
+    <div id="cb-form-advanced-referencing-menus" class="alert alert-info">
+        <div class="fw-semibold mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_REFERENCING_MENUS'); ?></div>
+        <?php if ($referencingMenuItems !== []) : ?>
+            <div class="d-flex flex-column gap-2">
+                <?php foreach ($referencingMenuItems as $referencingMenuItem) : ?>
+                    <?php
+                    $menuLabel = trim((string) ($referencingMenuItem['title'] ?? ''));
+                    $menuType = trim((string) ($referencingMenuItem['menutype'] ?? ''));
+                    if ($menuType !== '') {
+                        $menuLabel .= ' [' . $menuType . ']';
+                    }
+                    ?>
+                    <div>
+                        <a href="<?php echo htmlspecialchars((string) ($referencingMenuItem['edit_link'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                            <?php echo htmlspecialchars($menuLabel, ENT_QUOTES, 'UTF-8'); ?>
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else : ?>
+            <div><?php echo Text::_('COM_CONTENTBUILDERNG_REFERENCING_MENUS_NONE'); ?></div>
+        <?php endif; ?>
+    </div>
+
     <div class="row g-3 align-items-stretch">
         <div class="col-12 col-xl-8 d-flex">
-            <fieldset class="d-flex flex-column flex-grow-1">
+            <fieldset id="cb-form-advanced-sorting" class="d-flex flex-column flex-grow-1" aria-labelledby="cb-form-advanced-sorting-title">
                 <legend>
-                    <h3>
+                    <h3 id="cb-form-advanced-sorting-title">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_SORTING'); ?>
                     </h3>
                 </legend>
@@ -372,9 +397,9 @@ if (!is_callable($renderCheckbox)) {
             </fieldset>
         </div>
         <div class="col-12 col-xl-4 d-flex">
-            <fieldset class="d-flex flex-column flex-grow-1">
+            <fieldset id="cb-form-advanced-rating" class="d-flex flex-column flex-grow-1" aria-labelledby="cb-form-advanced-rating-title">
                 <legend>
-                    <h3>
+                    <h3 id="cb-form-advanced-rating-title">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_PERM_RATING'); ?>
                     </h3>
                 </legend>
@@ -402,9 +427,9 @@ if (!is_callable($renderCheckbox)) {
 
     <hr />
 
-    <fieldset>
+    <fieldset id="cb-form-advanced-buttons" aria-labelledby="cb-form-advanced-buttons-title">
         <legend>
-            <h3>
+            <h3 id="cb-form-advanced-buttons-title">
                 <?php echo Text::_('COM_CONTENTBUILDERNG_BUTTONS'); ?>
             </h3>
         </legend>

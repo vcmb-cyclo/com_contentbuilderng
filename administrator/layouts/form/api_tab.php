@@ -21,14 +21,14 @@ $apiExampleListDisplayUrl = (string) ($displayData['apiExampleListDisplayUrl'] ?
 $apiExampleVerboseDisplayUrl = (string) ($displayData['apiExampleVerboseDisplayUrl'] ?? '');
 $apiExamplePayloadJson = (string) ($displayData['apiExamplePayloadJson'] ?? '');
 ?>
-<h3 class="mb-3"><?php echo Text::_('COM_CONTENTBUILDERNG_API_TAB_TITLE'); ?></h3>
+<h3 id="cb-form-api" class="mb-3"><?php echo Text::_('COM_CONTENTBUILDERNG_API_TAB_TITLE'); ?></h3>
 <p class="text-muted mb-3">
     <?php echo Text::_('COM_CONTENTBUILDERNG_API_TAB_INTRO'); ?>
 </p>
 <div class="alert alert-info mb-3">
     <?php echo Text::_('COM_CONTENTBUILDERNG_API_TAB_PERMISSION_HINT'); ?>
 </div>
-<table class="table table-striped">
+<table id="cb-form-api-endpoints" class="table table-striped">
     <tr>
         <th style="width:180px;"><?php echo Text::_('COM_CONTENTBUILDERNG_API_METHOD'); ?></th>
         <th><?php echo Text::_('COM_CONTENTBUILDERNG_API_ENDPOINT'); ?></th>
@@ -69,5 +69,5 @@ $apiExamplePayloadJson = (string) ($displayData['apiExamplePayloadJson'] ?? '');
         <code><?php echo htmlspecialchars($apiExampleVerboseDisplayUrl, ENT_QUOTES, 'UTF-8'); ?></code>
     </a>
 </div>
-<label for="cb_api_example_payload" class="form-label"><strong><?php echo Text::_('COM_CONTENTBUILDERNG_API_JSON_LABEL'); ?></strong></label>
+<label id="cb-form-api-payload" for="cb_api_example_payload" class="form-label"><strong><?php echo Text::_('COM_CONTENTBUILDERNG_API_JSON_LABEL'); ?></strong></label>
 <textarea id="cb_api_example_payload" class="form-control" rows="7" readonly="readonly"><?php echo htmlspecialchars($apiExamplePayloadJson, ENT_QUOTES, 'UTF-8'); ?></textarea>
