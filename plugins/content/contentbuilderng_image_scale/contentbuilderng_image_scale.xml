@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="plugin" group="content" version="6.0" method="upgrade">
 	<name>ContentBuilder NG - Content - Image Scale</name>
-	<creationDate>2026-03-30</creationDate>
+	<creationDate>2026-04-01</creationDate>
 	<author>XDA+GIL</author>
     <license>GNU/GPL v2 or later https://www.gnu.org/licenses/old-licenses/gpl-2.0.html</license>
 	<copyright>This Joomla! component is released under the GNU/GPL license</copyright>
 	<authorEmail>noreply@vcmb.fr</authorEmail>
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-	<version>6.1.7-RC7</version>
+	<version>6.1.7-RC8</version>
 	<administration></administration>
 	<description>
 	<![CDATA[
