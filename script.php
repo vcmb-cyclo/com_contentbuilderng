@@ -2093,7 +2093,7 @@ class com_contentbuilderngInstallerScript
                     $versionChanged = !$installedVersion || !$manifestVersion || ((string) $installedVersion !== (string) $manifestVersion);
                     $ok = $this->safe(fn() => $this->installPluginFromPath($path), false);
                     if ($ok) {
-                        $this->log("[OK] Plugin refreshed{$rank}: {$folder}/{$element}");
+                        // $this->log("[OK] Plugin refreshed{$rank}: {$folder}/{$element}");
                         if ($versionChanged) {
                             $detail = $installedVersion && $manifestVersion
                                 ? " ({$installedVersion} -> {$manifestVersion})"
