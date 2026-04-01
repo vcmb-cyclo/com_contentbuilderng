@@ -46,9 +46,9 @@
  </files>
 
  <languages folder="site">
-    <language tag="en-GB">languages/en-GB/site/en-GB.com_contentbuilderng.ini</language>
-    <language tag="de-DE">languages/de-DE/site/de-DE.com_contentbuilderng.ini</language>
-    <language tag="fr-FR">languages/fr-FR/site/fr-FR.com_contentbuilderng.ini</language>
+    <language tag="en-GB">languages/en-GB/en-GB.com_contentbuilderng.ini</language>
+    <language tag="de-DE">languages/de-DE/de-DE.com_contentbuilderng.ini</language>
+    <language tag="fr-FR">languages/fr-FR/fr-FR.com_contentbuilderng.ini</language>
  </languages>
 
 <!-- ===================== -->
@@ -98,15 +98,15 @@
 
     <!-- Languages admin (à laisser séparément, c'est correct) -->
     <languages folder="administrator">
-        <language tag="en-GB">languages/en-GB/admin/en-GB.com_contentbuilderng.ini</language>
-        <language tag="en-GB">languages/en-GB/admin/en-GB.com_contentbuilderng.menu.ini</language>
-        <language tag="en-GB">languages/en-GB/admin/en-GB.com_contentbuilderng.sys.ini</language>
-        <language tag="de-DE">languages/de-DE/admin/de-DE.com_contentbuilderng.ini</language>
-        <language tag="de-DE">languages/de-DE/admin/de-DE.com_contentbuilderng.menu.ini</language>
-        <language tag="de-DE">languages/de-DE/admin/de-DE.com_contentbuilderng.sys.ini</language>
-        <language tag="fr-FR">languages/fr-FR/admin/fr-FR.com_contentbuilderng.ini</language>
-        <language tag="fr-FR">languages/fr-FR/admin/fr-FR.com_contentbuilderng.menu.ini</language>
-        <language tag="fr-FR">languages/fr-FR/admin/fr-FR.com_contentbuilderng.sys.ini</language>
+        <language tag="en-GB">languages/en-GB/en-GB.com_contentbuilderng.ini</language>
+        <language tag="en-GB">languages/en-GB/en-GB.com_contentbuilderng.menu.ini</language>
+        <language tag="en-GB">languages/en-GB/en-GB.com_contentbuilderng.sys.ini</language>
+        <language tag="de-DE">languages/de-DE/de-DE.com_contentbuilderng.ini</language>
+        <language tag="de-DE">languages/de-DE/de-DE.com_contentbuilderng.menu.ini</language>
+        <language tag="de-DE">languages/de-DE/de-DE.com_contentbuilderng.sys.ini</language>
+        <language tag="fr-FR">languages/fr-FR/fr-FR.com_contentbuilderng.ini</language>
+        <language tag="fr-FR">languages/fr-FR/fr-FR.com_contentbuilderng.menu.ini</language>
+        <language tag="fr-FR">languages/fr-FR/fr-FR.com_contentbuilderng.sys.ini</language>
     </languages>
 
 </administration>
