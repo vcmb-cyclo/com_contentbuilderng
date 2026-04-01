@@ -43,8 +43,8 @@ $prepareEffectOptions = is_array($displayData['prepareEffectOptions'] ?? null) ?
                     <input type="hidden" name="jform[cb_show_top_bar]" value="0" />
                     <?php echo $renderCheckbox('jform[cb_show_top_bar]', 'cb_show_top_bar', (bool) ($item->cb_show_top_bar ?? true)); ?>
                     <label class="form-check-label" for="cb_show_top_bar">
-                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_TOP_BAR_DESC'); ?>">
-                            <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_TOP_BAR'); ?>
+                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_TOP_BAR_DESC'); ?>">
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_TOP_BAR'); ?>
                         </span>
                     </label>
                 </div>
@@ -52,8 +52,8 @@ $prepareEffectOptions = is_array($displayData['prepareEffectOptions'] ?? null) ?
                     <input type="hidden" name="jform[cb_show_bottom_bar]" value="0" />
                     <?php echo $renderCheckbox('jform[cb_show_bottom_bar]', 'cb_show_bottom_bar', (bool) ($item->cb_show_bottom_bar ?? false)); ?>
                     <label class="form-check-label" for="cb_show_bottom_bar">
-                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BOTTOM_BAR_DESC'); ?>">
-                            <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_BOTTOM_BAR'); ?>
+                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_BOTTOM_BAR_DESC'); ?>">
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_BOTTOM_BAR'); ?>
                         </span>
                     </label>
                 </div>

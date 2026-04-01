@@ -2037,7 +2037,7 @@ by this block. -->
 			$showPagination = $pagPages > 1;
 			$rangeStart = $pagTotal > 0 ? $pagStart + 1 : 0;
 			$rangeEnd = $pagTotal > 0 ? min($pagStart + $pagLimit, $pagTotal) : 0;
-			if ($showBottomBar && $showSummary) :
+			if ($showSummary) :
 				$params = Uri::getInstance()->getQuery(true);
 				$params['option'] = 'com_contentbuilderng';
 				$params['task'] = 'list.display';
@@ -2458,7 +2458,7 @@ by this block. -->
 				$rangeStart = $pagTotal > 0 ? $pagStart + 1 : 0;
 				$rangeEnd = $pagTotal > 0 ? min($pagStart + $pagLimit, $pagTotal) : 0;
 
-				if ($showBottomBar && $showSummary) :
+				if ($showSummary) :
 				    $params = Uri::getInstance()->getQuery(true);
 				    $params['option'] = 'com_contentbuilderng';
 				    $params['task'] = 'list.display';

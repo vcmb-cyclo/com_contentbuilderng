@@ -2,7 +2,7 @@
 <updates>
 	<update>
 		<name>COM_CONTENTBUILDERNG</name>
-		<description>ContentBuilder NG Update 6.1.6</description>
+		<description>ContentBuilder NG Update</description>
 		<element>Com_contentbuilderng</element>
 		<type>component</type>
 		<client>1</client>
