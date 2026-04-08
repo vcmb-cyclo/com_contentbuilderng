@@ -499,7 +499,7 @@ CREATE TABLE IF NOT EXISTS `#__contentbuilderng_forms`
 (
     1
 ) NOT NULL DEFAULT '0',
-    `initial_list_limit` tinyint NOT NULL DEFAULT '20',
+    `initial_list_limit` tinyint NOT NULL DEFAULT '25',
     `save_button_title` varchar
 (
     255

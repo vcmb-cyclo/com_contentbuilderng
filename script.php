@@ -392,7 +392,7 @@ class com_contentbuilderngInstallerScript
 
             $auditUrl = Route::_('index.php?option=com_contentbuilderng&view=about#cb-audit-section', false);
             $auditLink = '<a href="' . htmlspecialchars($auditUrl, ENT_QUOTES, 'UTF-8') . '">'
-                . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT'), ENT_QUOTES, 'UTF-8')
+                . '<strong>' . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT'), ENT_QUOTES, 'UTF-8') . '</strong>'
                 . '</a>';
             $auditReminder = Text::sprintf(
                 'COM_CONTENTBUILDERNG_INSTALLATION_AUDIT_REMINDER',

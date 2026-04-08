@@ -77,7 +77,7 @@ $wa->addInlineStyle(
         . '.cb-perm-inherited .form-check-input:not(:checked){box-shadow:none}'
         . '.cb-perm-inherited .form-check-input:indeterminate{background-color:#c8d1db!important;border-color:#9eacba!important;background-image:url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23ffffff%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27M5 10.5l3 3 7-7%27/%3e%3c/svg%3e")!important;background-size:1rem 1rem!important}'
         . '.cb-perm-users-grid{display:grid;grid-template-columns:minmax(280px,340px) minmax(0,1fr);gap:1rem;align-items:start}'
-        . '.cb-perm-users-card{border:1px solid var(--bs-border-color);border-radius:10px;background:var(--bs-body-bg);padding:1rem 1rem 1.05rem}'
+        . '.cb-perm-users-card{border:1px solid var(--bs-border-color);border-radius:10px;background:var(--bs-body-bg);padding:.65rem 1rem .9rem}'
         . '.cb-perm-users-card-wide{grid-column:1 / -1}'
         . '.cb-perm-users-title{display:flex;align-items:center;gap:.45rem;margin:0 0 .9rem;padding-bottom:.6rem;border-bottom:1px solid var(--bs-border-color);font-size:1rem;font-weight:600;color:var(--bs-emphasis-color)}'
         . '.cb-perm-users-title > .fa-solid{font-size:.95rem;color:var(--bs-secondary-color)}'
@@ -325,9 +325,20 @@ $permGroupLabel = static function (string $groupText, int $groupId = 0, string $
         . '<span class="cb-perm-group-text">' . htmlspecialchars($titleLabel, ENT_QUOTES, 'UTF-8') . '</span></span>';
 };
 
-$viewTabLabel = static function (string $iconClass, string $labelKey): string {
-    return '<span class="' . htmlspecialchars($iconClass, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></span> '
+$viewTabLabel = static function (string $iconClass, string $labelKey, ?string $tipKey = null): string {
+    $label = '<span class="' . htmlspecialchars($iconClass, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></span> '
         . htmlspecialchars(Text::_($labelKey), ENT_QUOTES, 'UTF-8');
+
+    if ($tipKey === null) {
+        return $label;
+    }
+
+    $tip = Text::_($tipKey);
+
+    return '<span class="cb-perm-header-tip" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="'
+        . htmlspecialchars($tip, ENT_QUOTES, 'UTF-8') . '" title="' . htmlspecialchars($tip, ENT_QUOTES, 'UTF-8') . '">'
+        . $label
+        . '</span>';
 };
 
 $permissionColumns = [
@@ -2709,7 +2720,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         }
         echo HTMLHelper::_('uitab.startTabSet', 'view-pane', ['active' => $activeViewTab]);
         // Premier onglet
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', $viewTabLabel('fa-regular fa-window-maximize', 'COM_CONTENTBUILDERNG_VIEW'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', $viewTabLabel('fa-regular fa-window-maximize', 'COM_CONTENTBUILDERNG_VIEW', 'COM_CONTENTBUILDERNG_TAB_TIP_VIEW'));
         ?>
 
         <table width="100%">
@@ -2963,10 +2974,10 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
         <?php
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab9', $viewTabLabel('fa-solid fa-sliders', 'COM_CONTENTBUILDERNG_ADVANCED_OPTIONS'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab9', $viewTabLabel('fa-solid fa-sliders', 'COM_CONTENTBUILDERNG_ADVANCED_OPTIONS', 'COM_CONTENTBUILDERNG_TAB_TIP_ADVANCED_OPTIONS'));
         echo $advancedOptionsContent;
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab2', $viewTabLabel('fa-regular fa-file-lines', 'COM_CONTENTBUILDERNG_LIST_INTRO_TEXT'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab2', $viewTabLabel('fa-regular fa-file-lines', 'COM_CONTENTBUILDERNG_LIST_INTRO_TEXT', 'COM_CONTENTBUILDERNG_TAB_TIP_LIST_INTRO_TEXT'));
         ?>
         <h3 id="cb-form-list-intro-text" class="mb-3">
             <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_INTRO_MODE_TITLE'); ?>
@@ -2977,7 +2988,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         <?php
         echo $this->form->renderField('intro_text');
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab1', $viewTabLabel('fa-solid fa-list-check', 'COM_CONTENTBUILDERNG_LIST_STATES'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab1', $viewTabLabel('fa-solid fa-list-check', 'COM_CONTENTBUILDERNG_LIST_STATES', 'COM_CONTENTBUILDERNG_TAB_TIP_LIST_STATES'));
         ?>
         <?php
         echo LayoutHelper::render(
@@ -2992,7 +3003,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         ?>
         <?php
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab3', $viewTabLabel('fa-regular fa-id-card', 'COM_CONTENTBUILDERNG_TAB_DETAILS_DISPLAY'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab3', $viewTabLabel('fa-regular fa-id-card', 'COM_CONTENTBUILDERNG_TAB_DETAILS_DISPLAY', 'COM_CONTENTBUILDERNG_TAB_TIP_DETAILS_TEMPLATE'));
 
         ?>
         <?php
@@ -3012,7 +3023,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         ?>
         <?php
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab5', $viewTabLabel('fa-regular fa-pen-to-square', 'COM_CONTENTBUILDERNG_TAB_EDIT_DISPLAY'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab5', $viewTabLabel('fa-regular fa-pen-to-square', 'COM_CONTENTBUILDERNG_TAB_EDIT_DISPLAY', 'COM_CONTENTBUILDERNG_TAB_TIP_EDITABLE_TEMPLATE'));
         ?>
         <?php
         echo LayoutHelper::render(
@@ -3031,7 +3042,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
             $componentLayoutBase
         );
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab6', $viewTabLabel('fa-solid fa-plug', 'COM_CONTENTBUILDERNG_API_TAB_TITLE'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab6', $viewTabLabel('fa-solid fa-plug', 'COM_CONTENTBUILDERNG_API_TAB_TITLE', 'COM_CONTENTBUILDERNG_TAB_TIP_API'));
         echo LayoutHelper::render(
             'form.api_tab',
             [
@@ -3049,7 +3060,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         ?>
         <?php
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab7', $viewTabLabel('fa-regular fa-envelope', 'COM_CONTENTBUILDERNG_EMAIL_TEMPLATES'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab7', $viewTabLabel('fa-regular fa-envelope', 'COM_CONTENTBUILDERNG_EMAIL_TEMPLATES', 'COM_CONTENTBUILDERNG_TAB_TIP_EMAIL_TEMPLATES'));
         ?>
         <?php
         echo LayoutHelper::render(
@@ -3065,7 +3076,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         );
 
         echo HTMLHelper::_('uitab.endTab');
-        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab8', $viewTabLabel('fa-solid fa-shield-halved', 'COM_CONTENTBUILDERNG_PERMISSIONS'));
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab8', $viewTabLabel('fa-solid fa-shield-halved', 'COM_CONTENTBUILDERNG_PERMISSIONS', 'COM_CONTENTBUILDERNG_TAB_TIP_PERMISSIONS'));
         ?>
         <?php
         echo LayoutHelper::render(

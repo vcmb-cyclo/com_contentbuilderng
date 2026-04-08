@@ -670,7 +670,7 @@ class FormModel extends AdminModel
 
             $data->show_preview_link = 0;
 
-            $data->initial_list_limit = 20;
+            $data->initial_list_limit = 25;
 
             $data->save_button_title = '';
 
@@ -979,6 +979,12 @@ class FormModel extends AdminModel
             if (array_key_exists($bf, $jform)) {
                 $jform[$bf] = !empty($jform[$bf]) ? 1 : 0;
             }
+        }
+
+        if (!array_key_exists('initial_list_limit', $jform) || (string) $jform['initial_list_limit'] === '') {
+            $jform['initial_list_limit'] = 25;
+        } else {
+            $jform['initial_list_limit'] = max(1, (int) $jform['initial_list_limit']);
         }
 
         // Tag défaut
