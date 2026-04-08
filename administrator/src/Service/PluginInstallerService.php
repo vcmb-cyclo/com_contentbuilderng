@@ -112,6 +112,16 @@ final class PluginInstallerService
                     continue;
                 }
 
+                $manifestPath = $this->getPluginManifestPath($path);
+                if ($manifestPath === null) {
+                    $this->log(
+                        "[WARNING] Plugin manifest not found or invalid for {$folder}/{$element}: {$path}. "
+                        . 'Skipped plugin installer call to avoid Joomla warnings about missing XML setup files.',
+                        Log::WARNING
+                    );
+                    continue;
+                }
+
                 if ($forceUpdate) {
                     $index++;
                     $rank = $total > 0 ? " ({$index}/{$total})" : '';
@@ -604,6 +614,10 @@ final class PluginInstallerService
 
     private function installPluginFromPath(string $path): bool
     {
+        if ($this->getPluginManifestPath($path) === null) {
+            return false;
+        }
+
         $installer = new Installer();
         $installer->setDatabase(Factory::getContainer()->get(DatabaseInterface::class));
 
@@ -612,24 +626,45 @@ final class PluginInstallerService
 
     private function getPluginManifestVersion(string $path): ?string
     {
+        $manifestPath = $this->getPluginManifestPath($path);
+
+        if ($manifestPath === null) {
+            return null;
+        }
+
+        try {
+            $xml = simplexml_load_file($manifestPath);
+
+            if (!$xml || $xml->getName() !== 'extension') {
+                return null;
+            }
+
+            $version = isset($xml->version) ? trim((string) $xml->version) : '';
+            if ($version !== '') {
+                return $version;
+            }
+
+            $attribute = isset($xml['version']) ? trim((string) $xml['version']) : '';
+            if ($attribute !== '') {
+                return $attribute;
+            }
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return null;
+    }
+
+    private function getPluginManifestPath(string $path): ?string
+    {
         $files = glob(rtrim($path, '/') . '/*.xml') ?: [];
 
         foreach ($files as $file) {
             try {
                 $xml = simplexml_load_file($file);
 
-                if (!$xml || $xml->getName() !== 'extension') {
-                    continue;
-                }
-
-                $version = isset($xml->version) ? trim((string) $xml->version) : '';
-                if ($version !== '') {
-                    return $version;
-                }
-
-                $attribute = isset($xml['version']) ? trim((string) $xml['version']) : '';
-                if ($attribute !== '') {
-                    return $attribute;
+                if ($xml && $xml->getName() === 'extension') {
+                    return $file;
                 }
             } catch (\Throwable) {
                 continue;
