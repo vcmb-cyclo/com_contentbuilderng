@@ -22,6 +22,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseInterface;
+use Joomla\Database\QueryInterface;
 
 final class AboutController extends BaseController
 {
@@ -81,6 +82,17 @@ final class AboutController extends BaseController
     private function getCurrentUserId(): int
     {
         return (int) ($this->getApp()->getIdentity()->id ?? 0);
+    }
+
+    private function createQuery(DatabaseInterface $db): QueryInterface
+    {
+        $query = $db->getQuery(true);
+
+        if (!$query instanceof QueryInterface) {
+            throw new \RuntimeException('Unable to create database query.');
+        }
+
+        return $query;
     }
 
     public function migratePackedData(): void
@@ -534,7 +546,7 @@ final class AboutController extends BaseController
             }
 
             $columns = array_keys((array) $db->getTableColumns($tableAlias, false));
-            $query = $db->getQuery(true)
+            $query = $this->createQuery($db)
                 ->select('*')
                 ->from($db->quoteName($tableAlias));
 
@@ -578,7 +590,7 @@ final class AboutController extends BaseController
 
     private function buildStorageContentExportSection(DatabaseInterface $db, array $existingTables, array $selectedStorageIds): array
     {
-        $query = $db->getQuery(true)
+        $query = $this->createQuery($db)
             ->select([
                 $db->quoteName('id'),
                 $db->quoteName('name'),
@@ -609,7 +621,7 @@ final class AboutController extends BaseController
             }
 
             $columns = array_keys((array) $db->getTableColumns($tableAlias, false));
-            $contentQuery = $db->getQuery(true)
+            $contentQuery = $this->createQuery($db)
                 ->select('*')
                 ->from($db->quoteName($tableAlias));
 
@@ -1024,7 +1036,7 @@ final class AboutController extends BaseController
 
     private function loadComponentParams(DatabaseInterface $db): array
     {
-        $query = $db->getQuery(true)
+        $query = $this->createQuery($db)
             ->select($db->quoteName('params'))
             ->from($db->quoteName('#__extensions'))
             ->where($db->quoteName('type') . ' = ' . $db->quote('component'))
@@ -1100,7 +1112,7 @@ final class AboutController extends BaseController
                     }
 
                     $params = is_array($sectionPayload['params'] ?? null) ? $sectionPayload['params'] : [];
-                    $query = $db->getQuery(true)
+                    $query = $this->createQuery($db)
                         ->update($db->quoteName('#__extensions'))
                         ->set($db->quoteName('params') . ' = ' . $db->quote(json_encode($params)))
                         ->where($db->quoteName('type') . ' = ' . $db->quote('component'))
@@ -1259,7 +1271,7 @@ final class AboutController extends BaseController
         }
 
         if ($importMode === self::CONFIG_IMPORT_MODE_REPLACE) {
-            $query = $db->getQuery(true)
+            $query = $this->createQuery($db)
                 ->delete($db->quoteName($tableAlias));
             $db->setQuery($query)->execute();
         }
@@ -1288,7 +1300,7 @@ final class AboutController extends BaseController
                 if ($importMode === self::CONFIG_IMPORT_MODE_MERGE && $hasIdColumn && array_key_exists('id', $filtered)) {
                     $rowId = (int) $filtered['id'];
                     if ($rowId > 0) {
-                        $existsQuery = $db->getQuery(true)
+                        $existsQuery = $this->createQuery($db)
                             ->select('1')
                             ->from($db->quoteName($tableAlias))
                             ->where($db->quoteName('id') . ' = ' . $rowId);
@@ -1296,7 +1308,7 @@ final class AboutController extends BaseController
                         $exists = (int) $db->loadResult() === 1;
 
                         if ($exists) {
-                            $updateQuery = $db->getQuery(true)
+                            $updateQuery = $this->createQuery($db)
                                 ->update($db->quoteName($tableAlias));
                             $setCount = 0;
 
@@ -1320,7 +1332,7 @@ final class AboutController extends BaseController
                     }
                 }
 
-                $insertQuery = $db->getQuery(true)
+                $insertQuery = $this->createQuery($db)
                     ->insert($db->quoteName($tableAlias))
                     ->columns(array_map([$db, 'quoteName'], array_keys($filtered)));
 
@@ -1579,7 +1591,7 @@ final class AboutController extends BaseController
                 continue;
             }
 
-            $query = $db->getQuery(true)
+            $query = $this->createQuery($db)
                 ->select([
                     $db->quoteName('id'),
                     $db->quoteName('name'),
@@ -1822,7 +1834,7 @@ final class AboutController extends BaseController
             return;
         }
 
-        $query = $db->getQuery(true)
+        $query = $this->createQuery($db)
             ->delete($db->quoteName($tableAlias))
             ->where($db->quoteName($columnName) . ' IN (' . implode(',', $ids) . ')');
         $db->setQuery($query)->execute();
@@ -1831,7 +1843,7 @@ final class AboutController extends BaseController
     private function findRowIdByColumns(DatabaseInterface $db, string $tableAlias, array $columnValues): int
     {
         $columns = array_keys((array) $db->getTableColumns($tableAlias, false));
-        $query = $db->getQuery(true)
+        $query = $this->createQuery($db)
             ->select(in_array('id', $columns, true) ? $db->quoteName('id') : '1')
             ->from($db->quoteName($tableAlias));
 
@@ -1847,7 +1859,7 @@ final class AboutController extends BaseController
 
     private function findRowByColumns(DatabaseInterface $db, string $tableAlias, array $columnValues): array
     {
-        $query = $db->getQuery(true)
+        $query = $this->createQuery($db)
             ->select('*')
             ->from($db->quoteName($tableAlias));
 
@@ -1950,7 +1962,7 @@ final class AboutController extends BaseController
             return;
         }
 
-        $query = $db->getQuery(true)
+        $query = $this->createQuery($db)
             ->update($db->quoteName($tableAlias));
 
         $setCount = 0;
@@ -1975,7 +1987,7 @@ final class AboutController extends BaseController
             return;
         }
 
-        $query = $db->getQuery(true)
+        $query = $this->createQuery($db)
             ->update($db->quoteName($tableAlias));
 
         $setCount = 0;
@@ -2005,7 +2017,7 @@ final class AboutController extends BaseController
             return 0;
         }
 
-        $query = $db->getQuery(true)
+        $query = $this->createQuery($db)
             ->insert($db->quoteName($tableAlias))
             ->columns(array_map([$db, 'quoteName'], array_keys($row)));
 

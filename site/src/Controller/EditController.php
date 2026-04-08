@@ -273,8 +273,8 @@ class EditController extends BaseController
         }
 
         $model = $this->getEditModel(['ignore_request' => true]);
-        $model->change_list_states();
-        $msg = Text::_('COM_CONTENTBUILDERNG_STATES_CHANGED');
+        $changedCount = (int) $model->change_list_states();
+        $msg = Text::_($changedCount === 1 ? 'COM_CONTENTBUILDERNG_STATE_CHANGED' : 'COM_CONTENTBUILDERNG_STATES_CHANGED');
 
         if ($this->isAjaxCall()) {
             $this->respondAjax(true, $msg);
@@ -363,17 +363,27 @@ class EditController extends BaseController
         $stateKeyPrefix = $this->getPaginationStateKeyPrefix();
         $limitKey = $stateKeyPrefix . '.limit';
         $startKey = $stateKeyPrefix . '.start';
+        $configuredLimit = MenuParamHelper::getConfiguredListLimit($this->siteApp, (int) $this->input->getInt('id', 0));
+        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest();
 
-        $limit = isset($list['limit']) ? (int) $list['limit'] : 0;
+        $limit = $explicitLimitRequest && isset($list['limit']) ? (int) $list['limit'] : 0;
+        if ($limit === 0) {
+            $limit = $configuredLimit;
+        }
         if ($limit === 0) {
             $limit = (int) $this->siteApp->getUserState($limitKey, 0);
         }
         if ($limit === 0) {
             $limit = (int) $this->siteApp->get('list_limit');
         }
+        if ($limit < 1) {
+            $limit = 20;
+        }
 
-        if (array_key_exists('start', $list)) {
+        if ($explicitLimitRequest && array_key_exists('start', $list)) {
             $start = max(0, (int) $list['start']);
+        } elseif ($configuredLimit > 0) {
+            $start = 0;
         } else {
             $start = (int) $this->siteApp->getUserState($startKey, 0);
         }

@@ -169,7 +169,7 @@ $listTarget = $directStorageMode
     ? ('storage_id=' . $directStorageId)
     : ('id=' . (int) $input->getInt('id', 0));
 $listState = [
-    'limit' => (int) ($this->pagination?->limit ?? ($requestList['limit'] ?? 0)),
+    'limit' => (int) (($this->state?->get('list.limit')) ?? ($this->pagination?->limit ?? ($requestList['limit'] ?? 0))),
     'start' => (int) ($this->lists['liststart'] ?? $this->pagination?->limitstart ?? ($requestList['start'] ?? 0)),
     'ordering' => (string) ($this->lists['order'] ?? (isset($requestList['ordering']) ? preg_replace('/[^A-Za-z0-9_\\.]/', '', (string) $requestList['ordering']) : '')),
     'direction' => (string) ($this->lists['order_Dir'] ?? (isset($requestList['direction']) ? strtolower((string) $requestList['direction']) : '')),
@@ -1804,12 +1804,17 @@ by this block. -->
 									<?php if ($this->show_records_per_page) : ?>
 										<div style="max-width: 120px;">
 											<?php
-											$currentLimit = (int) ($this->pagination->limit ?? 20);
+											$currentLimit = (int) (($this->state?->get('list.limit')) ?? ($this->pagination->limit ?? 20));
 											$totalItems = (int) ($this->pagination->total ?? 0);
-											$limitOptions = [5, 10, 20, 50, 100, 500];
-											if ($totalItems > 0) {
-												$limitOptions[] = $totalItems;
+											$limitOptions = [5, 10, 20, 25, 50, 100, 500];
+											if ($currentLimit > 0 && $currentLimit !== $totalItems) {
+												$limitOptions[] = $currentLimit;
 											}
+											$limitOptions = array_values(array_unique(array_filter(
+												array_map('intval', $limitOptions),
+												static fn (int $value): bool => $value > 0 && $value !== $totalItems
+											)));
+											sort($limitOptions, SORT_NUMERIC);
 											?>
 											<select
 												id="list_limit"
@@ -1818,11 +1823,16 @@ by this block. -->
 												onchange="document.getElementById('adminForm').elements['list[start]'].value = 0; Joomla.submitform('', document.getElementById('adminForm'));"
 											>
 												<?php foreach ($limitOptions as $opt) : ?>
-													<?php $label = ($totalItems > 0 && $opt === $totalItems) ? Text::_('JALL') : (string) $opt; ?>
+													<?php $label = (string) $opt; ?>
 													<option value="<?php echo $opt; ?>"<?php echo $opt === $currentLimit ? ' selected' : ''; ?>>
 														<?php echo $label; ?>
 													</option>
 												<?php endforeach; ?>
+												<?php if ($totalItems > 0) : ?>
+													<option value="<?php echo $totalItems; ?>"<?php echo $totalItems === $currentLimit ? ' selected' : ''; ?>>
+														<?php echo Text::_('JALL'); ?>
+													</option>
+												<?php endif; ?>
 											</select>
 										</div>
 									<?php endif; ?>

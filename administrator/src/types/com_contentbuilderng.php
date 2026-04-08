@@ -35,22 +35,27 @@ class contentbuilderng_com_contentbuilderng
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
         $this->form_id = intval($id);
-        $db->setQuery(
-            "Select * From #__contentbuilderng_storages Where id = " . intval($id)
-            . ($published ? " And published = 1" : "")
-            . " Order By `ordering`"
-        );
+        $query = $db->getQuery(true)
+            ->select('*')
+            ->from($db->quoteName('#__contentbuilderng_storages'))
+            ->where($db->quoteName('id') . ' = ' . (int) $id)
+            ->order($db->quoteName('ordering'));
+        if ($published) {
+            $query->where($db->quoteName('published') . ' = 1');
+        }
+        $db->setQuery($query);
         $this->properties = $db->loadObject();
         if ($this->properties instanceof \stdClass) {
             $this->exists = true;
             $this->bytable = $this->properties->bytable == 1 ? '' : '#__';
 
-            $db->setQuery(
-                "Select * From #__contentbuilderng_storage_fields"
-                . " Where storage_id = " . intval($id)
-                . " And COALESCE(published, 1) = 1"
-                . " Order By `ordering`"
-            );
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from($db->quoteName('#__contentbuilderng_storage_fields'))
+                ->where($db->quoteName('storage_id') . ' = ' . (int) $id)
+                ->where('COALESCE(' . $db->quoteName('published') . ', 1) = 1')
+                ->order($db->quoteName('ordering'));
+            $db->setQuery($query);
             $this->elements = $db->loadAssocList();
         }
     }
@@ -61,23 +66,41 @@ class contentbuilderng_com_contentbuilderng
             return;
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("
-                Select r.id
-                From 
-                " . $this->bytable . $this->properties->name . " As r
-                Where r.id Not In (
-                    Select record_id From #__contentbuilderng_records As cr Where cr.`type` = 'com_contentbuilderng' And cr.reference_id = '" . intval($this->properties->id) . "' And cr.record_id = r.id
-                ) 
-        ");
+        $tableName = $db->quoteName($this->bytable . $this->properties->name);
+        $subQuery = $db->getQuery(true)
+            ->select($db->quoteName('cr.record_id'))
+            ->from($db->quoteName('#__contentbuilderng_records', 'cr'))
+            ->where($db->quoteName('cr.type') . ' = ' . $db->quote('com_contentbuilderng'))
+            ->where($db->quoteName('cr.reference_id') . ' = ' . (int) $this->properties->id)
+            ->where($db->quoteName('cr.record_id') . ' = ' . $db->quoteName('r.id'));
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('r.id'))
+            ->from($tableName . ' AS ' . $db->quoteName('r'))
+            ->where($db->quoteName('r.id') . ' NOT IN (' . $subQuery . ')');
+        $db->setQuery($query);
 
         $reference_ids = $db->loadColumn();
 
         if (is_array($reference_ids)) {
             foreach ($reference_ids as $reference_id) {
-                $db->setQuery("Select `id` From #__contentbuilderng_records Where `type` = 'com_contentbuilderng' And `reference_id` = " . intval($this->properties->id) . ' And `record_id` = ' . intval($reference_id));
+                $checkQuery = $db->getQuery(true)
+                    ->select($db->quoteName('id'))
+                    ->from($db->quoteName('#__contentbuilderng_records'))
+                    ->where($db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng'))
+                    ->where($db->quoteName('reference_id') . ' = ' . (int) $this->properties->id)
+                    ->where($db->quoteName('record_id') . ' = ' . (int) $reference_id);
+                $db->setQuery($checkQuery);
                 $res = $db->loadResult();
                 if (!$res) {
-                    $db->setQuery("Insert Into #__contentbuilderng_records (`type`,`record_id`,`reference_id`) Values ('com_contentbuilderng','" . intval($reference_id) . "', '" . intval($this->properties->id) . "')");
+                    $insertQuery = $db->getQuery(true)
+                        ->insert($db->quoteName('#__contentbuilderng_records'))
+                        ->columns($db->quoteName(['type', 'record_id', 'reference_id']))
+                        ->values(implode(',', [
+                            $db->quote('com_contentbuilderng'),
+                            (int) $reference_id,
+                            (int) $this->properties->id,
+                        ]));
+                    $db->setQuery($insertQuery);
                     $db->execute();
                 }
             }
@@ -87,11 +110,15 @@ class contentbuilderng_com_contentbuilderng
     public static function getNumRecordsQuery($form_id, $user_id)
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select `name`,`bytable` From #__contentbuilderng_storages Where id = " . intval($form_id));
+        $query = $db->getQuery(true)
+            ->select([$db->quoteName('name'), $db->quoteName('bytable')])
+            ->from($db->quoteName('#__contentbuilderng_storages'))
+            ->where($db->quoteName('id') . ' = ' . (int) $form_id);
+        $db->setQuery($query);
         $res = $db->loadAssoc();
-        $res['bytable'] = $res['bytable'] == 1 ? '' : '#__';
         if (is_array($res)) {
-            return 'Select count(id) From ' . $res['bytable'] . $res['name'] . ' Where user_id = ' . intval($user_id);
+            $bytable = $res['bytable'] == 1 ? '' : '#__';
+            return 'Select count(id) From ' . $bytable . $res['name'] . ' Where user_id = ' . (int) $user_id;
         }
         return '';
     }
@@ -99,23 +126,25 @@ class contentbuilderng_com_contentbuilderng
     public function getUniqueValues($element_id, $where_field = '', $where = '')
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery(
-            "Select `name` From #__contentbuilderng_storage_fields"
-            . " Where id = " . intval($element_id)
-            . " And storage_id = " . intval($this->properties->id)
-            . " And COALESCE(published, 1) = 1"
-            . " Order By `ordering`"
-        );
+        $fieldQuery = $db->getQuery(true)
+            ->select($db->quoteName('name'))
+            ->from($db->quoteName('#__contentbuilderng_storage_fields'))
+            ->where($db->quoteName('id') . ' = ' . (int) $element_id)
+            ->where($db->quoteName('storage_id') . ' = ' . (int) $this->properties->id)
+            ->where('COALESCE(' . $db->quoteName('published') . ', 1) = 1')
+            ->order($db->quoteName('ordering'));
+        $db->setQuery($fieldQuery);
         $name = $db->loadResult();
         $where_add = '';
         if ($where_field != '' && $where != '') {
-            $db->setQuery(
-                "Select `name` From #__contentbuilderng_storage_fields"
-                . " Where id = " . intval($where_field)
-                . " And storage_id = " . intval($this->properties->id)
-                . " And COALESCE(published, 1) = 1"
-                . " Order By `ordering`"
-            );
+            $whereFieldQuery = $db->getQuery(true)
+                ->select($db->quoteName('name'))
+                ->from($db->quoteName('#__contentbuilderng_storage_fields'))
+                ->where($db->quoteName('id') . ' = ' . (int) $where_field)
+                ->where($db->quoteName('storage_id') . ' = ' . (int) $this->properties->id)
+                ->where('COALESCE(' . $db->quoteName('published') . ', 1) = 1')
+                ->order($db->quoteName('ordering'));
+            $db->setQuery($whereFieldQuery);
             $where_name = $db->loadResult();
             if ($where_name) {
                 $where_add = " And `" . $where_name . "` = " . $db->quote($where) . " ";
@@ -131,12 +160,13 @@ class contentbuilderng_com_contentbuilderng
     public function getAllElements()
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery(
-            "Select * From #__contentbuilderng_storage_fields"
-            . " Where storage_id = " . intval($this->properties->id)
-            . " And COALESCE(published, 1) = 1"
-            . " Order By `ordering`"
-        );
+        $query = $db->getQuery(true)
+            ->select('*')
+            ->from($db->quoteName('#__contentbuilderng_storage_fields'))
+            ->where($db->quoteName('storage_id') . ' = ' . (int) $this->properties->id)
+            ->where('COALESCE(' . $db->quoteName('published') . ', 1) = 1')
+            ->order($db->quoteName('ordering'));
+        $db->setQuery($query);
         $e = $db->loadAssocList();
         $elements = array();
         if ($e) {
@@ -154,11 +184,12 @@ class contentbuilderng_com_contentbuilderng
         }
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery(
-            "Select * From #__contentbuilderng_storage_fields"
-            . " Where storage_id = " . intval($this->properties->id)
-            . " Order By `ordering`"
-        );
+        $query = $db->getQuery(true)
+            ->select('*')
+            ->from($db->quoteName('#__contentbuilderng_storage_fields'))
+            ->where($db->quoteName('storage_id') . ' = ' . (int) $this->properties->id)
+            ->order($db->quoteName('ordering'));
+        $db->setQuery($query);
         $rows = $db->loadAssocList() ?: [];
 
         $elements = [];
@@ -200,13 +231,13 @@ class contentbuilderng_com_contentbuilderng
     {
         $data = new \stdClass();
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery(
-            "Select metakey, metadesc, author, robots, rights, xreference, edited, last_update"
-            . " From #__contentbuilderng_records"
-            . " Where `type` = 'com_contentbuilderng'"
-            . " And reference_id = " . $db->quote($this->properties->id)
-            . " And record_id = " . $db->quote($record_id)
-        );
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['metakey', 'metadesc', 'author', 'robots', 'rights', 'xreference', 'edited', 'last_update']))
+            ->from($db->quoteName('#__contentbuilderng_records'))
+            ->where($db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng'))
+            ->where($db->quoteName('reference_id') . ' = ' . $db->quote($this->properties->id))
+            ->where($db->quoteName('record_id') . ' = ' . $db->quote($record_id));
+        $db->setQuery($query);
         $metadata = $db->loadObject();
 
         $data->metadesc = '';
@@ -229,7 +260,11 @@ class contentbuilderng_com_contentbuilderng
         }
         $obj = null;
         try {
-            $db->setQuery("Select * From " . $this->bytable . $this->properties->name . " Where id = " . $record_id);
+            $recordQuery = $db->getQuery(true)
+                ->select('*')
+                ->from($db->quoteName($this->bytable . $this->properties->name))
+                ->where($db->quoteName('id') . ' = ' . (int) $record_id);
+            $db->setQuery($recordQuery);
             $obj = $db->loadObject();
         } catch (\Exception $e) {
 
@@ -764,7 +799,11 @@ class contentbuilderng_com_contentbuilderng
         $list = array();
         $db = Factory::getContainer()->get(DatabaseInterface::class);
         // In administrator context, allow selecting unpublished storages too.
-        $db->setQuery("Select `id`,`title`,`name` From #__contentbuilderng_storages Order By `ordering`");
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['id', 'title', 'name']))
+            ->from($db->quoteName('#__contentbuilderng_storages'))
+            ->order($db->quoteName('ordering'));
+        $db->setQuery($query);
         $rows = $db->loadAssocList();
         foreach ($rows as $row) {
             $list[$row['id']] = $row['title'] . ' (' . $row['name'] . ')';
@@ -781,7 +820,11 @@ class contentbuilderng_com_contentbuilderng
     public function isGroup($element_id)
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select is_group From #__contentbuilderng_storage_fields Where id = " . intval($element_id));
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('is_group'))
+            ->from($db->quoteName('#__contentbuilderng_storage_fields'))
+            ->where($db->quoteName('id') . ' = ' . (int) $element_id);
+        $db->setQuery($query);
         $result = $db->loadResult();
 
         if ($result) {
@@ -795,7 +838,11 @@ class contentbuilderng_com_contentbuilderng
     {
         $return = array();
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select group_definition From #__contentbuilderng_storage_fields Where id = " . intval($element_id));
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('group_definition'))
+            ->from($db->quoteName('#__contentbuilderng_storage_fields'))
+            ->where($db->quoteName('id') . ' = ' . (int) $element_id);
+        $db->setQuery($query);
         $result = $db->loadResult();
         if ($result) {
 
@@ -884,14 +931,23 @@ class contentbuilderng_com_contentbuilderng
             return;
         }
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Update " . $this->bytable . $this->properties->name . " Set user_id = " . intval($user_id) . ", created_by = " . $db->quote($fullname) . " Where id = " . $db->quote($record_id));
+        $query = $db->getQuery(true)
+            ->update($db->quoteName($this->bytable . $this->properties->name))
+            ->set($db->quoteName('user_id') . ' = ' . (int) $user_id)
+            ->set($db->quoteName('created_by') . ' = ' . $db->quote($fullname))
+            ->where($db->quoteName('id') . ' = ' . $db->quote($record_id));
+        $db->setQuery($query);
         $db->execute();
     }
 
     public function clearDirtyRecordUserData($record_id)
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Delete From " . $this->bytable . $this->properties->name . " Where user_id = 0 And id = " . $db->quote($record_id));
+        $query = $db->getQuery(true)
+            ->delete($db->quoteName($this->bytable . $this->properties->name))
+            ->where($db->quoteName('user_id') . ' = 0')
+            ->where($db->quoteName('id') . ' = ' . $db->quote($record_id));
+        $db->setQuery($query);
         $db->execute();
     }
 
@@ -956,7 +1012,14 @@ class contentbuilderng_com_contentbuilderng
 
             } else {
 
-                $db->setQuery("Select e.* From #__contentbuilderng_elements As e, #__contentbuilderng_forms As f Where e.reference_id = " . $db->quote($id) . " And f.reference_id = " . $db->quote($this->form_id) . " And e.form_id = f.id Order By ordering");
+                $elemQuery = $db->getQuery(true)
+                    ->select($db->quoteName('e') . '.*')
+                    ->from($db->quoteName('#__contentbuilderng_elements', 'e'))
+                    ->join('INNER', $db->quoteName('#__contentbuilderng_forms', 'f') . ' ON ' . $db->quoteName('e.form_id') . ' = ' . $db->quoteName('f.id'))
+                    ->where($db->quoteName('e.reference_id') . ' = ' . $db->quote($id))
+                    ->where($db->quoteName('f.reference_id') . ' = ' . $db->quote($this->form_id))
+                    ->order($db->quoteName('e.ordering'));
+                $db->setQuery($elemQuery);
                 $element = $db->loadAssoc();
 
                 //$options = null;
@@ -1083,11 +1146,20 @@ class contentbuilderng_com_contentbuilderng
             throw new \RuntimeException('Storage table name is empty for delete action.');
         }
         if (count($items)) {
-            $db->setQuery("Select reference_id From #__contentbuilderng_elements Where `type` = 'upload' And form_id = " . intval($form_id));
+            $refsQuery = $db->getQuery(true)
+                ->select($db->quoteName('reference_id'))
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('type') . ' = ' . $db->quote('upload'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $form_id);
+            $db->setQuery($refsQuery);
             $refs = $db->loadColumn();
 
             if (count($refs)) {
-                $db->setQuery("Select `name` From #__contentbuilderng_storage_fields Where id In (" . implode(',', $refs) . ")");
+                $namesQuery = $db->getQuery(true)
+                    ->select($db->quoteName('name'))
+                    ->from($db->quoteName('#__contentbuilderng_storage_fields'))
+                    ->where($db->quoteName('id') . ' IN (' . implode(',', array_map('intval', $refs)) . ')');
+                $db->setQuery($namesQuery);
                 $names = $db->loadColumn();
 
                 if (count($names)) {
@@ -1113,7 +1185,10 @@ class contentbuilderng_com_contentbuilderng
                     }
                 }
             }
-            $db->setQuery("Delete From " . $tableName . " Where id In (" . implode(',', $items) . ")");
+            $deleteQuery = $db->getQuery(true)
+                ->delete($db->quoteName($tableName))
+                ->where($db->quoteName('id') . ' IN (' . implode(',', $items) . ')');
+            $db->setQuery($deleteQuery);
             $db->execute();
         }
         return true;
@@ -1122,7 +1197,12 @@ class contentbuilderng_com_contentbuilderng
     function isOwner($user_id, $record_id)
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select id From " . $this->bytable . $this->properties->name . " Where id = " . intval($record_id) . " And user_id = " . intval($user_id));
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('id'))
+            ->from($db->quoteName($this->bytable . $this->properties->name))
+            ->where($db->quoteName('id') . ' = ' . (int) $record_id)
+            ->where($db->quoteName('user_id') . ' = ' . (int) $user_id);
+        $db->setQuery($query);
         return $db->loadResult() !== null ? true : false;
     }
 

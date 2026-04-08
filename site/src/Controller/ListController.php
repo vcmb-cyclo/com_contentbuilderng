@@ -188,7 +188,10 @@ class ListController extends BaseController
         Factory::getApplication()->input->set('cid', $selectedItems);
 
         $changedCount = (int) $model->change_list_states();
-        $message = Text::_('COM_CONTENTBUILDERNG_STATES_CHANGED') . ' (' . $changedCount . ')';
+        $messageKey = $changedCount === 1
+            ? 'COM_CONTENTBUILDERNG_STATE_CHANGED'
+            : 'COM_CONTENTBUILDERNG_STATES_CHANGED';
+        $message = Text::_($messageKey) . ' (' . $changedCount . ')';
 
         $state = $this->resolveListState();
         $previewQuery = $this->buildPreviewQuery();
@@ -357,8 +360,9 @@ class ListController extends BaseController
         $limitKey = $stateKeyPrefix . '.limit';
         $startKey = $stateKeyPrefix . '.start';
         $configuredLimit = $this->getConfiguredListLimit();
+        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest();
 
-        $limit = isset($list['limit']) ? (int) $list['limit'] : 0;
+        $limit = $explicitLimitRequest && isset($list['limit']) ? (int) $list['limit'] : 0;
         if ($limit === 0) {
             $limit = $configuredLimit;
         }
@@ -372,7 +376,7 @@ class ListController extends BaseController
             $limit = 20;
         }
 
-        if (array_key_exists('start', $list)) {
+        if ($explicitLimitRequest && array_key_exists('start', $list)) {
             $start = max(0, (int) $list['start']);
         } elseif ($configuredLimit > 0) {
             $start = 0;
@@ -403,6 +407,14 @@ class ListController extends BaseController
         ];
     }
 
+    private function getConfiguredListLimit(): int
+    {
+        /** @var SiteApplication $app */
+        $app = Factory::getApplication();
+
+        return MenuParamHelper::getConfiguredListLimit($app, (int) $this->input->getInt('id', 0));
+    }
+
     private function getPaginationStateKeyPrefix(): string
     {
         /** @var SiteApplication $app */
@@ -425,11 +437,6 @@ class ListController extends BaseController
         $itemId = (int) $this->input->getInt('Itemid', 0);
 
         return $option . '.liststate.' . $formId . '.' . $layout . '.' . $itemId;
-    }
-
-    private function getConfiguredListLimit(): int
-    {
-        return MenuParamHelper::getConfiguredListLimit(Factory::getApplication());
     }
 
     /**

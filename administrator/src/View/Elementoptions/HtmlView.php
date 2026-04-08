@@ -13,7 +13,7 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Elementoptions;
 \defined('_JEXEC') or die('Restricted access');
 
 ini_set('display_errors', 1);
-error_reporting(E_ALL);
+// error_reporting(E_ALL);
 
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Model\ElementoptionsModel;

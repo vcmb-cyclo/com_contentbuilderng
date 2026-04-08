@@ -131,8 +131,13 @@ final class NavigationLinkHelper
         $prefix = 'com_contentbuilderng.liststate.' . $scope . '.' . $layout . '.' . max(0, $itemId);
         $limitKey = $prefix . '.limit';
         $startKey = $prefix . '.start';
+        $configuredLimit = MenuParamHelper::getConfiguredListLimit($app, $formId);
+        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest();
 
-        $limit = isset($list['limit']) ? (int) $list['limit'] : 0;
+        $limit = $explicitLimitRequest && isset($list['limit']) ? (int) $list['limit'] : 0;
+        if ($limit === 0) {
+            $limit = $configuredLimit;
+        }
         if ($limit === 0) {
             $limit = (int) $app->getUserState($limitKey, 0);
         }
@@ -143,8 +148,10 @@ final class NavigationLinkHelper
             $limit = 20;
         }
 
-        if (array_key_exists('start', $list)) {
+        if ($explicitLimitRequest && array_key_exists('start', $list)) {
             $start = max(0, (int) $list['start']);
+        } elseif ($configuredLimit > 0) {
+            $start = 0;
         } else {
             $start = (int) $app->getUserState($startKey, 0);
         }

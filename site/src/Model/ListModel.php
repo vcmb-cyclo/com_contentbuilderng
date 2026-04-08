@@ -294,10 +294,11 @@ class ListModel extends BaseListModel
         $limitKey = $paginationStateKey . '.limit';
         $startKey = $paginationStateKey . '.start';
         $configuredLimit = $this->getConfiguredListLimit();
+        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest();
 
         // Priority for state-backed menu overrides:
         // explicit request > menu setting > persisted session state > global default.
-        $limit = isset($list['limit']) ? (int) $list['limit'] : 0;
+        $limit = $explicitLimitRequest && isset($list['limit']) ? (int) $list['limit'] : 0;
         if ($limit === 0) {
             $limit = $configuredLimit;
         }
@@ -311,7 +312,7 @@ class ListModel extends BaseListModel
             $limit = 20;
         }
 
-        if (array_key_exists('start', $list)) {
+        if ($explicitLimitRequest && array_key_exists('start', $list)) {
             $start = max(0, (int) $list['start']);
         } elseif ($configuredLimit > 0) {
             // When the menu defines the initial page size, reopen the list from the
@@ -338,6 +339,11 @@ class ListModel extends BaseListModel
 
         $this->setState('list.limit', (int) $limit);
         $this->setState('list.start', (int) $start);
+    }
+
+    private function getConfiguredListLimit(): int
+    {
+        return MenuParamHelper::getConfiguredListLimit($this->app, $this->_id);
     }
 
     private function getPaginationStateKeyPrefix(): string
@@ -385,11 +391,6 @@ class ListModel extends BaseListModel
         $itemId = (int) $app->input->getInt('Itemid', 0);
 
         return $scope . '.' . $layout . '.' . $itemId;
-    }
-
-    private function getConfiguredListLimit(): int
-    {
-        return MenuParamHelper::getConfiguredListLimit(Factory::getApplication());
     }
 
     private function getMenuToggle(string $key, int $default = 0): int

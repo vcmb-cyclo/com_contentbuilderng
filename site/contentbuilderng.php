@@ -20,6 +20,7 @@ $app = Factory::getApplication();
 $input = $app->input;
 $session = $app->getSession();
 $menu = $app->getMenu();
+$requestListLimitSubmitted = MenuParamHelper::hasExplicitListLimitRequest();
 
 $menuParamDefaults = [
     'cb_controller' => null,
@@ -118,7 +119,7 @@ if (is_object($item)) {
     }
     $input->set('cb_show_details_back_button', $detailsBackButton);
     $input->set('show_back_button', $detailsBackButton);
-    $input->set('cb_list_limit', MenuParamHelper::getMenuParam($params, 'cb_list_limit', 20));
+    $input->set('cb_list_limit', MenuParamHelper::getMenuParam($params, 'cb_list_limit', 0));
     $input->set('cb_filter_in_title', MenuParamHelper::getMenuParam($params, 'cb_filter_in_title', null));
     $input->set('cb_prefix_in_title', MenuParamHelper::getMenuParam($params, 'cb_prefix_in_title', null));
     $input->set('force_menu_item_id', MenuParamHelper::getMenuParam($params, 'force_menu_item_id', 0));
@@ -126,7 +127,8 @@ if (is_object($item)) {
 
     $list = (array) $input->get('list', [], 'array');
     $menuListLimit = (int) MenuParamHelper::getMenuParam($params, 'cb_list_limit', 0);
-    if (!isset($list['limit']) && $menuListLimit > 0) {
+    $currentListLimit = array_key_exists('limit', $list) ? (int) $list['limit'] : 0;
+    if (!$requestListLimitSubmitted && $menuListLimit > 0 && $currentListLimit !== $menuListLimit) {
         $list['limit'] = $menuListLimit;
         if (!isset($list['start'])) {
             $list['start'] = 0;

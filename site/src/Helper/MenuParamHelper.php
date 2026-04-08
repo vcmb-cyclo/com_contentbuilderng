@@ -12,9 +12,13 @@ namespace CB\Component\Contentbuilderng\Site\Helper;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
+use Joomla\Database\DatabaseInterface;
 
 final class MenuParamHelper
 {
+    /** @var array<int, int> */
+    private static array $formInitialListLimitCache = [];
+
     public static function getMenuParam($params, string $key, $default = null)
     {
         $settings = $params->get('settings', null);
@@ -44,7 +48,7 @@ final class MenuParamHelper
         return $params->get($key, $default);
     }
 
-    public static function getConfiguredListLimit($app): int
+    public static function getConfiguredListLimit($app, int $formId = 0): int
     {
         $inputLimit = (int) $app->input->getInt('cb_list_limit', 0);
 
@@ -61,10 +65,51 @@ final class MenuParamHelper
         $item = $itemId > 0 ? $menu->getItem($itemId) : $menu->getActive();
 
         if (!$item) {
+            return self::getFormInitialListLimit($formId);
+        }
+
+        $menuLimit = max(0, (int) self::getMenuParam($item->getParams(), 'cb_list_limit', 0));
+
+        if ($menuLimit > 0) {
+            return $menuLimit;
+        }
+
+        return self::getFormInitialListLimit($formId);
+    }
+
+    public static function hasExplicitListLimitRequest(): bool
+    {
+        return (isset($_GET['list']) && is_array($_GET['list']) && array_key_exists('limit', $_GET['list']))
+            || (isset($_POST['list']) && is_array($_POST['list']) && array_key_exists('limit', $_POST['list']));
+    }
+
+    private static function getFormInitialListLimit(int $formId): int
+    {
+        if ($formId < 1) {
             return 0;
         }
 
-        return max(0, (int) self::getMenuParam($item->getParams(), 'cb_list_limit', 0));
+        if (array_key_exists($formId, self::$formInitialListLimitCache)) {
+            return self::$formInitialListLimitCache[$formId];
+        }
+
+        try {
+            /** @var DatabaseInterface $db */
+            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $query = $db->getQuery(true)
+                ->select($db->quoteName('initial_list_limit'))
+                ->from($db->quoteName('#__contentbuilderng_forms'))
+                ->where($db->quoteName('id') . ' = ' . (int) $formId);
+
+            $db->setQuery($query, 0, 1);
+            $limit = max(0, (int) $db->loadResult());
+        } catch (\Throwable) {
+            $limit = 0;
+        }
+
+        self::$formInitialListLimitCache[$formId] = $limit;
+
+        return $limit;
     }
 
     public static function resolveToggleValue($value, int $default = 0): int

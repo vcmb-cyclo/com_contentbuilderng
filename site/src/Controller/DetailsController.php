@@ -204,17 +204,27 @@ class DetailsController extends BaseController
         $stateKeyPrefix = $this->getPaginationStateKeyPrefix();
         $limitKey = $stateKeyPrefix . '.limit';
         $startKey = $stateKeyPrefix . '.start';
+        $configuredLimit = MenuParamHelper::getConfiguredListLimit($app, (int) $app->input->getInt('id', 0));
+        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest();
 
-        $limit = isset($list['limit']) ? (int) $list['limit'] : 0;
+        $limit = $explicitLimitRequest && isset($list['limit']) ? (int) $list['limit'] : 0;
+        if ($limit === 0) {
+            $limit = $configuredLimit;
+        }
         if ($limit === 0) {
             $limit = (int) $app->getUserState($limitKey, 0);
         }
         if ($limit === 0) {
             $limit = (int) $app->get('list_limit');
         }
+        if ($limit < 1) {
+            $limit = 20;
+        }
 
-        if (array_key_exists('start', $list)) {
+        if ($explicitLimitRequest && array_key_exists('start', $list)) {
             $start = max(0, (int) $list['start']);
+        } elseif ($configuredLimit > 0) {
+            $start = 0;
         } else {
             $start = (int) $app->getUserState($startKey, 0);
         }

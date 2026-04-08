@@ -26,7 +26,12 @@ class FormSupportService
         }
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery('Select lang_code From #__languages Where published = 1 Order By ordering');
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('lang_code'))
+            ->from($db->quoteName('#__languages'))
+            ->where($db->quoteName('published') . ' = 1')
+            ->order($db->quoteName('ordering'));
+        $db->setQuery($query);
         $langs = $db->loadColumn();
 
         return $langs;
@@ -64,11 +69,11 @@ class FormSupportService
         $ids = [];
         $elements = (array) $form->getElementLabels();
 
-        $db->setQuery(
-            'Select reference_id, label'
-            . ' From #__contentbuilderng_elements'
-            . ' Where form_id = ' . (int) $formId
-        );
+        $query = $db->getQuery(true)
+            ->select([$db->quoteName('reference_id'), $db->quoteName('label')])
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('form_id') . ' = ' . (int) $formId);
+        $db->setQuery($query);
         $existingRows = (array) $db->loadAssocList();
         $existingByReference = [];
 
@@ -89,26 +94,34 @@ class FormSupportService
             $options->seperator = ',';
             $ids[] = $db->quote($referenceId);
 
-            $db->setQuery(
-                'Select id, `type`, `options` From #__contentbuilderng_elements'
-                . ' Where form_id = ' . (int) $formId
-                . ' And reference_id = ' . $db->quote($referenceId)
-            );
+            $query = $db->getQuery(true)
+                ->select([$db->quoteName('id'), $db->quoteName('type'), $db->quoteName('options')])
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $formId)
+                ->where($db->quoteName('reference_id') . ' = ' . $db->quote($referenceId));
+            $db->setQuery($query);
             $assoc = $db->loadAssoc();
 
             if (!is_array($assoc)) {
-                $db->setQuery('Select Max(ordering) + 1 From #__contentbuilderng_elements Where form_id = ' . (int) $formId);
+                $orderingQuery = $db->getQuery(true)
+                    ->select('MAX(' . $db->quoteName('ordering') . ') + 1')
+                    ->from($db->quoteName('#__contentbuilderng_elements'))
+                    ->where($db->quoteName('form_id') . ' = ' . (int) $formId);
+                $db->setQuery($orderingQuery);
                 $ordering = $db->loadResult();
 
-                $db->setQuery(
-                    'Insert Into #__contentbuilderng_elements (`label`,`form_id`,`reference_id`,`type`,`options`, `ordering`) Values ('
-                    . $db->quote($title) . ','
-                    . $db->quote($formId) . ','
-                    . $db->quote($referenceId) . ","
-                    . "'text',"
-                    . $db->quote(PackedDataHelper::encodePackedData($options)) . ', '
-                    . ($ordering ? $ordering : 0) . ')'
-                );
+                $insertQuery = $db->getQuery(true)
+                    ->insert($db->quoteName('#__contentbuilderng_elements'))
+                    ->columns($db->quoteName(['label', 'form_id', 'reference_id', 'type', 'options', 'ordering']))
+                    ->values(implode(',', [
+                        $db->quote($title),
+                        $db->quote($formId),
+                        $db->quote($referenceId),
+                        $db->quote('text'),
+                        $db->quote(PackedDataHelper::encodePackedData($options)),
+                        (int) ($ordering ?: 0),
+                    ]));
+                $db->setQuery($insertQuery);
                 $db->execute();
                 $report['added'][] = trim((string) $title) !== '' ? trim((string) $title) : (string) $referenceId;
             }
@@ -117,11 +130,11 @@ class FormSupportService
         }
 
         if ($ids !== []) {
-            $db->setQuery(
-                'Delete From #__contentbuilderng_elements'
-                . ' Where form_id = ' . (int) $formId
-                . ' And reference_id Not In (' . implode(',', $ids) . ')'
-            );
+            $deleteQuery = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $formId)
+                ->where($db->quoteName('reference_id') . ' NOT IN (' . implode(',', $ids) . ')');
+            $db->setQuery($deleteQuery);
             $db->execute();
         }
 
@@ -244,7 +257,12 @@ class FormSupportService
     public function getFormElementsPlugins(): array
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select `element` From #__extensions Where `folder` = 'contentbuilderng_form_elements' And `enabled` = 1");
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('element'))
+            ->from($db->quoteName('#__extensions'))
+            ->where($db->quoteName('folder') . ' = ' . $db->quote('contentbuilderng_form_elements'))
+            ->where($db->quoteName('enabled') . ' = 1');
+        $db->setQuery($query);
 
         return $db->loadColumn();
     }

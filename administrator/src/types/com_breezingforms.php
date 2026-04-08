@@ -84,11 +84,31 @@ class contentbuilderng_com_breezingforms
         $db->setQuery("SET SESSION group_concat_max_len = 9999999");
         $db->execute();
 
-        $db->setQuery("Select * From #__facileforms_forms Where id = " . intval($id) . " " . ($published ? 'And published = 1' : '') . " Order By `ordering`");
+        $formQuery = $db->getQuery(true)
+            ->select('*')
+            ->from($db->quoteName('#__facileforms_forms'))
+            ->where($db->quoteName('id') . ' = ' . (int) $id)
+            ->order($db->quoteName('ordering'));
+        if ($published) {
+            $formQuery->where($db->quoteName('published') . ' = 1');
+        }
+        $db->setQuery($formQuery);
         $this->properties = $db->loadObject();
         if ($this->properties instanceof \stdClass) {
             $this->exists = true;
-            $db->setQuery("Select * From #__facileforms_elements Where `type` <> 'Sofortueberweisung' And `type` <> 'PayPal' And `type` <> 'Static Text/HTML' And `type` <> 'Rectangle' And `type` <> 'Image' And `type` <> 'Tooltip' And `type` <> 'Query List' And `type` <> 'Icon' And `type` <> 'Graphic Button' And `type` <> 'Regular Button' And `type`<> 'Unknown' And `type` <> 'Summarize' And `type` <> 'ReCaptcha' And form = " . intval($id) . " And published = 1 Order By `ordering`");
+            $excludedTypes = [
+                'Sofortueberweisung', 'PayPal', 'Static Text/HTML', 'Rectangle', 'Image',
+                'Tooltip', 'Query List', 'Icon', 'Graphic Button', 'Regular Button',
+                'Unknown', 'Summarize', 'ReCaptcha',
+            ];
+            $elemQuery = $db->getQuery(true)
+                ->select('*')
+                ->from($db->quoteName('#__facileforms_elements'))
+                ->where($db->quoteName('type') . ' NOT IN (' . implode(',', array_map([$db, 'quote'], $excludedTypes)) . ')')
+                ->where($db->quoteName('form') . ' = ' . (int) $id)
+                ->where($db->quoteName('published') . ' = 1')
+                ->order($db->quoteName('ordering'));
+            $db->setQuery($elemQuery);
             $this->elements = $db->loadAssocList();
             $elements = array();
 
@@ -110,39 +130,44 @@ class contentbuilderng_com_breezingforms
         if (!is_object($this->properties)) return;
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select r.`id` 
-                From 
-                (
-                    #__facileforms_records As r,
-                    #__contentbuilderng_forms As f
-                )
-                Left Join 
-                (
-                    #__contentbuilderng_records As cr
-                ) 
-                On 
-                (
-                    r.form = '" . intval($this->properties->id) . "' And
-                    f.`reference_id` = r.form And
-                    cr.`type` = 'com_breezingforms' And
-                    cr.`reference_id` = r.form And
-                    cr.record_id = r.id
-                )
-                Where
-                f.`type` = 'com_breezingforms' And
-                f.`reference_id` = '" . intval($this->properties->id) . "' And
-                r.form = f.`reference_id` And
-                cr.`record_id` Is Null");
-
+        $formId = (int) $this->properties->id;
+        $syncQuery = $db->getQuery(true)
+            ->select($db->quoteName('r.id'))
+            ->from($db->quoteName('#__facileforms_records', 'r'))
+            ->join('INNER', $db->quoteName('#__contentbuilderng_forms', 'f') . ' ON ' . $db->quoteName('f.reference_id') . ' = ' . $db->quoteName('r.form'))
+            ->join('LEFT', $db->quoteName('#__contentbuilderng_records', 'cr') . ' ON ('
+                . $db->quoteName('r.form') . ' = ' . $formId . ' AND '
+                . $db->quoteName('cr.type') . ' = ' . $db->quote('com_breezingforms') . ' AND '
+                . $db->quoteName('cr.reference_id') . ' = ' . $db->quoteName('r.form') . ' AND '
+                . $db->quoteName('cr.record_id') . ' = ' . $db->quoteName('r.id') . ')')
+            ->where($db->quoteName('f.type') . ' = ' . $db->quote('com_breezingforms'))
+            ->where($db->quoteName('f.reference_id') . ' = ' . $formId)
+            ->where($db->quoteName('r.form') . ' = ' . $db->quoteName('f.reference_id'))
+            ->where($db->quoteName('cr.record_id') . ' IS NULL');
+        $db->setQuery($syncQuery);
 
         $reference_ids = $db->loadColumn();
 
         if (is_array($reference_ids)) {
             foreach ($reference_ids as $reference_id) {
-                $db->setQuery("Select `id` From #__contentbuilderng_records Where `type` = 'com_breezingforms' And `reference_id` = " . intval($this->properties->id) . ' And `record_id` = ' . intval($reference_id));
+                $checkQuery = $db->getQuery(true)
+                    ->select($db->quoteName('id'))
+                    ->from($db->quoteName('#__contentbuilderng_records'))
+                    ->where($db->quoteName('type') . ' = ' . $db->quote('com_breezingforms'))
+                    ->where($db->quoteName('reference_id') . ' = ' . $formId)
+                    ->where($db->quoteName('record_id') . ' = ' . (int) $reference_id);
+                $db->setQuery($checkQuery);
                 $res = $db->loadResult();
                 if (!$res) {
-                    $db->setQuery("Insert Into #__contentbuilderng_records (`type`,`record_id`,`reference_id`) Values ('com_breezingforms','" . intval($reference_id) . "', '" . intval($this->properties->id) . "')");
+                    $insertQuery = $db->getQuery(true)
+                        ->insert($db->quoteName('#__contentbuilderng_records'))
+                        ->columns($db->quoteName(['type', 'record_id', 'reference_id']))
+                        ->values(implode(',', [
+                            $db->quote('com_breezingforms'),
+                            (int) $reference_id,
+                            $formId,
+                        ]));
+                    $db->setQuery($insertQuery);
                     $db->execute();
                 }
             }
@@ -157,41 +182,57 @@ class contentbuilderng_com_breezingforms
     public function getUniqueValues($element_id, $where_field = '', $where = '')
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $formId = (int) $this->properties->id;
         $where_add = '';
         if ($where_field != '' && $where != '') {
-            $db->setQuery("Select Distinct s.`record` From #__facileforms_subrecords As s, #__facileforms_records As r Where r.form = " . $this->properties->id . " And r.id = s.record And s.`element` = " . intval($where_field) . " And s.`value` <> '' And s.`value` = " . $db->quote($where) . "  Order By s.`value`");
-
+            $whereQuery = $db->getQuery(true)
+                ->select('DISTINCT ' . $db->quoteName('s.record'))
+                ->from($db->quoteName('#__facileforms_subrecords', 's'))
+                ->join('INNER', $db->quoteName('#__facileforms_records', 'r') . ' ON ' . $db->quoteName('r.id') . ' = ' . $db->quoteName('s.record'))
+                ->where($db->quoteName('r.form') . ' = ' . $formId)
+                ->where($db->quoteName('s.element') . ' = ' . (int) $where_field)
+                ->where($db->quoteName('s.value') . ' <> ' . $db->quote(''))
+                ->where($db->quoteName('s.value') . ' = ' . $db->quote($where))
+                ->order($db->quoteName('s.value'));
+            $db->setQuery($whereQuery);
             $l = $db->loadColumn();
 
             if (count($l)) {
-                $where_fields = '';
-                foreach ($l as $ll) {
-                    $where_fields .= $db->quote($ll) . ',';
-                }
-                $where_fields = rtrim($where_fields, ',');
-                $where_add = " And r.`id` In (" . $where_fields . ") ";
+                $where_fields = implode(',', array_map([$db, 'quote'], $l));
+                $where_add = $db->quoteName('r.id') . ' IN (' . $where_fields . ')';
             }
         }
-        $db->setQuery("Select Distinct s.`value` From #__facileforms_subrecords As s, #__facileforms_records As r Where r.form = " . $this->properties->id . " And r.id = s.record And s.`element` = " . intval($element_id) . " And s.`value` <> '' $where_add  Order By s.`value`");
+        $valueQuery = $db->getQuery(true)
+            ->select('DISTINCT ' . $db->quoteName('s.value'))
+            ->from($db->quoteName('#__facileforms_subrecords', 's'))
+            ->join('INNER', $db->quoteName('#__facileforms_records', 'r') . ' ON ' . $db->quoteName('r.id') . ' = ' . $db->quoteName('s.record'))
+            ->where($db->quoteName('r.form') . ' = ' . $formId)
+            ->where($db->quoteName('s.element') . ' = ' . (int) $element_id)
+            ->where($db->quoteName('s.value') . ' <> ' . $db->quote(''))
+            ->order($db->quoteName('s.value'));
+        if ($where_add !== '') {
+            $valueQuery->where($where_add);
+        }
+        $db->setQuery($valueQuery);
         return $db->loadColumn();
     }
 
     public function getAllElements()
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select * From #__facileforms_elements Where form = " . intval($this->properties->id) . " And published = 1 Order By `ordering`");
+        $query = $db->getQuery(true)
+            ->select('*')
+            ->from($db->quoteName('#__facileforms_elements'))
+            ->where($db->quoteName('form') . ' = ' . (int) $this->properties->id)
+            ->where($db->quoteName('published') . ' = 1')
+            ->order($db->quoteName('ordering'));
+        $db->setQuery($query);
         $e = $db->loadAssocList();
         $elements = array();
+        $fakeNames = ['bfFakeName', 'bfFakeName2', 'bfFakeName3', 'bfFakeName4', 'bfFakeName5', 'bfFakeName6'];
         if ($e) {
             foreach ($e as $element) {
-                if (
-                    $element['name'] != 'bfFakeName'  &&
-                    $element['name'] != 'bfFakeName2' &&
-                    $element['name'] != 'bfFakeName3' &&
-                    $element['name'] != 'bfFakeName4' &&
-                    $element['name'] != 'bfFakeName5' &&
-                    $element['name'] != 'bfFakeName6'
-                ) {
+                if (!in_array($element['name'], $fakeNames, true)) {
                     $elements[$element['id']] = $element['name'];
                 }
             }
@@ -206,19 +247,18 @@ class contentbuilderng_com_breezingforms
         }
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select * From #__facileforms_elements Where form = " . intval($this->properties->id) . " Order By `ordering`");
+        $query = $db->getQuery(true)
+            ->select('*')
+            ->from($db->quoteName('#__facileforms_elements'))
+            ->where($db->quoteName('form') . ' = ' . (int) $this->properties->id)
+            ->order($db->quoteName('ordering'));
+        $db->setQuery($query);
         $e = $db->loadAssocList();
         $elements = array();
+        $fakeNames = ['bfFakeName', 'bfFakeName2', 'bfFakeName3', 'bfFakeName4', 'bfFakeName5', 'bfFakeName6'];
         if ($e) {
             foreach ($e as $element) {
-                if (
-                    $element['name'] != 'bfFakeName'  &&
-                    $element['name'] != 'bfFakeName2' &&
-                    $element['name'] != 'bfFakeName3' &&
-                    $element['name'] != 'bfFakeName4' &&
-                    $element['name'] != 'bfFakeName5' &&
-                    $element['name'] != 'bfFakeName6'
-                ) {
+                if (!in_array($element['name'], $fakeNames, true)) {
                     $elements[] = $element;
                 }
             }
@@ -252,13 +292,13 @@ class contentbuilderng_com_breezingforms
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
 
-        $db->setQuery(
-            "Select metakey, metadesc, author, robots, rights, xreference, edited, last_update"
-            . " From #__contentbuilderng_records"
-            . " Where `type` = 'com_breezingforms'"
-            . " And reference_id = " . $db->quote($this->properties->id)
-            . " And record_id = " . $db->quote($record_id)
-        );
+        $metaQuery = $db->getQuery(true)
+            ->select($db->quoteName(['metakey', 'metadesc', 'author', 'robots', 'rights', 'xreference', 'edited', 'last_update']))
+            ->from($db->quoteName('#__contentbuilderng_records'))
+            ->where($db->quoteName('type') . ' = ' . $db->quote('com_breezingforms'))
+            ->where($db->quoteName('reference_id') . ' = ' . $db->quote($this->properties->id))
+            ->where($db->quoteName('record_id') . ' = ' . $db->quote($record_id));
+        $db->setQuery($metaQuery);
         $metadata = $db->loadObject();
 
         $data->metadesc = '';
@@ -281,7 +321,11 @@ class contentbuilderng_com_breezingforms
         }
 
         try {
-            $db->setQuery("Select * From #__facileforms_records Where id = " . $record_id);
+            $recordQuery = $db->getQuery(true)
+                ->select('*')
+                ->from($db->quoteName('#__facileforms_records'))
+                ->where($db->quoteName('id') . ' = ' . (int) $record_id);
+            $db->setQuery($recordQuery);
             $obj = $db->loadObject();
         } catch (\Exception $e) {
             $obj = null;
@@ -333,25 +377,14 @@ class contentbuilderng_com_breezingforms
 
         /////////////
         // we need all elements, so they will be searchable through having
-        $db->setQuery("Select id, `title`, `name`, `type` From
-                #__facileforms_elements
-                Where
-                form = " . $this->properties->id . "
-                And
-                published = 1
-                And
-                `name` <> 'bfFakeName'
-                And
-                `name` <> 'bfFakeName2'
-                And
-                `name` <> 'bfFakeName3'
-                And
-                `name` <> 'bfFakeName4'
-                And
-                `name` <> 'bfFakeName5'
-                And
-                `name` <> 'bfFakeName6'
-        ");
+        $fakeNames = ['bfFakeName', 'bfFakeName2', 'bfFakeName3', 'bfFakeName4', 'bfFakeName5', 'bfFakeName6'];
+        $elemsQuery = $db->getQuery(true)
+            ->select($db->quoteName(['id', 'title', 'name', 'type']))
+            ->from($db->quoteName('#__facileforms_elements'))
+            ->where($db->quoteName('form') . ' = ' . (int) $this->properties->id)
+            ->where($db->quoteName('published') . ' = 1')
+            ->where($db->quoteName('name') . ' NOT IN (' . implode(',', array_map([$db, 'quote'], $fakeNames)) . ')');
+        $db->setQuery($elemsQuery);
         $elements = $db->loadAssocList();
         /////////////
 
@@ -954,7 +987,12 @@ class contentbuilderng_com_breezingforms
     {
         $list = array();
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select `id`,`title`,`name` From #__facileforms_forms Where published = 1 Order By `ordering`");
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['id', 'title', 'name']))
+            ->from($db->quoteName('#__facileforms_forms'))
+            ->where($db->quoteName('published') . ' = 1')
+            ->order($db->quoteName('ordering'));
+        $db->setQuery($query);
         $rows = $db->loadAssocList();
         foreach ($rows as $row) {
             $list[$row['id']] = $row['title'] . ' (' . $row['name'] . ')';
@@ -971,7 +1009,11 @@ class contentbuilderng_com_breezingforms
     public function isGroup($element_id)
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select `type`, `flag1` From #__facileforms_elements Where id = " . intval($element_id));
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['type', 'flag1']))
+            ->from($db->quoteName('#__facileforms_elements'))
+            ->where($db->quoteName('id') . ' = ' . (int) $element_id);
+        $db->setQuery($query);
         $result = $db->loadAssoc();
         if (is_array($result)) {
             switch ($result['type']) {
@@ -996,7 +1038,12 @@ class contentbuilderng_com_breezingforms
     {
         $return = array();
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select data2 From #__facileforms_elements Where `type` Not In ('Radio Button', 'Checkbox') And id = " . intval($element_id));
+        $q1 = $db->getQuery(true)
+            ->select($db->quoteName('data2'))
+            ->from($db->quoteName('#__facileforms_elements'))
+            ->where($db->quoteName('type') . ' NOT IN (' . $db->quote('Radio Button') . ',' . $db->quote('Checkbox') . ')')
+            ->where($db->quoteName('id') . ' = ' . (int) $element_id);
+        $db->setQuery($q1);
         $result = $db->loadResult();
         if ($result) {
 
@@ -1011,10 +1058,19 @@ class contentbuilderng_com_breezingforms
             }
             return $return;
         } else {
-            $db->setQuery("Select `name` From #__facileforms_elements Where id = " . intval($element_id));
+            $nameQuery = $db->getQuery(true)
+                ->select($db->quoteName('name'))
+                ->from($db->quoteName('#__facileforms_elements'))
+                ->where($db->quoteName('id') . ' = ' . (int) $element_id);
+            $db->setQuery($nameQuery);
             $name = $db->loadResult();
             if ($name) {
-                $db->setQuery("Select `data1` From #__facileforms_elements Where `type` In ('Radio Button', 'Checkbox') And name = " . $db->quote(trim($name)));
+                $valuesQuery = $db->getQuery(true)
+                    ->select($db->quoteName('data1'))
+                    ->from($db->quoteName('#__facileforms_elements'))
+                    ->where($db->quoteName('type') . ' IN (' . $db->quote('Radio Button') . ',' . $db->quote('Checkbox') . ')')
+                    ->where($db->quoteName('name') . ' = ' . $db->quote(trim($name)));
+                $db->setQuery($valuesQuery);
                 $values = $db->loadColumn();
 
                 foreach ($values as $value) {
@@ -1081,14 +1137,24 @@ class contentbuilderng_com_breezingforms
     public function saveRecordUserData($record_id, $user_id, $fullname, $username)
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Update #__facileforms_records Set user_id = " . intval($user_id) . ", username = " . $db->quote($username) . ", user_full_name = " . $db->quote($fullname) . " Where id = " . $db->quote($record_id));
+        $query = $db->getQuery(true)
+            ->update($db->quoteName('#__facileforms_records'))
+            ->set($db->quoteName('user_id') . ' = ' . (int) $user_id)
+            ->set($db->quoteName('username') . ' = ' . $db->quote($username))
+            ->set($db->quoteName('user_full_name') . ' = ' . $db->quote($fullname))
+            ->where($db->quoteName('id') . ' = ' . $db->quote($record_id));
+        $db->setQuery($query);
         $db->execute();
     }
 
     public function clearDirtyRecordUserData($record_id)
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Delete From #__facileforms_records Where user_id = 0 And id = " . $db->quote($record_id));
+        $query = $db->getQuery(true)
+            ->delete($db->quoteName('#__facileforms_records'))
+            ->where($db->quoteName('user_id') . ' = 0')
+            ->where($db->quoteName('id') . ' = ' . $db->quote($record_id));
+        $db->setQuery($query);
         $db->execute();
     }
 
@@ -1107,29 +1173,22 @@ class contentbuilderng_com_breezingforms
             $now = Factory::getDate()->toSql();
             $actor = $this->getEffectiveActor();
 
-            $db->setQuery("Insert Into #__facileforms_records (
-                `submitted`,
-                `form`,
-                `title`,
-                `name`,
-                `ip`,
-                `browser`,
-                `opsys`,
-                `user_id`,
-                `username`,
-                `user_full_name`
-            ) Values (
-                '" . $now . "',
-                " . $db->quote($this->properties->id) . ",
-                " . $db->quote($this->properties->title) . ",
-                " . $db->quote($this->properties->name) . ",
-                " . $db->quote($_SERVER['REMOTE_ADDR']) . ",
-                " . $db->quote(Browser::getInstance()->getAgentString()) . ",
-                " . $db->quote(Browser::getInstance()->getPlatform()) . ",
-                " . $db->quote((int) $actor['id']) . ",
-                " . $db->quote((string) $actor['username']) . ",
-                " . $db->quote((string) $actor['name']) . "
-            )");
+            $insertQuery = $db->getQuery(true)
+                ->insert($db->quoteName('#__facileforms_records'))
+                ->columns($db->quoteName(['submitted', 'form', 'title', 'name', 'ip', 'browser', 'opsys', 'user_id', 'username', 'user_full_name']))
+                ->values(implode(',', [
+                    $db->quote($now),
+                    $db->quote($this->properties->id),
+                    $db->quote($this->properties->title),
+                    $db->quote($this->properties->name),
+                    $db->quote($_SERVER['REMOTE_ADDR']),
+                    $db->quote(Browser::getInstance()->getAgentString()),
+                    $db->quote(Browser::getInstance()->getPlatform()),
+                    (int) $actor['id'],
+                    $db->quote((string) $actor['username']),
+                    $db->quote((string) $actor['name']),
+                ]));
+            $db->setQuery($insertQuery);
             $db->execute();
             $insert_id = $db->insertid();
         } else {
@@ -1139,13 +1198,13 @@ class contentbuilderng_com_breezingforms
             $modifierName = (string) $actor['name'];
 
             try {
-                $db->setQuery(
-                    "UPDATE #__facileforms_records
-                     SET modified_user_id = " . $db->quote($modifierId) . ",
-                         modified = " . $db->quote(Factory::getDate()->toSql()) . ",
-                         modified_by = " . $db->quote($modifierName) . "
-                     WHERE id = " . $db->quote($record_id)
-                );
+                $updateQuery = $db->getQuery(true)
+                    ->update($db->quoteName('#__facileforms_records'))
+                    ->set($db->quoteName('modified_user_id') . ' = ' . $db->quote($modifierId))
+                    ->set($db->quoteName('modified') . ' = ' . $db->quote(Factory::getDate()->toSql()))
+                    ->set($db->quoteName('modified_by') . ' = ' . $db->quote($modifierName))
+                    ->where($db->quoteName('id') . ' = ' . $db->quote($record_id));
+                $db->setQuery($updateQuery);
                 $db->execute();
             } catch (\Throwable $e) {
                 // Backward compatibility: older BF schemas may not have these audit columns.
@@ -1155,62 +1214,45 @@ class contentbuilderng_com_breezingforms
             $isGroup = $this->isGroup($id);
 
             if (!is_array($value) && !$isGroup) {
+                $elemInfoQuery = $db->getQuery(true)
+                    ->select($db->quoteName(['title', 'name', 'type']))
+                    ->from($db->quoteName('#__facileforms_elements'))
+                    ->where($db->quoteName('id') . ' = ' . (int) $id);
+                $db->setQuery($elemInfoQuery);
+                $the_element = $db->loadAssoc();
                 if ($insert_id) {
-                    $db->setQuery("Select `title`,`name`,`type` From #__facileforms_elements Where id = " . intval($id));
-                    $the_element = $db->loadAssoc();
-                    $db->setQuery(
-                        "Insert Into #__facileforms_subrecords
-                        (
-                            `record`,
-                            `value`,
-                            `element`,
-                            `title`,
-                            `name`,
-                            `type`
-                        )
-                        Values
-                        (
-                            $insert_id,
-                            " . $db->quote($value) . ",
-                            " . $db->quote($id) . ",
-                            " . $db->quote($the_element['title']) . ",
-                            " . $db->quote($the_element['name']) . ",
-                            " . $db->quote($the_element['type']) . "
-                        )"
-                    );
+                    $subInsert = $db->getQuery(true)
+                        ->insert($db->quoteName('#__facileforms_subrecords'))
+                        ->columns($db->quoteName(['record', 'value', 'element', 'title', 'name', 'type']))
+                        ->values(implode(',', [
+                            (int) $insert_id,
+                            $db->quote($value),
+                            $db->quote($id),
+                            $db->quote($the_element['title']),
+                            $db->quote($the_element['name']),
+                            $db->quote($the_element['type']),
+                        ]));
+                    $db->setQuery($subInsert);
                     $db->execute();
                 } else {
-                    $db->setQuery("
-                        Delete From 
-                            #__facileforms_subrecords
-                        Where
-                            element = " . $db->quote($id) . "
-                        And
-                            record = " . $db->quote(intval($record_id)) . "
-                    ");
+                    $subDelete = $db->getQuery(true)
+                        ->delete($db->quoteName('#__facileforms_subrecords'))
+                        ->where($db->quoteName('element') . ' = ' . $db->quote($id))
+                        ->where($db->quoteName('record') . ' = ' . (int) $record_id);
+                    $db->setQuery($subDelete);
                     $db->execute();
-                    $db->setQuery("Select `title`,`name`,`type` From #__facileforms_elements Where id = " . intval($id));
-                    $the_element = $db->loadAssoc();
-                    $db->setQuery(
-                        "Insert Into #__facileforms_subrecords
-                        (
-                            `record`,
-                            `value`,
-                            `element`,
-                            `title`,
-                            `name`,
-                            `type`
-                        )
-                        Values
-                        (
-                            " . $db->quote(intval($record_id)) . ",
-                            " . $db->quote($value) . ",
-                            " . $db->quote($id) . ",
-                            " . $db->quote($the_element['title']) . ",
-                            " . $db->quote($the_element['name']) . ",
-                            " . $db->quote($the_element['type']) . "
-                        )"
-                    );
+                    $subInsert = $db->getQuery(true)
+                        ->insert($db->quoteName('#__facileforms_subrecords'))
+                        ->columns($db->quoteName(['record', 'value', 'element', 'title', 'name', 'type']))
+                        ->values(implode(',', [
+                            (int) $record_id,
+                            $db->quote($value),
+                            $db->quote($id),
+                            $db->quote($the_element['title']),
+                            $db->quote($the_element['name']),
+                            $db->quote($the_element['type']),
+                        ]));
+                    $db->setQuery($subInsert);
                     $db->execute();
                 }
             } else {
@@ -1227,37 +1269,87 @@ class contentbuilderng_com_breezingforms
                 }
                 $del = array();
                 $groupdef = $this->getGroupDefinition($id);
-                $db->setQuery("Select `title`,`name`,`type` From #__facileforms_elements Where id = " . intval($id));
+                $elemInfoQuery2 = $db->getQuery(true)
+                    ->select($db->quoteName(['title', 'name', 'type']))
+                    ->from($db->quoteName('#__facileforms_elements'))
+                    ->where($db->quoteName('id') . ' = ' . (int) $id);
+                $db->setQuery($elemInfoQuery2);
                 $the_element = $db->loadAssoc();
 
                 foreach ($groupdef as $groupval => $grouplabel) {
                     if (!in_array($groupval, $value)) {
                         $del[] = $db->quote($groupval);
                     } else {
-                        $db->setQuery("Select id From #__facileforms_subrecords Where `value` = " . $db->quote($groupval) . " And record = " . $db->quote($record_id) . " And element = " . $db->quote($id));
+                        $existsQuery = $db->getQuery(true)
+                            ->select($db->quoteName('id'))
+                            ->from($db->quoteName('#__facileforms_subrecords'))
+                            ->where($db->quoteName('value') . ' = ' . $db->quote($groupval))
+                            ->where($db->quoteName('record') . ' = ' . $db->quote($record_id))
+                            ->where($db->quoteName('element') . ' = ' . $db->quote($id));
+                        $db->setQuery($existsQuery);
                         $exists = $db->loadResult();
                         if (!$exists) {
-                            $db->setQuery("Insert Into #__facileforms_subrecords (`value`, record, element, `title`, `name`, `type`) Values (" . $db->quote($groupval) . "," . $db->quote($record_id) . "," . $db->quote($id) . "," . $db->quote($the_element['title']) . "," . $db->quote($the_element['name']) . "," . $db->quote($the_element['type']) . ")");
+                            $groupInsert = $db->getQuery(true)
+                                ->insert($db->quoteName('#__facileforms_subrecords'))
+                                ->columns($db->quoteName(['value', 'record', 'element', 'title', 'name', 'type']))
+                                ->values(implode(',', [
+                                    $db->quote($groupval),
+                                    $db->quote($record_id),
+                                    $db->quote($id),
+                                    $db->quote($the_element['title']),
+                                    $db->quote($the_element['name']),
+                                    $db->quote($the_element['type']),
+                                ]));
+                            $db->setQuery($groupInsert);
                             $db->execute();
                         }
                     }
                 }
                 if (count($del)) {
-                    $db->setQuery("Delete From #__facileforms_subrecords Where `value` In (" . implode(',', $del) . ") And record = " . $db->quote($record_id) . " And element = " . $db->quote($id));
+                    $delQuery = $db->getQuery(true)
+                        ->delete($db->quoteName('#__facileforms_subrecords'))
+                        ->where($db->quoteName('value') . ' IN (' . implode(',', $del) . ')')
+                        ->where($db->quoteName('record') . ' = ' . $db->quote($record_id))
+                        ->where($db->quoteName('element') . ' = ' . $db->quote($id));
+                    $db->setQuery($delQuery);
                     $db->execute();
                 }
                 /**
                  * Restore the input order based on the group definition
                  */
                 foreach ($groupdef as $groupval => $grouplabel) {
-                    $db->setQuery("Select id From #__facileforms_subrecords Where `value` = " . $db->quote($groupval) . " And record = " . $db->quote($record_id) . " And element = " . $db->quote($id));
+                    $oldIdQuery = $db->getQuery(true)
+                        ->select($db->quoteName('id'))
+                        ->from($db->quoteName('#__facileforms_subrecords'))
+                        ->where($db->quoteName('value') . ' = ' . $db->quote($groupval))
+                        ->where($db->quoteName('record') . ' = ' . $db->quote($record_id))
+                        ->where($db->quoteName('element') . ' = ' . $db->quote($id));
+                    $db->setQuery($oldIdQuery);
                     $old_id = $db->loadResult();
-                    $db->setQuery("Select `title`,`name`,`type` From #__facileforms_elements Where id = " . intval($id));
+                    $elemInfoQuery3 = $db->getQuery(true)
+                        ->select($db->quoteName(['title', 'name', 'type']))
+                        ->from($db->quoteName('#__facileforms_elements'))
+                        ->where($db->quoteName('id') . ' = ' . (int) $id);
+                    $db->setQuery($elemInfoQuery3);
                     $the_element = $db->loadAssoc();
                     if ($old_id) {
-                        $db->setQuery("Insert Into #__facileforms_subrecords (`value`, record, element, `title`, `name`, `type`) Values (" . $db->quote($groupval) . "," . $db->quote($record_id) . "," . $db->quote($id) . "," . $db->quote($the_element['title']) . "," . $db->quote($the_element['name']) . "," . $db->quote($the_element['type']) . ")");
+                        $reorderInsert = $db->getQuery(true)
+                            ->insert($db->quoteName('#__facileforms_subrecords'))
+                            ->columns($db->quoteName(['value', 'record', 'element', 'title', 'name', 'type']))
+                            ->values(implode(',', [
+                                $db->quote($groupval),
+                                $db->quote($record_id),
+                                $db->quote($id),
+                                $db->quote($the_element['title']),
+                                $db->quote($the_element['name']),
+                                $db->quote($the_element['type']),
+                            ]));
+                        $db->setQuery($reorderInsert);
                         $db->execute();
-                        $db->setQuery("Delete From #__facileforms_subrecords Where id = " . $old_id);
+                        $oldDelete = $db->getQuery(true)
+                            ->delete($db->quoteName('#__facileforms_subrecords'))
+                            ->where($db->quoteName('id') . ' = ' . (int) $old_id);
+                        $db->setQuery($oldDelete);
                         $db->execute();
                     }
                 }
@@ -1275,9 +1367,18 @@ class contentbuilderng_com_breezingforms
         $db = Factory::getContainer()->get(DatabaseInterface::class);
         ArrayHelper::toInteger($items);
         if (count($items)) {
-            $db->setQuery("Delete From #__facileforms_records Where id In (" . implode(',', $items) . ")");
+            $idList = implode(',', $items);
+            $delRecords = $db->getQuery(true)
+                ->delete($db->quoteName('#__facileforms_records'))
+                ->where($db->quoteName('id') . ' IN (' . $idList . ')');
+            $db->setQuery($delRecords);
             $db->execute();
-            $db->setQuery("Select `value` From #__facileforms_subrecords Where `type` = 'File Upload' And record In (" . implode(',', $items) . ")");
+            $filesQuery = $db->getQuery(true)
+                ->select($db->quoteName('value'))
+                ->from($db->quoteName('#__facileforms_subrecords'))
+                ->where($db->quoteName('type') . ' = ' . $db->quote('File Upload'))
+                ->where($db->quoteName('record') . ' IN (' . $idList . ')');
+            $db->setQuery($filesQuery);
             $files = $db->loadColumn();
 
             foreach ($files as $file) {
@@ -1291,7 +1392,10 @@ class contentbuilderng_com_breezingforms
                     }
                 }
             }
-            $db->setQuery("Delete From #__facileforms_subrecords Where record In (" . implode(',', $items) . ")");
+            $delSubs = $db->getQuery(true)
+                ->delete($db->quoteName('#__facileforms_subrecords'))
+                ->where($db->quoteName('record') . ' IN (' . $idList . ')');
+            $db->setQuery($delSubs);
             $db->execute();
         }
         return true;
@@ -1300,7 +1404,12 @@ class contentbuilderng_com_breezingforms
     function isOwner($user_id, $record_id)
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select id From #__facileforms_records Where id = " . intval($record_id) . " And user_id = " . intval($user_id));
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('id'))
+            ->from($db->quoteName('#__facileforms_records'))
+            ->where($db->quoteName('id') . ' = ' . (int) $record_id)
+            ->where($db->quoteName('user_id') . ' = ' . (int) $user_id);
+        $db->setQuery($query);
         return $db->loadResult() !== null ? true : false;
     }
 

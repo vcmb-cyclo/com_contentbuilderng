@@ -55,6 +55,7 @@ $advancedDefaults = [
     'cb_prefix_in_title' => 0,
     'show_filter' => 1,
     'show_records_per_page' => 1,
+    'initial_list_limit' => 20,
     'published_only' => 0,
     'allow_external_filter' => 0,
     'filter_exact_match' => 1,
@@ -327,6 +328,22 @@ $advancedDefaults = [
                                     <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_LIMIT_LABEL'); ?>
                                 </span>
                             </label>
+                        </div>
+                        <div class="w-100">
+                            <label class="form-label mb-1" for="initial_list_limit">
+                                <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_INITIAL_LIST_LIMIT_TIP'); ?>">
+                                    <?php echo Text::_('COM_CONTENTBUILDERNG_FIELD_INITIAL_LIST_LIMIT'); ?>
+                                </span>
+                            </label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                name="jform[initial_list_limit]"
+                                id="initial_list_limit"
+                                min="1"
+                                step="1"
+                                value="<?php echo (int) ($item->initial_list_limit ?? 20); ?>"
+                            />
                         </div>
                         <div>
                             <input type="hidden" name="jform[published_only]" value="0" />

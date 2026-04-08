@@ -154,13 +154,13 @@ After migrating each file:
 
 ## Files Already Migrated
 - ✅ **administrator/src/Model/UserModel.php** - 6 UPDATE queries (reference implementation)
+- ✅ **administrator/src/Service/ArticleService.php** - fully migrated
+- ✅ **administrator/src/Service/FormSupportService.php** - 6 queries migrated
+- ✅ **administrator/src/types/com_contentbuilderng.php** - ~19 queries migrated (dynamic-column queries in getRecord/getListRecords/saveRecord kept as raw SQL — values already properly quoted, migration would require deep refactor)
+- ✅ **administrator/src/types/com_breezingforms.php** - ~35 queries migrated (SET SESSION, GROUP_CONCAT dynamic selectors, and SELECT FOUND_ROWS() kept as raw SQL — MySQL-specific or dynamic-column constructs)
 
 ## Files Pending Migration
-- [ ] administrator/src/Service/ArticleService.php (29 queries)
-- [ ] administrator/src/Service/FormSupportService.php (7 queries)
-- [ ] administrator/src/types/com_breezingforms.php (42+ queries)
-- [ ] administrator/src/types/com_contentbuilderng.php (28+ queries)
-- [ ] And 21+ other files with raw SQL
+- [ ] And 21+ other files with raw SQL (plugins, views, helpers)
 
 ## References
 - [Joomla DatabaseDriver getQuery()](https://docs.joomla.org/Selecting_data_using_JDatabase)
