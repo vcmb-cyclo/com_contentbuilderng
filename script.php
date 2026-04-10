@@ -28,10 +28,14 @@ use CB\Component\Contentbuilderng\Administrator\Service\MigrationService;
 use CB\Component\Contentbuilderng\Administrator\Service\PluginInstallerService;
 use CB\Component\Contentbuilderng\Administrator\Service\SchemaService;
 
-require_once __DIR__ . '/administrator/src/Service/InstallerService.php';
-require_once __DIR__ . '/administrator/src/Service/MigrationService.php';
-require_once __DIR__ . '/administrator/src/Service/PluginInstallerService.php';
-require_once __DIR__ . '/administrator/src/Service/SchemaService.php';
+$serviceBasePath = is_dir(__DIR__ . '/administrator/src/Service')
+    ? __DIR__ . '/administrator/src/Service'
+    : __DIR__ . '/src/Service';
+
+require_once $serviceBasePath . '/InstallerService.php';
+require_once $serviceBasePath . '/MigrationService.php';
+require_once $serviceBasePath . '/PluginInstallerService.php';
+require_once $serviceBasePath . '/SchemaService.php';
 
 /**
  * Installer Script class for com_contentbuilderng
@@ -286,39 +290,38 @@ class com_contentbuilderngInstallerScript
 
                 // Best-effort: delete legacy system plugin folder first if present
                 $this->removeLegacySystemPluginFolderEarly($context);
+                // Cleanup old directories/files (best-effort)
+                $this->removeOldDirectories();
+                $this->removeObsoleteFiles();
+                $this->removeObsoleteLanguageFiles();
+
+                // Ensure media templates / upload dir
+                $this->ensureMediaListTemplateInstalled();
+                $this->ensureUploadDirectoryExists();
+
+                // DB migrations / hardening
+                $this->updateDateColumns();
+                $this->ensureFormsDisplayColumns();
+                $this->ensureElementsLinkableDefault();
+
+                // Normalize menu links and titles
+                $this->updateMenuLinks('contentbuilder', 'com_contentbuilderng');
+                $this->updateMenuLinks('com_contentbuilder', 'com_contentbuilderng');
+                $this->updateMenuLinks('com_contentbuilder_ng', 'com_contentbuilderng');
+
+                // Install / update plugins shipped in package
+                $source = $this->resolveInstallSourcePath($parent);
+                $this->incomingPackageSourceRoot = $source;
+                if ($source && is_dir($source)) {
+                    $this->log('[INFO] Plugin install source resolved: ' . $source, Log::INFO);
+                } else {
+                    $this->log('[WARNING] Plugin install source not resolved; missing plugins may not be installable in this run.', Log::WARNING);
+                }
+
+                // Refresh plugins on update (keeps manifest_cache aligned)
+                $this->ensurePluginsInstalled($source, $type === 'update');
+                $this->activatePlugins();
             }
-
-            // Cleanup old directories/files (best-effort)
-            $this->removeOldDirectories();
-            $this->removeObsoleteFiles();
-            $this->removeObsoleteLanguageFiles();
-
-            // Ensure media templates / upload dir
-            $this->ensureMediaListTemplateInstalled();
-            $this->ensureUploadDirectoryExists();
-
-            // DB migrations / hardening
-            $this->updateDateColumns();
-            $this->ensureFormsDisplayColumns();
-            $this->ensureElementsLinkableDefault();
-
-            // Normalize menu links and titles
-            $this->updateMenuLinks('contentbuilder', 'com_contentbuilderng');
-            $this->updateMenuLinks('com_contentbuilder', 'com_contentbuilderng');
-            $this->updateMenuLinks('com_contentbuilder_ng', 'com_contentbuilderng');
-
-            // Install / update plugins shipped in package
-            $source = $this->resolveInstallSourcePath($parent);
-            $this->incomingPackageSourceRoot = $source;
-            if ($source && is_dir($source)) {
-                $this->log('[INFO] Plugin install source resolved: ' . $source, Log::INFO);
-            } else {
-                $this->log('[WARNING] Plugin install source not resolved; missing plugins may not be installable in this run.', Log::WARNING);
-            }
-
-            // Refresh plugins on update (keeps manifest_cache aligned)
-            $this->ensurePluginsInstalled($source, $type === 'update');
-            $this->activatePlugins();
 
             if ($type === 'update') {
                 // Remove unsupported theme plugins (these are NG themes; ok to uninstall)
@@ -346,27 +349,31 @@ class com_contentbuilderngInstallerScript
                 $this->removeLegacyAdminMenuBranchByAlias('contentbuilder');
             }
 
-            // Always keep component extension rows deduped
-            $this->deduplicateTargetComponentExtensions();
+            if ($type !== 'uninstall') {
+                // Always keep component extension rows deduped
+                $this->deduplicateTargetComponentExtensions();
 
-            // Fix past bad replacements option=com_contentbuilder_ng_ng
-            $this->normalizeBrokenTargetMenuLinks();
+                // Fix past bad replacements option=com_contentbuilder_ng_ng
+                $this->normalizeBrokenTargetMenuLinks();
 
-            // Ensure admin main entry exists for NG
-            $this->ensureAdministrationMainMenuEntry();
+                // Ensure admin main entry exists for NG
+                $this->ensureAdministrationMainMenuEntry();
 
-            // Ensure Joomla quicktasks (+) for submenu entries
-            $this->ensureSubmenuQuickTasks();
+                // Ensure Joomla quicktasks (+) for submenu entries
+                $this->ensureSubmenuQuickTasks();
 
-            // Normalize legacy menu title keys (COM_CONTENTBUILDER -> COM_CONTENTBUILDERNG)
-            $this->repairLegacyMenuTitleKeys();
+                // Normalize legacy menu title keys (COM_CONTENTBUILDER -> COM_CONTENTBUILDERNG)
+                $this->repairLegacyMenuTitleKeys();
+            }
             
             // Normalize storages ordering (your original behavior, update only)
             if ($type === 'update') {
                 $this->normalizeStoragesOrdering();
             }
 
-            $this->reportUpdatedPackageAssets($type);
+            if ($type !== 'uninstall') {
+                $this->reportUpdatedPackageAssets($type);
+            }
 
             // Final cache purge (autoload + caches + opcache)
             $this->purgeCaches($context . ':final');
@@ -386,20 +393,31 @@ class com_contentbuilderngInstallerScript
             // Reload after installation so newly deployed language files are available for the final message.
             $this->loadComponentLanguage();
 
-            $finishedMessage = '[OK] ContentBuilder NG installation finished. ' . $finishedAt
+            $actionLabel = match ($type) {
+                'install' => 'installation',
+                'update' => 'update',
+                'uninstall' => 'uninstallation',
+                default => $type,
+            };
+
+            $finishedMessage = '[OK] ContentBuilder NG ' . $actionLabel . ' finished. ' . $finishedAt
                 . ' ' . $timezoneName
                 . '. Duration: ' . number_format($durationSeconds, 2, '.', '') . 's.';
 
-            $auditUrl = Route::_('index.php?option=com_contentbuilderng&view=about#cb-audit-section', false);
-            $auditLink = '<a href="' . htmlspecialchars($auditUrl, ENT_QUOTES, 'UTF-8') . '">'
-                . '<strong>' . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT'), ENT_QUOTES, 'UTF-8') . '</strong>'
-                . '</a>';
-            $auditReminder = Text::sprintf(
-                'COM_CONTENTBUILDERNG_INSTALLATION_AUDIT_REMINDER',
-                $auditLink
-            );
+            if ($type === 'uninstall') {
+                $this->log($finishedMessage, Log::INFO);
+            } else {
+                $auditUrl = Route::_('index.php?option=com_contentbuilderng&view=about#cb-audit-section', false);
+                $auditLink = '<a href="' . htmlspecialchars($auditUrl, ENT_QUOTES, 'UTF-8') . '">'
+                    . '<strong>' . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT'), ENT_QUOTES, 'UTF-8') . '</strong>'
+                    . '</a>';
+                $auditReminder = Text::sprintf(
+                    'COM_CONTENTBUILDERNG_INSTALLATION_AUDIT_REMINDER',
+                    $auditLink
+                );
 
-            $this->log($finishedMessage, Log::INFO, $finishedMessage . '<br>' . $auditReminder);
+                $this->log($finishedMessage, Log::INFO, $finishedMessage . '<br>' . $auditReminder);
+            }
         } catch (\Throwable $e) {
             // In installer scripts, throwing aborts installer; log & rethrow for visibility
             $this->log('[ERROR] Postflight aborted: ' . $e->getMessage(), Log::ERROR);

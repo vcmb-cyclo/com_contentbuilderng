@@ -12,6 +12,8 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 \defined('_JEXEC') or die;
 
+require_once __DIR__ . '/../Helper/FormDisplayColumnsHelper.php';
+
 use CB\Component\Contentbuilderng\Administrator\Helper\FormDisplayColumnsHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Log\Log;
