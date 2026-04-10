@@ -22,6 +22,7 @@ use Joomla\CMS\Cache\CacheControllerFactoryInterface;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseInterface;
+use Joomla\Filesystem\File;
 use Joomla\Filesystem\Folder;
 use CB\Component\Contentbuilderng\Administrator\Service\InstallerService;
 use CB\Component\Contentbuilderng\Administrator\Service\MigrationService;
@@ -407,6 +408,7 @@ class com_contentbuilderngInstallerScript
 
             if ($type === 'uninstall') {
                 $this->log($finishedMessage, Log::INFO);
+                $this->cleanupComponentLogFile();
             } else {
                 $auditUrl = Route::_('index.php?option=com_contentbuilderng&view=about#cb-audit-section', false);
                 $auditLink = '<a href="' . htmlspecialchars($auditUrl, ENT_QUOTES, 'UTF-8') . '">'
@@ -725,6 +727,31 @@ class com_contentbuilderngInstallerScript
     private function ensureUploadDirectoryExists(): void
     {
         $this->installerService->ensureUploadDirectoryExists();
+    }
+
+    private function cleanupComponentLogFile(): void
+    {
+        $logFile = JPATH_ADMINISTRATOR . '/logs/' . self::SHARED_LOG_FILE;
+
+        if (!is_file($logFile)) {
+            return;
+        }
+
+        try {
+            if (File::delete($logFile)) {
+                return;
+            }
+
+            Factory::getApplication()->enqueueMessage(
+                'Unable to remove component log file during uninstall.',
+                'warning'
+            );
+        } catch (\Throwable $e) {
+            Factory::getApplication()->enqueueMessage(
+                'Unable to remove component log file during uninstall: ' . $e->getMessage(),
+                'warning'
+            );
+        }
     }
 
     private function ensureMediaListTemplateInstalled(): void
