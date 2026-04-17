@@ -534,20 +534,20 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
         font-size: .72rem;
         font-weight: 700;
         letter-spacing: .04em;
-        background-color: var(--bs-primary-bg-subtle);
-        color: var(--bs-primary-text-emphasis);
+        background-color: var(--bs-primary-bg-subtle, #e8f1ff);
+        color: var(--bs-primary-text-emphasis, #0d6efd);
     }
     .cb-about-version-tile--date .cb-about-version-icon {
-        background-color: var(--bs-success-bg-subtle);
-        color: var(--bs-success-text-emphasis);
+        background-color: var(--bs-success-bg-subtle, #e7f6ed);
+        color: var(--bs-success-text-emphasis, #198754);
     }
     .cb-about-version-tile--author .cb-about-version-icon {
-        background-color: var(--bs-warning-bg-subtle);
-        color: var(--bs-warning-text-emphasis);
+        background-color: var(--bs-warning-bg-subtle, #fff1e8);
+        color: var(--bs-warning-text-emphasis, #fd7e14);
     }
     .cb-about-version-tile--license .cb-about-version-icon {
-        background-color: var(--bs-warning-bg-subtle);
-        color: var(--bs-warning-text-emphasis);
+        background-color: var(--bs-warning-bg-subtle, #fff6d6);
+        color: var(--bs-warning-text-emphasis, #a87400);
     }
     .cb-about-version-label {
         margin: .15rem 0 0;
