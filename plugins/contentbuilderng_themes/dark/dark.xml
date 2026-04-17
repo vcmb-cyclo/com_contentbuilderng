@@ -2,12 +2,12 @@
 <extension type="plugin" group="contentbuilderng_themes" method="upgrade">
   <name>ContentBuilder NG - Themes - Dark</name>
   <author>XDA+GIL</author>
-  <creationDate>2026-04-08</creationDate>
+  <creationDate>2026-04-17</creationDate>
   <copyright>(C) 2026 by XDA+GIL</copyright>
   <license>GNU/GPL v2 or later</license>
   <authorEmail>noreply@vcmb.fr</authorEmail>
   <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-  <version>6.1.7-RC11</version>
+  <version>6.1.7-RC12</version>
   <description><![CDATA[A dark mode theme based on Joomla 6]]></description>
 
   <files>
