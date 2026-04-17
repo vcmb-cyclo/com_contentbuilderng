@@ -2861,6 +2861,9 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                                     if (!$this->item->reference_id) {
                                     ?>
                                         <select class="form-select-sm" name="jform[reference_id]" id="cb_form_reference_select" style="max-width: 200px;">
+                                            <option value="0" selected="selected">
+                                                <?php echo Text::_('COM_CONTENTBUILDERNG_CHOOSE'); ?>
+                                            </option>
                                             <?php
                                             foreach ($this->item->forms as $reference_id => $title) {
                                             ?>

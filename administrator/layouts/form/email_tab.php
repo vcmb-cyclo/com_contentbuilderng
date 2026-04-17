@@ -26,46 +26,46 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
     <?php echo Text::_('COM_CONTENTBUILDERNG_EMAIL_TAB_PERMISSION_HINT'); ?>
 </div>
 <div id="cb-form-email-notifications" class="border rounded-3 p-3 mb-3 bg-body-tertiary">
-    <div class="row g-3 align-items-start">
-        <div class="col-lg-4 d-flex align-items-start gap-2">
-            <input type="hidden" name="jform[email_notifications]" value="0" />
+    <div class="row g-3 align-items-start" id="cb-form-email-notifications-row">
+        <div class="col-lg-4 d-flex align-items-start gap-2" id="cb-form-email-notifications-field-group">
+            <input type="hidden" name="jform[email_notifications]" id="cb-form-email-notifications-hidden" value="0" />
             <?php echo is_callable($renderCheckbox) ? $renderCheckbox('jform[email_notifications]', 'email_notifications', (bool) ($item->email_notifications ?? false)) : ''; ?>
             <label class="form-check-label" for="email_notifications">
                 <?php echo Text::_('COM_CONTENTBUILDERNG_TYPE_EMAIL_NOTIFICATIONS'); ?>
             </label>
         </div>
-        <div class="col-lg-8">
+        <div class="col-lg-8" id="cb-form-email-notifications-description">
             <small class="text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_TYPE_EMAIL_NOTIFICATIONS_DESC'); ?></small>
         </div>
-        <div class="col-lg-4 d-flex align-items-start gap-2">
-            <input type="hidden" name="jform[email_update_notifications]" value="0" />
+        <div class="col-lg-4 d-flex align-items-start gap-2" id="cb-form-email-update-notifications-field-group">
+            <input type="hidden" name="jform[email_update_notifications]" id="cb-form-email-update-notifications-hidden" value="0" />
             <?php echo is_callable($renderCheckbox) ? $renderCheckbox('jform[email_update_notifications]', 'email_update_notifications', (bool) ($item->email_update_notifications ?? false)) : ''; ?>
             <label class="form-check-label" for="email_update_notifications">
                 <?php echo Text::_('COM_CONTENTBUILDERNG_TYPE_EMAIL_UPDATE_NOTIFICATIONS'); ?>
             </label>
         </div>
-        <div class="col-lg-8">
+        <div class="col-lg-8" id="cb-form-email-update-notifications-description">
             <small class="text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_TYPE_EMAIL_UPDATE_NOTIFICATIONS_DESC'); ?></small>
         </div>
     </div>
 </div>
 <?php if (!empty($item->edit_by_type)) : ?>
     <?php echo $breezingFormsProvidedMessage; ?>
-    <input type="hidden" name="jform[email_admin_template]" value="<?php echo htmlentities($item->email_admin_template ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_template]" value="<?php echo htmlentities($item->email_template ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_admin_subject]" value="<?php echo htmlentities($item->email_admin_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_admin_alternative_from]" value="<?php echo htmlentities($item->email_admin_alternative_from ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_admin_alternative_fromname]" value="<?php echo htmlentities($item->email_admin_alternative_fromname ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_admin_recipients]" value="<?php echo htmlentities($item->email_admin_recipients ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_admin_recipients_attach_uploads]" value="<?php echo htmlentities($item->email_admin_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_admin_html]" value="<?php echo htmlentities($item->email_admin_html ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_template]" id="cb-form-email-admin-template-hidden" value="<?php echo htmlentities($item->email_admin_template ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_template]" id="cb-form-email-user-template-hidden" value="<?php echo htmlentities($item->email_template ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_subject]" id="cb-form-email-admin-subject-hidden" value="<?php echo htmlentities($item->email_admin_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_alternative_from]" id="cb-form-email-admin-alternative-from-hidden" value="<?php echo htmlentities($item->email_admin_alternative_from ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_alternative_fromname]" id="cb-form-email-admin-alternative-fromname-hidden" value="<?php echo htmlentities($item->email_admin_alternative_fromname ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_recipients]" id="cb-form-email-admin-recipients-hidden" value="<?php echo htmlentities($item->email_admin_recipients ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_recipients_attach_uploads]" id="cb-form-email-admin-recipients-attach-uploads-hidden" value="<?php echo htmlentities($item->email_admin_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_html]" id="cb-form-email-admin-html-hidden" value="<?php echo htmlentities($item->email_admin_html ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
 
-    <input type="hidden" name="jform[email_subject]" value="<?php echo htmlentities($item->email_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_alternative_from]" value="<?php echo htmlentities($item->email_alternative_from ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_alternative_fromname]" value="<?php echo htmlentities($item->email_alternative_fromname ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_recipients]" value="<?php echo htmlentities($item->email_recipients ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_recipients_attach_uploads]" value="<?php echo htmlentities($item->email_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_html]" value="<?php echo htmlentities($item->email_html ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_subject]" id="cb-form-email-user-subject-hidden" value="<?php echo htmlentities($item->email_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_alternative_from]" id="cb-form-email-user-alternative-from-hidden" value="<?php echo htmlentities($item->email_alternative_from ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_alternative_fromname]" id="cb-form-email-user-alternative-fromname-hidden" value="<?php echo htmlentities($item->email_alternative_fromname ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_recipients]" id="cb-form-email-user-recipients-hidden" value="<?php echo htmlentities($item->email_recipients ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_recipients_attach_uploads]" id="cb-form-email-user-recipients-attach-uploads-hidden" value="<?php echo htmlentities($item->email_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_html]" id="cb-form-email-user-html-hidden" value="<?php echo htmlentities($item->email_html ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
 <?php else : ?>
     <div id="cb-form-email-admins" style="cursor:pointer; width: 100%; background-color: var(--bs-body-bg);"
         onclick="if(document.adminForm.email_admins.value=='none'){document.adminForm.email_admins.value='';document.getElementById('email_admins_div').style.display='';}else{document.adminForm.email_admins.value='none';document.getElementById('email_admins_div').style.display='none';}">
@@ -75,7 +75,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
     </div>
     <div id="email_admins_div"
         style="display:<?php echo $session ? $session->get('email_admins', '', 'com_contentbuilderng') : ''; ?>">
-        <table width="100%" class="table table-striped">
+        <table width="100%" class="table table-striped" id="cb-form-email-admins-table">
             <tr>
                 <td width="20%">
                     <label for="email_admin_subject"><span class="editlinktip hasTip"
@@ -140,7 +140,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                     </label>
                 </td>
                 <td>
-                    <input type="hidden" name="jform[email_admin_html]" value="0" />
+                    <input type="hidden" name="jform[email_admin_html]" id="cb-form-email-admin-html-fallback-hidden" value="0" />
                     <?php echo is_callable($renderCheckbox) ? $renderCheckbox('jform[email_admin_html]', 'email_admin_html', (bool) ($item->email_admin_html ?? false)) : ''; ?>
                 </td>
             </tr>
@@ -152,9 +152,12 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 </td>
                 <td>
                     <input type="hidden" name="jform[email_admin_create_sample]" id="cb_email_admin_create_sample_flag" value="0" />
-                    <div class="d-flex flex-wrap align-items-center gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" id="email_admin_create_sample_button"
+                    <div class="d-flex flex-wrap align-items-center gap-2" id="cb-form-email-admin-create-sample-field-group">
+                        <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="email_admin_create_sample_button"
+                            title="<?php echo Text::_('COM_CONTENTBUILDERNG_CREATE_EMAIL_TEMPLATE'); ?>"
+                            aria-label="<?php echo Text::_('COM_CONTENTBUILDERNG_CREATE_EMAIL_TEMPLATE'); ?>"
                             onclick="cbQueueEmailAdminSampleGeneration(this);">
+                            <span class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></span>
                             <?php echo Text::_('COM_CONTENTBUILDERNG_CREATE_EMAIL_TEMPLATE'); ?>
                         </button>
                         <small id="cb_email_admin_create_sample_hint" class="text-success d-none">
@@ -166,7 +169,9 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 <td></td>
             </tr>
         </table>
-        <?php echo $form ? $form->renderField('email_admin_template') : ''; ?>
+        <div id="cb-form-email-admin-template-field-group">
+            <?php echo $form ? $form->renderField('email_admin_template') : ''; ?>
+        </div>
     </div>
 
     <div id="cb-form-email-users" style="cursor:pointer; width: 100%; background-color: var(--bs-body-bg);">
@@ -175,7 +180,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
         </h3>
     </div>
     <div id="email_users_div">
-        <table width="100%" class="table table-striped">
+        <table width="100%" class="table table-striped" id="cb-form-email-users-table">
             <tr>
                 <td width="20%">
                     <label for="email_subject">
@@ -237,7 +242,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                     </label>
                 </td>
                 <td>
-                    <input type="hidden" name="jform[email_html]" value="0" />
+                    <input type="hidden" name="jform[email_html]" id="cb-form-email-user-html-fallback-hidden" value="0" />
                     <?php echo is_callable($renderCheckbox) ? $renderCheckbox('jform[email_html]', 'email_html', (bool) ($item->email_html ?? false)) : ''; ?>
                 </td>
             </tr>
@@ -249,9 +254,12 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 </td>
                 <td>
                     <input type="hidden" name="jform[email_create_sample]" id="cb_email_create_sample_flag" value="0" />
-                    <div class="d-flex flex-wrap align-items-center gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" id="email_create_sample_button"
+                    <div class="d-flex flex-wrap align-items-center gap-2" id="cb-form-email-user-create-sample-field-group">
+                        <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="email_create_sample_button"
+                            title="<?php echo Text::_('COM_CONTENTBUILDERNG_CREATE_EMAIL_TEMPLATE'); ?>"
+                            aria-label="<?php echo Text::_('COM_CONTENTBUILDERNG_CREATE_EMAIL_TEMPLATE'); ?>"
                             onclick="cbQueueEmailUserSampleGeneration(this);">
+                            <span class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></span>
                             <?php echo Text::_('COM_CONTENTBUILDERNG_CREATE_EMAIL_TEMPLATE'); ?>
                         </button>
                         <small id="cb_email_create_sample_hint" class="text-success d-none">
@@ -263,6 +271,8 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 <td></td>
             </tr>
         </table>
-        <?php echo $form ? $form->renderField('email_template') : ''; ?>
+        <div id="cb-form-email-user-template-field-group">
+            <?php echo $form ? $form->renderField('email_template') : ''; ?>
+        </div>
     </div>
 <?php endif; ?>

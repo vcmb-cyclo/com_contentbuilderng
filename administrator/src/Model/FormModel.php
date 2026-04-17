@@ -1251,6 +1251,13 @@ class FormModel extends AdminModel
             return false;
         }
 
+        if (
+            in_array((string) ($jform['type'] ?? ''), ['com_breezingforms', 'com_breezingforms_ng'], true)
+            && (int) ($jform['reference_id'] ?? 0) < 1
+        ) {
+            $app->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_BREEZINGFORMS_SOURCE_SELECT_REQUIRED'), 'notice');
+        }
+
         // 10) Mettre à jour/insérer list_states (même logique que ton code)
         if (!empty($list_states)) {
             foreach ($list_states as $state_id => $item) {

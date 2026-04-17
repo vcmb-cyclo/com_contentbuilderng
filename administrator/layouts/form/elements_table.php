@@ -25,58 +25,58 @@ $isModifiedElementSettings = $displayData['isModifiedElementSettings'] ?? null;
 <table class="table table-striped cb-elements-table">
     <thead>
         <tr>
-            <th width="5">
+            <th id="cb-form-view-elements-heading-id" width="5">
                 <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ID'), 'id') : Text::_('COM_CONTENTBUILDERNG_ID'); ?>
             </th>
-            <th width="20">
+            <th id="cb-form-view-elements-heading-checkall" width="20">
                 <?php echo HTMLHelper::_('grid.checkall'); ?>
             </th>
-            <th>
+            <th id="cb-form-view-elements-heading-label">
                 <span class="editlinktip hasTip"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_LABEL_TIP'); ?>">
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_LABEL'), 'label') : Text::_('COM_CONTENTBUILDERNG_LABEL'); ?>
                 </span>
             </th>
-            <th>
+            <th id="cb-form-view-elements-heading-list-include">
                 <span class="editlinktip hasTip"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_LIST_INCLUDE_TIP'); ?>">
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_LIST_INCLUDE'), 'list_include') : Text::_('COM_CONTENTBUILDERNG_LIST_INCLUDE'); ?>
                 </span>
             </th>
-            <th>
+            <th id="cb-form-view-elements-heading-search-include">
                 <span class="editlinktip hasTip"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_SEARCH_INCLUDE_TIP'); ?>">
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_SEARCH_INCLUDE'), 'search_include') : Text::_('COM_CONTENTBUILDERNG_SEARCH_INCLUDE'); ?>
                 </span>
             </th>
-            <th>
+            <th id="cb-form-view-elements-heading-linkable">
                 <span class="editlinktip hasTip"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_LINKABLE_TIP'); ?>">
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_LINKABLE'), 'linkable') : Text::_('COM_CONTENTBUILDERNG_LINKABLE'); ?>
                 </span>
             </th>
-            <th>
+            <th id="cb-form-view-elements-heading-editable">
                 <span class="editlinktip hasTip"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_EDITABLE_TIP'); ?>">
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_EDITABLE'), 'editable') : Text::_('COM_CONTENTBUILDERNG_EDITABLE'); ?>
                 </span>
             </th>
-            <th>
+            <th id="cb-form-view-elements-heading-wordwrap">
                 <span class="editlinktip hasTip"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_LIST_WORDWRAP_TIP'); ?>">
                     <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_WORDWRAP'); ?>
                 </span>
             </th>
-            <th width="150">
+            <th id="cb-form-view-elements-heading-item-wrapper" width="150">
                 <span class="editlinktip hasTip"
                     title="<?php echo $textUtilityService ? $textUtilityService->allhtmlentities(Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER_TIP')) : Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER_TIP'); ?>">
                     <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER'); ?>
                 </span>
             </th>
-            <th>
+            <th id="cb-form-view-elements-heading-published">
                 <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'), 'published') : Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'); ?>
             </th>
-            <th width="120" class="cb-order-head">
+            <th id="cb-form-view-elements-heading-ordering" width="120" class="cb-order-head">
                 <?php if (!empty($elements)) : ?>
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ORDERBY'), 'ordering') : Text::_('COM_CONTENTBUILDERNG_ORDERBY'); ?>
                     <?php echo HTMLHelper::_('grid.order', $elements); ?>

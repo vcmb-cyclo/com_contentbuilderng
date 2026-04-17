@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `#__contentbuilderng_elements`
     `list_include` tinyint
 (
     1
-) NOT NULL DEFAULT '0',
+) NOT NULL DEFAULT '1',
     `search_include` tinyint
 (
     1
@@ -507,7 +507,7 @@ CREATE TABLE IF NOT EXISTS `#__contentbuilderng_forms`
     `filter_exact_match` tinyint
 (
     1
-) NOT NULL DEFAULT '0',
+) NOT NULL DEFAULT '1',
     `apply_button_title` varchar
 (
     255

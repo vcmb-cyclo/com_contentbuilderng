@@ -172,7 +172,7 @@ class FormTable extends Table
 
     public $apply_button_title = '';
 
-    public $filter_exact_match = 0;
+    public $filter_exact_match = 1;
 
     /**
      * Constructor

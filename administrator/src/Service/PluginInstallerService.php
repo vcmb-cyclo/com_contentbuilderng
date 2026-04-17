@@ -181,6 +181,13 @@ final class PluginInstallerService
 
         foreach ($this->getPlugins() as $folder => $elements) {
             foreach ($elements as $element) {
+                $selectQuery = $db->getQuery(true)
+                    ->select($db->quoteName('enabled'))
+                    ->from($db->quoteName('#__extensions'))
+                    ->where($db->quoteName('type') . ' = ' . $db->quote('plugin'))
+                    ->where($db->quoteName('folder') . ' = ' . $db->quote($folder))
+                    ->where($db->quoteName('element') . ' = ' . $db->quote($element));
+
                 $query = $db->getQuery(true)
                     ->update($db->quoteName('#__extensions'))
                     ->set($db->quoteName('enabled') . ' = 1')
@@ -189,9 +196,12 @@ final class PluginInstallerService
                     ->where($db->quoteName('element') . ' = ' . $db->quote($element));
 
                 try {
+                    $db->setQuery($selectQuery);
+                    $wasEnabled = ((int) $db->loadResult()) === 1;
+
                     $db->setQuery($query);
                     $db->execute();
-                    $this->log("[OK] Plugin enabled: {$folder}/{$element}");
+                    $this->log($wasEnabled ? "[OK] Plugin already enabled: {$folder}/{$element}" : "[OK] Plugin enabled: {$folder}/{$element}");
                 } catch (\Throwable $e) {
                     $this->log("[ERROR] Failed enabling {$folder}/{$element}: " . $e->getMessage(), Log::ERROR);
                 }

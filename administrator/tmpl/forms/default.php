@@ -26,8 +26,8 @@ $order     = $this->lists['order'] ?? 'a.ordering';
 $orderDir  = $this->lists['order_Dir'] ?? 'asc';
 $orderDir  = strtolower($orderDir) === 'desc' ? 'desc' : 'asc';
 
-// Les flèches d'ordering ne doivent être actives QUE si on est trié sur ordering
-$saveOrder = ($order === 'a.ordering');
+// Les flèches d'ordering ne doivent être actives QUE sur le tri naturel d'ordering.
+$saveOrder = ($order === 'a.ordering' && $orderDir === 'asc');
 
 $n = is_countable($this->items) ? count($this->items) : 0;
 

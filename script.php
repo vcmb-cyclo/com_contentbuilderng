@@ -304,7 +304,9 @@ class com_contentbuilderngInstallerScript
                 // DB migrations / hardening
                 $this->updateDateColumns();
                 $this->ensureFormsDisplayColumns();
+                $this->ensureFormsFilterExactMatchDefault();
                 $this->ensureElementsLinkableDefault();
+                $this->ensureElementsListIncludeDefault();
 
                 // Normalize menu links and titles
                 $this->updateMenuLinks('contentbuilder', 'com_contentbuilderng');
@@ -794,9 +796,19 @@ class com_contentbuilderngInstallerScript
         $this->schemaService->ensureFormsDisplayColumns();
     }
 
+    private function ensureFormsFilterExactMatchDefault(): void
+    {
+        $this->schemaService->ensureFormsFilterExactMatchDefault();
+    }
+
     private function ensureElementsLinkableDefault(): void
     {
         $this->schemaService->ensureElementsLinkableDefault();
+    }
+
+    private function ensureElementsListIncludeDefault(): void
+    {
+        $this->schemaService->ensureElementsListIncludeDefault();
     }
 
     private function buildMenuLinkOptionWhereClauses(DatabaseInterface $db, string $option): array

@@ -46,7 +46,8 @@ class FormsModel extends ListModel
                 'a.title',
                 'a.type',
                 'a.published',
-                'a.modified'
+                'a.modified',
+                'a.ordering'
             ];
         }
 

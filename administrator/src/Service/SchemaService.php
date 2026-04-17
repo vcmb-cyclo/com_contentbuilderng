@@ -129,6 +129,34 @@ final class SchemaService
         }
     }
 
+    public function ensureFormsFilterExactMatchDefault(): void
+    {
+        $db = $this->db();
+
+        try {
+            $cols = $db->getTableColumns('#__contentbuilderng_forms', false);
+
+            if (!is_array($cols) || !array_key_exists('filter_exact_match', $cols)) {
+                return;
+            }
+        } catch (\Throwable $e) {
+            $this->log('[WARNING] Could not inspect #__contentbuilderng_forms columns: ' . $e->getMessage(), Log::WARNING);
+
+            return;
+        }
+
+        try {
+            $db->setQuery(
+                'ALTER TABLE ' . $db->quoteName('#__contentbuilderng_forms')
+                . ' MODIFY ' . $db->quoteName('filter_exact_match') . " TINYINT(1) NOT NULL DEFAULT '1'"
+            );
+            $db->execute();
+            $this->log('[OK] Ensured #__contentbuilderng_forms.filter_exact_match default is 1.');
+        } catch (\Throwable $e) {
+            $this->log('[WARNING] Failed to set #__contentbuilderng_forms.filter_exact_match default: ' . $e->getMessage(), Log::WARNING);
+        }
+    }
+
     public function ensureElementsLinkableDefault(): void
     {
         $db = $this->db();
@@ -154,6 +182,34 @@ final class SchemaService
             $this->log('[OK] Ensured #__contentbuilderng_elements.linkable default is 0.');
         } catch (\Throwable $e) {
             $this->log('[WARNING] Failed to set #__contentbuilderng_elements.linkable default: ' . $e->getMessage(), Log::WARNING);
+        }
+    }
+
+    public function ensureElementsListIncludeDefault(): void
+    {
+        $db = $this->db();
+
+        try {
+            $cols = $db->getTableColumns('#__contentbuilderng_elements', false);
+
+            if (!is_array($cols) || !array_key_exists('list_include', $cols)) {
+                return;
+            }
+        } catch (\Throwable $e) {
+            $this->log('[WARNING] Could not inspect #__contentbuilderng_elements columns: ' . $e->getMessage(), Log::WARNING);
+
+            return;
+        }
+
+        try {
+            $db->setQuery(
+                'ALTER TABLE ' . $db->quoteName('#__contentbuilderng_elements')
+                . ' MODIFY ' . $db->quoteName('list_include') . " TINYINT(1) NOT NULL DEFAULT '1'"
+            );
+            $db->execute();
+            $this->log('[OK] Ensured #__contentbuilderng_elements.list_include default is 1.');
+        } catch (\Throwable $e) {
+            $this->log('[WARNING] Failed to set #__contentbuilderng_elements.list_include default: ' . $e->getMessage(), Log::WARNING);
         }
     }
 

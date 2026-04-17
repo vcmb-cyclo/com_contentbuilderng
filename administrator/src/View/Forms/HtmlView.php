@@ -83,7 +83,7 @@ class HtmlView extends BaseHtmlView
         $lists['filter_search'] = (string) $state->get('filter.search', '');
         $lists['filter_tag'] = (string) $state->get('filter.tag', '');
 
-        $ordering = ($lists['order'] === 'a.ordering');
+        $ordering = ($lists['order'] === 'a.ordering' && strtoupper($lists['order_Dir']) === 'ASC');
 
         $this->ordering = $ordering;
         $this->tags = $tags;
