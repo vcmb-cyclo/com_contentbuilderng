@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CB\Component\Contentbuilderng\Tests\Unit\Model;
 
 use CB\Component\Contentbuilderng\Administrator\Model\StorageModel;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class StorageModelTest extends TestCase
@@ -17,9 +18,7 @@ final class StorageModelTest extends TestCase
         $this->model = $reflection->newInstanceWithoutConstructor();
     }
 
-    /**
-     * @dataProvider normalizeFieldIdentifierProvider
-     */
+    #[DataProvider('normalizeFieldIdentifierProvider')]
     public function testNormalizeFieldIdentifier(string $input, string $expected): void
     {
         $result = $this->invokePrivateMethod('normalizeFieldIdentifier', $input);
