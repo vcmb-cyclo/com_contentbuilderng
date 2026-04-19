@@ -118,12 +118,4 @@
     <filename>joomla.asset.json</filename>
 </media>
 
-<plugins>
-    <plugin group="contentbuilderng_themes" plugin="blank">plugins/contentbuilderng_themes/blank</plugin>
-    <plugin group="contentbuilderng_themes" plugin="joomla6">plugins/contentbuilderng_themes/joomla6</plugin>
-    <plugin group="contentbuilderng_themes" plugin="dark">plugins/contentbuilderng_themes/dark</plugin>
-    <plugin group="contentbuilderng_themes" plugin="khepri">plugins/contentbuilderng_themes/khepri</plugin>
-</plugins>
-
-
 </extension>

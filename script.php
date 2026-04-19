@@ -946,21 +946,19 @@ class com_contentbuilderngInstallerScript
 
             $libraries = [];
 
-            foreach (['packages', 'packages-dev'] as $section) {
-                foreach ((array) ($decoded[$section] ?? []) as $package) {
-                    if (!is_array($package)) {
-                        continue;
-                    }
-
-                    $name = trim((string) ($package['name'] ?? ''));
-                    $version = trim((string) ($package['version'] ?? ''));
-
-                    if ($name === '' || $version === '') {
-                        continue;
-                    }
-
-                    $libraries[$name] = $version;
+            foreach ((array) ($decoded['packages'] ?? []) as $package) {
+                if (!is_array($package)) {
+                    continue;
                 }
+
+                $name = trim((string) ($package['name'] ?? ''));
+                $version = trim((string) ($package['version'] ?? ''));
+
+                if ($name === '' || $version === '') {
+                    continue;
+                }
+
+                $libraries[$name] = $version;
             }
 
             ksort($libraries);
