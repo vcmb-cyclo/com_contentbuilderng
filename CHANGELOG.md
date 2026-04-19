@@ -9,6 +9,8 @@
 - Migrated `rating` and `get_unique_values` to:
   - `index.php?option=com_contentbuilderng&task=api.display&format=json&action=rating`
   - `index.php?option=com_contentbuilderng&task=api.display&format=json&action=get-unique-values`
+- Added `action=stats` for form-level statistics:
+  - `index.php?option=com_contentbuilderng&task=api.display&format=json&action=stats&id=25`
 
 ### Migration Note
 

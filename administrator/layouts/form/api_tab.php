@@ -15,9 +15,11 @@ use Joomla\CMS\Language\Text;
 $apiExampleDetailUrl = (string) ($displayData['apiExampleDetailUrl'] ?? '');
 $apiExampleListUrl = (string) ($displayData['apiExampleListUrl'] ?? '');
 $apiExampleUpdateUrl = (string) ($displayData['apiExampleUpdateUrl'] ?? '');
+$apiExampleStatsUrl = (string) ($displayData['apiExampleStatsUrl'] ?? '');
 $apiExampleVerboseUrl = (string) ($displayData['apiExampleVerboseUrl'] ?? '');
 $apiExampleDetailDisplayUrl = (string) ($displayData['apiExampleDetailDisplayUrl'] ?? '');
 $apiExampleListDisplayUrl = (string) ($displayData['apiExampleListDisplayUrl'] ?? '');
+$apiExampleStatsDisplayUrl = (string) ($displayData['apiExampleStatsDisplayUrl'] ?? '');
 $apiExampleVerboseDisplayUrl = (string) ($displayData['apiExampleVerboseDisplayUrl'] ?? '');
 $apiExamplePayloadJson = (string) ($displayData['apiExamplePayloadJson'] ?? '');
 ?>
@@ -51,6 +53,15 @@ $apiExamplePayloadJson = (string) ($displayData['apiExamplePayloadJson'] ?? '');
             </a>
         </td>
         <td><?php echo Text::_('COM_CONTENTBUILDERNG_API_GET_LIST_DESC'); ?></td>
+    </tr>
+    <tr>
+        <td><code>GET</code></td>
+        <td>
+            <a href="<?php echo htmlspecialchars($apiExampleStatsUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
+                <code><?php echo htmlspecialchars($apiExampleStatsDisplayUrl, ENT_QUOTES, 'UTF-8'); ?></code>
+            </a>
+        </td>
+        <td><?php echo Text::_('COM_CONTENTBUILDERNG_API_GET_STATS_DESC'); ?></td>
     </tr>
     <tr>
         <td><code>PUT</code> / <code>PATCH</code> / <code>POST</code></td>

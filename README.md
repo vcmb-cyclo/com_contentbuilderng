@@ -61,6 +61,7 @@ Replacement:
 Current migrated actions:
 - `action=rating`
 - `action=get-unique-values`
+- `action=stats`
 
 URL migration example:
 
@@ -74,6 +75,12 @@ New:
 
 ```text
 index.php?option=com_contentbuilderng&task=api.display&format=json&action=rating&id=25&record_id=16
+```
+
+Form statistics:
+
+```text
+index.php?option=com_contentbuilderng&task=api.display&format=json&action=stats&id=25
 ```
 
 Response format:

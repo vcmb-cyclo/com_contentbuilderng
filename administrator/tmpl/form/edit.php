@@ -277,6 +277,8 @@ $apiExampleListDisplayUrl = $apiEndpointBase . '&list[limit]=20&list[start]=0';
 $apiExampleDetailUrl = $apiExampleDetailDisplayUrl . $apiPreviewQuery;
 $apiExampleListUrl = $apiExampleListDisplayUrl . $apiPreviewQuery;
 $apiExampleUpdateUrl = $apiEndpointBase . '&record_id=' . (int) $apiExampleRecordId;
+$apiExampleStatsDisplayUrl = $apiEndpointBase . '&action=stats';
+$apiExampleStatsUrl = $apiExampleStatsDisplayUrl . $apiPreviewQuery;
 $apiExampleVerboseDisplayUrl = $apiExampleDetailDisplayUrl . '&verbose=1';
 $apiExampleVerboseUrl = $apiExampleVerboseDisplayUrl . $apiPreviewQuery;
 $isBreezingFormsType = in_array(
@@ -3052,9 +3054,11 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                 'apiExampleDetailUrl' => $apiExampleDetailUrl,
                 'apiExampleListUrl' => $apiExampleListUrl,
                 'apiExampleUpdateUrl' => $apiExampleUpdateUrl,
+                'apiExampleStatsUrl' => $apiExampleStatsUrl,
                 'apiExampleVerboseUrl' => $apiExampleVerboseUrl,
                 'apiExampleDetailDisplayUrl' => $apiExampleDetailDisplayUrl,
                 'apiExampleListDisplayUrl' => $apiExampleListDisplayUrl,
+                'apiExampleStatsDisplayUrl' => $apiExampleStatsDisplayUrl,
                 'apiExampleVerboseDisplayUrl' => $apiExampleVerboseDisplayUrl,
                 'apiExamplePayloadJson' => $apiExamplePayloadJson,
             ],
