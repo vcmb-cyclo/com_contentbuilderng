@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <updates>
 	<update>
-		<name>COM_CONTENTBUILDERNG</name>
+		<name>ContentBuilder NG</name>
 		<description>ContentBuilder NG Update</description>
 		<element>Com_contentbuilderng</element>
 		<type>component</type>
 		<client>1</client>
 		<version>6.1.7-RC13</version>
-		<infourl title="ContentBuilderng">https://breezingforms-ng.vcmb.fr/</infourl>
+		<infourl title="ContentBuilder NG">https://breezingforms-ng.vcmb.fr/</infourl>
 		<downloads>
 		<downloadurl type="full" format="zip">https://breezingforms-ng.vcmb.fr/download/com_contentbuilderng-6.1.7-RC13.zip</downloadurl>
 		</downloads>
