@@ -298,7 +298,6 @@ class EditModel extends BaseDatabaseModel
         $this->runtimeUtilityService = new RuntimeUtilityService();
         $this->listSupportService = new ListSupportService();
         $this->templateRenderService = new TemplateRenderService();
-        $this->_db = Factory::getContainer()->get(DatabaseInterface::class);
         $option = 'com_contentbuilderng';
 
         $this->app->input->set('cb_category_id', null);
@@ -475,7 +474,6 @@ class EditModel extends BaseDatabaseModel
 
                     if ($data->create_articles) {
                         Form::addFormPath(JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/forms');
-                        Form::addFieldPath(JPATH_ADMINISTRATOR . '/components/com_content/models/fields');
                         $formGetInstance = 'getInstance';
                         $form = Form::{$formGetInstance}('com_content.article', 'article', array('control' => 'Form', 'load_data' => true));
 

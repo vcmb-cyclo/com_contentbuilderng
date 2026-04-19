@@ -238,7 +238,7 @@ class FormSupportService
 
         foreach ($classCandidates as $class) {
             if (class_exists($class)) {
-                return call_user_func([$class, 'getFormsList']);
+                return $this->sortFormsList(call_user_func([$class, 'getFormsList']));
             }
         }
 
@@ -249,11 +249,25 @@ class FormSupportService
             $class = 'contentbuilderng_' . $type;
 
             if (class_exists($class)) {
-                return call_user_func([$class, 'getFormsList']);
+                return $this->sortFormsList(call_user_func([$class, 'getFormsList']));
             }
         }
 
         return [];
+    }
+
+    private function sortFormsList(mixed $forms): array
+    {
+        if (!is_array($forms)) {
+            return [];
+        }
+
+        uasort(
+            $forms,
+            static fn(mixed $a, mixed $b): int => strnatcasecmp((string) $a, (string) $b)
+        );
+
+        return $forms;
     }
 
     public function getFormElementsPlugins(): array

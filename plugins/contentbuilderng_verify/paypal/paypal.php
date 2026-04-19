@@ -239,7 +239,7 @@ class plgContentbuilderng_verifyPaypal extends CMSPlugin implements SubscriberIn
                 }
             }
 
-            if ($keyarray['mc_gross'] != (doubleval($this->amount) + doubleval($this->tax)) || $keyarray['mc_currency'] != strtoupper($this->curreny)) {
+            if ($keyarray['mc_gross'] != (floatval($this->amount) + floatval($this->tax)) || $keyarray['mc_currency'] != strtoupper($this->curreny)) {
 
                 return false;
 
@@ -330,7 +330,7 @@ class plgContentbuilderng_verifyPaypal extends CMSPlugin implements SubscriberIn
                 $keyarray[$key] = $value;
             }
 
-            if ($keyarray['mc_gross'] != (doubleval($this->amount) + doubleval($this->tax)) || $keyarray['mc_currency'] != strtoupper($this->curreny)) {
+            if ($keyarray['mc_gross'] != (floatval($this->amount) + floatval($this->tax)) || $keyarray['mc_currency'] != strtoupper($this->curreny)) {
 
                 // not good
 

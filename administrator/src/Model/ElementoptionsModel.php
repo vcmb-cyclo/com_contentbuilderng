@@ -52,8 +52,6 @@ class ElementoptionsModel extends BaseDatabaseModel
         // IMPORTANT : on transmet factory/app/input à BaseController
         parent::__construct($config, $factory);
 
-        $this->_db = Factory::getContainer()->get(DatabaseInterface::class);
-
         $input = $this->getInput();
         $formId = $input->getInt('id', $input->getInt('form_id', 0));
         $elementId = $input->getInt('element_id', 0);

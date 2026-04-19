@@ -8,22 +8,12 @@
 
 namespace CB\Component\Contentbuilderng\Administrator\Model\CategoryFields;
 
-defined('JPATH_BASE') or die;
+\defined('_JEXEC') or die;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Form\Field\ListField;
-use Joomla\CMS\Form\FormHelper;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
 
-FormHelper::loadFieldClass('list');
-
-/**
- * Form Field class for the Joomla Framework.
- *
- * @package		Joomla.Administrator
- * @subpackage	com_categories
- * @since		1.6
- */
 class JFormFieldCategoryEditCb extends ListField
 {
     /**

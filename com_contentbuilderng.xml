@@ -1,12 +1,12 @@
 <extension type="component" method="upgrade" version="6.0">
     <name>COM_CONTENTBUILDERNG</name>
-    <creationDate>2026-04-17</creationDate>
+    <creationDate>2026-04-19</creationDate>
     <author>XDA+GIL</author>
     <authorEmail>bf@vcmb.fr</authorEmail>
     <authorUrl>https://breezingforms-ng.vcmb.fr</authorUrl>
     <copyright>Copyright © 2024 - 2026 by XDA+GIL</copyright>
     <license>Licensed under the GNU General Public License, version 2 or (at your option) any later version (SPDX: GPL-2.0-or-later).</license>
-    <version>6.1.7-RC12</version>
+    <version>6.1.7-RC13</version>
     <description>COM_CONTENTBUILDERNG_XML_DESCRIPTION</description>
 
     <!-- ===================== -->
