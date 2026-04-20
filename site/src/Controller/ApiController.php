@@ -378,6 +378,10 @@ class ApiController extends BaseController
             $label = (string) (($row['label'] ?? '') !== '' ? $row['label'] : ($labels[$referenceId] ?? ''));
             $candidates = [$referenceId, $name, $label, (string) ($labels[$referenceId] ?? '')];
 
+            if ($label !== '' && $name !== '') {
+                $candidates[] = $label . ' (' . $name . ')';
+            }
+
             foreach ($candidates as $candidate) {
                 if ($candidate !== '' && $this->normalizeStatsFieldName($candidate) === $needle) {
                     return [
