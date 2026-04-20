@@ -1241,6 +1241,23 @@ class FormModel extends AdminModel
             unset($jform['sectioncategories']);
         }
 
+        if (!empty($jform['create_articles'])) {
+            $defaultCategory = (int) ($jform['default_category'] ?? 0);
+            $categoryQuery = $db->getQuery(true)
+                ->select($db->quoteName('id'))
+                ->from($db->quoteName('#__categories'))
+                ->where($db->quoteName('id') . ' = ' . $defaultCategory)
+                ->where($db->quoteName('extension') . ' = ' . $db->quote('com_content'))
+                ->where($db->quoteName('published') . ' IN (0, 1)');
+            $db->setQuery($categoryQuery);
+
+            if (!$db->loadResult()) {
+                $this->setError(Text::_('COM_CONTENTBUILDERNG_CREATE_ARTICLES_CATEGORY_REQUIRED'));
+                $app->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_CREATE_ARTICLES_CATEGORY_REQUIRED'), 'error');
+                return false;
+            }
+        }
+
         // 8) Sauvegarde STANDARD Joomla (bind/check/store + prepareTable() + events)
         // IMPORTANT: parent::save() prend un array "jform-like"
         $ok = parent::save($jform);

@@ -18,6 +18,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\Audit\DuplicateIndexAudit
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\ElementReferenceAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\EncodingAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\FrontendPermissionAuditHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\Audit\GeneratedArticleCategoryAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\HistoricalAssetAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\InvalidDatetimeSortAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\MenuViewAuditHelper;
@@ -243,6 +244,8 @@ final class DatabaseAuditHelper
         $errors = array_merge($errors, $elementReferenceErrors);
         [$invalidDatetimeSortIssues, $invalidDatetimeSortErrors] = InvalidDatetimeSortAuditHelper::inspect($db);
         $errors = array_merge($errors, $invalidDatetimeSortErrors);
+        [$generatedArticleCategoryIssues, $generatedArticleCategoryErrors] = GeneratedArticleCategoryAuditHelper::inspect($db);
+        $errors = array_merge($errors, $generatedArticleCategoryErrors);
 
         return DatabaseAuditReportBuilder::build([
             'tables' => $tables,
@@ -264,6 +267,7 @@ final class DatabaseAuditHelper
             'frontend_permission_issues' => $frontendPermissionIssues,
             'element_reference_issues' => $elementReferenceIssues,
             'invalid_datetime_sort_issues' => $invalidDatetimeSortIssues,
+            'generated_article_category_issues' => $generatedArticleCategoryIssues,
             'cb_tables' => $cbTableStats,
             'errors' => $errors,
         ], $toAlias);

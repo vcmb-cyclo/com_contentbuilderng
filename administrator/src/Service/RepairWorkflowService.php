@@ -12,6 +12,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 \defined('_JEXEC') or die;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\EncodingAuditHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\Audit\GeneratedArticleCategoryAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\DatabaseAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\DatabaseRepairHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormDisplayColumnsHelper;
@@ -41,6 +42,7 @@ class RepairWorkflowService
         'menu_view_consistency',
         'frontend_permission_consistency',
         'element_reference_consistency',
+        'generated_article_categories',
     ];
 
     public function createWorkflowState(): array
@@ -134,6 +136,7 @@ class RepairWorkflowService
             'plugin_duplicates'    => $this->buildPluginDuplicateStepResult(PluginExtensionDedupHelper::repair($db)),
             'historical_menu_entries' => $this->buildHistoricalMenuStepResult(PackedDataMigrationHelper::repairLegacyMenuEntriesStep($db)),
             'bf_field_sync'        => $this->buildBfFieldSyncStepResult(DatabaseAuditHelper::run()),
+            'generated_article_categories' => $this->buildGeneratedArticleCategoryStepResult(GeneratedArticleCategoryAuditHelper::repair($db)),
             default                => throw new \RuntimeException('Unknown repair step: ' . $stepId),
         };
     }
@@ -189,6 +192,7 @@ class RepairWorkflowService
         $frontendPermissionIssues = (array) ($report['frontend_permission_issues'] ?? []);
         $elementReferenceIssues = (array) ($report['element_reference_issues'] ?? []);
         $invalidDatetimeSortIssues = (array) ($report['invalid_datetime_sort_issues'] ?? []);
+        $generatedArticleCategoryIssues = (array) ($report['generated_article_category_issues'] ?? []);
         $summaryLines = [
             'scanned_tables: ' . (int) ($report['scanned_tables'] ?? 0),
             'issues_total: ' . (int) ($summary['issues_total'] ?? 0),
@@ -208,6 +212,8 @@ class RepairWorkflowService
             'element_reference_issues: ' . (int) ($summary['element_reference_issues'] ?? 0),
             'invalid_datetime_sort_issues: ' . (int) ($summary['invalid_datetime_sort_issues'] ?? 0),
             'invalid_datetime_sort_rows: ' . (int) ($summary['invalid_datetime_sort_rows'] ?? 0),
+            'generated_article_category_issues: ' . (int) ($summary['generated_article_category_issues'] ?? 0),
+            'generated_article_category_rows: ' . (int) ($summary['generated_article_category_rows'] ?? 0),
         ];
 
         $this->logStructuredReport(
@@ -320,6 +326,14 @@ class RepairWorkflowService
             }
             return sprintf('%d. form_id=%d form_name=%s type=%s empty_reference_ids=%s duplicate_reference_ids=%s orphan_reference_ids=%s', $index + 1, $formId, (string) ($issue['form_name'] ?? ''), (string) ($issue['type'] ?? ''), implode(', ', array_values((array) ($issue['empty_reference_ids'] ?? []))), implode(', ', array_values((array) ($issue['duplicate_reference_ids'] ?? []))), implode(', ', array_values((array) ($issue['orphan_reference_ids'] ?? []))));
         });
+
+        $this->logStructuredSection('Database audit generated article category issues', $generatedArticleCategoryIssues, static function (array $issue, int $index): ?string {
+            $formId = (int) ($issue['form_id'] ?? 0);
+            if ($formId <= 0) {
+                return null;
+            }
+            return sprintf('%d. form_id=%d form_name=%s default_category_id=%d default_category_valid=%d invalid_article_count=%d', $index + 1, $formId, (string) ($issue['form_name'] ?? ''), (int) ($issue['default_category_id'] ?? 0), !empty($issue['default_category_valid']) ? 1 : 0, (int) ($issue['invalid_article_count'] ?? 0));
+        });
     }
 
     private function buildPrechecks(DatabaseInterface $db): array
@@ -350,6 +364,8 @@ class RepairWorkflowService
             $menuViewIssues = (array) ($auditReport['menu_view_issues'] ?? []);
             $frontendPermissionIssues = (array) ($auditReport['frontend_permission_issues'] ?? []);
             $elementReferenceIssues = (array) ($auditReport['element_reference_issues'] ?? []);
+            $generatedArticleCategoryIssues = (array) ($auditReport['generated_article_category_issues'] ?? []);
+            $generatedArticleCategoryRows = (int) ($auditSummary['generated_article_category_rows'] ?? 0);
             $encodingTargetCollation = EncodingAuditHelper::resolveTargetCollation($db);
 
             $prechecks['duplicate_indexes'] = [
@@ -550,8 +566,20 @@ class RepairWorkflowService
                     'lines' => $elementReferenceLines,
                 ],
             ];
+
+            $prechecks['generated_article_categories'] = [
+                'count' => count($generatedArticleCategoryIssues),
+                'description' => match (true) {
+                    count($generatedArticleCategoryIssues) <= 0 => 'No generated article category issue was detected by the last audit.',
+                    count($generatedArticleCategoryIssues) === 1 => '1 ContentBuilder view has an invalid generated article category setup and can be repaired in this step.',
+                    default => count($generatedArticleCategoryIssues) . ' ContentBuilder views have invalid generated article category setups and can be repaired in this step.',
+                },
+                'skip_summary' => 'No generated article category issue detected by the pre-check. Skipped automatically.',
+                'has_errors' => false,
+                'details' => $generatedArticleCategoryRows . ' generated articles currently use an invalid category.',
+            ];
         } catch (\Throwable $e) {
-            foreach (['duplicate_indexes', 'historical_tables', 'historical_menu_entries', 'table_encoding', 'audit_columns', 'form_audit_columns', 'plugin_duplicates', 'bf_field_sync', 'menu_view_consistency', 'frontend_permission_consistency', 'element_reference_consistency'] as $stepId) {
+            foreach (['duplicate_indexes', 'historical_tables', 'historical_menu_entries', 'table_encoding', 'audit_columns', 'form_audit_columns', 'plugin_duplicates', 'bf_field_sync', 'menu_view_consistency', 'frontend_permission_consistency', 'element_reference_consistency', 'generated_article_categories'] as $stepId) {
                 $prechecks[$stepId] = [
                     'count' => 1,
                     'description' => 'Pre-check unavailable for this step. You can still run the repair manually.',
@@ -947,6 +975,52 @@ class RepairWorkflowService
             'summary' => $views > 0
                 ? 'BF field sync diagnostic: ' . $views . ' views require manual review (' . $missing . ' source fields missing in CB, ' . $orphan . ' extra fields in CB).'
                 : 'No BF field synchronization issue detected.',
+            'lines' => $lines,
+        ];
+    }
+
+    private function buildGeneratedArticleCategoryStepResult(array $summary): array
+    {
+        $lines = [];
+
+        foreach ((array) ($summary['forms'] ?? []) as $form) {
+            if (!is_array($form)) {
+                continue;
+            }
+
+            $line = 'View #' . (int) ($form['form_id'] ?? 0)
+                . ' "' . trim((string) ($form['form_name'] ?? '')) . '"'
+                . ' [' . (string) ($form['status'] ?? '') . ']'
+                . ' category ' . (int) ($form['from_category_id'] ?? 0)
+                . ' -> ' . (int) ($form['to_category_id'] ?? 0)
+                . ', form_updated=' . (!empty($form['form_updated']) ? 'yes' : 'no')
+                . ', articles_updated=' . (int) ($form['articles_updated'] ?? 0);
+            $error = trim((string) ($form['error'] ?? ''));
+            if ($error !== '') {
+                $line .= ', error=' . $error;
+            }
+            $lines[] = $line;
+        }
+
+        foreach ((array) ($summary['warnings'] ?? []) as $warning) {
+            $warning = trim((string) $warning);
+            if ($warning !== '') {
+                $lines[] = 'Warning: ' . $warning;
+            }
+        }
+
+        return [
+            'level' => (int) ($summary['errors'] ?? 0) > 0 ? 'warning' : 'message',
+            'summary' => Text::sprintf(
+                'COM_CONTENTBUILDERNG_GENERATED_ARTICLE_CATEGORIES_REPAIR_SUMMARY',
+                (int) ($summary['scanned'] ?? 0),
+                (int) ($summary['issues'] ?? 0),
+                (int) ($summary['repaired'] ?? 0),
+                (int) ($summary['unchanged'] ?? 0),
+                (int) ($summary['forms_updated'] ?? 0),
+                (int) ($summary['articles_updated'] ?? 0),
+                (int) ($summary['errors'] ?? 0)
+            ),
             'lines' => $lines,
         ];
     }

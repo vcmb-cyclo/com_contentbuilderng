@@ -209,14 +209,27 @@ TXT;
                         <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_DEFAULT_CATEGORY_TIP'); ?>">
                             <?php echo Text::_('COM_CONTENTBUILDERNG_DEFAULT_CATEGORY'); ?>
                         </span>
+                        <span class="text-danger d-none" id="cb-form-details-default-category-required-mark" aria-hidden="true">*</span>
                     </label>
-                    <select class="form-select form-select-sm" style="max-width: 400px;" id="default_category" name="jform[sectioncategories]">
+                    <select
+                        class="form-select form-select-sm"
+                        style="max-width: 400px;"
+                        id="default_category"
+                        name="jform[sectioncategories]"
+                        data-required-message="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_CREATE_ARTICLES_CATEGORY_REQUIRED'), ENT_QUOTES, 'UTF-8'); ?>"
+                    >
+                        <option value="0" <?php echo (int) ($item->default_category ?? 0) <= 0 ? ' selected="selected"' : ''; ?>>
+                            - <?php echo Text::_('COM_CONTENTBUILDERNG_NONE'); ?> -
+                        </option>
                         <?php foreach ((array) ($item->sectioncategories ?? []) as $category) : ?>
                             <option <?php echo ($item->default_category ?? null) == $category->value ? ' selected="selected"' : ''; ?> value="<?php echo $category->value; ?>">
                                 <?php echo htmlentities($category->text ?? '', ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
+                    <div class="form-text text-danger d-none" id="cb-form-details-default-category-required-help">
+                        <?php echo Text::_('COM_CONTENTBUILDERNG_CREATE_ARTICLES_CATEGORY_REQUIRED'); ?>
+                    </div>
                 </div>
                 <div class="col-12 col-md-6" id="cb-form-details-default-access-field-group">
                     <label for="default_access" class="form-label mb-1">
@@ -375,6 +388,59 @@ echo LayoutHelper::render(
 ?>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    var categoryField = document.getElementById('default_category');
+    var categoryRequiredMark = document.getElementById('cb-form-details-default-category-required-mark');
+    var categoryRequiredHelp = document.getElementById('cb-form-details-default-category-required-help');
+    var createArticleFields = document.querySelectorAll('input[type="radio"][name="jform[create_articles]"]');
+    var formElement = categoryField ? categoryField.closest('form') : null;
+
+    var isCreateArticlesEnabled = function () {
+        var checked = document.querySelector('input[type="radio"][name="jform[create_articles]"]:checked');
+        return checked && checked.value === '1';
+    };
+
+    var syncCategoryRequirement = function () {
+        if (!categoryField) {
+            return;
+        }
+
+        var required = isCreateArticlesEnabled();
+        var empty = String(categoryField.value || '0') === '0';
+        categoryField.required = required;
+        categoryField.setAttribute('aria-required', required ? 'true' : 'false');
+
+        if (categoryRequiredMark) {
+            categoryRequiredMark.classList.toggle('d-none', !required);
+        }
+
+        if (categoryRequiredHelp) {
+            categoryRequiredHelp.classList.toggle('d-none', !(required && empty));
+        }
+
+        categoryField.setCustomValidity(required && empty ? (categoryField.getAttribute('data-required-message') || '') : '');
+    };
+
+    createArticleFields.forEach(function (field) {
+        field.addEventListener('change', syncCategoryRequirement);
+    });
+
+    if (categoryField) {
+        categoryField.addEventListener('change', syncCategoryRequirement);
+    }
+
+    if (formElement) {
+        formElement.addEventListener('submit', function (event) {
+            syncCategoryRequirement();
+
+            if (categoryField && !categoryField.checkValidity()) {
+                event.preventDefault();
+                categoryField.reportValidity();
+            }
+        });
+    }
+
+    syncCategoryRequirement();
+
     var button = document.getElementById('cb-reset-details-display');
 
     if (!button) {

@@ -88,6 +88,7 @@ $menuViewIssues = (array) ($auditReport['menu_view_issues'] ?? []);
 $frontendPermissionIssues = (array) ($auditReport['frontend_permission_issues'] ?? []);
 $elementReferenceIssues = (array) ($auditReport['element_reference_issues'] ?? []);
 $invalidDatetimeSortIssues = (array) ($auditReport['invalid_datetime_sort_issues'] ?? []);
+$generatedArticleCategoryIssues = (array) ($auditReport['generated_article_category_issues'] ?? []);
 $encodingTargetCharset = (string) ($auditSummary['encoding_target_charset'] ?? 'utf8mb4');
 $encodingTargetCollation = (string) ($auditSummary['encoding_target_collation'] ?? 'utf8mb4_0900_ai_ci');
 $missingAuditColumnsTotal = (int) ($auditSummary['missing_audit_columns_total'] ?? 0);
@@ -261,6 +262,7 @@ $repairWorkflowStepLabels = [
     'menu_view_consistency' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_VIEW_CONSISTENCY'),
     'frontend_permission_consistency' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_FRONTEND_PERMISSION_CONSISTENCY'),
     'element_reference_consistency' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_ELEMENT_REFERENCE_CONSISTENCY'),
+    'generated_article_categories' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_GENERATED_ARTICLE_CATEGORIES'),
 ];
 $repairWorkflowStepDescriptions = [
     'duplicate_indexes' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_DUPLICATE_GROUPS'),
@@ -275,6 +277,7 @@ $repairWorkflowStepDescriptions = [
     'menu_view_consistency' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_MENU_VIEW_CONSISTENCY'),
     'frontend_permission_consistency' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_FRONTEND_PERMISSION_CONSISTENCY'),
     'element_reference_consistency' => Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_ELEMENT_REFERENCE_CONSISTENCY'),
+    'generated_article_categories' => Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_STEP_GENERATED_ARTICLE_CATEGORIES_DESC'),
 ];
 $phpLibrariesCount = count((array) $this->phpLibraries);
 $javascriptLibrariesCount = count((array) $this->javascriptLibraries);
@@ -300,6 +303,18 @@ $hasBfFieldSyncIssues = $bfFieldSyncViews > 0 || $bfFieldSyncMissingTotal > 0 ||
 $hasMenuViewIssues = (int) ($auditSummary['menu_view_issues'] ?? count($menuViewIssues)) > 0;
 $hasFrontendPermissionIssues = (int) ($auditSummary['frontend_permission_issues'] ?? count($frontendPermissionIssues)) > 0;
 $hasElementReferenceIssues = (int) ($auditSummary['element_reference_issues'] ?? count($elementReferenceIssues)) > 0;
+$generatedArticleCategoryIssueCount = (int) ($auditSummary['generated_article_category_issues'] ?? count($generatedArticleCategoryIssues));
+$generatedArticleCategoryRowCount = (int) ($auditSummary['generated_article_category_rows'] ?? 0);
+if ($generatedArticleCategoryRowCount === 0 && $generatedArticleCategoryIssues !== []) {
+    foreach ($generatedArticleCategoryIssues as $generatedArticleCategoryIssue) {
+        if (!is_array($generatedArticleCategoryIssue)) {
+            continue;
+        }
+
+        $generatedArticleCategoryRowCount += (int) ($generatedArticleCategoryIssue['invalid_article_count'] ?? 0);
+    }
+}
+$hasGeneratedArticleCategoryIssues = $generatedArticleCategoryIssueCount > 0 || $generatedArticleCategoryRowCount > 0;
 $invalidDatetimeSortIssueCount = (int) ($auditSummary['invalid_datetime_sort_issues'] ?? count($invalidDatetimeSortIssues));
 $invalidDatetimeSortRowCount = (int) ($auditSummary['invalid_datetime_sort_rows'] ?? 0);
 if ($invalidDatetimeSortRowCount === 0 && $invalidDatetimeSortIssues !== []) {
@@ -390,13 +405,15 @@ $auditSectionNumbers = [
     'menu_view_consistency' => 21,
     'frontend_permission_consistency' => 22,
     'element_reference_consistency' => 23,
-    'cb_table_stats' => 24,
-    'cb_tables_total' => 25,
-    'cb_ng_tables_expected' => 26,
-    'cb_ng_tables_missing' => 27,
-    'cb_storage_tables' => 28,
-    'cb_estimated_rows' => 29,
-    'cb_estimated_size' => 30,
+    'generated_article_categories' => 24,
+    'generated_article_category_rows' => 25,
+    'cb_table_stats' => 26,
+    'cb_tables_total' => 27,
+    'cb_ng_tables_expected' => 28,
+    'cb_ng_tables_missing' => 29,
+    'cb_storage_tables' => 30,
+    'cb_estimated_rows' => 31,
+    'cb_estimated_size' => 32,
 ];
 $getAuditSectionNumber = static function (string $sectionId) use ($auditSectionNumbers): int {
     return (int) ($auditSectionNumbers[$sectionId] ?? 0);
@@ -1210,6 +1227,16 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
                         <th scope="row"><?php echo $renderAuditSummaryLink('element_reference_consistency', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_ELEMENT_REFERENCE_CONSISTENCY')); ?></th>
                         <td><?php echo (int) ($auditSummary['element_reference_issues'] ?? count($elementReferenceIssues)); ?></td>
                     </tr>
+                    <tr class="<?php echo $hasGeneratedArticleCategoryIssues ? 'table-warning' : ''; ?>">
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('generated_article_categories'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('generated_article_categories', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_GENERATED_ARTICLE_CATEGORIES')); ?></th>
+                        <td><?php echo $generatedArticleCategoryIssueCount; ?></td>
+                    </tr>
+                    <tr class="<?php echo $hasGeneratedArticleCategoryIssues ? 'table-warning' : ''; ?>">
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('generated_article_category_rows'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('generated_article_categories', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_GENERATED_ARTICLE_CATEGORY_ROWS')); ?></th>
+                        <td><?php echo $generatedArticleCategoryRowCount; ?></td>
+                    </tr>
                     <tr>
                         <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('cb_tables_total'); ?></td>
                         <th scope="row"><?php echo $renderAuditSummaryLink('cb_table_stats', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_TABLES_TOTAL')); ?></th>
@@ -1889,6 +1916,83 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
                                         <?php endforeach; ?>
                                     </ol>
                                 </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+            </div>
+
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('generated_article_categories'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 22;">
+                <h4 class="h6 mt-3<?php echo $hasGeneratedArticleCategoryIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('generated_article_categories', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_GENERATED_ARTICLE_CATEGORIES'), $hasGeneratedArticleCategoryIssues); ?></h4>
+            <?php if (empty($generatedArticleCategoryIssues)) : ?>
+                <div class="alert cb-audit-ok-alert">
+                    <span class="cb-audit-section-title">
+                        <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
+                        <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_GENERATED_ARTICLE_CATEGORIES_OK'); ?></span>
+                    </span>
+                </div>
+            <?php else : ?>
+                <div class="table-responsive">
+                    <table id="cb-audit-generated-article-categories-table" class="table table-sm table-striped align-middle">
+                        <thead>
+                        <tr>
+                            <th scope="col"><?php echo $auditRowNumberLabel; ?></th>
+                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ID'); ?></th>
+                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_BF_FIELD_SYNC_VIEW'); ?></th>
+                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_DEFAULT_CATEGORY'); ?></th>
+                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_GENERATED_ARTICLE_CATEGORY_ROWS'); ?></th>
+                            <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_DETAILS'); ?></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php $generatedArticleCategoryIssueRowNumber = 1; ?>
+                        <?php foreach ($generatedArticleCategoryIssues as $generatedArticleCategoryIssue) : ?>
+                            <?php
+                            if (!is_array($generatedArticleCategoryIssue)) {
+                                continue;
+                            }
+                            $formId = (int) ($generatedArticleCategoryIssue['form_id'] ?? 0);
+                            $formEditLink = $formId > 0
+                                ? Route::_('index.php?option=com_contentbuilderng&view=form&layout=edit&id=' . $formId, false)
+                                : '';
+                            $formName = trim((string) ($generatedArticleCategoryIssue['form_name'] ?? ''));
+                            $formName = $formName !== '' ? $formName : ('#' . $formId);
+                            $defaultCategoryId = (int) ($generatedArticleCategoryIssue['default_category_id'] ?? 0);
+                            $defaultCategoryTitle = trim((string) ($generatedArticleCategoryIssue['default_category_title'] ?? ''));
+                            $defaultCategoryLabel = $defaultCategoryId > 0
+                                ? '#' . $defaultCategoryId . ($defaultCategoryTitle !== '' ? ' - ' . $defaultCategoryTitle : '')
+                                : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE');
+                            $invalidArticles = (array) ($generatedArticleCategoryIssue['invalid_articles'] ?? []);
+                            $invalidArticleLabels = [];
+                            foreach ($invalidArticles as $invalidArticle) {
+                                if (!is_array($invalidArticle)) {
+                                    continue;
+                                }
+                                $invalidArticleLabels[] = '#' . (int) ($invalidArticle['article_id'] ?? 0)
+                                    . ' / record #' . (int) ($invalidArticle['record_id'] ?? 0)
+                                    . ' / catid ' . (int) ($invalidArticle['catid'] ?? 0);
+                            }
+                            $details = $invalidArticleLabels !== []
+                                ? implode(', ', $invalidArticleLabels)
+                                : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE');
+                            ?>
+                            <tr>
+                                <td><?php echo $generatedArticleCategoryIssueRowNumber++; ?></td>
+                                <td><?php echo $formId; ?></td>
+                                <td>
+                                    <?php if ($formEditLink !== '') : ?>
+                                        <a href="<?php echo htmlspecialchars($formEditLink, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <?php echo htmlspecialchars($formName, ENT_QUOTES, 'UTF-8'); ?>
+                                        </a>
+                                    <?php else : ?>
+                                        <?php echo htmlspecialchars($formName, ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?php echo htmlspecialchars($defaultCategoryLabel, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo (int) ($generatedArticleCategoryIssue['invalid_article_count'] ?? 0); ?></td>
+                                <td><?php echo htmlspecialchars($details, ENT_QUOTES, 'UTF-8'); ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
