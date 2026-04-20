@@ -2713,7 +2713,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         $advancedOptionsContent = '';
         // Démarrer les onglets
         $activeViewTab = trim((string) $app->input->getCmd('tab', ''));
-        $allowedViewTabs = ['tab0', 'tab1', 'tab2', 'tab3', 'tab5', 'tab6', 'tab7', 'tab8', 'tab9'];
+        $allowedViewTabs = ['tab0', 'tab1', 'tab2', 'tab3', 'tab5', 'tab6', 'tab7', 'tab8', 'tab9', 'tab10'];
         if (!in_array($activeViewTab, $allowedViewTabs, true)) {
             $activeViewTab = 'tab0';
         }
@@ -2979,6 +2979,18 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab9', $viewTabLabel('fa-solid fa-sliders', 'COM_CONTENTBUILDERNG_ADVANCED_OPTIONS', 'COM_CONTENTBUILDERNG_TAB_TIP_ADVANCED_OPTIONS'));
         echo $advancedOptionsContent;
         echo HTMLHelper::_('uitab.endTab');
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab10', $viewTabLabel('fa-regular fa-newspaper', 'COM_CONTENTBUILDERNG_ARTICLE', 'COM_CONTENTBUILDERNG_TAB_TIP_ARTICLE'));
+        echo LayoutHelper::render(
+            'form.article_tab',
+            [
+                'item' => $this->item,
+                'allElements' => $this->all_elements,
+                'renderCheckbox' => $renderCheckbox,
+                'isBreezingFormsType' => $isBreezingFormsType,
+            ],
+            $componentLayoutBase
+        );
+        echo HTMLHelper::_('uitab.endTab');
         echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab2', $viewTabLabel('fa-regular fa-file-lines', 'COM_CONTENTBUILDERNG_LIST_INTRO_TEXT', 'COM_CONTENTBUILDERNG_TAB_TIP_LIST_INTRO_TEXT'));
         ?>
         <h3 id="cb-form-list-intro-text" class="mb-3">
@@ -3014,11 +3026,9 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
             [
                 'item' => $this->item,
                 'form' => $this->form,
-                'allElements' => $this->all_elements,
                 'renderCheckbox' => $renderCheckbox,
                 'editablePrepareSnippetOptions' => $editablePrepareSnippetOptions,
                 'prepareEffectOptions' => $prepareEffectOptions,
-                'isBreezingFormsType' => $isBreezingFormsType,
             ],
             $componentLayoutBase
         );
@@ -3163,6 +3173,7 @@ $wa->useScript('jquery');
 $viewTabTooltips = [
     'tab0' => Text::_('COM_CONTENTBUILDERNG_TAB_TIP_VIEW'),
     'tab9' => Text::_('COM_CONTENTBUILDERNG_TAB_TIP_ADVANCED_OPTIONS'),
+    'tab10' => Text::_('COM_CONTENTBUILDERNG_TAB_TIP_ARTICLE'),
     'tab2' => Text::_('COM_CONTENTBUILDERNG_TAB_TIP_LIST_INTRO_TEXT'),
     'tab1' => Text::_('COM_CONTENTBUILDERNG_TAB_TIP_LIST_STATES'),
     'tab3' => Text::_('COM_CONTENTBUILDERNG_TAB_TIP_DETAILS_TEMPLATE') . ' + ' . Text::_('COM_CONTENTBUILDERNG_TAB_TIP_DETAILS_PREPARE'),
