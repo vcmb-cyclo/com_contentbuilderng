@@ -71,7 +71,7 @@ $advancedDefaults = [
     'apply_button_title' => '',
 ];
 ?>
-<div class="bg-body-tertiary p-3" id="advancedOptions">
+<div id="advancedOptions">
     <fieldset id="cb-form-advanced-publish" aria-labelledby="cb-form-advanced-publish-title">
         <legend>
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">

@@ -2722,11 +2722,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', $viewTabLabel('fa-regular fa-window-maximize', 'COM_CONTENTBUILDERNG_VIEW', 'COM_CONTENTBUILDERNG_TAB_TIP_VIEW'));
         ?>
 
-        <table width="100%">
-            <tr>
-                <td class="align-top">
-
-                    <fieldset id="cb-form-view-general" class="border rounded p-3 mb-3">
+        <fieldset id="cb-form-view-general" class="border rounded p-3 mb-3">
 
                         <div class="row g-3 align-items-end mb-2">
                             <div class="col-12 col-lg-3">
@@ -2958,38 +2954,25 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                         );
                         ?>
 
-                    </fieldset>
-
-                </td>
-            </tr>
-        </table>
         </fieldset>
-        </td>
-        </tr>
-        <tr>
-            <td class="align-top">
-                <?php
-                echo '<div id="cb-form-view-elements">';
-                echo LayoutHelper::render(
-                    'form.elements_table',
-                    [
-                        'elements' => $this->elements,
-                        'pagination' => $this->pagination,
-                        'ordering' => $this->ordering,
-                        'item' => $this->item,
-                        'sortLink' => $sortLink,
-                        'textUtilityService' => $textUtilityService,
-                        'isModifiedElementSettings' => $isModifiedElementSettings,
-                    ],
-                    $componentLayoutBase
-                );
-                echo '</div>';
-                ?>
 
-            </td>
-        </tr>
-
-        </table>
+        <?php
+        echo '<div id="cb-form-view-elements">';
+        echo LayoutHelper::render(
+            'form.elements_table',
+            [
+                'elements' => $this->elements,
+                'pagination' => $this->pagination,
+                'ordering' => $this->ordering,
+                'item' => $this->item,
+                'sortLink' => $sortLink,
+                'textUtilityService' => $textUtilityService,
+                'isModifiedElementSettings' => $isModifiedElementSettings,
+            ],
+            $componentLayoutBase
+        );
+        echo '</div>';
+        ?>
 
         <?php
         echo HTMLHelper::_('uitab.endTab');
@@ -3010,14 +2993,50 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         echo HTMLHelper::_('uitab.endTab');
         echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab2', $viewTabLabel('fa-regular fa-file-lines', 'COM_CONTENTBUILDERNG_LIST_INTRO_TEXT', 'COM_CONTENTBUILDERNG_TAB_TIP_LIST_INTRO_TEXT'));
         ?>
-        <h3 id="cb-form-list-intro-text" class="mb-3">
-            <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_INTRO_MODE_TITLE'); ?>
-        </h3>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <h3 id="cb-form-list-intro-text" class="mb-0">
+                <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_INTRO_MODE_TITLE'); ?>
+            </h3>
+            <button
+                type="button"
+                class="btn btn-secondary"
+                id="cb-reset-list-intro"
+                title="<?php echo Text::_('COM_CONTENTBUILDERNG_RESET_LIST_INTRO_TOOLTIP'); ?>"
+                aria-label="<?php echo Text::_('COM_CONTENTBUILDERNG_RESET_LIST_INTRO_TOOLTIP'); ?>"
+                data-confirm="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_RESET_LIST_INTRO_CONFIRM'), ENT_QUOTES, 'UTF-8'); ?>"
+            >
+                <span class="fa-solid fa-rotate-left" aria-hidden="true"></span>
+                <?php echo Text::_('COM_CONTENTBUILDERNG_RESET'); ?>
+            </button>
+        </div>
         <p class="text-muted mb-3">
             <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_INTRO_MODE_INTRO'); ?>
         </p>
         <?php
         echo $this->form->renderField('intro_text');
+        ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var resetButton = document.getElementById('cb-reset-list-intro');
+
+                if (!resetButton) {
+                    return;
+                }
+
+                resetButton.addEventListener('click', function () {
+                    var confirmMessage = resetButton.getAttribute('data-confirm') || '';
+
+                    if (confirmMessage && !window.confirm(confirmMessage)) {
+                        return;
+                    }
+
+                    if (typeof cbSetEditorFieldValue === 'function') {
+                        cbSetEditorFieldValue('intro_text', '');
+                    }
+                });
+            });
+        </script>
+        <?php
         echo HTMLHelper::_('uitab.endTab');
         echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab1', $viewTabLabel('fa-solid fa-list-check', 'COM_CONTENTBUILDERNG_LIST_STATES', 'COM_CONTENTBUILDERNG_TAB_TIP_LIST_STATES'));
         ?>

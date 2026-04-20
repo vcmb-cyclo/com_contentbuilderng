@@ -57,4 +57,30 @@ final class PermissionServiceTest extends TestCase
 
         self::assertFalse($this->service->authorizeFe('listaccess'));
     }
+
+    // authorize() uses the admin-side session key (no "_fe" suffix).
+    // Group 9 inherits from group 1 (see DB stub), so a permission granted to
+    // group 1 must be visible to the user who belongs to group 9.
+    // Using 'listaccess' avoids the extra limit_* / verify_* guards that only
+    // apply to 'edit', 'new', 'view', and 'delete'.
+    public function testAuthorizeHonorsAdminSessionPermission(): void
+    {
+        $this->app->getSession()->set('com_contentbuilderng.permissions', [
+            'published' => true,
+            1 => ['listaccess' => true],
+        ]);
+
+        self::assertTrue($this->service->authorize('listaccess'));
+    }
+
+    // Group 2 is not in the inheritance chain of group 9, so no permission is found.
+    public function testAuthorizeRejectsMissingAdminSessionPermission(): void
+    {
+        $this->app->getSession()->set('com_contentbuilderng.permissions', [
+            'published' => true,
+            2 => ['listaccess' => true],
+        ]);
+
+        self::assertFalse($this->service->authorize('listaccess'));
+    }
 }
