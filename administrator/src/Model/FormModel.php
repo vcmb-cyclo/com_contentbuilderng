@@ -1255,6 +1255,40 @@ class FormModel extends AdminModel
             return false;
         }
 
+        $detailsOptionColumns = [
+            'cb_show_details_top_bar',
+            'cb_show_details_bottom_bar',
+            'create_articles',
+            'delete_articles',
+            'title_field',
+            'default_category',
+            'default_access',
+            'default_featured',
+            'default_lang_code',
+            'default_lang_code_ignore',
+            'default_publish_up_days',
+            'default_publish_down_days',
+            'article_record_impact_language',
+            'article_record_impact_publish',
+            'auto_publish',
+        ];
+        $detailsOptionUpdates = [];
+
+        foreach ($detailsOptionColumns as $column) {
+            if (array_key_exists($column, $jform)) {
+                $detailsOptionUpdates[] = $db->quoteName($column) . ' = ' . $db->quote((string) $jform[$column]);
+            }
+        }
+
+        if ($detailsOptionUpdates) {
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__contentbuilderng_forms'))
+                ->set($detailsOptionUpdates)
+                ->where($db->quoteName('id') . ' = ' . $formId);
+            $db->setQuery($query);
+            $db->execute();
+        }
+
         if (
             in_array((string) ($jform['type'] ?? ''), ['com_breezingforms', 'com_breezingforms_ng'], true)
             && (int) ($jform['reference_id'] ?? 0) < 1

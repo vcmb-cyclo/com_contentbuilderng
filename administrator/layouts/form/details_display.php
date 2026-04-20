@@ -224,7 +224,7 @@ TXT;
                             <?php echo Text::_('COM_CONTENTBUILDERNG_DEFAULT_ACCESS'); ?>
                         </span>
                     </label>
-                    <?php echo HTMLHelper::_('access.level', 'default_access', $item->default_access, '', [], 'default_access'); ?>
+                    <?php echo HTMLHelper::_('access.level', 'jform[default_access]', $item->default_access, '', [], 'default_access'); ?>
                 </div>
                 <div class="col-12 col-md-6" id="cb-form-details-default-featured-field-group">
                     <?php
