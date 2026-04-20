@@ -249,6 +249,8 @@ class FormController extends BaseFormController
      */
     public function save2new($key = null, $urlVar = null)
     {
+        $this->checkToken();
+
         $model = $this->getFormModelForSaveActions();
 
         try {
@@ -478,6 +480,8 @@ class FormController extends BaseFormController
     // Devrait migrer dans Element*Controller ?
     private function elementsUpdate(string $field, int $value): bool
     {
+        $this->checkToken();
+
         try {
             $cids = $this->input->get('cid', [], 'array');
             $formId = (int) $this->input->getInt('id');

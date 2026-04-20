@@ -43,6 +43,8 @@ class ElementoptionsController extends AdminController
 
     function save()
     {
+        $this->checkToken();
+
         $model = $this->getElementoptionsModelForSave();
         $id = $model->store();
 

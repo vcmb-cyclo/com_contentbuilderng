@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package     ContentBuilder NG
+ * @author      XDA+GIL
+ * @link        https://breezingforms-ng.vcmb.fr
+ * @copyright   Copyright © 2026 by XDA+GIL
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 declare(strict_types=1);
 
@@ -25,6 +32,35 @@ namespace Joomla\Database {
             public function quoteName(string $name): string;
             public function setQuery(string $query): void;
             public function execute(): void;
+        }
+    }
+
+    if (!\interface_exists(QueryInterface::class, false)) {
+        interface QueryInterface
+        {
+        }
+    }
+}
+
+namespace Joomla\Filesystem {
+    if (!\class_exists(Folder::class, false)) {
+        class Folder
+        {
+            public static function create(string $path): bool
+            {
+                return true;
+            }
+        }
+    }
+}
+
+namespace CB\Component\Contentbuilderng\Administrator\Helper {
+    if (!\class_exists(Logger::class, false)) {
+        class Logger
+        {
+            public static function info(string $message, array $context = []): void {}
+            public static function warning(string $message, array $context = []): void {}
+            public static function error(string $message, array $context = []): void {}
         }
     }
 }
@@ -357,4 +393,6 @@ namespace {
     require_once \dirname(__DIR__) . '/src/Service/ApiPermissionRequirementService.php';
     require_once \dirname(__DIR__) . '/src/Service/PermissionService.php';
     require_once \dirname(__DIR__) . '/src/Helper/FormDisplayColumnsHelper.php';
+    require_once \dirname(__DIR__) . '/src/Service/ConfigExportService.php';
+    require_once \dirname(__DIR__) . '/src/Service/ConfigImportService.php';
 }

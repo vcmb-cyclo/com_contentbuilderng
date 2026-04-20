@@ -220,6 +220,8 @@ class UsersController extends BaseController
     }
 
     public function publish() {
+        $this->checkToken();
+
         try {
             $model = $this->getUsersModelForPublishActions();
             $model->setPublished();
@@ -240,6 +242,8 @@ class UsersController extends BaseController
     }
     
     public function unpublish() {
+        $this->checkToken();
+
         try {
             $model = $this->getUsersModelForPublishActions();
             $model->setUnpublished();
@@ -261,6 +265,8 @@ class UsersController extends BaseController
     
     public function save($keep_task = false)
     {
+        $this->checkToken();
+
         $model = $this->getUserModelForSave();
         $id = $model->store();
         
