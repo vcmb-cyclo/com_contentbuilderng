@@ -149,10 +149,10 @@ class EditController extends BaseController
         $type = 'message';
         if ($id && !$submission_failed) {
 
-            $msg = Text::_('COM_CONTENTBUILDERNG_SAVE');
+            $msg = Text::_('COM_CONTENTBUILDERNG_SAVED');
             $return = NavigationLinkHelper::decodeInternalReturn((string) $this->siteApp->input->get('return', '', 'string'));
             if ($return !== '') {
-                $this->siteApp->enqueueMessage($msg, 'warning');
+                $this->siteApp->enqueueMessage($msg, 'message');
                 $this->siteApp->redirect($return);
             }
 
