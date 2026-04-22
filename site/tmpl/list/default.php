@@ -847,21 +847,155 @@ $wa->addInlineStyle(
 	}
 	.cb-list-template-compact .cb-list-table{
 		--bs-table-bg:#101924;
-		--bs-table-color:#e8eef7;
+		--bs-table-color:#ffffff;
 		--bs-table-border-color:rgba(148,163,184,.16);
 		--bs-table-striped-bg:#162231;
-		--bs-table-striped-color:#eef4fb;
+		--bs-table-striped-color:#ffffff;
 		--bs-table-hover-bg:#1c2b3d;
 		--bs-table-hover-color:#ffffff;
 	}
 	.cb-list-template-compact .cb-list-table th{
-		color:#9fb7d4;
+		color:#ffffff!important;
+		font-weight:700;
+		text-shadow:0 1px 1px rgba(0,0,0,.35);
 	}
 	.cb-list-template-compact .cb-list-table td{
-		color:#eef4fb;
+		color:#ffffff;
 	}
 	.cb-list-template-compact .cb-list-table a{
-		color:#b7d4ff;
+		color:#d8e9ff;
+		font-weight:500;
+	}
+	.cb-list-template-compact .cb-list-table th a{
+		color:#ffffff!important;
+		font-weight:700;
+		text-decoration-color:rgba(255,255,255,.7);
+		text-underline-offset:.14rem;
+	}
+	.cb-list-template-compact .cb-list-filters .input-group-text,
+	.cb-list-template-compact .cb-list-filters .form-control,
+	.cb-list-template-compact .cb-list-filters .form-select,
+	.cb-list-template-compact .cb-list-table .form-control,
+	.cb-list-template-compact .cb-list-table .form-select{
+		color:#ffffff!important;
+		background-color:#0f1824!important;
+		border-color:rgba(190,213,241,.42)!important;
+		box-shadow:none!important;
+		color-scheme:dark;
+	}
+	.cb-list-template-compact .cb-list-filters .form-control::placeholder,
+	.cb-list-template-compact .cb-list-table .form-control::placeholder{
+		color:#8fa4bd!important;
+		opacity:1;
+	}
+	.cb-list-template-compact .cb-list-filters .form-select,
+	.cb-list-template-compact .cb-list-table .form-select{
+		background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='m3.5 6 4.5 4.5L12.5 6'/%3E%3C/svg%3E")!important;
+		background-repeat:no-repeat!important;
+		background-position:right .75rem center!important;
+		background-size:16px 12px!important;
+	}
+	.cb-list-template-compact .cb-list-filters .form-control:disabled,
+	.cb-list-template-compact .cb-list-filters .form-select:disabled,
+	.cb-list-template-compact .cb-list-table .form-control:disabled,
+	.cb-list-template-compact .cb-list-table .form-select:disabled{
+		color:#ffffff!important;
+		background-color:#172638!important;
+		border-color:rgba(190,213,241,.34)!important;
+		opacity:1;
+	}
+	.cb-list-template-compact .cb-list-filters .form-control:focus,
+	.cb-list-template-compact .cb-list-filters .form-select:focus,
+	.cb-list-template-compact .cb-list-table .form-control:focus,
+	.cb-list-template-compact .cb-list-table .form-select:focus{
+		color:#ffffff!important;
+		background-color:#111d2b!important;
+		border-color:#78a6dd!important;
+		box-shadow:0 0 0 .18rem rgba(120,166,221,.2)!important;
+	}
+	.cb-list-template-compact .cb-list-table tfoot td{
+		color:#ffffff!important;
+		background:#101924!important;
+		border-color:rgba(148,163,184,.16)!important;
+	}
+	.cb-list-template-compact .cb-list-filters .btn,
+	.cb-list-template-compact .cb-list-table .btn{
+		font-weight:600;
+		box-shadow:0 1px 0 rgba(255,255,255,.08), 0 .2rem .55rem rgba(0,0,0,.18);
+	}
+	.cb-list-template-compact .btn-outline-primary{
+		color:#ffffff!important;
+		background:rgba(63,131,248,.18)!important;
+		border-color:#8abaff!important;
+	}
+	.cb-list-template-compact .btn-outline-primary:hover,
+	.cb-list-template-compact .btn-outline-primary:focus{
+		color:#ffffff!important;
+		background:#1f5fa8!important;
+		border-color:#b6d7ff!important;
+	}
+	.cb-list-template-compact .btn-outline-secondary{
+		color:#ffffff!important;
+		background:rgba(148,163,184,.16)!important;
+		border-color:#bac8d9!important;
+	}
+	.cb-list-template-compact .btn-outline-secondary:hover,
+	.cb-list-template-compact .btn-outline-secondary:focus{
+		color:#ffffff!important;
+		background:#334458!important;
+		border-color:#ffffff!important;
+	}
+	.cb-list-template-compact .btn-outline-danger{
+		color:#ffd7df!important;
+		background:rgba(220,53,69,.16)!important;
+		border-color:#ff9aaa!important;
+	}
+	.cb-list-template-compact .btn-outline-danger:hover,
+	.cb-list-template-compact .btn-outline-danger:focus{
+		color:#ffffff!important;
+		background:#b02a37!important;
+		border-color:#ffc1ca!important;
+	}
+	.cb-list-template-compact .btn-outline-success{
+		color:#d8ffe5!important;
+		background:rgba(25,135,84,.18)!important;
+		border-color:#8ee0af!important;
+	}
+	.cb-list-template-compact .btn-outline-success:hover,
+	.cb-list-template-compact .btn-outline-success:focus{
+		color:#ffffff!important;
+		background:#146c43!important;
+		border-color:#b8f3ce!important;
+	}
+	.cb-list-template-compact .cb-list-table .pagination .page-link,
+	.cb-list-template-compact .pagination__wrapper .pagination .page-link{
+		color:#ffffff!important;
+		background:#111d2b!important;
+		border-color:rgba(190,213,241,.34)!important;
+	}
+	.cb-list-template-compact .cb-list-table .pagination .page-link:hover,
+	.cb-list-template-compact .cb-list-table .pagination .page-link:focus,
+	.cb-list-template-compact .pagination__wrapper .pagination .page-link:hover,
+	.cb-list-template-compact .pagination__wrapper .pagination .page-link:focus{
+		color:#ffffff!important;
+		background:#1b2d42!important;
+		border-color:rgba(158,197,254,.42)!important;
+		box-shadow:none!important;
+	}
+	.cb-list-template-compact .cb-list-table .pagination .active .page-link,
+	.cb-list-template-compact .pagination__wrapper .pagination .active .page-link{
+		color:#ffffff!important;
+		background:#1f4f8a!important;
+		border-color:#4f8fd3!important;
+	}
+	.cb-list-template-compact .cb-list-table .pagination .disabled .page-link,
+	.cb-list-template-compact .pagination__wrapper .pagination .disabled .page-link{
+		color:#aebfd3!important;
+		background:#0d1520!important;
+		border-color:rgba(148,163,184,.12)!important;
+	}
+	.cb-list-template-compact .cb-pagination-summary{
+		color:#ffffff!important;
 	}
 	.cb-list-template-cards .cb-list-card{
 		background:linear-gradient(180deg, rgba(30,41,59,.96), rgba(15,23,42,.96));
