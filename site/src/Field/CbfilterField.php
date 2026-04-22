@@ -74,20 +74,28 @@ class CbfilterField extends FormField
 
                 var formField = contentbuilderng_findField([
                     "#jform_params_settings_form_id",
-                    "[name=\\"jform[params][settings][form_id]\\"]"
+                    "#jform_params_form_id",
+                    "[name=\\"jform[params][settings][form_id]\\"]",
+                    "[name=\\"jform[params][form_id]\\"]",
+                    "select[name=\\"jform[params][form_id]\\"]"
                 ]);
                 var hiddenFilterField = contentbuilderng_findField([
                     "#jform_params_settings_cb_list_filterhidden",
-                    "[name=\\"jform[params][settings][cb_list_filterhidden]\\"]"
+                    "#jform_params_cb_list_filterhidden",
+                    "[name=\\"jform[params][settings][cb_list_filterhidden]\\"]",
+                    "[name=\\"jform[params][cb_list_filterhidden]\\"]"
                 ]);
                 var hiddenOrderField = contentbuilderng_findField([
                     "#jform_params_settings_cb_list_orderhidden",
-                    "[name=\\"jform[params][settings][cb_list_orderhidden]\\"]"
+                    "#jform_params_cb_list_orderhidden",
+                    "[name=\\"jform[params][settings][cb_list_orderhidden]\\"]",
+                    "[name=\\"jform[params][cb_list_orderhidden]\\"]"
                 ]);
                 var currentFilterField = document.getElementById("' . $this->id . '");
                 var wrapper = document.getElementById("' . $wrapperId . '");
                 var form_id = formField ? formField.value : "";
                 var curr_form_id = "' . $selectedFormId . '";
+                var previousContentbuilderngSetFormId = window.contentbuilderng_setFormId;
 
                 if (currentFilterField && form_id !== "") {
                     currentFilterField.value = form_id;
@@ -131,7 +139,11 @@ class CbfilterField extends FormField
                     }
                 }
 
-                function contentbuilderng_setFormId(form_id){
+                window.contentbuilderng_setFormId = function(form_id){
+                    if (typeof previousContentbuilderngSetFormId === "function") {
+                        previousContentbuilderngSetFormId(form_id);
+                    }
+
                     if (currentFilterField) {
                         currentFilterField.value = form_id;
                     }
@@ -144,7 +156,7 @@ class CbfilterField extends FormField
                     if (hiddenOrderField) {
                         hiddenOrderField.value = "";
                     }
-                }
+                };
                 //-->
                 </script>';
 

@@ -121,7 +121,7 @@ class FormsField extends FormField
             'select.genericlist',
             $status,
             $this->name,
-            '" onchange="if(typeof contentbuilderng_setFormId != \'undefined\') { contentbuilderng_setFormId(this.options[this.selectedIndex].value); }" class="' . $class . '"',
+            'onchange="if(typeof contentbuilderng_setFormId != \'undefined\') { contentbuilderng_setFormId(this.options[this.selectedIndex].value); }" class="' . $class . '"',
             'id',
             'name',
             $this->value
@@ -157,10 +157,21 @@ class FormsField extends FormField
                 }
 
                 function findDescription(fieldName) {
-                    return findField([
+                    const described = findField([
                         `#jform_params_settings_${fieldName}-desc`,
                         `#jform_params_${fieldName}-desc`,
                     ]);
+                    if (described) {
+                        return described;
+                    }
+
+                    const input = findField([
+                        `[name="jform[params][settings][${fieldName}]"]`,
+                        `[name="jform[params][${fieldName}]"]`,
+                    ]);
+                    const group = input ? input.closest('.control-group, .form-group, .mb-3') : null;
+
+                    return group ? group.querySelector('.form-text') : null;
                 }
 
                 function updateDescription(fieldName, enabled) {
@@ -170,12 +181,13 @@ class FormsField extends FormField
                     }
 
                     const suffix = enabled ? yesLabel : noLabel;
-                    const currentText = String(description.textContent || '').trim();
-                    if (currentText === '') {
+                    const originalText = description.dataset.cbOriginalText || String(description.textContent || '').trim();
+                    if (originalText === '') {
                         return;
                     }
 
-                    description.textContent = currentText.replace(/\s+[^\s.]+\.?$/, ' ' + suffix + '.');
+                    description.dataset.cbOriginalText = originalText;
+                    description.textContent = originalText.replace(/\s+[^\s.]+\.?$/, ' ' + suffix + '.');
                 }
 
                 function updateDescriptions(formId) {
