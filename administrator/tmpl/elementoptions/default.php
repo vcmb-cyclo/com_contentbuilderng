@@ -18,6 +18,7 @@ use Joomla\CMS\Editor\Editor;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Router\Route;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 
@@ -88,6 +89,12 @@ $typeIconMap = [
     'hidden' => 'fa-solid fa-eye-slash',
     'captcha' => 'fa-solid fa-shield-halved',
 ];
+$resetUrl = Route::_(
+    'index.php?option=com_contentbuilderng&view=elementoptions&tmpl=component&element_id='
+    . (int) ($this->element->id ?? 0)
+    . '&id=' . (int) ($this->element->form_id ?? 0),
+    false
+);
 ?>
 <style type="text/css">
     label { display: inline; }
@@ -240,6 +247,13 @@ $typeIconMap = [
             <button type="submit" class="btn btn-sm btn-primary" onclick="document.getElementById('task').value='elementoptions.save';">
                 <span class="fa-solid fa-floppy-disk me-1" aria-hidden="true"></span>
                 <?php echo Text::_('COM_CONTENTBUILDERNG_SAVE'); ?>
+            </button>
+            <button
+                type="button"
+                class="btn btn-sm btn-secondary"
+                onclick="window.location.href='<?php echo htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8'); ?>';">
+                <span class="fa-solid fa-rotate-left me-1" aria-hidden="true"></span>
+                <?php echo Text::_('COM_CONTENTBUILDERNG_RESET'); ?>
             </button>
         </div>
 
