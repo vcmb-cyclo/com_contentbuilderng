@@ -47,19 +47,23 @@ $wa->addInlineStyle(
         . '.cb-item-type-badge.is-default{color:var(--bs-secondary-color);background:var(--bs-secondary-bg);border-color:var(--bs-border-color)}'
         . '.cb-item-type-badge.is-modified{color:#842029;background:#f8d7da;border-color:#f1aeb5}'
         . '.cb-item-order-type-select{align-self:flex-start;width:auto!important;max-width:100%}'
-        . '.cb-elements-table{width:100%;min-width:960px;table-layout:fixed}'
-        . '.cb-elements-table thead th{white-space:normal;vertical-align:bottom}'
-        . '.cb-elements-table thead th a{display:inline-flex;align-items:center;justify-content:center;gap:.15rem;white-space:nowrap!important;line-height:1.15}'
+        . '.cb-elements-table{width:100%;min-width:840px;table-layout:fixed}'
+        . '.cb-elements-columns-menu{min-width:14rem;max-width:min(22rem,90vw)}'
+        . '.cb-elements-columns-menu .dropdown-item{padding:.35rem .5rem;white-space:normal}'
+        . '.cb-elements-col-hidden{display:none!important}'
+        . '.cb-elements-table thead th{white-space:normal;vertical-align:bottom;text-align:left}'
+        . '.cb-elements-table thead th a{display:inline-flex;align-items:center;justify-content:flex-start;gap:.15rem;white-space:nowrap!important;line-height:1.15}'
         . '.cb-elements-table thead th .cb-elements-heading-label{white-space:normal;overflow-wrap:normal;word-break:normal;text-wrap:wrap;line-height:1.15}'
-        . '.cb-elements-table th:nth-child(1),.cb-elements-table td:nth-child(1){width:4rem;white-space:nowrap}'
-        . '.cb-elements-table th:nth-child(2),.cb-elements-table td:nth-child(2){width:2.75rem;text-align:center}'
-        . '.cb-elements-table th:nth-child(3),.cb-elements-table td:nth-child(3){width:20%}'
-        . '.cb-elements-table th:nth-child(4),.cb-elements-table td:nth-child(4),.cb-elements-table th:nth-child(5),.cb-elements-table td:nth-child(5),.cb-elements-table th:nth-child(6),.cb-elements-table td:nth-child(6),.cb-elements-table th:nth-child(7),.cb-elements-table td:nth-child(7),.cb-elements-table th:nth-child(10),.cb-elements-table td:nth-child(10){width:6.25%;text-align:center}'
-        . '.cb-elements-table th:nth-child(8),.cb-elements-table td:nth-child(8){width:6rem;text-align:center}'
-        . '.cb-elements-table th:nth-child(9),.cb-elements-table td:nth-child(9){width:9rem}'
-        . '.cb-elements-table th:nth-child(11),.cb-elements-table td:nth-child(11){width:10.5rem}'
+        . '.cb-elements-table thead th[data-cb-col="check"]{text-align:center}'
+        . '.cb-elements-table thead th[data-cb-col="check"] a{justify-content:center}'
+        . '.cb-elements-table th[data-cb-col="id"],.cb-elements-table td[data-cb-col="id"]{width:2.75rem;white-space:nowrap;padding-left:.35rem;padding-right:.25rem}'
+        . '.cb-elements-table th[data-cb-col="check"],.cb-elements-table td[data-cb-col="check"]{width:1.75rem;text-align:center;padding-left:.15rem;padding-right:.15rem}'
+        . '.cb-elements-table th[data-cb-col="label"],.cb-elements-table td[data-cb-col="label"]{width:auto}'
+        . '.cb-elements-table th[data-cb-col="list"],.cb-elements-table td[data-cb-col="list"],.cb-elements-table th[data-cb-col="search"],.cb-elements-table td[data-cb-col="search"],.cb-elements-table th[data-cb-col="link"],.cb-elements-table td[data-cb-col="link"],.cb-elements-table th[data-cb-col="edit"],.cb-elements-table td[data-cb-col="edit"],.cb-elements-table th[data-cb-col="publish"],.cb-elements-table td[data-cb-col="publish"]{width:4.75rem;text-align:center}'
+        . '.cb-elements-table th[data-cb-col="wordwrap"],.cb-elements-table td[data-cb-col="wordwrap"]{width:5.25rem;text-align:center}'
+        . '.cb-elements-table th[data-cb-col="order"],.cb-elements-table td[data-cb-col="order"]{width:8.5rem}'
+        . '.cb-elements-table td[data-cb-col="label"]{overflow:hidden}'
         . '.cb-wordwrap-input{width:8ch!important;min-width:8ch!important;max-width:8ch!important;text-align:center}'
-        . '.cb-item-wrapper-input{min-width:7rem;max-width:100%}'
         . '.cb-elements-table td.order{white-space:nowrap}'
         . '.cb-elements-table td.order .cb-order-slot{margin-inline-end:.35rem}'
         . '.cb-order-input-field{width:3rem;text-align:center;margin-left:.35rem}'
@@ -410,6 +414,10 @@ $isModifiedElementSettings = static function ($row): bool {
         return true;
     }
 
+    if (trim((string) ($row->item_wrapper ?? '')) !== '') {
+        return true;
+    }
+
     foreach (
         [
             'hint',
@@ -606,6 +614,19 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
 <script type="text/javascript">
     const cbViewportStateKey = 'cbng.form.viewport.<?php echo (int) ($this->item->id ?? 0); ?>';
+    const cbElementsColumnsStateKey = 'cbng.form.elements.columns.<?php echo (int) ($this->item->id ?? 0); ?>';
+    const cbElementsColumnsLabel = <?php echo json_encode(Text::_('COM_CONTENTBUILDERNG_COLUMNS'), JSON_UNESCAPED_UNICODE); ?>;
+    const cbElementsColumnsDefaultState = Object.freeze({
+        id: true,
+        label: true,
+        list: true,
+        search: true,
+        link: true,
+        edit: true,
+        wordwrap: false,
+        publish: true,
+        order: true
+    });
     const cbSaveAnimationDurationMs = 500;
     const cbIsBreezingFormsType = <?php echo $isBreezingFormsType ? 'true' : 'false'; ?>;
     const cbBreezingFormsEditableToken = <?php echo json_encode($breezingFormsEditableToken, JSON_UNESCAPED_UNICODE); ?>;
@@ -2656,6 +2677,108 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     }
 
     document.addEventListener('DOMContentLoaded', cbInitDirtyTracking);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var toggleButton = document.getElementById('cb-elements-columns-toggle');
+        var menu = document.querySelector('.cb-elements-columns-menu');
+        var countLabel = toggleButton ? toggleButton.querySelector('.cb-elements-columns-count') : null;
+        var checkboxes = Array.from(document.querySelectorAll('.cb-elements-column-toggle[data-cb-column-toggle="1"]'));
+        var resetButton = menu ? menu.querySelector('.cb-elements-columns-reset[data-cb-columns-reset="1"]') : null;
+
+        if (!toggleButton || !menu || !countLabel || !checkboxes.length) {
+            return;
+        }
+
+        var totalCount = checkboxes.length;
+        var defaultState = Object.assign({}, cbElementsColumnsDefaultState);
+
+        checkboxes.forEach(function(input) {
+            var key = String(input.value || '');
+            if (!Object.prototype.hasOwnProperty.call(defaultState, key)) {
+                defaultState[key] = true;
+            }
+        });
+
+        var readState = function() {
+            try {
+                var raw = window.localStorage.getItem(cbElementsColumnsStateKey);
+                if (!raw) {
+                    return Object.assign({}, defaultState);
+                }
+
+                var parsed = JSON.parse(raw);
+                if (!parsed || typeof parsed !== 'object') {
+                    return Object.assign({}, defaultState);
+                }
+
+                return Object.assign({}, defaultState, parsed);
+            } catch (e) {
+                return Object.assign({}, defaultState);
+            }
+        };
+
+        var writeState = function(state) {
+            try {
+                window.localStorage.setItem(cbElementsColumnsStateKey, JSON.stringify(state));
+            } catch (e) {
+                // ignore storage failures
+            }
+        };
+
+        var updateCountLabel = function(state) {
+            var visibleCount = Object.keys(defaultState).filter(function(key) {
+                return state[key] !== false;
+            }).length;
+
+            countLabel.textContent = visibleCount + '/' + totalCount + ' ' + cbElementsColumnsLabel;
+        };
+
+        var applyState = function(state) {
+            Object.keys(defaultState).forEach(function(key) {
+                var visible = state[key] !== false;
+
+                document.querySelectorAll('[data-cb-col="' + key + '"]').forEach(function(cell) {
+                    cell.classList.toggle('cb-elements-col-hidden', !visible);
+                });
+            });
+
+            checkboxes.forEach(function(input) {
+                var key = String(input.value || '');
+                input.checked = state[key] !== false;
+            });
+
+            updateCountLabel(state);
+        };
+
+        var state = readState();
+        applyState(state);
+
+        checkboxes.forEach(function(input) {
+            input.addEventListener('change', function() {
+                var key = String(input.value || '');
+                var visibleCount = checkboxes.filter(function(item) {
+                    return item !== input && item.checked;
+                }).length;
+
+                if (!input.checked && visibleCount === 0) {
+                    input.checked = true;
+                    return;
+                }
+
+                state[key] = input.checked;
+                writeState(state);
+                applyState(state);
+            });
+        });
+
+        if (resetButton) {
+            resetButton.addEventListener('click', function() {
+                state = Object.assign({}, defaultState);
+                writeState(state);
+                applyState(state);
+            });
+        }
+    });
 
     document.addEventListener('DOMContentLoaded', function() {
         var paginationRoots = document.querySelectorAll('.cb-form-elements-pagination');

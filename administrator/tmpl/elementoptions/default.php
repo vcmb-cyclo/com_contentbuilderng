@@ -871,8 +871,23 @@ $typeIconMap = [
         }
 
         echo HTMLHelper::_('uitab.endTab');
+        echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab1', Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER'));
+        ?>
+        <h3>
+            <?php echo htmlentities($this->element->label, ENT_QUOTES, 'UTF-8'); ?>
+        </h3>
+        <fieldset class="border rounded p-3 mb-3">
+            <legend><?php echo Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER'); ?></legend>
+            <div class="mb-0">
+                <label class="form-label" for="item_wrapper"><?php echo Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER'); ?></label>
+                <textarea class="form-control" name="item_wrapper" id="item_wrapper" rows="8"><?php echo htmlentities($this->element->item_wrapper ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                <div class="form-text"><?php echo Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER_TIP'); ?></div>
+            </div>
+        </fieldset>
+        <?php
+        echo HTMLHelper::_('uitab.endTab');
         if ($this->element->type != 'captcha') {
-            echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab1', Text::_('COM_CONTENTBUILDERNG_ELEMENT_OPTIONS_SCRIPTS'));
+            echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab2', Text::_('COM_CONTENTBUILDERNG_ELEMENT_OPTIONS_SCRIPTS'));
             ?>
             <h3>
                 <?php echo htmlentities($this->element->label, ENT_QUOTES, 'UTF-8'); ?>

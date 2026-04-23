@@ -21,65 +21,101 @@ $item = $displayData['item'] ?? null;
 $sortLink = $displayData['sortLink'] ?? null;
 $textUtilityService = $displayData['textUtilityService'] ?? null;
 $isModifiedElementSettings = $displayData['isModifiedElementSettings'] ?? null;
+$columnOptions = [
+    'id' => Text::_('COM_CONTENTBUILDERNG_ID'),
+    'label' => Text::_('COM_CONTENTBUILDERNG_LABEL'),
+    'list' => Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_LIST'),
+    'search' => Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_SEARCH'),
+    'link' => Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_LINK'),
+    'edit' => Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_EDIT'),
+    'wordwrap' => Text::_('COM_CONTENTBUILDERNG_LIST_WORDWRAP'),
+    'publish' => Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_PUBLISH'),
+    'order' => Text::_('COM_CONTENTBUILDERNG_ORDERBY'),
+];
+$defaultHiddenColumns = ['wordwrap'];
+$visibleColumnCount = count($columnOptions);
 ?>
+<div class="d-flex justify-content-end mb-2">
+    <div class="dropdown cb-elements-columns-dropdown">
+        <button type="button"
+            class="btn btn-primary btn-sm dropdown-toggle"
+            id="cb-elements-columns-toggle"
+            data-bs-toggle="dropdown"
+            data-bs-auto-close="outside"
+            aria-haspopup="true"
+            aria-expanded="false">
+            <span class="cb-elements-columns-count"><?php echo (int) $visibleColumnCount; ?>/<?php echo (int) $visibleColumnCount; ?> <?php echo Text::_('COM_CONTENTBUILDERNG_COLUMNS'); ?></span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end p-2 cb-elements-columns-menu" aria-labelledby="cb-elements-columns-toggle">
+            <?php foreach ($columnOptions as $columnKey => $columnLabel) : ?>
+                <label class="dropdown-item form-check d-flex align-items-center gap-2 mb-0">
+                    <input class="form-check-input mt-0 cb-elements-column-toggle"
+                        type="checkbox"
+                        value="<?php echo htmlspecialchars($columnKey, ENT_QUOTES, 'UTF-8'); ?>"
+                        data-cb-column-toggle="1"
+                        <?php echo in_array($columnKey, $defaultHiddenColumns, true) ? '' : 'checked'; ?>>
+                    <span><?php echo htmlspecialchars($columnLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                </label>
+            <?php endforeach; ?>
+            <div class="dropdown-divider my-2"></div>
+            <button type="button" class="btn btn-link btn-sm px-2 cb-elements-columns-reset" data-cb-columns-reset="1">
+                <?php echo Text::_('COM_CONTENTBUILDERNG_RESET'); ?>
+            </button>
+        </div>
+    </div>
+</div>
 <div class="table-responsive mb-3">
 <table class="table table-striped cb-elements-table">
     <thead>
         <tr>
-            <th id="cb-form-view-elements-heading-id" width="5">
+            <th id="cb-form-view-elements-heading-id" width="5" data-cb-col="id">
                 <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ID'), 'id') : Text::_('COM_CONTENTBUILDERNG_ID'); ?>
             </th>
-            <th id="cb-form-view-elements-heading-checkall" width="20">
+            <th id="cb-form-view-elements-heading-checkall" width="20" data-cb-col="check">
                 <input class="form-check-input" type="checkbox" name="checkall-toggle" value="" onclick="Joomla.checkAll(this);" aria-label="<?php echo htmlspecialchars(Text::_('JGLOBAL_CHECK_ALL'), ENT_QUOTES, 'UTF-8'); ?>">
             </th>
-            <th id="cb-form-view-elements-heading-label">
+            <th id="cb-form-view-elements-heading-label" data-cb-col="label">
                 <span class="editlinktip hasTip"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_LABEL_TIP'); ?>">
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_LABEL'), 'label') : Text::_('COM_CONTENTBUILDERNG_LABEL'); ?>
                 </span>
             </th>
-            <th id="cb-form-view-elements-heading-list-include">
+            <th id="cb-form-view-elements-heading-list-include" data-cb-col="list">
                 <span class="editlinktip hasTip cb-elements-heading-label"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_LIST_INCLUDE_TIP'); ?>">
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_LIST'), 'list_include') : Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_LIST'); ?>
                 </span>
             </th>
-            <th id="cb-form-view-elements-heading-search-include">
+            <th id="cb-form-view-elements-heading-search-include" data-cb-col="search">
                 <span class="editlinktip hasTip cb-elements-heading-label"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_SEARCH_INCLUDE_TIP'); ?>">
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_SEARCH'), 'search_include') : Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_SEARCH'); ?>
                 </span>
             </th>
-            <th id="cb-form-view-elements-heading-linkable">
+            <th id="cb-form-view-elements-heading-linkable" data-cb-col="link">
                 <span class="editlinktip hasTip cb-elements-heading-label"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_LINKABLE_TIP'); ?>">
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_LINK'), 'linkable') : Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_LINK'); ?>
                 </span>
             </th>
-            <th id="cb-form-view-elements-heading-editable">
+            <th id="cb-form-view-elements-heading-editable" data-cb-col="edit">
                 <span class="editlinktip hasTip cb-elements-heading-label"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_EDITABLE_TIP'); ?>">
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_EDIT'), 'editable') : Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_EDIT'); ?>
                 </span>
             </th>
-            <th id="cb-form-view-elements-heading-wordwrap">
+            <th id="cb-form-view-elements-heading-wordwrap" data-cb-col="wordwrap">
                 <span class="editlinktip hasTip"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_LIST_WORDWRAP_TIP'); ?>">
                     <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_WORDWRAP'); ?>
                 </span>
             </th>
-            <th id="cb-form-view-elements-heading-item-wrapper" width="150">
-                <span class="editlinktip hasTip"
-                    title="<?php echo $textUtilityService ? $textUtilityService->allhtmlentities(Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER_TIP')) : Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER_TIP'); ?>">
-                    <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER'); ?>
-                </span>
-            </th>
-            <th id="cb-form-view-elements-heading-published">
+            <th id="cb-form-view-elements-heading-published" data-cb-col="publish">
                 <span class="cb-elements-heading-label">
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_PUBLISH'), 'published') : Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_PUBLISH'); ?>
                 </span>
             </th>
-            <th id="cb-form-view-elements-heading-ordering" width="120" class="cb-order-head">
+            <th id="cb-form-view-elements-heading-ordering" width="120" class="cb-order-head" data-cb-col="order">
                 <?php if (!empty($elements)) : ?>
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ORDERBY'), 'ordering') : Text::_('COM_CONTENTBUILDERNG_ORDERBY'); ?>
                     <?php echo HTMLHelper::_('grid.order', $elements); ?>
@@ -102,13 +138,13 @@ $isModifiedElementSettings = $displayData['isModifiedElementSettings'] ?? null;
             $isModifiedElement = is_callable($isModifiedElementSettings) ? (bool) $isModifiedElementSettings($row) : false;
         ?>
             <tr id="cb-row-<?php echo (int) $row->id; ?>" class="<?php echo 'row' . $k; ?>" data-cb-row-id="<?php echo (int) $row->id; ?>">
-                <td class="align-top">
+                <td class="align-top" data-cb-col="id">
                     <?php echo $row->id; ?>
                 </td>
-                <td class="align-top">
+                <td class="align-top" data-cb-col="check">
                     <?php echo $checked; ?>
                 </td>
-                <td class="align-top">
+                <td class="align-top" data-cb-col="label">
                     <div class="cb-item-label-cell">
                         <div class="cb-item-label-display"
                             id="itemLabels_<?php echo $row->id ?>"
@@ -151,39 +187,34 @@ $isModifiedElementSettings = $displayData['isModifiedElementSettings'] ?? null;
                         </select>
                     </div>
                 </td>
-                <td class="align-top">
+                <td class="align-top" data-cb-col="list">
                     <?php echo $listInclude; ?>
                 </td>
-                <td class="align-top">
+                <td class="align-top" data-cb-col="search">
                     <?php echo $searchInclude; ?>
                 </td>
-                <td class="align-top">
+                <td class="align-top" data-cb-col="link">
                     <?php echo $linkable; ?>
                 </td>
-                <td class="align-top">
+                <td class="align-top" data-cb-col="edit">
                     <?php echo $editable; ?>
                     <?php
-                    if (($row->editable ?? null) && !($item->edit_by_type ?? false)) {
+                    if (!($item->edit_by_type ?? false) && (($row->editable ?? null) || $isModifiedElement)) {
                         $typeBadgeClass = $isModifiedElement ? 'is-modified' : 'is-default';
                         $typeBadgeTitle = $isModifiedElement ? ' title="' . htmlentities('Element settings changed from default', ENT_QUOTES, 'UTF-8') . '"' : '';
                         echo '<div class="mt-1"><a class="cb-item-type-badge ' . $typeBadgeClass . '" href="index.php?option=com_contentbuilderng&amp;view=elementoptions&amp;tmpl=component&amp;element_id=' . $row->id . '&amp;id=' . (int) ($item->id ?? 0) . '" data-bs-toggle="modal" data-bs-target="#text-type-modal"' . $typeBadgeTitle . '>' . ($isModifiedElement ? 'Modified' : 'Default') . '</a></div>';
                     }
                     ?>
                 </td>
-                <td class="align-top">
+                <td class="align-top" data-cb-col="wordwrap">
                     <input class="form-control form-control-sm cb-wordwrap-input" type="text" size="4" maxlength="4" inputmode="numeric" pattern="[0-9]{0,4}" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4);"
                         name="jform[itemWordwrap][<?php echo $row->id ?>]"
                         value="<?php echo htmlentities($row->wordwrap ?? '', ENT_QUOTES, 'UTF-8') ?>" />
                 </td>
-                <td class="align-top">
-                    <input class="form-control form-control-sm w-100 cb-item-wrapper-input" type="text"
-                        name="jform[itemWrapper][<?php echo $row->id ?>]"
-                        value="<?php echo htmlentities($row->item_wrapper ?? '', ENT_QUOTES, 'UTF-8') ?>" />
-                </td>
-                <td class="align-top">
+                <td class="align-top" data-cb-col="publish">
                     <?php echo $published; ?>
                 </td>
-                <td class="order align-top">
+                <td class="order align-top" data-cb-col="order">
                     <?php
                     $orderUp = '';
                     $orderDown = '';
@@ -215,7 +246,7 @@ $isModifiedElementSettings = $displayData['isModifiedElementSettings'] ?? null;
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="11">
+            <td colspan="10">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div class="d-flex flex-wrap align-items-center gap-2">
                         <?php echo $pagination ? $pagination->getPagesCounter() : ''; ?>

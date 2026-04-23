@@ -144,16 +144,22 @@ class FormModel extends AdminModel
             $wrap    = $wordwrap[$elementId] ?? 0;
             $wrap    = max(0, min(9999, (int) $wrap));
             $otype   = $orderTypes[$elementId] ?? '';
-            $wrapper = $itemWrapper[$elementId] ?? '';
             $ord     = isset($order[$elementId]) ? (int) $order[$elementId] : 0;
+
+            $set = [
+                '`order_type` = ' . $db->quote((string) $otype),
+                '`label` = ' . $db->quote((string) $label),
+                '`wordwrap` = ' . (int) $wrap,
+                '`ordering` = ' . (int) $ord,
+            ];
+
+            if (array_key_exists($elementId, $itemWrapper)) {
+                $set[] = '`item_wrapper` = ' . $db->quote(trim((string) $itemWrapper[$elementId]));
+            }
 
             $db->setQuery(
                 "UPDATE #__contentbuilderng_elements
-                 SET `order_type`   = " . $db->quote((string) $otype) . ",
-                     `label`        = " . $db->quote((string) $label) . ",
-                     `wordwrap`     = " . (int) $wrap . ",
-                     `item_wrapper` = " . $db->quote(trim((string) $wrapper)) . ",
-                     `ordering`     = " . (int) $ord . "
+                 SET " . implode(', ', $set) . "
                  WHERE form_id = " . (int) $formId . " AND id = " . (int) $elementId
             );
             $db->execute();

@@ -188,12 +188,14 @@ class ElementoptionsModel extends BaseDatabaseModel
     function store()
     {
         $input = $this->getInput();
+        $itemWrapper = trim((string) $input->post->get('item_wrapper', '', 'raw'));
 
         if ($input->getInt('type_change', 0)) {
             $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->update($db->quoteName('#__contentbuilderng_elements'))
                 ->set($db->quoteName('type') . ' = ' . $db->quote($input->getCmd('type_selection', '')))
+                ->set($db->quoteName('item_wrapper') . ' = ' . $db->quote($itemWrapper))
                 ->where($db->quoteName('id') . ' = ' . (int)$this->_element_id);
             $db->setQuery($query);
             $db->execute();
@@ -527,6 +529,7 @@ class ElementoptionsModel extends BaseDatabaseModel
             $setClauses[] = $db->quoteName('custom_action_script') . ' = ' . $db->quote($custom_action_script);
             $setClauses[] = $db->quoteName('custom_validation_script') . ' = ' . $db->quote($custom_validation_script);
             $setClauses[] = $db->quoteName('validation_message') . ' = ' . $db->quote($validation_message);
+            $setClauses[] = $db->quoteName('item_wrapper') . ' = ' . $db->quote($itemWrapper);
 
             $updateQuery = $db->getQuery(true)
                 ->update($db->quoteName('#__contentbuilderng_elements'))
