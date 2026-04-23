@@ -629,7 +629,28 @@ function cbStorageSubmitbutton(task) {
     }
 
     cbStorageBypassDirtyBeforeUnload();
+    if (task === 'storage.cancel') {
+        cbStorageSubmitCancel(form, task);
+        return;
+    }
+
     Joomla.submitform(task, form);
+}
+
+function cbStorageSubmitCancel(form, task) {
+    if (!form) {
+        return;
+    }
+
+    var taskField = form.querySelector('input[name="task"]');
+    if (taskField) {
+        taskField.value = task;
+    }
+
+    form.setAttribute('novalidate', 'novalidate');
+    form.noValidate = true;
+
+    HTMLFormElement.prototype.submit.call(form);
 }
 
 function cbStorageInitDirtyTracking() {

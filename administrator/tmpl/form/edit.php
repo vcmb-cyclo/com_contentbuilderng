@@ -1166,12 +1166,18 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
         switch (task) {
             case 'form.cancel':
-                cbRefreshDirtyState();
+                try {
+                    cbRefreshDirtyState();
+                } catch (e) {
+                    cbSetDirtyState(false);
+                }
+
                 if (cbDirtyState && !confirm(cbCloseUnsavedMessage)) {
                     return;
                 }
+
                 cbBypassDirtyBeforeUnload();
-                Joomla.submitform(task, form);
+                cbSubmitFormCancel(form, task);
                 break;
             case 'form.publish':
             case 'form.unpublish':
@@ -1230,6 +1236,22 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
                 break;
         }
+    }
+
+    function cbSubmitFormCancel(form, task) {
+        if (!form) {
+            return;
+        }
+
+        var taskField = form.querySelector('input[name="task"]');
+        if (taskField) {
+            taskField.value = task;
+        }
+
+        form.setAttribute('novalidate', 'novalidate');
+        form.noValidate = true;
+
+        HTMLFormElement.prototype.submit.call(form);
     }
 
     function saveorder(n, task) {
