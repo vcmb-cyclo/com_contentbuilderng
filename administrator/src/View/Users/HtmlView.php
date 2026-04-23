@@ -42,7 +42,20 @@ class HtmlView extends BaseHtmlView
         $this->state      = $model->getState();
 
         // Toolbar
-        $formId = Factory::getApplication()->getInput()->getInt('form_id', 0);
+        $input = Factory::getApplication()->getInput();
+        $formId = $input->getInt('form_id', 0);
+        $tmpl = $input->getCmd('tmpl', '');
+
+        if ($this->pagination) {
+            $this->pagination->setAdditionalUrlParam('option', 'com_contentbuilderng');
+            $this->pagination->setAdditionalUrlParam('view', 'users');
+            $this->pagination->setAdditionalUrlParam('form_id', (string) $formId);
+
+            if ($tmpl !== '') {
+                $this->pagination->setAdditionalUrlParam('tmpl', $tmpl);
+            }
+        }
+
         $title = Text::_('COM_CONTENTBUILDERNG') . ' / ';
 
         if ($formId > 0) {

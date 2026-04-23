@@ -54,6 +54,7 @@ $permSectionTitle = static function (string $labelKey, string $iconClass, ?strin
 };
 
 $activePermTab = $session ? $session->get('slideStartOffset', 'permtab1', 'com_contentbuilderng') : 'permtab1';
+$permissionColumnsHiddenByDefault = ['fullarticle', 'language'];
 $frontendTabLabel = '<span class="editlinktip hasTip" title="' . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_PERM_OWN_TIP'), ENT_QUOTES, 'UTF-8') . '">'
     . '<span class="fa-solid fa-globe me-1" aria-hidden="true"></span>'
     . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DISPLAY_FRONTEND'), ENT_QUOTES, 'UTF-8')
@@ -124,7 +125,7 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab1', $frontendTabLabel);
                         $permName = 'jform[own_fe][' . $permKey . ']';
                         $isChecked = !empty($item->config['own_fe'][$permKey]);
                         ?>
-                        <div class="form-check mb-0">
+                        <div class="form-check mb-0" data-cb-perm-own-col="<?php echo htmlspecialchars((string) $permKey, ENT_QUOTES, 'UTF-8'); ?>">
                             <?php echo is_callable($renderCheckbox) ? $renderCheckbox($permName, $permId, $isChecked) : ''; ?>
                             <label class="form-check-label" for="<?php echo $permId; ?>">
                                 <?php
@@ -155,6 +156,40 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab1', $frontendTabLabel);
     </section>
 </div>
 <div class="cb-perm-users-card mb-3">
+    <div class="d-flex justify-content-end mb-2">
+        <div class="dropdown cb-perm-columns-dropdown">
+            <button type="button"
+                class="btn btn-primary btn-sm dropdown-toggle"
+                id="cb-perm-columns-toggle"
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="outside"
+                aria-haspopup="true"
+                aria-expanded="false">
+                <span class="cb-perm-columns-count"><?php echo (int) (count($permissionColumns) - count($permissionColumnsHiddenByDefault)); ?>/<?php echo count($permissionColumns); ?> <?php echo Text::_('COM_CONTENTBUILDERNG_COLUMNS'); ?></span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-2 cb-perm-columns-menu" aria-labelledby="cb-perm-columns-toggle">
+                <?php foreach ($permissionColumns as $permissionColumn) : ?>
+                    <?php
+                    $permKey = (string) ($permissionColumn['key'] ?? '');
+                    $isDefaultVisible = !in_array($permKey, $permissionColumnsHiddenByDefault, true);
+                    ?>
+                    <label class="dropdown-item form-check d-flex align-items-center gap-2 mb-0">
+                        <input class="form-check-input mt-0 cb-perm-column-toggle"
+                            type="checkbox"
+                            value="<?php echo htmlspecialchars($permKey, ENT_QUOTES, 'UTF-8'); ?>"
+                            data-cb-perm-column-toggle="1"
+                            data-cb-default-visible="<?php echo $isDefaultVisible ? '1' : '0'; ?>"
+                            <?php echo $isDefaultVisible ? 'checked' : ''; ?>>
+                        <span><?php echo htmlspecialchars(Text::_($permissionColumn['label']), ENT_QUOTES, 'UTF-8'); ?></span>
+                    </label>
+                <?php endforeach; ?>
+                <div class="dropdown-divider my-2"></div>
+                <button type="button" class="btn btn-link btn-sm px-2 cb-perm-columns-reset" data-cb-perm-columns-reset="1">
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_RESET'); ?>
+                </button>
+            </div>
+        </div>
+    </div>
     <div class="table-responsive">
 <table id="cb-form-permissions-frontend-groups" class="table table-striped align-middle mb-0">
     <thead>
@@ -163,7 +198,7 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab1', $frontendTabLabel);
                 <?php echo $groupHeaderLabel; ?>
             </th>
             <?php foreach ($permissionColumns as $permissionColumn) : ?>
-                <th>
+                <th data-cb-perm-col="<?php echo htmlspecialchars((string) $permissionColumn['key'], ENT_QUOTES, 'UTF-8'); ?>">
                     <?php echo is_callable($permHeaderLabel) ? $permHeaderLabel($permissionColumn['label'], $permissionColumn['tip']) : Text::_($permissionColumn['label']); ?>
                 </th>
             <?php endforeach; ?>
@@ -176,7 +211,7 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab1', $frontendTabLabel);
             $permKey = $permissionColumn['key'];
             $permId = 'perms_fe_select_' . $permKey;
             ?>
-            <td class="bg-body-tertiary">
+            <td class="bg-body-tertiary" data-cb-perm-col="<?php echo htmlspecialchars((string) $permKey, ENT_QUOTES, 'UTF-8'); ?>">
                 <?php echo is_callable($renderCheckbox) ? $renderCheckbox('', $permId, false, $permKey, ['onclick' => "contentbuilderng_selectAll(this,'fe')"]) : ''; ?>
             </td>
         <?php endforeach; ?>
@@ -244,7 +279,7 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab1', $frontendTabLabel);
                 $tdClass = '';
                 $tdTitle = '';
 
-                echo '<td' . $tdClass . $tdTitle . '>'
+                echo '<td data-cb-perm-col="' . htmlspecialchars((string) $permKey, ENT_QUOTES, 'UTF-8') . '"' . $tdClass . $tdTitle . '>'
                     . (is_callable($renderCheckbox)
                         ? $renderCheckbox($permName, $permId, $isChecked, '1', [
                             'data-cb-perm-matrix' => '1',

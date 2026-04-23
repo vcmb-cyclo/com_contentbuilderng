@@ -29,6 +29,15 @@ $search    = $this->state->get('filter.search');
 $input     = $app->getInput();
 $formId    = (int) $input->getInt('form_id', 0);
 $tmpl      = $input->getWord('tmpl', '');
+$userColumns = [
+    'id' => 'ID',
+    'name' => Text::_('COM_CONTENTBUILDERNG_FIELD_NAME'),
+    'username' => Text::_('JGLOBAL_USERNAME'),
+    'verified_view' => Text::_('COM_CONTENTBUILDERNG_VERIFIED_VIEW'),
+    'verified_new' => Text::_('COM_CONTENTBUILDERNG_VERIFIED_NEW'),
+    'verified_edit' => Text::_('COM_CONTENTBUILDERNG_VERIFIED_EDIT'),
+    'published' => Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'),
+];
 
 $sortLink = function (string $label, string $field) use ($ordering, $direction, $formId, $tmpl): string {
     $isActive = ($ordering === $field);
@@ -49,6 +58,31 @@ $sortLink = function (string $label, string $field) use ($ordering, $direction, 
 };
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm">
+    <style>
+        .cb-users-columns-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            margin: 0 0 1rem;
+        }
+
+        .cb-users-columns-menu {
+            min-width: 16rem;
+            max-width: min(24rem, 90vw);
+        }
+
+        .cb-users-columns-menu .dropdown-item {
+            padding: .35rem .5rem;
+            white-space: normal;
+        }
+
+        .cb-users-col-hidden {
+            display: none !important;
+        }
+
+        .cb-users-columns-pending {
+            visibility: hidden;
+        }
+    </style>
 
     <input class="form-control form-control-sm w-25"
         type="text"
@@ -110,32 +144,63 @@ $sortLink = function (string $label, string $field) use ($ordering, $direction, 
 
     <div style="clear:both;"></div>
 
-    <div id="editcell">
+    <div class="cb-users-columns-toolbar cb-users-columns-pending">
+        <div class="dropdown">
+            <button
+                type="button"
+                class="btn btn-primary btn-sm dropdown-toggle"
+                id="cb-users-columns-toggle"
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="outside"
+                aria-expanded="false">
+                <span class="cb-users-columns-count"><?php echo count($userColumns); ?>/<?php echo count($userColumns); ?> <?php echo Text::_('COM_CONTENTBUILDERNG_COLUMNS'); ?></span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-2 cb-users-columns-menu" aria-labelledby="cb-users-columns-toggle">
+                <?php foreach ($userColumns as $columnName => $columnLabel): ?>
+                    <label class="dropdown-item d-flex align-items-start gap-2 mb-1">
+                        <input
+                            class="form-check-input mt-1"
+                            type="checkbox"
+                            value="1"
+                            checked
+                            data-cb-user-col-toggle="<?php echo htmlspecialchars($columnName, ENT_QUOTES, 'UTF-8'); ?>">
+                        <span><?php echo htmlspecialchars($columnLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                    </label>
+                <?php endforeach; ?>
+                <div class="dropdown-divider my-1"></div>
+                <button type="button" class="btn btn-link btn-sm px-2 cb-users-columns-reset" data-cb-users-columns-reset="1">
+                    <?php echo Text::_('COM_CONTENTBUILDERNG_RESET'); ?>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editcell" class="cb-users-columns-pending">
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th width="5">
+                    <th width="5" data-cb-user-col="id">
                         <?php echo $sortLink('ID', 'u.id'); ?>
                     </th>
                     <th width="20">
                         <input class="form-check-input" type="checkbox" name="checkall-toggle" value="" onclick="Joomla.checkAll(this);" aria-label="<?php echo htmlspecialchars(Text::_('JGLOBAL_CHECK_ALL'), ENT_QUOTES, 'UTF-8'); ?>">
                     </th>
-                    <th>
+                    <th data-cb-user-col="name">
                         <?php echo $sortLink('Name', 'u.name'); ?>
                     </th>
-                    <th>
+                    <th data-cb-user-col="username">
                         <?php echo $sortLink('Username', 'u.username'); ?>
                     </th>
-                    <th>
+                    <th data-cb-user-col="verified_view">
                         <?php echo $sortLink(Text::_('COM_CONTENTBUILDERNG_VERIFIED_VIEW'), 'a.verified_view'); ?>
                     </th>
-                    <th>
+                    <th data-cb-user-col="verified_new">
                         <?php echo $sortLink(Text::_('COM_CONTENTBUILDERNG_VERIFIED_NEW'), 'a.verified_new'); ?>
                     </th>
-                    <th>
+                    <th data-cb-user-col="verified_edit">
                         <?php echo $sortLink(Text::_('COM_CONTENTBUILDERNG_VERIFIED_EDIT'), 'a.verified_edit'); ?>
                     </th>
-                    <th width="5">
+                    <th width="5" data-cb-user-col="published">
                         <?php echo $sortLink(Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'), 'a.published'); ?>
                     </th>
                 </tr>
@@ -154,32 +219,32 @@ $sortLink = function (string $label, string $field) use ($ordering, $direction, 
                     $verified_edit = ContentbuilderngHelper::listVerifiedEdit('users', $item, $i);
                 ?>
                     <tr>
-                        <td>
+                        <td data-cb-user-col="id">
                             <?php echo (int) $item->id; ?>
                         </td>
                         <td>
                             <?php echo $checked; ?>
                         </td>
-                        <td>
+                        <td data-cb-user-col="name">
                             <a href="<?php echo $link; ?>">
                                 <?php echo htmlspecialchars($item->name, ENT_QUOTES, 'UTF-8'); ?>
                             </a>
                         </td>
-                        <td>
+                        <td data-cb-user-col="username">
                             <a href="<?php echo $link; ?>">
                                 <?php echo htmlspecialchars($item->username, ENT_QUOTES, 'UTF-8'); ?>
                             </a>
                         </td>
-                        <td>
+                        <td data-cb-user-col="verified_view">
                             <?php echo $verified_view; ?>
                         </td>
-                        <td>
+                        <td data-cb-user-col="verified_new">
                             <?php echo $verified_new; ?>
                         </td>
-                        <td>
+                        <td data-cb-user-col="verified_edit">
                             <?php echo $verified_edit; ?>
                         </td>
-                        <td>
+                        <td data-cb-user-col="published">
                             <?php echo $published; ?>
                         </td>
                     </tr>
@@ -215,6 +280,8 @@ $sortLink = function (string $label, string $field) use ($ordering, $direction, 
     var cbUsersForm = document.getElementById('adminForm') || document.adminForm;
     var cbUsersBulkStatus = document.getElementById('cb-users-bulk-status');
     var cbUsersBulkVerify = document.getElementById('cb-users-bulk-verify');
+    var cbUsersColumnsStateKey = 'cbng.users.columns.' + <?php echo (int) $formId; ?>;
+    var cbUsersColumnsLabel = <?php echo json_encode(Text::_('COM_CONTENTBUILDERNG_COLUMNS'), JSON_UNESCAPED_UNICODE); ?>;
     var cbUsersTaskMeta = {
         'users.publish': { nextTask: 'users.unpublish', enabled: true },
         'users.unpublish': { nextTask: 'users.publish', enabled: false },
@@ -225,6 +292,103 @@ $sortLink = function (string $label, string $field) use ($ordering, $direction, 
         'users.verified_edit': { nextTask: 'users.not_verified_edit', enabled: true },
         'users.not_verified_edit': { nextTask: 'users.verified_edit', enabled: false }
     };
+
+    function cbUsersLoadColumnsState(defaultState) {
+        try {
+            var storedState = window.localStorage.getItem(cbUsersColumnsStateKey);
+            if (!storedState) {
+                return defaultState;
+            }
+
+            var parsedState = JSON.parse(storedState);
+            return Object.assign({}, defaultState, parsedState || {});
+        } catch (error) {
+            return defaultState;
+        }
+    }
+
+    function cbUsersSaveColumnsState(state) {
+        try {
+            window.localStorage.setItem(cbUsersColumnsStateKey, JSON.stringify(state));
+        } catch (error) {
+        }
+    }
+
+    function cbUsersInitColumnPicker() {
+        var toggleButton = document.getElementById('cb-users-columns-toggle');
+        var menu = document.querySelector('.cb-users-columns-menu');
+        var countLabel = toggleButton ? toggleButton.querySelector('.cb-users-columns-count') : null;
+        var resetButton = menu ? menu.querySelector('.cb-users-columns-reset[data-cb-users-columns-reset="1"]') : null;
+
+        if (!toggleButton || !menu || !countLabel) {
+            document.querySelectorAll('.cb-users-columns-pending').forEach(function (node) {
+                node.classList.remove('cb-users-columns-pending');
+            });
+            return;
+        }
+
+        var toggles = Array.prototype.slice.call(menu.querySelectorAll('input[data-cb-user-col-toggle]'));
+        var defaultState = {};
+
+        toggles.forEach(function (toggle) {
+            defaultState[String(toggle.getAttribute('data-cb-user-col-toggle') || '')] = true;
+        });
+
+        var state = cbUsersLoadColumnsState(defaultState);
+
+        function applyState() {
+            var visibleCount = 0;
+            var lastVisibleKey = null;
+
+            toggles.forEach(function (toggle) {
+                var key = String(toggle.getAttribute('data-cb-user-col-toggle') || '');
+                var isVisible = state[key] !== false;
+
+                toggle.checked = isVisible;
+                toggle.disabled = false;
+
+                document.querySelectorAll('[data-cb-user-col="' + key + '"]').forEach(function (cell) {
+                    cell.classList.toggle('cb-users-col-hidden', !isVisible);
+                });
+
+                if (isVisible) {
+                    visibleCount++;
+                    lastVisibleKey = key;
+                }
+            });
+
+            if (visibleCount <= 1 && lastVisibleKey !== null) {
+                var lastVisibleToggle = menu.querySelector('[data-cb-user-col-toggle="' + lastVisibleKey + '"]');
+                if (lastVisibleToggle) {
+                    lastVisibleToggle.disabled = true;
+                }
+            }
+
+            countLabel.textContent = visibleCount + '/' + toggles.length + ' ' + cbUsersColumnsLabel;
+            cbUsersSaveColumnsState(state);
+
+            document.querySelectorAll('.cb-users-columns-pending').forEach(function (node) {
+                node.classList.remove('cb-users-columns-pending');
+            });
+        }
+
+        toggles.forEach(function (toggle) {
+            toggle.addEventListener('change', function () {
+                var key = String(toggle.getAttribute('data-cb-user-col-toggle') || '');
+                state[key] = !!toggle.checked;
+                applyState();
+            });
+        });
+
+        if (resetButton) {
+            resetButton.addEventListener('click', function () {
+                state = Object.assign({}, defaultState);
+                applyState();
+            });
+        }
+
+        applyState();
+    }
 
     function cbUsersUpdateBulkSelectState() {
         if (!cbUsersForm) {
@@ -544,5 +708,6 @@ $sortLink = function (string $label, string $field) use ($ordering, $direction, 
     }
 
     cbUsersUpdateBulkSelectState();
+    cbUsersInitColumnPicker();
 })();
 </script>

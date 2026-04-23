@@ -35,7 +35,7 @@ $columnOptions = [
 $defaultHiddenColumns = ['wordwrap'];
 $visibleColumnCount = count($columnOptions);
 ?>
-<div class="d-flex justify-content-end mb-2">
+<div class="d-flex justify-content-end mb-2 cb-elements-columns-pending">
     <div class="dropdown cb-elements-columns-dropdown">
         <button type="button"
             class="btn btn-primary btn-sm dropdown-toggle"
@@ -64,7 +64,7 @@ $visibleColumnCount = count($columnOptions);
         </div>
     </div>
 </div>
-<div class="table-responsive mb-3">
+<div class="table-responsive mb-3 cb-elements-columns-pending">
 <table class="table table-striped cb-elements-table">
     <thead>
         <tr>

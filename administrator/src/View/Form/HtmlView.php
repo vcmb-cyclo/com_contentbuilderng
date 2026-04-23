@@ -107,6 +107,13 @@ class HtmlView extends BaseHtmlView
                 $this->all_elements = $elementsModel->getAllElements($formId) ?? [];
                 $this->pagination = $elementsModel->getPagination();
                 $this->state      = $elementsModel->getState();
+
+                if ($this->pagination) {
+                    $this->pagination->setAdditionalUrlParam('option', 'com_contentbuilderng');
+                    $this->pagination->setAdditionalUrlParam('view', 'form');
+                    $this->pagination->setAdditionalUrlParam('layout', 'edit');
+                    $this->pagination->setAdditionalUrlParam('id', (string) $formId);
+                }
             }
         } catch (\Throwable $e) {
             $app->enqueueMessage(

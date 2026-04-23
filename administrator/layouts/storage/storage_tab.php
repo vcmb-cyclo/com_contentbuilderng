@@ -26,6 +26,13 @@ $fields = is_iterable($displayData['fields'] ?? null) ? $displayData['fields'] :
 $fieldsCount = (int) ($displayData['fieldsCount'] ?? 0);
 $pagination = $displayData['pagination'] ?? null;
 $ordering = !empty($displayData['ordering']);
+$storageFieldColumns = [
+    'name' => Text::_('COM_CONTENTBUILDERNG_NAME'),
+    'title' => Text::_('COM_CONTENTBUILDERNG_LIST_STATES_TITLE'),
+    'group' => Text::_('COM_CONTENTBUILDERNG_STORAGE_GROUP'),
+    'order' => Text::_('COM_CONTENTBUILDERNG_ORDERBY'),
+    'publish' => Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'),
+];
 ?>
 <table width="100%">
     <tr>
@@ -333,25 +340,54 @@ Label 3;value3</textarea>
         </td>
 
         <td class="align-top">
+            <div class="d-flex justify-content-end m-3 mb-2">
+                <div class="dropdown cb-storage-columns-dropdown">
+                    <button type="button"
+                        class="btn btn-primary btn-sm dropdown-toggle"
+                        id="cb-storage-columns-toggle"
+                        data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                        <span class="cb-storage-columns-count"><?php echo count($storageFieldColumns); ?>/<?php echo count($storageFieldColumns); ?> <?php echo Text::_('COM_CONTENTBUILDERNG_COLUMNS'); ?></span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end p-2 cb-storage-columns-menu" aria-labelledby="cb-storage-columns-toggle">
+                        <?php foreach ($storageFieldColumns as $columnKey => $columnLabel) : ?>
+                            <label class="dropdown-item form-check d-flex align-items-center gap-2 mb-0">
+                                <input class="form-check-input mt-0 cb-storage-column-toggle"
+                                    type="checkbox"
+                                    value="<?php echo htmlspecialchars($columnKey, ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-cb-storage-column-toggle="1"
+                                    checked>
+                                <span><?php echo htmlspecialchars($columnLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                        <div class="dropdown-divider my-2"></div>
+                        <button type="button" class="btn btn-link btn-sm px-2 cb-storage-columns-reset" data-cb-storage-columns-reset="1">
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_RESET'); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
             <table class="table table-striped m-3 cb-storage-fields-table">
                 <thead>
                     <tr>
-                        <th width="20">
+                        <th width="20" data-cb-storage-col="check">
                             <input class="form-check-input" type="checkbox" name="checkall-toggle" value="" onclick="Joomla.checkAll(this);" aria-label="<?php echo htmlspecialchars(Text::_('JGLOBAL_CHECK_ALL'), ENT_QUOTES, 'UTF-8'); ?>">
                         </th>
-                        <th>
+                        <th data-cb-storage-col="name">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_NAME'), 'name') : Text::_('COM_CONTENTBUILDERNG_NAME'); ?>
                         </th>
-                        <th>
+                        <th data-cb-storage-col="title">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_LIST_STATES_TITLE'), 'title') : Text::_('COM_CONTENTBUILDERNG_LIST_STATES_TITLE'); ?>
                         </th>
-                        <th>
+                        <th data-cb-storage-col="group">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_STORAGE_GROUP'), 'group_definition') : Text::_('COM_CONTENTBUILDERNG_STORAGE_GROUP'); ?>
                         </th>
-                        <th class="cb-order-col">
+                        <th class="cb-order-col" data-cb-storage-col="order">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ORDERBY'), 'ordering') : Text::_('COM_CONTENTBUILDERNG_ORDERBY'); ?>
                         </th>
-                        <th>
+                        <th data-cb-storage-col="publish">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'), 'published') : Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'); ?>
                         </th>
                     </tr>
@@ -367,10 +403,10 @@ Label 3;value3</textarea>
                     $published = ContentbuilderngHelper::listPublish('storage', $row, $i);
                 ?>
                     <tr class="row<?php echo $i % 2; ?>" data-cb-row-id="<?php echo $id; ?>">
-                        <td class="text-center"><?php echo $checked; ?></td>
-                        <td><?php echo $name; ?></td>
-                        <td><?php echo $title; ?></td>
-                        <td>
+                        <td class="text-center" data-cb-storage-col="check"><?php echo $checked; ?></td>
+                        <td data-cb-storage-col="name"><?php echo $name; ?></td>
+                        <td data-cb-storage-col="title"><?php echo $title; ?></td>
+                        <td data-cb-storage-col="group">
                             <input type="hidden" name="itemNames[<?php echo $id; ?>]" value="<?php echo $name; ?>" />
                             <input type="hidden" name="itemTitles[<?php echo $id; ?>]" value="<?php echo $title; ?>" />
 
@@ -404,7 +440,7 @@ Label 3;value3</textarea>
                                 style="display:none; width:100%; height:50px;"
                                 name="itemGroupDefinitions[<?php echo $id; ?>]"><?php echo $groupDefinition; ?></textarea>
                         </td>
-                        <td class="order cb-order-col">
+                        <td class="order cb-order-col" data-cb-storage-col="order">
                             <?php if ($ordering) : ?>
                                 <span class="cb-order-icons">
                                     <span>
@@ -416,7 +452,7 @@ Label 3;value3</textarea>
                                 </span>
                             <?php endif; ?>
                         </td>
-                        <td class="text-center"><?php echo $published; ?></td>
+                        <td class="text-center" data-cb-storage-col="publish"><?php echo $published; ?></td>
                     </tr>
                 <?php endforeach; ?>
 

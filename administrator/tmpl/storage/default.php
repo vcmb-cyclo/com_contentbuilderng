@@ -99,6 +99,9 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 $wa = $app->getDocument()->getWebAssetManager();
 $wa->addInlineStyle(
     '.cb-storage-fields-table{width:100%;min-width:620px;table-layout:auto}'
+    . '.cb-storage-columns-menu{min-width:14rem;max-width:min(22rem,90vw)}'
+    . '.cb-storage-columns-menu .dropdown-item{padding:.35rem .5rem;white-space:normal}'
+    . '.cb-storage-col-hidden{display:none!important}'
     . '.cb-storage-fields-table .cb-order-col{width:84px;min-width:84px;text-align:right;white-space:nowrap}'
     . '.cb-storage-fields-table .cb-order-icons{display:inline-flex;justify-content:flex-end;gap:.5rem;width:100%}'
     . '.cb-storage-fields-table .cb-order-icons>span{display:inline-flex}'
@@ -160,6 +163,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 const cbSaveAnimationDurationMs = 500;
+const cbStorageColumnsStateKey = 'cbng.storage.columns.<?php echo (int) ($this->item->id ?? 0); ?>';
+const cbStorageColumnsLabel = <?php echo json_encode(Text::_('COM_CONTENTBUILDERNG_COLUMNS'), JSON_UNESCAPED_UNICODE); ?>;
 const cbPublishedTitle = <?php echo json_encode(Text::_('JPUBLISHED'), JSON_UNESCAPED_UNICODE); ?>;
 const cbUnpublishedTitle = <?php echo json_encode(Text::_('JUNPUBLISHED'), JSON_UNESCAPED_UNICODE); ?>;
 const cbCloseUnsavedMessage = <?php echo json_encode(Text::_('COM_CONTENTBUILDERNG_CONFIRM_CLOSE_UNSAVED'), JSON_UNESCAPED_UNICODE); ?>;
@@ -681,6 +686,105 @@ if (typeof Joomla !== 'undefined') {
     Joomla.submitbutton = cbStorageSubmitbutton;
 }
 
+function cbStorageInitColumnPicker() {
+    var toggleButton = document.getElementById('cb-storage-columns-toggle');
+    var menu = document.querySelector('.cb-storage-columns-menu');
+    var countLabel = toggleButton ? toggleButton.querySelector('.cb-storage-columns-count') : null;
+    var checkboxes = Array.from(document.querySelectorAll('.cb-storage-column-toggle[data-cb-storage-column-toggle="1"]'));
+    var resetButton = menu ? menu.querySelector('.cb-storage-columns-reset[data-cb-storage-columns-reset="1"]') : null;
+
+    if (!toggleButton || !menu || !countLabel || !checkboxes.length) {
+        return;
+    }
+
+    var defaultState = {};
+    checkboxes.forEach(function(input) {
+        defaultState[String(input.value || '')] = true;
+    });
+
+    var totalCount = checkboxes.length;
+
+    var readState = function() {
+        try {
+            var raw = window.localStorage.getItem(cbStorageColumnsStateKey);
+            if (!raw) {
+                return Object.assign({}, defaultState);
+            }
+
+            var parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== 'object') {
+                return Object.assign({}, defaultState);
+            }
+
+            return Object.assign({}, defaultState, parsed);
+        } catch (e) {
+            return Object.assign({}, defaultState);
+        }
+    };
+
+    var writeState = function(state) {
+        try {
+            window.localStorage.setItem(cbStorageColumnsStateKey, JSON.stringify(state));
+        } catch (e) {
+            // ignore storage failures
+        }
+    };
+
+    var updateCountLabel = function(state) {
+        var visibleCount = Object.keys(defaultState).filter(function(key) {
+            return state[key] !== false;
+        }).length;
+
+        countLabel.textContent = visibleCount + '/' + totalCount + ' ' + cbStorageColumnsLabel;
+    };
+
+    var applyState = function(state) {
+        Object.keys(defaultState).forEach(function(key) {
+            var visible = state[key] !== false;
+
+            document.querySelectorAll('[data-cb-storage-col="' + key + '"]').forEach(function(cell) {
+                cell.classList.toggle('cb-storage-col-hidden', !visible);
+            });
+        });
+
+        checkboxes.forEach(function(input) {
+            var key = String(input.value || '');
+            input.checked = state[key] !== false;
+        });
+
+        updateCountLabel(state);
+    };
+
+    var state = readState();
+    applyState(state);
+
+    checkboxes.forEach(function(input) {
+        input.addEventListener('change', function() {
+            var key = String(input.value || '');
+            var visibleCount = checkboxes.filter(function(item) {
+                return item !== input && item.checked;
+            }).length;
+
+            if (!input.checked && visibleCount === 0) {
+                input.checked = true;
+                return;
+            }
+
+            state[key] = input.checked;
+            writeState(state);
+            applyState(state);
+        });
+    });
+
+    if (resetButton) {
+        resetButton.addEventListener('click', function() {
+            state = Object.assign({}, defaultState);
+            writeState(state);
+            applyState(state);
+        });
+    }
+}
+
 function toggleCsvUploadOptions() {
     var panel = document.getElementById('csvUpload');
     if (!panel) return false;
@@ -762,6 +866,7 @@ function initStorageUi() {
 
     initStorageTooltips();
     cbStorageInitDirtyTracking();
+    cbStorageInitColumnPicker();
     initStorageAjaxToggles();
     initStorageTabTooltips();
     if (adminUi && typeof adminUi.persistJoomlaTabset === 'function') {
