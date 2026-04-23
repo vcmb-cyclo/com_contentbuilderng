@@ -773,11 +773,11 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         });
 
         if (cbSaveButtonTimer) {
-            clearTimeout(cbSaveButtonTimer);
+            window.clearTimeout(cbSaveButtonTimer);
             cbSaveButtonTimer = null;
         }
 
-        cbSaveButtonTimer = setTimeout(function() {
+        cbSaveButtonTimer = window.setTimeout(function() {
             targets.forEach(function(el) {
                 el.classList.remove('cb-save-animate');
                 if (el.parentElement && el.parentElement.classList) {
@@ -792,7 +792,6 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     }
 
     function cbDismissTransientTooltips() {
-        // Hide Bootstrap tooltips that may remain visible after intercepted AJAX clicks.
         if (window.bootstrap && typeof window.bootstrap.Tooltip === 'function') {
             document.querySelectorAll('[data-bs-toggle="tooltip"], .hasTip, .editlinktip, .js-grid-item-action').forEach(function(el) {
                 var instance = window.bootstrap.Tooltip.getInstance(el);
@@ -802,7 +801,6 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
             });
         }
 
-        // Defensive cleanup for any visible tooltip containers left in the DOM.
         document.querySelectorAll('.tooltip.show').forEach(function(el) {
             el.classList.remove('show');
             el.setAttribute('aria-hidden', 'true');
@@ -2053,8 +2051,8 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         }
     }
 
-    var cbColorisConfigured = false;
-    var cbColorisInitRetries = 0;
+    let cbColorisConfigured = false;
+    let cbColorisInitRetries = 0;
 
     function cbInitColoris() {
         if (cbColorisConfigured) {
@@ -2124,13 +2122,14 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     window.setTimeout(cbInitColoris, 300);
     window.setTimeout(cbInitColoris, 1200);
 
-    var cbDirtyState = false;
-    var cbDirtySnapshot = '';
-    var cbEditorObserver = null;
-    var cbEditorPollHandle = null;
-    var cbDirtyTrackingInitialized = false;
-    var cbDirtyUserInteracted = false;
-    var cbDirtyBypassBeforeUnload = false;
+    let cbDirtyState = false;
+    let cbDirtySnapshot = '';
+    let cbEditorObserver = null;
+    let cbEditorPollHandle = null;
+    let cbDirtyTrackingInitialized = false;
+    let cbDirtyUserInteracted = false;
+    let cbDirtyBypassBeforeUnload = false;
+    let cbSaveButtonsCache = null;
 
     function cbShouldIgnoreDirtyField(field) {
         if (!field) {
@@ -2453,6 +2452,10 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     }
 
     function cbGetSaveButtons() {
+        if (cbSaveButtonsCache) {
+            return cbSaveButtonsCache;
+        }
+
         var tasks = ['form.apply', 'form.save', 'form.save2new'];
         var hostIds = ['save-group-children-apply', 'save-group-children-save', 'save-group-children-save2new'];
         var classNames = ['button-apply', 'button-save', 'button-save-new'];
@@ -2533,6 +2536,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
             });
         });
 
+        cbSaveButtonsCache = targets;
         return targets;
     }
 
@@ -2565,10 +2569,8 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         cbSetDirtyState(false);
     }
 
-    function cbHandleDirtyInteraction() {
-        var target = arguments.length > 0 ? arguments[0] : null;
-
-        if (target && target.target && cbShouldIgnoreDirtyField(target.target)) {
+    function cbHandleDirtyInteraction(event) {
+        if (event && event.target && cbShouldIgnoreDirtyField(event.target)) {
             return;
         }
 
@@ -2683,43 +2685,33 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
     document.addEventListener('DOMContentLoaded', cbInitDirtyTracking);
 
-    document.addEventListener('DOMContentLoaded', function() {
-        var toggleButton = document.getElementById('cb-elements-columns-toggle');
-        var menu = document.querySelector('.cb-elements-columns-menu');
-        var countLabel = toggleButton ? toggleButton.querySelector('.cb-elements-columns-count') : null;
-        var checkboxes = Array.from(document.querySelectorAll('.cb-elements-column-toggle[data-cb-column-toggle="1"]'));
-        var resetButton = menu ? menu.querySelector('.cb-elements-columns-reset[data-cb-columns-reset="1"]') : null;
-        var pendingNodes = Array.from(document.querySelectorAll('.cb-elements-columns-pending'));
+    function cbInitColumnToggle(config) {
+        var toggleButton = document.getElementById(config.toggleId);
+        var menu = document.querySelector(config.menuSel);
+        var countLabel = toggleButton ? toggleButton.querySelector(config.countSel) : null;
+        var checkboxes = Array.from(document.querySelectorAll(config.checkboxSel));
+        var resetButton = menu ? menu.querySelector(config.resetSel) : null;
+        var pendingNodes = config.pendingClass
+            ? Array.from(document.querySelectorAll('.' + config.pendingClass)) : [];
 
         if (!toggleButton || !menu || !countLabel || !checkboxes.length) {
-            pendingNodes.forEach(function(node) {
-                node.classList.remove('cb-elements-columns-pending');
-            });
+            pendingNodes.forEach(function(node) { node.classList.remove(config.pendingClass); });
             return;
         }
 
+        var defaultState = config.buildDefaultState(checkboxes);
         var totalCount = checkboxes.length;
-        var defaultState = Object.assign({}, cbElementsColumnsDefaultState);
-
-        checkboxes.forEach(function(input) {
-            var key = String(input.value || '');
-            if (!Object.prototype.hasOwnProperty.call(defaultState, key)) {
-                defaultState[key] = true;
-            }
-        });
 
         var readState = function() {
             try {
-                var raw = window.localStorage.getItem(cbElementsColumnsStateKey);
+                var raw = window.localStorage.getItem(config.storageKey);
                 if (!raw) {
                     return Object.assign({}, defaultState);
                 }
-
                 var parsed = JSON.parse(raw);
                 if (!parsed || typeof parsed !== 'object') {
                     return Object.assign({}, defaultState);
                 }
-
                 return Object.assign({}, defaultState, parsed);
             } catch (e) {
                 return Object.assign({}, defaultState);
@@ -2728,7 +2720,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
         var writeState = function(state) {
             try {
-                window.localStorage.setItem(cbElementsColumnsStateKey, JSON.stringify(state));
+                window.localStorage.setItem(config.storageKey, JSON.stringify(state));
             } catch (e) {
                 // ignore storage failures
             }
@@ -2738,22 +2730,19 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
             var visibleCount = Object.keys(defaultState).filter(function(key) {
                 return state[key] !== false;
             }).length;
-
             countLabel.textContent = visibleCount + '/' + totalCount + ' ' + cbElementsColumnsLabel;
         };
 
         var applyState = function(state) {
             Object.keys(defaultState).forEach(function(key) {
                 var visible = state[key] !== false;
-
-                document.querySelectorAll('[data-cb-col="' + key + '"]').forEach(function(cell) {
-                    cell.classList.toggle('cb-elements-col-hidden', !visible);
+                document.querySelectorAll('[' + config.colAttr + '="' + key + '"]').forEach(function(cell) {
+                    cell.classList.toggle(config.hiddenClass, !visible);
                 });
             });
 
             checkboxes.forEach(function(input) {
-                var key = String(input.value || '');
-                input.checked = state[key] !== false;
+                input.checked = state[String(input.value || '')] !== false;
             });
 
             updateCountLabel(state);
@@ -2761,9 +2750,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
         var state = readState();
         applyState(state);
-        pendingNodes.forEach(function(node) {
-            node.classList.remove('cb-elements-columns-pending');
-        });
+        pendingNodes.forEach(function(node) { node.classList.remove(config.pendingClass); });
 
         checkboxes.forEach(function(input) {
             input.addEventListener('change', function() {
@@ -2790,105 +2777,49 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                 applyState(state);
             });
         }
-    });
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
-        var toggleButton = document.getElementById('cb-perm-columns-toggle');
-        var menu = document.querySelector('.cb-perm-columns-menu');
-        var countLabel = toggleButton ? toggleButton.querySelector('.cb-perm-columns-count') : null;
-        var checkboxes = Array.from(document.querySelectorAll('.cb-perm-column-toggle[data-cb-perm-column-toggle="1"]'));
-        var resetButton = menu ? menu.querySelector('.cb-perm-columns-reset[data-cb-perm-columns-reset="1"]') : null;
-
-        if (!toggleButton || !menu || !countLabel || !checkboxes.length) {
-            return;
-        }
-
-        var defaultState = {};
-        checkboxes.forEach(function(input) {
-            defaultState[String(input.value || '')] = input.getAttribute('data-cb-default-visible') !== '0';
-        });
-
-        var totalCount = checkboxes.length;
-
-        var readState = function() {
-            try {
-                var raw = window.localStorage.getItem(cbPermissionsColumnsStateKey);
-                if (!raw) {
-                    return Object.assign({}, defaultState);
-                }
-
-                var parsed = JSON.parse(raw);
-                if (!parsed || typeof parsed !== 'object') {
-                    return Object.assign({}, defaultState);
-                }
-
-                return Object.assign({}, defaultState, parsed);
-            } catch (e) {
-                return Object.assign({}, defaultState);
-            }
-        };
-
-        var writeState = function(state) {
-            try {
-                window.localStorage.setItem(cbPermissionsColumnsStateKey, JSON.stringify(state));
-            } catch (e) {
-                // ignore storage failures
-            }
-        };
-
-        var updateCountLabel = function(state) {
-            var visibleCount = Object.keys(defaultState).filter(function(key) {
-                return state[key] !== false;
-            }).length;
-
-            countLabel.textContent = visibleCount + '/' + totalCount + ' ' + cbElementsColumnsLabel;
-        };
-
-        var applyState = function(state) {
-            Object.keys(defaultState).forEach(function(key) {
-                var visible = state[key] !== false;
-
-                document.querySelectorAll('[data-cb-perm-col="' + key + '"]').forEach(function(cell) {
-                    cell.classList.toggle('cb-perm-col-hidden', !visible);
+        cbInitColumnToggle({
+            storageKey:        cbElementsColumnsStateKey,
+            toggleId:          'cb-elements-columns-toggle',
+            menuSel:           '.cb-elements-columns-menu',
+            countSel:          '.cb-elements-columns-count',
+            checkboxSel:       '.cb-elements-column-toggle[data-cb-column-toggle="1"]',
+            resetSel:          '.cb-elements-columns-reset[data-cb-columns-reset="1"]',
+            colAttr:           'data-cb-col',
+            hiddenClass:       'cb-elements-col-hidden',
+            pendingClass:      'cb-elements-columns-pending',
+            buildDefaultState: function(cbs) {
+                var s = Object.assign({}, cbElementsColumnsDefaultState);
+                cbs.forEach(function(input) {
+                    var key = String(input.value || '');
+                    if (!Object.prototype.hasOwnProperty.call(s, key)) {
+                        s[key] = true;
+                    }
                 });
-            });
-
-            checkboxes.forEach(function(input) {
-                var key = String(input.value || '');
-                input.checked = state[key] !== false;
-            });
-
-            updateCountLabel(state);
-        };
-
-        var state = readState();
-        applyState(state);
-
-        checkboxes.forEach(function(input) {
-            input.addEventListener('change', function() {
-                var key = String(input.value || '');
-                var visibleCount = checkboxes.filter(function(item) {
-                    return item !== input && item.checked;
-                }).length;
-
-                if (!input.checked && visibleCount === 0) {
-                    input.checked = true;
-                    return;
-                }
-
-                state[key] = input.checked;
-                writeState(state);
-                applyState(state);
-            });
+                return s;
+            }
         });
 
-        if (resetButton) {
-            resetButton.addEventListener('click', function() {
-                state = Object.assign({}, defaultState);
-                writeState(state);
-                applyState(state);
-            });
-        }
+        cbInitColumnToggle({
+            storageKey:        cbPermissionsColumnsStateKey,
+            toggleId:          'cb-perm-columns-toggle',
+            menuSel:           '.cb-perm-columns-menu',
+            countSel:          '.cb-perm-columns-count',
+            checkboxSel:       '.cb-perm-column-toggle[data-cb-perm-column-toggle="1"]',
+            resetSel:          '.cb-perm-columns-reset[data-cb-perm-columns-reset="1"]',
+            colAttr:           'data-cb-perm-col',
+            hiddenClass:       'cb-perm-col-hidden',
+            pendingClass:      null,
+            buildDefaultState: function(cbs) {
+                var s = {};
+                cbs.forEach(function(input) {
+                    s[String(input.value || '')] = input.getAttribute('data-cb-default-visible') !== '0';
+                });
+                return s;
+            }
+        });
     });
 
 
@@ -2997,8 +2928,6 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
 
         cbRefreshInheritedPermissionMatrix();
     }, true);
-    window.setTimeout(cbStabilizeDirtySnapshot, 200);
-    window.setTimeout(cbStabilizeDirtySnapshot, 900);
 </script>
 <form action="index.php" method="post" name="adminForm" id="adminForm">
     <div class="w-100 row g-0" style="max-width: 100%; overflow-x: auto;">
