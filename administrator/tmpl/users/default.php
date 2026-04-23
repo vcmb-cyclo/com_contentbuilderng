@@ -75,6 +75,10 @@ $sortLink = function (string $label, string $field) use ($ordering, $direction, 
             white-space: normal;
         }
 
+        .cb-users-columns-menu .dropdown-item {
+            cursor: pointer;
+        }
+
         .cb-users-col-hidden {
             display: none !important;
         }
@@ -157,7 +161,9 @@ $sortLink = function (string $label, string $field) use ($ordering, $direction, 
             </button>
             <div class="dropdown-menu dropdown-menu-end p-2 cb-users-columns-menu" aria-labelledby="cb-users-columns-toggle">
                 <?php foreach ($userColumns as $columnName => $columnLabel): ?>
-                    <label class="dropdown-item d-flex align-items-start gap-2 mb-1">
+                    <label
+                        class="dropdown-item d-flex align-items-start gap-2 mb-1"
+                        data-cb-user-col-option="<?php echo htmlspecialchars($columnName, ENT_QUOTES, 'UTF-8'); ?>">
                         <input
                             class="form-check-input mt-1"
                             type="checkbox"
@@ -378,6 +384,25 @@ $sortLink = function (string $label, string $field) use ($ordering, $direction, 
                 state[key] = !!toggle.checked;
                 applyState();
             });
+        });
+
+        menu.addEventListener('click', function (event) {
+            var option = event.target ? event.target.closest('[data-cb-user-col-option]') : null;
+            if (!option) {
+                return;
+            }
+
+            var key = String(option.getAttribute('data-cb-user-col-option') || '');
+            var toggle = menu.querySelector('[data-cb-user-col-toggle="' + key + '"]');
+            if (!toggle || toggle.disabled) {
+                return;
+            }
+
+            if (event.target !== toggle) {
+                event.preventDefault();
+                toggle.checked = !toggle.checked;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            }
         });
 
         if (resetButton) {

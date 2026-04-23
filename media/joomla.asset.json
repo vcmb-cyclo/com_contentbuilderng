@@ -15,6 +15,11 @@
             "uri": "com_contentbuilderng/css/system.css"
         },
         {
+            "name": "com_contentbuilderng.form-edit",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/form-edit.css"
+        },
+        {
             "name": "com_contentbuilderng.contentbuilderng",
             "type": "script",
             "uri": "com_contentbuilderng/js/contentbuilderng.js",

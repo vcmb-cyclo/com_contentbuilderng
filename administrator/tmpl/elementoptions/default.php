@@ -19,6 +19,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
+use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 
 
 $element = $this->element ?? null;
@@ -1140,3 +1141,56 @@ document.addEventListener('DOMContentLoaded', function() {
     updateTypePicker();
 });
 </script>
+<?php
+$_eoElement = $this->element ?? null;
+if (is_object($_eoElement) && !empty($_eoElement->id)) {
+    $_eoType = trim((string) ($_eoElement->type ?? ''));
+    $_eoIsModified = false;
+    if ($_eoType !== '' && $_eoType !== 'text') {
+        $_eoIsModified = true;
+    } elseif (trim((string) ($_eoElement->item_wrapper ?? '')) !== '') {
+        $_eoIsModified = true;
+    } else {
+        foreach (['hint', 'default_value', 'validations', 'custom_init_script', 'custom_action_script', 'custom_validation_script', 'validation_message'] as $_eoField) {
+            if (trim((string) ($_eoElement->{$_eoField} ?? '')) !== '') {
+                $_eoIsModified = true;
+                break;
+            }
+        }
+        if (!$_eoIsModified) {
+            $_eoOptions = $_eoElement->options ?? null;
+            if (is_string($_eoOptions) || $_eoOptions === null) {
+                $_eoOptions = PackedDataHelper::decodePackedData((string) ($_eoOptions ?? ''), null);
+            }
+            if (is_object($_eoOptions)) {
+                $_eoOptions = (array) $_eoOptions;
+            }
+            if (is_array($_eoOptions)) {
+                $_eoIgnore = ['length' => '', 'maxlength' => '', 'password' => 0, 'readonly' => 0, 'seperator' => ',', 'class' => '', 'allow_raw' => false, 'allow_html' => false];
+                foreach ($_eoOptions as $_eoKey => $_eoVal) {
+                    if (is_string($_eoVal)) {
+                        $_eoVal = trim($_eoVal);
+                    }
+                    if (array_key_exists((string) $_eoKey, $_eoIgnore) && $_eoIgnore[(string) $_eoKey] === $_eoVal) {
+                        continue;
+                    }
+                    if ($_eoVal === '' || $_eoVal === null || $_eoVal === false || $_eoVal === 0 || $_eoVal === '0') {
+                        continue;
+                    }
+                    $_eoIsModified = true;
+                    break;
+                }
+            }
+        }
+    }
+    ?>
+<script>
+if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+        type: 'cbElementOptionsView',
+        elementId: <?php echo (int) $_eoElement->id; ?>,
+        isModified: <?php echo $_eoIsModified ? 'true' : 'false'; ?>
+    }, window.location.origin);
+}
+</script>
+<?php } ?>
