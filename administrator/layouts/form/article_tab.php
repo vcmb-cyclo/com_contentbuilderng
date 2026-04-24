@@ -125,7 +125,7 @@ $articleDefaults = [
                         </option>
                         <?php foreach ($allElements as $sortable) : ?>
                             <option value="<?php echo $sortable->reference_id; ?>" <?php echo ($item->title_field ?? null) == $sortable->reference_id ? ' selected="selected"' : ''; ?>>
-                                <?php echo htmlentities($sortable->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                <?php echo htmlspecialchars($sortable->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -149,7 +149,7 @@ $articleDefaults = [
                         </option>
                         <?php foreach ((array) ($item->sectioncategories ?? []) as $category) : ?>
                             <option <?php echo ($item->default_category ?? null) == $category->value ? ' selected="selected"' : ''; ?> value="<?php echo $category->value; ?>">
-                                <?php echo htmlentities($category->text ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                <?php echo htmlspecialchars($category->text ?? '', ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

@@ -950,6 +950,104 @@ CSS;
 .cb-list-titlebar a:hover{
     color:#d3e4ff!important;
 }
+.cb-list-template-cards .cb-list-cards,
+.cb-list-template-tiles .cb-list-cards{
+    color:#d8e7ff!important;
+}
+.cb-list-template-cards .cb-list-card{
+    background:linear-gradient(180deg, rgba(30,41,59,.96), rgba(15,23,42,.96))!important;
+    border-color:rgba(255,255,255,.08)!important;
+    box-shadow:0 14px 30px rgba(0,0,0,.28)!important;
+    color:#f8fbff!important;
+}
+.cb-list-template-cards .cb-list-card-header{
+    border-bottom-color:rgba(255,255,255,.08)!important;
+}
+.cb-list-template-cards .cb-list-card-badge{
+    background:rgba(255,255,255,.08)!important;
+    color:#e6eefc!important;
+}
+.cb-list-template-cards .cb-list-card-badge-select{
+    background-color:rgba(255,255,255,.08)!important;
+    border-color:rgba(255,255,255,.12)!important;
+    color:#e6eefc!important;
+}
+.cb-list-template-cards .cb-list-card-subtitle,
+.cb-list-template-cards .cb-list-card-label,
+.cb-list-template-cards .cb-list-card-selection{
+    color:#cbd5e1!important;
+}
+.cb-list-template-cards .cb-list-card-title,
+.cb-list-template-cards .cb-list-card-title a,
+.cb-list-template-cards .cb-list-card-value{
+    color:#f8fbff!important;
+}
+.cb-list-template-cards .cb-list-card-value a{
+    color:#9ec5fe!important;
+}
+.cb-list-template-cards .cb-list-card-field{
+    border-color:rgba(148,163,184,.12)!important;
+}
+.cb-list-template-cards .cb-list-card-actions .btn{
+    border-color:#6fa0f8!important;
+    color:#d7e6ff!important;
+}
+.cb-list-template-cards .cb-list-card-actions .btn:hover,
+.cb-list-template-cards .cb-list-card-actions .btn:focus{
+    background:#23324a!important;
+    color:#f2f7ff!important;
+}
+.cb-list-template-tiles .cb-list-card{
+    background:
+        radial-gradient(circle at top right, rgba(96,165,250,.18), transparent 36%),
+        linear-gradient(180deg, rgba(23,34,49,.98), rgba(14,23,36,.98))!important;
+    box-shadow:0 16px 34px rgba(0,0,0,.34)!important;
+    color:#f8fbff!important;
+}
+.cb-list-template-tiles .cb-list-card:hover{
+    box-shadow:0 20px 38px rgba(0,0,0,.38)!important;
+}
+.cb-list-template-tiles .cb-list-card-header{
+    background:linear-gradient(180deg, rgba(96,165,250,.12), rgba(96,165,250,0))!important;
+}
+.cb-list-template-tiles .cb-list-card-title,
+.cb-list-template-tiles .cb-list-card-title a{
+    color:#f8fbff!important;
+}
+.cb-list-template-tiles .cb-list-card-badge{
+    background:rgba(96,165,250,.16)!important;
+    color:#bfdbfe!important;
+}
+.cb-list-template-tiles .cb-list-card-actions .btn{
+    color:#dbeafe!important;
+}
+.cb-list-template-tiles .cb-list-card-actions .btn:hover,
+.cb-list-template-tiles .cb-list-card-actions .btn:focus{
+    background:transparent!important;
+    color:#ffffff!important;
+}
+.cb-list-template-tiles .cb-list-card-field{
+    background:rgba(15,23,42,.42)!important;
+    border-color:rgba(148,163,184,.14)!important;
+}
+.cb-list-template-tiles .cb-list-card-label{
+    color:#96a9bf!important;
+}
+.cb-list-template-tiles .cb-list-card-value{
+    color:#f3f7fc!important;
+}
+.cb-list-template-tiles .cb-list-card-value a{
+    color:#9ec5fe!important;
+}
+.cb-list-template-tiles .cb-list-card-subtitle{
+    color:#93c5fd!important;
+}
+.cb-list-template-tiles .cb-list-card-footer{
+    border-top-color:rgba(148,163,184,.14)!important;
+}
+.cb-list-template-tiles .cb-list-card-selection{
+    color:#cbd5e1!important;
+}
 CSS;
 
         if ($event instanceof Event) {

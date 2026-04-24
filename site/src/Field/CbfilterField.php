@@ -40,7 +40,7 @@ class CbfilterField extends FormField
             $selectedFormId = (int) $this->value;
         }
 
-        $out = '<input type="hidden" name="' . $this->name . '" id="' . $this->id . '" value="' . htmlentities($this->value, ENT_QUOTES, 'UTF-8') . '"/>';
+        $out = '<input type="hidden" name="' . $this->name . '" id="' . $this->id . '" value="' . htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8') . '"/>';
         $wrapperId = $this->id . '_elements_wrapper';
         $out .= '<div id="' . $wrapperId . '">';
         $db = Factory::getContainer()->get(DatabaseInterface::class);
@@ -50,7 +50,7 @@ class CbfilterField extends FormField
             $elements = $db->loadAssocList();
 
             foreach ($elements as $element) {
-                $out .= '<div class="mb-2"><label class="w-15">' . htmlentities($element['label'], ENT_QUOTES, 'UTF-8') . '</label> <input class="form-control w-25" style="display:inline-block;" value="" type="text" onchange="contentbuilderng_addValue(\'' . $element['reference_id'] . '\',this.value);" name="element_' . $element['reference_id'] . '" id="element_' . $element['reference_id'] . '"/>';
+                $out .= '<div class="mb-2"><label class="w-15">' . htmlspecialchars($element['label'], ENT_QUOTES, 'UTF-8') . '</label> <input class="form-control w-25" style="display:inline-block;" value="" type="text" onchange="contentbuilderng_addValue(\'' . $element['reference_id'] . '\',this.value);" name="element_' . $element['reference_id'] . '" id="element_' . $element['reference_id'] . '"/>';
                 $out .= ' <label class="ms-2 me-1" for="element_' . $element['reference_id'] . '_order">Ordre</label><input class="form-control w-10" style="display: inline-block;" value="" type="number" min="1" step="1" onchange="contentbuilderng_addOrderValue(\'' . $element['reference_id'] . '\',this.value);" name="element_' . $element['reference_id'] . '_order" id="element_' . $element['reference_id'] . '_order"/></div>';
             }
         } else {

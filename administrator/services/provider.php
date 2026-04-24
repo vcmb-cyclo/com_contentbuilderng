@@ -77,7 +77,9 @@ return new class implements ServiceProviderInterface
         );
         $container->set(
             ArticleService::class,
-            static fn(Container $c) => new ArticleService()
+            static fn(Container $c) => new ArticleService(
+                $c->get(TemplateRenderService::class)
+            )
         );
         $container->set(
             ListSupportService::class,
@@ -101,7 +103,14 @@ return new class implements ServiceProviderInterface
         );
         $container->set(
             TemplateRenderService::class,
-            static fn(Container $c) => new TemplateRenderService()
+            static fn(Container $c) => new TemplateRenderService(
+                Factory::getApplication(),
+                $c->get(DatabaseInterface::class),
+                $c->get(FormResolverService::class),
+                $c->get(FormSupportService::class),
+                $c->get(RuntimeUtilityService::class),
+                $c->get(TextUtilityService::class)
+            )
         );
 
         $container->set(

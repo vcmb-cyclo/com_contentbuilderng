@@ -124,7 +124,7 @@ $prepareEffectOptions = is_array($displayData['prepareEffectOptions'] ?? null) ?
 </h3>
 <?php if (!empty($item->edit_by_type)) : ?>
     <?php echo $breezingFormsProvidedMessage; ?>
-    <input type="hidden" name="jform[editable_prepare]" id="cb-form-edit-editable-prepare-hidden" value="<?php echo htmlentities($item->editable_prepare ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+    <input type="hidden" name="jform[editable_prepare]" id="cb-form-edit-editable-prepare-hidden" value="<?php echo htmlspecialchars($item->editable_prepare ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
 <?php else : ?>
     <?php
     echo LayoutHelper::render(

@@ -68,7 +68,7 @@ $listStates = is_array($item->list_states ?? null) ? $item->list_states : [];
             <td>
                 <input class="form-control form-control-sm w-100" type="text"
                     name="jform[list_states][<?php echo $state['id']; ?>][title]"
-                    value="<?php echo htmlentities($state['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                    value="<?php echo htmlspecialchars($state['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
             </td>
             <td>
                 <div class="d-flex align-items-center gap-2">
@@ -78,7 +78,7 @@ $listStates = is_array($item->list_states ?? null) ? $item->list_states : [];
                         id="<?php echo $stateColorInputId; ?>"
                         data-cb-color-text="1"
                         data-cb-color-picker-target="<?php echo $stateColorPickerId; ?>"
-                        value="<?php echo htmlentities($stateRawColor, ENT_QUOTES, 'UTF-8'); ?>"
+                        value="<?php echo htmlspecialchars($stateRawColor, ENT_QUOTES, 'UTF-8'); ?>"
                         style="<?php echo $stateColorStyle; ?>"
                         name="jform[list_states][<?php echo $state['id']; ?>][color]" />
                     <input

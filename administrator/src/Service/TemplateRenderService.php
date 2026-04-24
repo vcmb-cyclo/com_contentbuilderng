@@ -9,7 +9,6 @@ use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Editor\Editor;
 use Joomla\CMS\Event\Content\ContentPrepareEvent;
-use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -19,24 +18,38 @@ use Joomla\Registry\Registry;
 
 class TemplateRenderService
 {
+    private readonly CMSApplication $app;
+    private readonly DatabaseInterface $db;
     private readonly FormResolverService $formResolverService;
+    private readonly FormSupportService $formSupportService;
     private readonly RuntimeUtilityService $runtimeUtilityService;
+    private readonly TextUtilityService $textUtilityService;
     private array $contentPluginImportCache = [];
 
-    public function __construct()
-    {
-        $this->formResolverService = new FormResolverService();
-        $this->runtimeUtilityService = new RuntimeUtilityService();
+    public function __construct(
+        CMSApplication $app,
+        DatabaseInterface $db,
+        FormResolverService $formResolverService,
+        FormSupportService $formSupportService,
+        RuntimeUtilityService $runtimeUtilityService,
+        TextUtilityService $textUtilityService
+    ) {
+        $this->app = $app;
+        $this->db = $db;
+        $this->formResolverService = $formResolverService;
+        $this->formSupportService = $formSupportService;
+        $this->runtimeUtilityService = $runtimeUtilityService;
+        $this->textUtilityService = $textUtilityService;
     }
 
     private function getTextUtilityService(): TextUtilityService
     {
-        return new TextUtilityService();
+        return $this->textUtilityService;
     }
 
     private function getApp(): CMSApplication
     {
-        return Factory::getApplication();
+        return $this->app;
     }
 
     private function getInput()
@@ -116,7 +129,7 @@ class TemplateRenderService
 
     private function getFormElementsPlugins(): array
     {
-        return $this->getApp()->bootComponent('com_contentbuilderng')->getContainer()->get(FormSupportService::class)->getFormElementsPlugins();
+        return $this->formSupportService->getFormElementsPlugins();
     }
 
     private function execPhp($result)
@@ -182,7 +195,7 @@ class TemplateRenderService
 
     public function applyItemWrappers($contentbuilderngFormId, array $items, $form)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->db;
         $article = new \Joomla\CMS\Table\Content($db);
         $registry = new Registry();
         $registry->loadString('{}');
@@ -246,7 +259,7 @@ class TemplateRenderService
                 }
 
                 if ($wrapper['wordwrap'] && !$allowHtml) {
-                    $newValue = $textUtilityService->allhtmlentities(
+                    $newValue = $textUtilityService->allhtmlspecialchars(
                         $this->callContentbuilderngHelper(
                             'contentbuilderng_wordwrap',
                             $this->callContentbuilderngHelper('cbinternal', $value),
@@ -258,7 +271,7 @@ class TemplateRenderService
                 } else {
                     $newValue = $allowHtml
                         ? $textUtilityService->cleanString($this->callContentbuilderngHelper('cbinternal', $value))
-                        : $textUtilityService->allhtmlentities($this->callContentbuilderngHelper('cbinternal', $value));
+                        : $textUtilityService->allhtmlspecialchars($this->callContentbuilderngHelper('cbinternal', $value));
                 }
 
                 $wrapperTemplate = trim((string) ($wrapper['item_wrapper'] ?? ''));
@@ -383,7 +396,7 @@ class TemplateRenderService
             return $_template[$hash];
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->db;
         $db->setQuery("Select `type`,reference_id,details_template, details_prepare, edit_by_type, act_as_registration, registration_name_field, registration_username_field, registration_email_field, registration_email_repeat_field, registration_password_field, registration_password_repeat_field From #__contentbuilderng_forms Where id = " . (int) $contentbuilderngFormId);
         $result = $db->loadAssoc();
 
@@ -464,10 +477,10 @@ class TemplateRenderService
                 if (!isset($item['label']) || !isset($item['id'])) {
                     continue;
                 }
-                $items[$key]['label'] = htmlentities($item['label'], ENT_QUOTES, 'UTF-8');
+                $items[$key]['label'] = htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8');
                 $items[$key]['value'] = isset($allowHtml[$item['id']])
                     ? $textUtilityService->cleanString($item['value'])
-                    : nl2br($textUtilityService->allhtmlentities($this->callContentbuilderngHelper('cbinternal', $item['value'])));
+                    : nl2br($textUtilityService->allhtmlspecialchars($this->callContentbuilderngHelper('cbinternal', $item['value'])));
             }
 
             $detailsPrepare = $result['details_prepare'] ?? '';
@@ -509,7 +522,7 @@ class TemplateRenderService
             return $_template[$hash];
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->db;
         $db->setQuery("Select `name`,`type`,reference_id,email_template, email_admin_template, email_html, email_admin_html, act_as_registration, registration_name_field, registration_username_field, registration_email_field  From #__contentbuilderng_forms Where id = " . (int) $contentbuilderngFormId);
         $result = $db->loadAssoc();
 
@@ -591,7 +604,7 @@ class TemplateRenderService
             $template = str_replace(array('{IP}', '{ip}'), $_SERVER['REMOTE_ADDR'], $template);
 
             foreach ($items as $key => $item) {
-                $template = str_replace('{' . $key . ':label}', $html ? htmlentities($item['label'], ENT_QUOTES, 'UTF-8') : $item['label'], $template);
+                $template = str_replace('{' . $key . ':label}', $html ? htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') : $item['label'], $template);
                 $template = str_replace('{' . $key . ':value}', isset($allowHtml[$item['id']]) && $html ? ($this->callContentbuilderngHelper('is_internal_path', $item['value']) ? basename($item['value']) : $item['value']) : nl2br(strip_tags(($this->callContentbuilderngHelper('is_internal_path', $item['value']) ? basename($item['value']) : $item['value']))), $template);
                 $template = str_replace('{webpath ' . $key . '}', str_replace(array('{CBSite}', '{cbsite}', JPATH_SITE), Uri::getInstance()->getScheme() . '://' . Uri::getInstance()->getHost() . (Uri::getInstance()->getPort() == 80 ? '' : ':' . Uri::getInstance()->getPort()) . Uri::root(true), $item['value']), $template);
             }
@@ -614,7 +627,7 @@ class TemplateRenderService
             $session->clear('cb_failed_values', 'com_contentbuilderng.' . $contentbuilderngFormId);
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->db;
         $db->setQuery("Select `type`, reference_id, editable_template, editable_prepare, edit_by_type, act_as_registration, registration_name_field, registration_username_field, registration_email_field, registration_email_repeat_field, registration_password_field, registration_password_repeat_field From #__contentbuilderng_forms Where id = " . (int) $contentbuilderngFormId);
         $result = $db->loadAssoc();
 
@@ -732,8 +745,8 @@ class TemplateRenderService
                     $rawValue = implode(', ', $rawValue);
                 }
 
-                $fallbackLabel = htmlentities((string) ($item['label'] ?? ''), ENT_QUOTES, 'UTF-8');
-                $fallbackValue = htmlentities((string) $rawValue, ENT_QUOTES, 'UTF-8');
+                $fallbackLabel = htmlspecialchars((string) ($item['label'] ?? ''), ENT_QUOTES, 'UTF-8');
+                $fallbackValue = htmlspecialchars((string) $rawValue, ENT_QUOTES, 'UTF-8');
 
                 $template = str_replace('{' . $key . ':label}', '<label>' . $fallbackLabel . '</label>', $template);
                 $template = str_replace('{' . $key . ':item}', $fallbackValue, $template);
@@ -820,7 +833,7 @@ class TemplateRenderService
                     $textPresentation = $this->normalizeEditableFieldPresentation($textValue);
                     $textStyle = ($options->length ? 'width:' . $options->length . ';' : '') . $textPresentation['style'];
                     $textClass = 'form-control form-control-sm' . ($textPresentation['class'] !== '' ? ' ' . $textPresentation['class'] : '');
-                    $theItem = '<div class="cbFormField cbTextField"><input class="' . $textClass . '" ' . $autocomplete . '' . ($options->readonly ? 'readonly="readonly" ' : '') . 'style="' . $textStyle . '" ' . ($options->maxlength ? 'maxlength="' . (int) $options->maxlength . '" ' : '') . 'type="' . (isset($element['force_password']) || $options->password ? 'password' : 'text') . '" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '" value="' . htmlentities($textPresentation['value'], ENT_QUOTES, 'UTF-8') . '"/></div>';
+                    $theItem = '<div class="cbFormField cbTextField"><input class="' . $textClass . '" ' . $autocomplete . '' . ($options->readonly ? 'readonly="readonly" ' : '') . 'style="' . $textStyle . '" ' . ($options->maxlength ? 'maxlength="' . (int) $options->maxlength . '" ' : '') . 'type="' . (isset($element['force_password']) || $options->password ? 'password' : 'text') . '" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '" value="' . htmlspecialchars($textPresentation['value'], ENT_QUOTES, 'UTF-8') . '"/></div>';
                     break;
                 case 'textarea':
                     $options->width = $options->width ?? '';
@@ -832,12 +845,12 @@ class TemplateRenderService
                     $textareaValue = $normalizeScalarValue($failedValues !== null && isset($failedValues[$element['reference_id']]) ? $failedValues[$element['reference_id']] : ($hasRecords ? $item['value'] : $element['default_value']));
                     if ($options->allow_html || $options->allow_raw) {
                         $editor = Editor::getInstance($app->get('editor'));
-                        $theItem = '<div class="cbFormField cbTextArea">' . $editor->display('cb_' . $item['id'], htmlentities($textareaValue, ENT_QUOTES, 'UTF-8'), $options->width ? $options->width : '100%', $options->height ? $options->height : '550', '75', '20') . '</div>';
+                        $theItem = '<div class="cbFormField cbTextArea">' . $editor->display('cb_' . $item['id'], htmlspecialchars($textareaValue, ENT_QUOTES, 'UTF-8'), $options->width ? $options->width : '100%', $options->height ? $options->height : '550', '75', '20') . '</div>';
                     } else {
                         $textareaPresentation = $this->normalizeEditableFieldPresentation($textareaValue);
                         $textareaStyle = ($options->width || $options->height ? ($options->width ? 'width:' . $options->width . ';' : '') . ($options->height ? 'height:' . $options->height . ';' : '') : '') . $textareaPresentation['style'];
                         $textareaClass = 'form-control form-control-sm' . ($textareaPresentation['class'] !== '' ? ' ' . $textareaPresentation['class'] : '');
-                        $theItem = '<div class="cbFormField cbTextArea form-control form-control-sm"><textarea class="' . $textareaClass . '" ' . ($options->readonly ? 'readonly="readonly" ' : '') . 'style="' . $textareaStyle . '" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '">' . htmlentities($textareaPresentation['value'], ENT_QUOTES, 'UTF-8') . '</textarea></div>';
+                        $theItem = '<div class="cbFormField cbTextArea form-control form-control-sm"><textarea class="' . $textareaClass . '" ' . ($options->readonly ? 'readonly="readonly" ' : '') . 'style="' . $textareaStyle . '" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '">' . htmlspecialchars($textareaPresentation['value'], ENT_QUOTES, 'UTF-8') . '</textarea></div>';
                     }
                     break;
                 case 'checkboxgroup':
@@ -860,7 +873,7 @@ class TemplateRenderService
                                     break;
                                 }
                             }
-                            $theItem .= '<div style="' . ($options->horizontal ? 'float: left;' . ($options->horizontal_length ? 'width: ' . $options->horizontal_length . ';' : '') . 'display: inline; margin-right: 2px;' : '') . '" class="cbFormField cbGroupField"><input class="form-check-input" id="cb_' . $item['id'] . $for . '" name="cb_' . $item['id'] . '[]" type="' . ($element['type'] == 'checkboxgroup' ? 'checkbox' : 'radio') . '" value="' . htmlentities(trim($value), ENT_QUOTES, 'UTF-8') . '"' . $checked . '/> <label for="cb_' . $item['id'] . $for . '">' . htmlentities(trim($label), ENT_QUOTES, 'UTF-8') . '</label> </div>';
+                            $theItem .= '<div style="' . ($options->horizontal ? 'float: left;' . ($options->horizontal_length ? 'width: ' . $options->horizontal_length . ';' : '') . 'display: inline; margin-right: 2px;' : '') . '" class="cbFormField cbGroupField"><input class="form-check-input" id="cb_' . $item['id'] . $for . '" name="cb_' . $item['id'] . '[]" type="' . ($element['type'] == 'checkboxgroup' ? 'checkbox' : 'radio') . '" value="' . htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8') . '"' . $checked . '/> <label for="cb_' . $item['id'] . $for . '">' . htmlspecialchars(trim($label), ENT_QUOTES, 'UTF-8') . '</label> </div>';
                             $i++;
                         }
                         if ($options->horizontal) {
@@ -889,7 +902,7 @@ class TemplateRenderService
                                     break;
                                 }
                             }
-                            $theItem .= '<option value="' . htmlentities(trim($value), ENT_QUOTES, 'UTF-8') . '"' . $checked . '>' . htmlentities(trim($label), ENT_QUOTES, 'UTF-8') . '</option>';
+                            $theItem .= '<option value="' . htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8') . '"' . $checked . '>' . htmlspecialchars(trim($label), ENT_QUOTES, 'UTF-8') . '</option>';
                         }
                         $theItem .= '</select></div>';
                     } else {
@@ -901,7 +914,7 @@ class TemplateRenderService
                     $theItem = '<div class="cbFormField cbUploadField">';
                     $theItem .= '<input type="file" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '"/>';
                     if (trim($item['value']) != '') {
-                        $theItem .= '<div>' . ($deletable ? '<label for="cb_delete_' . $item['id'] . '">' . Text::_('COM_CONTENTBUILDERNG_DELETE') . '</label> <input type="checkbox" id="cb_delete_' . $item['id'] . '" name="cb_delete_' . $item['id'] . '" value="1"/> ' : '') . htmlentities(basename($item['value']), ENT_QUOTES, 'UTF-8') . '</div><div style="clear:both;"></div>';
+                        $theItem .= '<div>' . ($deletable ? '<label for="cb_delete_' . $item['id'] . '">' . Text::_('COM_CONTENTBUILDERNG_DELETE') . '</label> <input type="checkbox" id="cb_delete_' . $item['id'] . '" name="cb_delete_' . $item['id'] . '" value="1"/> ' : '') . htmlspecialchars(basename($item['value']), ENT_QUOTES, 'UTF-8') . '</div><div style="clear:both;"></div>';
                     }
                     $theItem .= '</div>';
                     break;
@@ -920,7 +933,7 @@ class TemplateRenderService
                     $options->readonly = $options->readonly ?? '';
                     $options->format = $options->format ?? '%Y-%m-%d';
                     $options->transfer_format = $options->transfer_format ?? 'YYYY-mm-dd';
-                    $calval = htmlentities($normalizeScalarValue($failedValues !== null && isset($failedValues[$element['reference_id']]) ? $failedValues[$element['reference_id']] : ($hasRecords ? $item['value'] : $element['default_value'])), ENT_QUOTES, 'UTF-8');
+                    $calval = htmlspecialchars($normalizeScalarValue($failedValues !== null && isset($failedValues[$element['reference_id']]) ? $failedValues[$element['reference_id']] : ($hasRecords ? $item['value'] : $element['default_value'])), ENT_QUOTES, 'UTF-8');
                     $calval = $this->callContentbuilderngHelper('convertDate', $calval, $options->transfer_format, $options->format);
                     $calAttr = ['class' => 'cb_' . $item['id'], 'showTime' => true, 'timeFormat' => '24', 'singleHeader' => false, 'todayBtn' => true, 'weekNumbers' => true, 'minYear' => '', 'maxYear' => '', 'firstDay' => '1'];
                     $theItem = '<div class="cbFormField cbCalendarField">' . "\n" . '<div id="field-calendar_cb_' . $item['id'] . '">' . "\n" . '<div class="input-group">' . "\n";
@@ -929,7 +942,7 @@ class TemplateRenderService
                     break;
                 case 'hidden':
                     $hiddenValue = $normalizeScalarValue($failedValues !== null && $elementReferenceId !== '' && isset($failedValues[$elementReferenceId]) ? $failedValues[$elementReferenceId] : ($hasRecords ? $item['value'] : $element['default_value']));
-                    $theItem = '<input type="hidden" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '" value="' . htmlentities($hiddenValue, ENT_QUOTES, 'UTF-8') . '"/>';
+                    $theItem = '<input type="hidden" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '" value="' . htmlspecialchars($hiddenValue, ENT_QUOTES, 'UTF-8') . '"/>';
                     break;
             }
 
@@ -969,13 +982,13 @@ class TemplateRenderService
                     $rawValue = implode(', ', $rawValue);
                 }
 
-                $theItem = htmlentities((string) $rawValue, ENT_QUOTES, 'UTF-8');
+                $theItem = htmlspecialchars((string) $rawValue, ENT_QUOTES, 'UTF-8');
                 $replaceTokens = true;
             }
 
             if ($theItem !== '' || $replaceTokens) {
                 $tip = 'hasTip';
-                $tipPrefix = htmlentities($item['label'], ENT_QUOTES, 'UTF-8') . '::';
+                $tipPrefix = htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') . '::';
                 $template = str_replace('{' . $key . ':label}', '<label ' . ($elementHint ? 'class="editlinktip ' . $tip . '" title="' . $tipPrefix . $elementHint . '" ' : '') . 'for="cb_' . $item['id'] . '">' . $item['label'] . $asterisk . ($elementHint ? ' <img style="cursor: pointer;" src="' . Uri::root(true) . '/media/com_contentbuilderng/images/icon_info.png" border="0"/>' : '') . '</label>', $template);
                 $template = str_replace('{' . $key . ':item}', $theItem, $template);
             }

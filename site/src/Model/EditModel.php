@@ -294,10 +294,11 @@ class EditModel extends BaseDatabaseModel
 
         /** @var AdministratorApplication|SiteApplication $app */
         $app = Factory::getApplication();
+        $container = $app->bootComponent('com_contentbuilderng')->getContainer();
         $this->app = $app;
         $this->runtimeUtilityService = new RuntimeUtilityService();
-        $this->listSupportService = $app->bootComponent('com_contentbuilderng')->getContainer()->get(ListSupportService::class);
-        $this->templateRenderService = new TemplateRenderService();
+        $this->listSupportService = $container->get(ListSupportService::class);
+        $this->templateRenderService = $container->get(TemplateRenderService::class);
         $option = 'com_contentbuilderng';
 
         $this->app->getInput()->set('cb_category_id', null);
@@ -1780,7 +1781,7 @@ var contentbuilderng = new function(){
 
                     $permissionService = new PermissionService();
                     $full = $this->frontend ? $permissionService->authorizeFe('fullarticle') : $permissionService->authorize('fullarticle');
-                    $article_id = (new ArticleService())->createArticle($this->_id, $record_return, $data->items, $ids, $data->title_field, $data->form->getRecordMetadata($record_return), $config, $full, $this->frontend ? $data->limited_article_options_fe : $data->limited_article_options, $this->app->getInput()->get('cb_category_id', null, 'string'));
+                    $article_id = $this->app->bootComponent('com_contentbuilderng')->getContainer()->get(ArticleService::class)->createArticle($this->_id, $record_return, $data->items, $ids, $data->title_field, $data->form->getRecordMetadata($record_return), $config, $full, $this->frontend ? $data->limited_article_options_fe : $data->limited_article_options, $this->app->getInput()->get('cb_category_id', null, 'string'));
 
                     if (isset($form_elements_objects)) {
                         foreach ($form_elements_objects as $form_elements_object) {

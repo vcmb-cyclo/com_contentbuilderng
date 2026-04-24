@@ -143,7 +143,7 @@ $resetUrl = Route::_(
 <form action="index.php" method="post" name="adminForm" id="adminForm">
     <div class="cb-elementoptions-shell">
         <div class="cb-elementoptions-toolbar">
-            <p class="cb-elementoptions-title me-auto"><?php echo htmlentities($this->element->label, ENT_QUOTES, 'UTF-8'); ?></p>
+            <p class="cb-elementoptions-title me-auto"><?php echo htmlspecialchars($this->element->label, ENT_QUOTES, 'UTF-8'); ?></p>
             <label class="cb-elementoptions-type-label" for="type_selection"><?php echo Text::_('COM_CONTENTBUILDERNG_ELEMENT_TYPE'); ?></label>
             <select class="form-select form-select-sm" name="type_selection"
                 id="type_selection"
@@ -266,7 +266,7 @@ $resetUrl = Route::_(
         echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab0', Text::_('COM_CONTENTBUILDERNG_BULK_OPTIONS'));
         ?>
         <h3>
-            <?php echo htmlentities($this->element->label, ENT_QUOTES, 'UTF-8'); ?>
+            <?php echo htmlspecialchars($this->element->label, ENT_QUOTES, 'UTF-8'); ?>
         </h3>
         <?php
         switch ($this->element->type) {
@@ -275,7 +275,7 @@ $resetUrl = Route::_(
         ?>
                 <fieldset class="border rounded p-3 mb-3">
                     <legend>
-                        <?php echo htmlentities($the_item['element_type'] ?? $this->element->type, ENT_QUOTES, 'UTF-8'); ?>
+                        <?php echo htmlspecialchars($the_item['element_type'] ?? $this->element->type, ENT_QUOTES, 'UTF-8'); ?>
                     </legend>
                     <table class="admintable" width="95%">
                         <?php
@@ -289,7 +289,7 @@ $resetUrl = Route::_(
                                 </td>
                                 <td class="text-start">
                                     <textarea class="form-control" style="width:95%;height:100px;" name="hint"
-                                        id="hint"><?php echo isset($this->element->hint) ? htmlentities($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
+                                        id="hint"><?php echo isset($this->element->hint) ? htmlspecialchars($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
                                 </td>
                             </tr>
                         <?php
@@ -318,7 +318,7 @@ $resetUrl = Route::_(
                             </td>
                             <td class="text-start">
                                 <textarea class="form-control" style="width:95%;height:100px;" name="hint"
-                                    id="hint"><?php echo isset($this->element->hint) ? htmlentities($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
+                                    id="hint"><?php echo isset($this->element->hint) ? htmlspecialchars($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
                             </td>
                         </tr>
                     </table>
@@ -341,7 +341,7 @@ $resetUrl = Route::_(
                             </td>
                             <td class="text-start">
                                 <textarea class="form-control" style="width:95%;height:100px;" name="hint"
-                                    id="hint"><?php echo isset($this->element->hint) ? htmlentities($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
+                                    id="hint"><?php echo isset($this->element->hint) ? htmlspecialchars($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -353,7 +353,7 @@ $resetUrl = Route::_(
                             <td class="text-start">
                                 <input class="form-control form-control-sm" style="width:95%;" type="text"
                                     name="allowed_file_extensions" id="allowed_file_extensions"
-                                    value="<?php echo htmlentities(isset($this->element->options->allowed_file_extensions) && $this->element->options->allowed_file_extensions ? $this->element->options->allowed_file_extensions : 'zip, rar, 7z, pdf, doc, xls, ppt, jpg, jpeg, png, gif', ENT_QUOTES, 'UTF-8'); ?>" />
+                                    value="<?php echo htmlspecialchars(isset($this->element->options->allowed_file_extensions) && $this->element->options->allowed_file_extensions ? $this->element->options->allowed_file_extensions : 'zip, rar, 7z, pdf, doc, xls, ppt, jpg, jpeg, png, gif', ENT_QUOTES, 'UTF-8'); ?>" />
                             </td>
                         </tr>
                         <tr>
@@ -365,7 +365,7 @@ $resetUrl = Route::_(
                             <td class="text-start">
                                 <input class="form-control form-control-sm" style="width:95%;" type="text" name="max_filesize"
                                     id="max_filesize"
-                                    value="<?php echo htmlentities(isset($this->element->options->max_filesize) && $this->element->options->max_filesize ? $this->element->options->max_filesize : '2M', ENT_QUOTES, 'UTF-8'); ?>" />
+                                    value="<?php echo htmlspecialchars(isset($this->element->options->max_filesize) && $this->element->options->max_filesize ? $this->element->options->max_filesize : '2M', ENT_QUOTES, 'UTF-8'); ?>" />
                             </td>
                         </tr>
                         <tr>
@@ -377,7 +377,7 @@ $resetUrl = Route::_(
                             <td class="text-start">
                                 <input class="form-control form-control-sm" style="width:95%;" type="text"
                                     name="upload_directory" id="upload_directory"
-                                    value="<?php echo htmlentities(isset($this->element->options->upload_directory) && $this->element->options->upload_directory ? $this->element->options->upload_directory : '', ENT_QUOTES, 'UTF-8'); ?>" />
+                                    value="<?php echo htmlspecialchars(isset($this->element->options->upload_directory) && $this->element->options->upload_directory ? $this->element->options->upload_directory : '', ENT_QUOTES, 'UTF-8'); ?>" />
                             </td>
                         </tr>
                     </table>
@@ -402,7 +402,7 @@ $resetUrl = Route::_(
                             </td>
                             <td class="text-start">
                                 <textarea class="form-control" style="width:95%;height:100px;" name="hint"
-                                    id="hint"><?php echo isset($this->element->hint) ? htmlentities($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
+                                    id="hint"><?php echo isset($this->element->hint) ? htmlspecialchars($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
                             </td>
                         </tr>
                         <?php
@@ -436,11 +436,11 @@ $resetUrl = Route::_(
                                     foreach ($this->group_definition as $key => $value) {
                                     ?>
                                         <?php
-                                        $defaultValueId = 'default_value' . htmlentities($key, ENT_QUOTES, 'UTF-8');
+                                        $defaultValueId = 'default_value' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
                                         echo $renderCheckbox('default_value[]', $defaultValueId, in_array($key, $def), (string) $key);
                                         ?>
-                                        <label for="default_value<?php echo htmlentities($key, ENT_QUOTES, 'UTF-8'); ?>">
-                                            <?php echo htmlentities($value, ENT_QUOTES, 'UTF-8'); ?>
+                                        <label for="default_value<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <?php echo htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); ?>
                                         </label>
                                         <br />
                                     <?php
@@ -512,7 +512,7 @@ $resetUrl = Route::_(
                             <td class="text-start">
                                 <input class="form-control form-control-sm" style="width:95%;" type="text" name="class"
                                     id="class"
-                                    value="<?php echo isset($this->element->options->class) ? htmlentities($this->element->options->class, ENT_QUOTES, 'UTF-8') : ''; ?>" />
+                                    value="<?php echo isset($this->element->options->class) ? htmlspecialchars($this->element->options->class, ENT_QUOTES, 'UTF-8') : ''; ?>" />
                             </td>
                         </tr>
                         <tr>
@@ -524,7 +524,7 @@ $resetUrl = Route::_(
                             <td class="text-start">
                                 <input class="form-control form-control-sm" style="width:95%;" type="text" name="seperator"
                                     id="seperator"
-                                    value="<?php echo isset($this->element->options->seperator) ? htmlentities($this->element->options->seperator, ENT_QUOTES, 'UTF-8') : ','; ?>" />
+                                    value="<?php echo isset($this->element->options->seperator) ? htmlspecialchars($this->element->options->seperator, ENT_QUOTES, 'UTF-8') : ','; ?>" />
                             </td>
                         </tr>
                         <tr>
@@ -567,7 +567,7 @@ $resetUrl = Route::_(
                             </td>
                             <td class="text-start">
                                 <textarea class="form-control" style="width: 95%; height: 100px;" name="default_value"
-                                    id="default_value"><?php echo isset($this->element->default_value) ? htmlentities($this->element->default_value, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
+                                    id="default_value"><?php echo isset($this->element->default_value) ? htmlspecialchars($this->element->default_value, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -576,7 +576,7 @@ $resetUrl = Route::_(
                             </td>
                             <td class="text-start">
                                 <textarea class="form-control" style="width:95%;height:100px;" name="hint"
-                                    id="hint"><?php echo isset($this->element->hint) ? htmlentities($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
+                                    id="hint"><?php echo isset($this->element->hint) ? htmlspecialchars($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -621,7 +621,7 @@ $resetUrl = Route::_(
                             <td class="text-start">
                                 <input class="form-control form-control-sm" style="width:95%;" type="text" name="class"
                                     id="class"
-                                    value="<?php echo isset($this->element->options->class) ? htmlentities($this->element->options->class, ENT_QUOTES, 'UTF-8') : ''; ?>" />
+                                    value="<?php echo isset($this->element->options->class) ? htmlspecialchars($this->element->options->class, ENT_QUOTES, 'UTF-8') : ''; ?>" />
                             </td>
                         </tr>
                         <tr>
@@ -674,7 +674,7 @@ $resetUrl = Route::_(
                             <td class="text-start">
                                 <input class="form-control form-control-sm" style="width:95%;" type="text" name="default_value"
                                     id="default_value"
-                                    value="<?php echo isset($this->element->default_value) ? htmlentities($this->element->default_value, ENT_QUOTES, 'UTF-8') : ''; ?>" />
+                                    value="<?php echo isset($this->element->default_value) ? htmlspecialchars($this->element->default_value, ENT_QUOTES, 'UTF-8') : ''; ?>" />
                             </td>
                         </tr>
                         <tr>
@@ -683,7 +683,7 @@ $resetUrl = Route::_(
                             </td>
                             <td class="text-start">
                                 <textarea class="form-control" style="width:95%;height:100px;" name="hint"
-                                    id="hint"><?php echo isset($this->element->hint) ? htmlentities($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
+                                    id="hint"><?php echo isset($this->element->hint) ? htmlspecialchars($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -757,7 +757,7 @@ $resetUrl = Route::_(
                             <td class="text-start">
                                 <input class="form-control form-control-sm" style="width:95%;" type="text" name="default_value"
                                     id="default_value"
-                                    value="<?php echo isset($this->element->default_value) ? htmlentities($this->element->default_value, ENT_QUOTES, 'UTF-8') : ''; ?>" />
+                                    value="<?php echo isset($this->element->default_value) ? htmlspecialchars($this->element->default_value, ENT_QUOTES, 'UTF-8') : ''; ?>" />
                             </td>
                         </tr>
                         <tr>
@@ -766,7 +766,7 @@ $resetUrl = Route::_(
                             </td>
                             <td class="text-start">
                                 <textarea class="form-control" style="width:95%;height:100px;" name="hint"
-                                    id="hint"><?php echo isset($this->element->hint) ? htmlentities($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
+                                    id="hint"><?php echo isset($this->element->hint) ? htmlspecialchars($this->element->hint, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -790,7 +790,7 @@ $resetUrl = Route::_(
                             <td class="text-start">
                                 <input class="form-control form-control-sm" style="width:95%;" type="text" name="class"
                                     id="class"
-                                    value="<?php echo isset($this->element->options->class) ? htmlentities($this->element->options->class, ENT_QUOTES, 'UTF-8') : ''; ?>" />
+                                    value="<?php echo isset($this->element->options->class) ? htmlspecialchars($this->element->options->class, ENT_QUOTES, 'UTF-8') : ''; ?>" />
                             </td>
                         </tr>
                         <tr>
@@ -851,7 +851,7 @@ $resetUrl = Route::_(
                             <td class="text-start">
                                 <input class="form-control form-control-sm" style="width:95%;" type="text" name="default_value"
                                     id="default_value"
-                                    value="<?php echo isset($this->element->default_value) ? htmlentities($this->element->default_value, ENT_QUOTES, 'UTF-8') : ''; ?>" />
+                                    value="<?php echo isset($this->element->default_value) ? htmlspecialchars($this->element->default_value, ENT_QUOTES, 'UTF-8') : ''; ?>" />
                             </td>
                         </tr>
                         <tr>
@@ -889,13 +889,13 @@ $resetUrl = Route::_(
         echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab1', Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER'));
         ?>
         <h3>
-            <?php echo htmlentities($this->element->label, ENT_QUOTES, 'UTF-8'); ?>
+            <?php echo htmlspecialchars($this->element->label, ENT_QUOTES, 'UTF-8'); ?>
         </h3>
         <fieldset class="border rounded p-3 mb-3">
             <legend><?php echo Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER'); ?></legend>
             <div class="mb-0">
                 <label class="form-label" for="item_wrapper"><?php echo Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER'); ?></label>
-                <textarea class="form-control" name="item_wrapper" id="item_wrapper" rows="8"><?php echo htmlentities($this->element->item_wrapper ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                <textarea class="form-control" name="item_wrapper" id="item_wrapper" rows="8"><?php echo htmlspecialchars($this->element->item_wrapper ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                 <div class="form-text"><?php echo Text::_('COM_CONTENTBUILDERNG_LIST_ITEM_WRAPPER_TIP'); ?></div>
             </div>
         </fieldset>
@@ -905,7 +905,7 @@ $resetUrl = Route::_(
             echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab2', Text::_('COM_CONTENTBUILDERNG_ELEMENT_OPTIONS_SCRIPTS'));
             ?>
             <h3>
-                <?php echo htmlentities($this->element->label, ENT_QUOTES, 'UTF-8'); ?>
+                <?php echo htmlspecialchars($this->element->label, ENT_QUOTES, 'UTF-8'); ?>
             </h3>
             <?php
             if (($is_plugin && !empty($the_item['show_validation_settings'])) || !$is_plugin) {
@@ -924,7 +924,7 @@ $resetUrl = Route::_(
                             <td class="text-start">
                                 <input class="form-control form-control-sm" style="width:95%;" type="text"
                                     name="validation_message" id="validation_message"
-                                    value="<?php echo htmlentities((string) ($this->element->validation_message ?? ''), ENT_QUOTES, 'UTF-8'); ?>" />
+                                    value="<?php echo htmlspecialchars((string) ($this->element->validation_message ?? ''), ENT_QUOTES, 'UTF-8'); ?>" />
                             </td>
                         </tr>
                         <tr>
@@ -940,8 +940,8 @@ $resetUrl = Route::_(
                                     $selected_validations = explode(',', (string) ($this->element->validations ?? ''));
                                     foreach ($this->validations as $validation) {
                                     ?>
-                                        <option <?php echo in_array($validation, $selected_validations) ? 'selected="selected" ' : ''; ?>value="<?php echo htmlentities($validation, ENT_QUOTES, 'UTF-8'); ?>">
-                                            <?php echo htmlentities($validation, ENT_QUOTES, 'UTF-8'); ?>
+                                        <option <?php echo in_array($validation, $selected_validations) ? 'selected="selected" ' : ''; ?>value="<?php echo htmlspecialchars($validation, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <?php echo htmlspecialchars($validation, ENT_QUOTES, 'UTF-8'); ?>
                                         </option>
                                     <?php
                                     }

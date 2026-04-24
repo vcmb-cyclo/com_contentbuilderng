@@ -405,7 +405,7 @@ if ($themeJs !== '') {
                         ?>
                         <th class="hidden-phone align-middle text-nowrap small text-uppercase" width="5">
                             <?php echo $sortLink(
-                                htmlentities('COM_CONTENTBUILDERNG_ID', ENT_QUOTES, 'UTF-8') . $sort_indicator('colRecord'),
+                                htmlspecialchars('COM_CONTENTBUILDERNG_ID', ENT_QUOTES, 'UTF-8') . $sort_indicator('colRecord'),
                                 'colRecord'
                             ); ?>
                         </th>
@@ -456,7 +456,7 @@ if ($themeJs !== '') {
                         ?>
                         <th class="hidden-phone align-middle text-nowrap small text-uppercase">
                             <?php echo $sortLink(
-                                htmlentities('COM_CONTENTBUILDERNG_ARTICLE', ENT_QUOTES, 'UTF-8') . $sort_indicator('colArticleId'),
+                                htmlspecialchars('COM_CONTENTBUILDERNG_ARTICLE', ENT_QUOTES, 'UTF-8') . $sort_indicator('colArticleId'),
                                 'colArticleId'
                             ); ?>
                         </th>
@@ -467,7 +467,7 @@ if ($themeJs !== '') {
                         ?>
                         <th class="hidden-phone align-middle text-nowrap small text-uppercase">
                             <?php echo $sortLink(
-                                htmlentities('COM_CONTENTBUILDERNG_AUTHOR', ENT_QUOTES, 'UTF-8') . $sort_indicator('colAuthor'),
+                                htmlspecialchars('COM_CONTENTBUILDERNG_AUTHOR', ENT_QUOTES, 'UTF-8') . $sort_indicator('colAuthor'),
                                 'colAuthor'
                             ); ?>
                         </th>
@@ -478,7 +478,7 @@ if ($themeJs !== '') {
                         ?>
                         <th class="hidden-phone align-middle text-nowrap small text-uppercase">
                             <?php echo $sortLink(
-                                htmlentities('COM_CONTENTBUILDERNG_RATING', ENT_QUOTES, 'UTF-8') . $sort_indicator('colRating'),
+                                htmlspecialchars('COM_CONTENTBUILDERNG_RATING', ENT_QUOTES, 'UTF-8') . $sort_indicator('colRating'),
                                 'colRating'
                             ); ?>
                         </th>
@@ -497,7 +497,7 @@ if ($themeJs !== '') {
                             ?>
                             <th class="<?php echo $hidden; ?> align-middle text-nowrap small text-uppercase">
                                 <?php echo $sortLink(
-                                    nl2br(htmlentities(ContentbuilderngHelper::contentbuilderng_wordwrap($label, 20,"\n", true), ENT_QUOTES, 'UTF-8')) . $sort_indicator("col$reference_id"),"col$reference_id"
+                                    nl2br(htmlspecialchars(ContentbuilderngHelper::contentbuilderng_wordwrap($label, 20,"\n", true), ENT_QUOTES, 'UTF-8')) . $sort_indicator("col$reference_id"),"col$reference_id"
                                 ); ?>
                             </th>
                             <?php
@@ -565,7 +565,7 @@ if ($themeJs !== '') {
                         ?>
                         <td class="hidden-phone"
                             style="background-color: #<?php echo isset($this->state_colors[$row->colRecord]) ? $this->state_colors[$row->colRecord] : 'FFFFFF'; ?>;">
-                            <?php echo isset($this->state_titles[$row->colRecord]) ? htmlentities($this->state_titles[$row->colRecord], ENT_QUOTES, 'UTF-8') : ''; ?>
+                            <?php echo isset($this->state_titles[$row->colRecord]) ? htmlspecialchars($this->state_titles[$row->colRecord], ENT_QUOTES, 'UTF-8') : ''; ?>
                         </td>
                         <?php
                     }
@@ -617,12 +617,12 @@ if ($themeJs !== '') {
                             if (($view_allowed || $this->own_only)) {
                                 ?>
                                 <a href="<?php echo $link; ?>">
-                                    <?php echo htmlentities($row->colAuthor, ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php echo htmlspecialchars($row->colAuthor, ENT_QUOTES, 'UTF-8'); ?>
                                 </a>
                                 <?php
                             } else {
                                 ?>
-                                <?php echo htmlentities($row->colAuthor, ENT_QUOTES, 'UTF-8'); ?>
+                                <?php echo htmlspecialchars($row->colAuthor, ENT_QUOTES, 'UTF-8'); ?>
                                 <?php
                             }
                             ?>

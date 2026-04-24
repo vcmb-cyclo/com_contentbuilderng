@@ -15,7 +15,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Session\Session;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\Database\DatabaseInterface;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
@@ -32,7 +31,7 @@ class ListController extends BaseController
 
     public function delete(): void
     {
-        if (!Session::checkToken('post')) {
+        if (!$this->checkToken('post', false)) {
             throw new \RuntimeException(Text::_('JINVALID_TOKEN'), 403);
         }
 
@@ -132,7 +131,7 @@ class ListController extends BaseController
 
     public function state(): void
     {
-        if (!Session::checkToken('post')) {
+        if (!$this->checkToken('post', false)) {
             throw new \RuntimeException(Text::_('JINVALID_TOKEN'), 403);
         }
 
@@ -211,7 +210,7 @@ class ListController extends BaseController
 
     public function publish(): void
     {
-        if (!Session::checkToken('post')) {
+        if (!$this->checkToken('post', false)) {
             throw new \RuntimeException(Text::_('JINVALID_TOKEN'), 403);
         }
 

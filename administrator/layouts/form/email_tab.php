@@ -51,21 +51,21 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
 </div>
 <?php if (!empty($item->edit_by_type)) : ?>
     <?php echo $breezingFormsProvidedMessage; ?>
-    <input type="hidden" name="jform[email_admin_template]" id="cb-form-email-admin-template-hidden" value="<?php echo htmlentities($item->email_admin_template ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_template]" id="cb-form-email-user-template-hidden" value="<?php echo htmlentities($item->email_template ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_admin_subject]" id="cb-form-email-admin-subject-hidden" value="<?php echo htmlentities($item->email_admin_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_admin_alternative_from]" id="cb-form-email-admin-alternative-from-hidden" value="<?php echo htmlentities($item->email_admin_alternative_from ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_admin_alternative_fromname]" id="cb-form-email-admin-alternative-fromname-hidden" value="<?php echo htmlentities($item->email_admin_alternative_fromname ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_admin_recipients]" id="cb-form-email-admin-recipients-hidden" value="<?php echo htmlentities($item->email_admin_recipients ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_admin_recipients_attach_uploads]" id="cb-form-email-admin-recipients-attach-uploads-hidden" value="<?php echo htmlentities($item->email_admin_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_admin_html]" id="cb-form-email-admin-html-hidden" value="<?php echo htmlentities($item->email_admin_html ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_template]" id="cb-form-email-admin-template-hidden" value="<?php echo htmlspecialchars($item->email_admin_template ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_template]" id="cb-form-email-user-template-hidden" value="<?php echo htmlspecialchars($item->email_template ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_subject]" id="cb-form-email-admin-subject-hidden" value="<?php echo htmlspecialchars($item->email_admin_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_alternative_from]" id="cb-form-email-admin-alternative-from-hidden" value="<?php echo htmlspecialchars($item->email_admin_alternative_from ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_alternative_fromname]" id="cb-form-email-admin-alternative-fromname-hidden" value="<?php echo htmlspecialchars($item->email_admin_alternative_fromname ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_recipients]" id="cb-form-email-admin-recipients-hidden" value="<?php echo htmlspecialchars($item->email_admin_recipients ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_recipients_attach_uploads]" id="cb-form-email-admin-recipients-attach-uploads-hidden" value="<?php echo htmlspecialchars($item->email_admin_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_admin_html]" id="cb-form-email-admin-html-hidden" value="<?php echo htmlspecialchars($item->email_admin_html ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
 
-    <input type="hidden" name="jform[email_subject]" id="cb-form-email-user-subject-hidden" value="<?php echo htmlentities($item->email_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_alternative_from]" id="cb-form-email-user-alternative-from-hidden" value="<?php echo htmlentities($item->email_alternative_from ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_alternative_fromname]" id="cb-form-email-user-alternative-fromname-hidden" value="<?php echo htmlentities($item->email_alternative_fromname ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_recipients]" id="cb-form-email-user-recipients-hidden" value="<?php echo htmlentities($item->email_recipients ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_recipients_attach_uploads]" id="cb-form-email-user-recipients-attach-uploads-hidden" value="<?php echo htmlentities($item->email_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
-    <input type="hidden" name="jform[email_html]" id="cb-form-email-user-html-hidden" value="<?php echo htmlentities($item->email_html ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_subject]" id="cb-form-email-user-subject-hidden" value="<?php echo htmlspecialchars($item->email_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_alternative_from]" id="cb-form-email-user-alternative-from-hidden" value="<?php echo htmlspecialchars($item->email_alternative_from ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_alternative_fromname]" id="cb-form-email-user-alternative-fromname-hidden" value="<?php echo htmlspecialchars($item->email_alternative_fromname ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_recipients]" id="cb-form-email-user-recipients-hidden" value="<?php echo htmlspecialchars($item->email_recipients ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_recipients_attach_uploads]" id="cb-form-email-user-recipients-attach-uploads-hidden" value="<?php echo htmlspecialchars($item->email_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
+    <input type="hidden" name="jform[email_html]" id="cb-form-email-user-html-hidden" value="<?php echo htmlspecialchars($item->email_html ?? '', ENT_QUOTES, 'UTF-8'); ?>"/>
 <?php else : ?>
     <div id="cb-form-email-admins" style="cursor:pointer; width: 100%; background-color: var(--bs-body-bg);"
         onclick="if(document.adminForm.email_admins.value=='none'){document.adminForm.email_admins.value='';document.getElementById('email_admins_div').style.display='';}else{document.adminForm.email_admins.value='none';document.getElementById('email_admins_div').style.display='none';}">
@@ -87,7 +87,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 <td>
                     <input class="form-control form-control-sm w-100" id="email_admin_subject" type="text"
                         name="jform[email_admin_subject]"
-                        value="<?php echo htmlentities($item->email_admin_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->email_admin_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </td>
                 <td width="20%">
                     <label for="email_admin_alternative_from">
@@ -97,7 +97,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 <td>
                     <input class="form-control form-control-sm w-100" id="email_admin_alternative_from" type="text"
                         name="jform[email_admin_alternative_from]"
-                        value="<?php echo htmlentities($item->email_admin_alternative_from ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->email_admin_alternative_from ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </td>
             </tr>
             <tr>
@@ -109,7 +109,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 <td>
                     <input class="form-control form-control-sm w-100" id="email_admin_alternative_fromname"
                         type="text" name="jform[email_admin_alternative_fromname]"
-                        value="<?php echo htmlentities($item->email_admin_alternative_fromname ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->email_admin_alternative_fromname ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </td>
                 <td width="20%">
                     <label for="email_admin_recipients"><span class="editlinktip hasTip"
@@ -120,7 +120,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 <td>
                     <input class="form-control form-control-sm w-100" id="email_admin_recipients" type="text"
                         name="jform[email_admin_recipients]"
-                        value="<?php echo htmlentities($item->email_admin_recipients ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->email_admin_recipients ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </td>
             </tr>
             <tr>
@@ -133,7 +133,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 <td>
                     <input class="form-control form-control-sm w-100" id="email_admin_recipients_attach_uploads"
                         type="text" name="jform[email_admin_recipients_attach_uploads]"
-                        value="<?php echo htmlentities($item->email_admin_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->email_admin_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </td>
                 <td width="20%">
                     <label for="email_admin_html">
@@ -193,7 +193,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 <td>
                     <input class="form-control form-control-sm w-100" id="email_subject" type="text"
                         name="jform[email_subject]"
-                        value="<?php echo htmlentities($item->email_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->email_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </td>
                 <td width="20%">
                     <label for="email_alternative_from">
@@ -203,7 +203,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 <td>
                     <input class="form-control form-control-sm w-100" id="email_alternative_from" type="text"
                         name="jform[email_alternative_from]"
-                        value="<?php echo htmlentities($item->email_alternative_from ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->email_alternative_from ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </td>
             </tr>
             <tr>
@@ -215,7 +215,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 <td>
                     <input class="form-control form-control-sm w-100" id="email_alternative_fromname" type="text"
                         name="jform[email_alternative_fromname]"
-                        value="<?php echo htmlentities($item->email_alternative_fromname ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->email_alternative_fromname ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </td>
                 <td width="20%">
                     <label for="email_recipients">
@@ -225,7 +225,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 <td>
                     <input class="form-control form-control-sm w-100" id="email_recipients" type="text"
                         name="jform[email_recipients]"
-                        value="<?php echo htmlentities($item->email_recipients ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->email_recipients ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </td>
             </tr>
             <tr>
@@ -237,7 +237,7 @@ $breezingFormsProvidedMessage = (string) ($displayData['breezingFormsProvidedMes
                 <td>
                     <input class="form-control form-control-sm w-100" id="email_recipients_attach_uploads"
                         type="text" name="jform[email_recipients_attach_uploads]"
-                        value="<?php echo htmlentities($item->email_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->email_recipients_attach_uploads ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </td>
                 <td width="20%">
                     <label for="email_html">

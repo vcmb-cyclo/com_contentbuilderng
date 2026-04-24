@@ -647,7 +647,7 @@ class plgSystemContentbuilderng_system extends CMSPlugin implements SubscriberIn
 
             $data['items'] = $form->getRecord($data['record_id'], false, -1, true);
 
-            $article_id = (new ArticleService())->createArticle($data['form_id'], $data['record_id'], $data['items'], $ids, $data['title_field'], $form->getRecordMetadata($data['record_id']), array(), false, 1, $data['default_category']);
+            $article_id = $this->app->bootComponent('com_contentbuilderng')->getContainer()->get(ArticleService::class)->createArticle($data['form_id'], $data['record_id'], $data['items'], $ids, $data['title_field'], $form->getRecordMetadata($data['record_id']), array(), false, 1, $data['default_category']);
 
             if ($article_id) {
                 $updateArticleQuery = $this->db->getQuery(true)

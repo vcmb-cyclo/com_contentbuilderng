@@ -50,7 +50,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                     <?php echo Text::_('COM_CONTENTBUILDERNG_ID'); ?>
                 </td>
                 <td>
-                    <?php echo htmlentities($this->subject->id, ENT_QUOTES, 'UTF-8'); ?>
+                    <?php echo htmlspecialchars($this->subject->id, ENT_QUOTES, 'UTF-8'); ?>
                 </td>
             </tr>
             <tr class="row0">
@@ -58,7 +58,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                     <?php echo Text::_('COM_CONTENTBUILDERNG_NAME'); ?>
                 </td>
                 <td>
-                    <?php echo htmlentities($this->subject->name, ENT_QUOTES, 'UTF-8'); ?>
+                    <?php echo htmlspecialchars($this->subject->name, ENT_QUOTES, 'UTF-8'); ?>
                 </td>
             </tr>
             <tr class="row0">
@@ -66,7 +66,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                     <?php echo Text::_('COM_CONTENTBUILDERNG_USERNAME'); ?>
                 </td>
                 <td>
-                    <?php echo htmlentities($this->subject->username, ENT_QUOTES, 'UTF-8'); ?>
+                    <?php echo htmlspecialchars($this->subject->username, ENT_QUOTES, 'UTF-8'); ?>
                 </td>
             </tr>
             <tr class="row0">

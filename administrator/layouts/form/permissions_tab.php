@@ -151,7 +151,7 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab1', $frontendTabLabel);
                 <div class="cb-perm-users-field cb-perm-users-field-grow">
                     <?php echo $permOptionLabel('force_url', 'COM_CONTENTBUILDERNG_PERM_FORCE_URL', 'COM_CONTENTBUILDERNG_PERM_FORCE_URL_TIP'); ?>
                     <input class="form-control form-control-sm" id="force_url" name="jform[force_url]" type="text"
-                        value="<?php echo htmlentities($item->force_url ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->force_url ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </div>
             <?php endif; ?>
         </div>
@@ -351,7 +351,7 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab2', $usersTabLabel);
                             <?php echo $permOptionLabel('verification_url_' . $permSuffix, 'COM_CONTENTBUILDERNG_PERM_VERIFICATION_URL', 'COM_CONTENTBUILDERNG_PERM_VERIFICATION_URL_TIP'); ?>
                             <input class="form-control form-control-sm" id="verification_url_<?php echo $permSuffix; ?>"
                                 name="jform[verification_url_<?php echo $permSuffix; ?>]" type="text"
-                                value="<?php echo htmlentities($item->{'verification_url_' . $permSuffix} ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                                value="<?php echo htmlspecialchars($item->{'verification_url_' . $permSuffix} ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                         </div>
                     </div>
                 </div>
@@ -387,7 +387,7 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab2', $usersTabLabel);
                             <option value="">- <?php echo Text::_($labelKey); ?> -</option>
                             <?php foreach ($elements as $theElement) : ?>
                                 <option value="<?php echo $theElement->reference_id; ?>" <?php echo ($item->{$fieldName} ?? null) == $theElement->reference_id ? ' selected="selected"' : ''; ?>>
-                                    <?php echo htmlentities($theElement->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php echo htmlspecialchars($theElement->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -403,7 +403,7 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab2', $usersTabLabel);
                 <div class="cb-perm-users-field cb-perm-users-field-grow">
                     <?php echo $permOptionLabel('force_url', 'COM_CONTENTBUILDERNG_PERM_FORCE_URL', 'COM_CONTENTBUILDERNG_PERM_FORCE_URL_TIP'); ?>
                     <input class="form-control form-control-sm" id="force_url" name="jform[force_url]" type="text"
-                        value="<?php echo htmlentities($item->force_url ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->force_url ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </div>
                 <div class="cb-perm-users-field">
                     <?php echo $permOptionLabel('registration_bypass_plugin', 'COM_CONTENTBUILDERNG_PERM_REGISTRATION_BYPASS_PLUGIN', 'COM_CONTENTBUILDERNG_PERM_REGISTRATION_BYPASS_PLUGIN_TIP'); ?>
@@ -420,34 +420,34 @@ echo HTMLHelper::_('uitab.addTab', 'perm-pane', 'permtab2', $usersTabLabel);
                     <?php echo $permOptionLabel('registration_bypass_verification_name', 'COM_CONTENTBUILDERNG_PERM_REGISTRATION_BYPASS_VERIFICATION_NAME', 'COM_CONTENTBUILDERNG_PERM_REGISTRATION_BYPASS_VERIFICATION_NAME_TIP'); ?>
                     <input class="form-control form-control-sm" type="text" name="jform[registration_bypass_verification_name]"
                         id="registration_bypass_verification_name"
-                        value="<?php echo htmlentities($item->registration_bypass_verification_name ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->registration_bypass_verification_name ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </div>
                 <div class="cb-perm-users-field">
                     <?php echo $permOptionLabel('registration_bypass_verify_view', 'COM_CONTENTBUILDERNG_PERM_REGISTRATION_BYPASS_VERIFICATION_VIEW', 'COM_CONTENTBUILDERNG_PERM_REGISTRATION_BYPASS_VERIFICATION_VIEW_TIP'); ?>
                     <input class="form-control form-control-sm" type="text" name="jform[registration_bypass_verify_view]"
                         id="registration_bypass_verify_view"
-                        value="<?php echo htmlentities($item->registration_bypass_verify_view ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                        value="<?php echo htmlspecialchars($item->registration_bypass_verify_view ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                 </div>
                 <div class="cb-perm-users-field cb-perm-users-field-wide">
                     <?php echo $permOptionLabel('registration_bypass_plugin_params', 'COM_CONTENTBUILDERNG_PERM_REGISTRATION_BYPASS_PLUGIN_PARAMS', 'COM_CONTENTBUILDERNG_PERM_REGISTRATION_BYPASS_PLUGIN_PARAMS_TIP'); ?>
                     <textarea class="form-control form-control-sm" style="min-height: 96px;"
                         name="jform[registration_bypass_plugin_params]"
-                        id="registration_bypass_plugin_params"><?php echo htmlentities($item->registration_bypass_plugin_params ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                        id="registration_bypass_plugin_params"><?php echo htmlspecialchars($item->registration_bypass_plugin_params ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                 </div>
             </div>
         </section>
     <?php else : ?>
-        <input type="hidden" name="jform[act_as_registration]" value="<?php echo htmlentities($item->act_as_registration ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-        <input type="hidden" name="jform[registration_name_field]" value="<?php echo htmlentities($item->registration_name_field ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-        <input type="hidden" name="jform[registration_username_field]" value="<?php echo htmlentities($item->registration_username_field ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-        <input type="hidden" name="jform[registration_email_field]" value="<?php echo htmlentities($item->registration_email_field ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-        <input type="hidden" name="jform[registration_email_repeat_field]" value="<?php echo htmlentities($item->registration_email_repeat_field ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-        <input type="hidden" name="jform[registration_password_field]" value="<?php echo htmlentities($item->registration_password_field ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-        <input type="hidden" name="jform[registration_password_repeat_field]" value="<?php echo htmlentities($item->registration_password_repeat_field ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-        <input type="hidden" name="jform[registration_bypass_plugin]" value="<?php echo htmlentities($item->registration_bypass_plugin ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-        <input type="hidden" name="jform[registration_bypass_verification_name]" value="<?php echo htmlentities($item->registration_bypass_verification_name ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-        <input type="hidden" name="jform[registration_bypass_verify_view]" value="<?php echo htmlentities($item->registration_bypass_verify_view ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-        <input type="hidden" name="jform[registration_bypass_plugin_params]" value="<?php echo htmlentities($item->registration_bypass_plugin_params ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+        <input type="hidden" name="jform[act_as_registration]" value="<?php echo htmlspecialchars($item->act_as_registration ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+        <input type="hidden" name="jform[registration_name_field]" value="<?php echo htmlspecialchars($item->registration_name_field ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+        <input type="hidden" name="jform[registration_username_field]" value="<?php echo htmlspecialchars($item->registration_username_field ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+        <input type="hidden" name="jform[registration_email_field]" value="<?php echo htmlspecialchars($item->registration_email_field ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+        <input type="hidden" name="jform[registration_email_repeat_field]" value="<?php echo htmlspecialchars($item->registration_email_repeat_field ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+        <input type="hidden" name="jform[registration_password_field]" value="<?php echo htmlspecialchars($item->registration_password_field ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+        <input type="hidden" name="jform[registration_password_repeat_field]" value="<?php echo htmlspecialchars($item->registration_password_repeat_field ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+        <input type="hidden" name="jform[registration_bypass_plugin]" value="<?php echo htmlspecialchars($item->registration_bypass_plugin ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+        <input type="hidden" name="jform[registration_bypass_verification_name]" value="<?php echo htmlspecialchars($item->registration_bypass_verification_name ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+        <input type="hidden" name="jform[registration_bypass_verify_view]" value="<?php echo htmlspecialchars($item->registration_bypass_verify_view ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+        <input type="hidden" name="jform[registration_bypass_plugin_params]" value="<?php echo htmlspecialchars($item->registration_bypass_plugin_params ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
     <?php endif; ?>
 </div>
 <?php

@@ -466,7 +466,7 @@ $advancedDefaults = [
                         </option>
                         <?php foreach ($elements as $sortable) : ?>
                             <option value="<?php echo $sortable->reference_id; ?>" <?php echo ($item->initial_sort_order ?? null) == $sortable->reference_id ? ' selected="selected"' : ''; ?>>
-                                <?php echo htmlentities($sortable->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                <?php echo htmlspecialchars($sortable->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -480,7 +480,7 @@ $advancedDefaults = [
                         </option>
                         <?php foreach ($elements as $sortable) : ?>
                             <option value="<?php echo $sortable->reference_id; ?>" <?php echo ($item->initial_sort_order2 ?? null) == $sortable->reference_id ? ' selected="selected"' : ''; ?>>
-                                <?php echo htmlentities($sortable->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                <?php echo htmlspecialchars($sortable->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -494,7 +494,7 @@ $advancedDefaults = [
                         </option>
                         <?php foreach ($elements as $sortable) : ?>
                             <option value="<?php echo $sortable->reference_id; ?>" <?php echo ($item->initial_sort_order3 ?? null) == $sortable->reference_id ? ' selected="selected"' : ''; ?>>
-                                <?php echo htmlentities($sortable->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                <?php echo htmlspecialchars($sortable->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -564,7 +564,7 @@ $advancedDefaults = [
             </label>
             <input class="form-control form-control-sm" type="text" id="save_button_title"
                 name="jform[save_button_title]"
-                value="<?php echo htmlentities($item->save_button_title ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                value="<?php echo htmlspecialchars($item->save_button_title ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
 
             <label for="apply_button_title">
                 <span class="editlinktip hasTip"
@@ -574,7 +574,7 @@ $advancedDefaults = [
             </label>
             <input class="form-control form-control-sm" type="text" id="apply_button_title"
                 name="jform[apply_button_title]"
-                value="<?php echo htmlentities($item->apply_button_title ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                value="<?php echo htmlspecialchars($item->apply_button_title ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
         </div>
     </fieldset>
 

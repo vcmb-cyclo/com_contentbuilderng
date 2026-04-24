@@ -13,6 +13,7 @@ namespace CB\Component\Contentbuilderng\Site\Controller;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Access\Exception\NotAllowed;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Response\JsonResponse;
 use Joomla\CMS\Uri\Uri;
@@ -60,6 +61,22 @@ class EditController extends BaseController
         return $isAdminPreview;
     }
 
+    private function checkPermissionForAjax(string $action, string $message): bool
+    {
+        try {
+            $this->getPermissionService()->checkPermissions($action, $message, $this->frontend ? '_fe' : '');
+        } catch (NotAllowed $e) {
+            if ($this->isAjaxCall()) {
+                $this->respondAjax(false, $e->getMessage());
+                return false;
+            }
+
+            throw $e;
+        }
+
+        return true;
+    }
+
     public function __construct(
         $config,
         MVCFactoryInterface $factory,
@@ -81,9 +98,12 @@ class EditController extends BaseController
         $isDirectStorageMode = $storageId > 0 && $this->siteApp->input->getInt('id', 0) <= 0;
         $isAdminPreview = $isDirectStorageMode ? $this->isValidAdminPreviewRequest(0, $storageId) : false;
 
+        $task = (string) $this->siteApp->input->getCmd('task', '');
+        $taskAction = str_contains($task, '.') ? substr($task, strrpos($task, '.') + 1) : $task;
+
         if ($isDirectStorageMode && $isAdminPreview) {
             $this->getPermissionService()->setStoragePreviewPermissions($storageId, $this->frontend ? '_fe' : '');
-        } elseif ($this->siteApp->input->getCmd('task', '') == 'delete' || $this->siteApp->input->getCmd('task', '') == 'publish') {
+        } elseif (in_array($taskAction, ['delete', 'state', 'publish', 'language'], true)) {
             $items = $this->siteApp->input->get('cid', [], 'array');
             $this->getPermissionService()->setPermissions($this->siteApp->input->getInt('id', 0), $items, $this->frontend ? '_fe' : '');
         } else {
@@ -269,7 +289,9 @@ class EditController extends BaseController
     {
         $isAdminPreview = $this->applyPreviewContextForAction();
         if (!$isAdminPreview) {
-            $this->getPermissionService()->checkPermissions('state', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_STATE_CHANGE_NOT_ALLOWED'), $this->frontend ? '_fe' : '');
+            if (!$this->checkPermissionForAjax('state', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_STATE_CHANGE_NOT_ALLOWED'))) {
+                return;
+            }
         }
 
         $model = $this->getEditModel(['ignore_request' => true]);
@@ -294,10 +316,17 @@ class EditController extends BaseController
 
         if ($isDirectStorageMode && !$isAdminPreview) {
             if (!$this->siteApp->getIdentity()->authorise('core.edit.state', 'com_contentbuilderng')) {
+                if ($this->isAjaxCall()) {
+                    $this->respondAjax(false, Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_PUBLISHING_NOT_ALLOWED'));
+                    return;
+                }
+
                 throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_PUBLISHING_NOT_ALLOWED'), 403);
             }
         } elseif (!$isAdminPreview) {
-            $this->getPermissionService()->checkPermissions('publish', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_PUBLISHING_NOT_ALLOWED'), $this->frontend ? '_fe' : '');
+            if (!$this->checkPermissionForAjax('publish', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_PUBLISHING_NOT_ALLOWED'))) {
+                return;
+            }
         }
 
         $model = $this->getEditModel(['ignore_request' => true]);
@@ -333,7 +362,9 @@ class EditController extends BaseController
     {
         $isAdminPreview = $this->applyPreviewContextForAction();
         if (!$isAdminPreview) {
-            $this->getPermissionService()->checkPermissions('language', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_CHANGE_LANGUAGE_NOT_ALLOWED'), $this->frontend ? '_fe' : '');
+            if (!$this->checkPermissionForAjax('language', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_CHANGE_LANGUAGE_NOT_ALLOWED'))) {
+                return;
+            }
         }
 
         $model = $this->getEditModel(['ignore_request' => true]);

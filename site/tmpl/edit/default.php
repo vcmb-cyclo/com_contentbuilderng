@@ -91,8 +91,8 @@ $listQuery = NavigationLinkHelper::buildListQuery($listStart, $listLimit, $listO
 $listHiddenFields = ''
     . '<input type="hidden" name="list[start]" value="' . (int) $listStart . '" />' . "\n"
     . '<input type="hidden" name="list[limit]" value="' . (int) $listLimit . '" />' . "\n"
-    . '<input type="hidden" name="list[ordering]" value="' . htmlentities($listOrdering, ENT_QUOTES, 'UTF-8') . '" />' . "\n"
-    . '<input type="hidden" name="list[direction]" value="' . htmlentities($listDirection, ENT_QUOTES, 'UTF-8') . '" />';
+    . '<input type="hidden" name="list[ordering]" value="' . htmlspecialchars($listOrdering, ENT_QUOTES, 'UTF-8') . '" />' . "\n"
+    . '<input type="hidden" name="list[direction]" value="' . htmlspecialchars($listDirection, ENT_QUOTES, 'UTF-8') . '" />';
 $previewHiddenFields = '';
 $previewEnabled = $input->getBool('cb_preview', false);
 $previewUntil = $input->getInt('cb_preview_until', 0);
@@ -258,7 +258,7 @@ if (!empty($this->created)) {
 
 $createdByText = '';
 if (!empty($this->created_by)) {
-    $createdByText = Text::_('COM_CONTENTBUILDERNG_BY') . ' ' . htmlentities((string) $this->created_by, ENT_QUOTES, 'UTF-8');
+    $createdByText = Text::_('COM_CONTENTBUILDERNG_BY') . ' ' . htmlspecialchars((string) $this->created_by, ENT_QUOTES, 'UTF-8');
 }
 
 $modifiedOnText = '';
@@ -268,7 +268,7 @@ if (!empty($this->modified)) {
 
 $modifiedByText = '';
 if (!empty($this->modified_by)) {
-    $modifiedByText = Text::_('COM_CONTENTBUILDERNG_BY') . ' ' . htmlentities((string) $this->modified_by, ENT_QUOTES, 'UTF-8');
+    $modifiedByText = Text::_('COM_CONTENTBUILDERNG_BY') . ' ' . htmlspecialchars((string) $this->modified_by, ENT_QUOTES, 'UTF-8');
 }
 
 $createdTrailText = trim($createdOnText . (($createdOnText !== '' && $createdByText !== '') ? ' ' : '') . $createdByText);
@@ -814,7 +814,7 @@ CSS
     ?>
         <button class="btn btn-sm btn-primary cbButton cbSaveButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_SAVE_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="document.getElementById('contentbuilderng_task').value='edit.apply';contentbuilderng.onSubmit();">
             <span class="fa-solid fa-floppy-disk me-1" aria-hidden="true"></span>
-            <?php echo trim($this->save_button_title) != '' ? htmlentities($this->save_button_title, ENT_QUOTES, 'UTF-8') : Text::_('COM_CONTENTBUILDERNG_SAVE'); ?>
+            <?php echo trim($this->save_button_title) != '' ? htmlspecialchars($this->save_button_title, ENT_QUOTES, 'UTF-8') : Text::_('COM_CONTENTBUILDERNG_SAVE'); ?>
         </button>
     <?php
     }

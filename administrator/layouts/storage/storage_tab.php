@@ -52,11 +52,11 @@ $storageFieldColumns = [
                         <td>
                             <?php if (!$item->bytable) : ?>
                                 <input class="form-control form-control-sm w-100" type="text" id="name" name="jform[name]"
-                                    value="<?php echo htmlentities($item->name ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                                    value="<?php echo htmlspecialchars($item->name ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                                 <br /><br />
                             <?php else : ?>
                                 <input type="hidden" id="name" name="jform[name]"
-                                    value="<?php echo htmlentities($item->name, ENT_QUOTES, 'UTF-8'); ?>" />
+                                    value="<?php echo htmlspecialchars($item->name, ENT_QUOTES, 'UTF-8'); ?>" />
                             <?php endif; ?>
 
                             <?php if (!$item->id) : ?>
@@ -71,15 +71,15 @@ $storageFieldColumns = [
                                         <?php echo Text::_('COM_CONTENTBUILDERNG_NONE'); ?> -
                                     </option>
                                     <?php foreach ($tables as $table) : ?>
-                                        <option value="<?php echo htmlentities($table, ENT_QUOTES, 'UTF-8'); ?>">
-                                            <?php echo htmlentities($table, ENT_QUOTES, 'UTF-8'); ?>
+                                        <option value="<?php echo htmlspecialchars($table, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <?php echo htmlspecialchars($table, ENT_QUOTES, 'UTF-8'); ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             <?php elseif ($item->bytable) : ?>
                                 <input type="hidden" id="bytable" name="jform[bytable]"
-                                    value="<?php echo htmlentities($item->name, ENT_QUOTES, 'UTF-8'); ?>" />
-                                <?php echo htmlentities($item->name, ENT_QUOTES, 'UTF-8'); ?>
+                                    value="<?php echo htmlspecialchars($item->name, ENT_QUOTES, 'UTF-8'); ?>" />
+                                <?php echo htmlspecialchars($item->name, ENT_QUOTES, 'UTF-8'); ?>
                             <?php else : ?>
                                 <input type="hidden" id="bytable" name="jform[bytable]" value="" />
                             <?php endif; ?>
@@ -98,7 +98,7 @@ $storageFieldColumns = [
                         <td>
                             <input class="form-control form-control-sm w-100" type="text" id="title"
                                 name="jform[title]"
-                                value="<?php echo htmlentities($item->title ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                                value="<?php echo htmlspecialchars($item->title ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
                         </td>
                     </tr>
                     <tr id="csvUploadHead">

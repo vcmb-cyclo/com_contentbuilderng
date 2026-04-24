@@ -2186,7 +2186,7 @@ by this block. -->
 													data-state-color="<?php echo htmlspecialchars((string) ($state['color'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
 													<?php echo $currentStateTitle === $state['title'] ? 'selected' : ''; ?>
 												>
-													<?php echo htmlentities($state['title'], ENT_QUOTES, 'UTF-8'); ?>
+													<?php echo htmlspecialchars($state['title'], ENT_QUOTES, 'UTF-8'); ?>
 												</option>
 											<?php endforeach; ?>
 										</select>
@@ -2341,7 +2341,7 @@ by this block. -->
 					if ($this->show_id_column) {
 					?>
 						<th class="table-light hidden-phone" width="5">
-							<?php echo HTMLHelper::_('grid.sort', htmlentities('COM_CONTENTBUILDERNG_ID', ENT_QUOTES, 'UTF-8'), 'colRecord', $this->lists['order_Dir'], $this->lists['order']); ?>
+							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_ID', ENT_QUOTES, 'UTF-8'), 'colRecord', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
 					}
@@ -2390,7 +2390,7 @@ by this block. -->
 					if ($this->list_article) {
 					?>
 						<th class="table-light hidden-phone">
-							<?php echo HTMLHelper::_('grid.sort', htmlentities('COM_CONTENTBUILDERNG_ARTICLE', ENT_QUOTES, 'UTF-8'), 'colArticleId', $this->lists['order_Dir'], $this->lists['order']); ?>
+							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_ARTICLE', ENT_QUOTES, 'UTF-8'), 'colArticleId', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
 					}
@@ -2398,7 +2398,7 @@ by this block. -->
 					if ($this->list_author) {
 					?>
 						<th class="table-light hidden-phone">
-							<?php echo HTMLHelper::_('grid.sort', htmlentities('COM_CONTENTBUILDERNG_AUTHOR', ENT_QUOTES, 'UTF-8'), 'colAuthor', $this->lists['order_Dir'], $this->lists['order']); ?>
+							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_AUTHOR', ENT_QUOTES, 'UTF-8'), 'colAuthor', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
 					}
@@ -2413,7 +2413,7 @@ by this block. -->
 					if ($this->list_rating) {
 					?>
 						<th class="table-light hidden-phone">
-							<?php echo HTMLHelper::_('grid.sort', htmlentities('COM_CONTENTBUILDERNG_RATING', ENT_QUOTES, 'UTF-8'), 'colRating', $this->lists['order_Dir'], $this->lists['order']); ?>
+							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_RATING', ENT_QUOTES, 'UTF-8'), 'colRating', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 						<?php
 					}
@@ -2429,7 +2429,7 @@ by this block. -->
 							}
 							?>
 								<th class="table-light<?php echo $hidden; ?>">
-									<?php echo HTMLHelper::_('grid.sort', nl2br(htmlentities($wordwrapLabel((string) $label), ENT_QUOTES, 'UTF-8')), "col$reference_id", $this->lists['order_Dir'], $this->lists['order']); ?>
+									<?php echo HTMLHelper::_('grid.sort', nl2br(htmlspecialchars($wordwrapLabel((string) $label), ENT_QUOTES, 'UTF-8')), "col$reference_id", $this->lists['order_Dir'], $this->lists['order']); ?>
 								</th>
 						<?php
 							$label_count++;
@@ -2561,12 +2561,12 @@ by this block. -->
 											data-state-color="<?php echo htmlspecialchars((string) ($state['color'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
 											<?php echo $currentStateTitle === $state['title'] ? 'selected' : ''; ?>
 										>
-											<?php echo htmlentities($state['title'], ENT_QUOTES, 'UTF-8'); ?>
+											<?php echo htmlspecialchars($state['title'], ENT_QUOTES, 'UTF-8'); ?>
 										</option>
 									<?php endforeach; ?>
 								</select>
 							<?php else : ?>
-								<?php echo isset($this->state_titles[$row->colRecord]) ? htmlentities($this->state_titles[$row->colRecord], ENT_QUOTES, 'UTF-8') : ''; ?>
+								<?php echo isset($this->state_titles[$row->colRecord]) ? htmlspecialchars($this->state_titles[$row->colRecord], ENT_QUOTES, 'UTF-8') : ''; ?>
 							<?php endif; ?>
 						</td>
 					<?php
@@ -2634,7 +2634,7 @@ by this block. -->
 					if ($this->list_author) {
 					?>
 						<td class="hidden-phone">
-							<?php echo htmlentities($row->colAuthor, ENT_QUOTES, 'UTF-8'); ?>
+							<?php echo htmlspecialchars($row->colAuthor, ENT_QUOTES, 'UTF-8'); ?>
 						</td>
 					<?php
 					}

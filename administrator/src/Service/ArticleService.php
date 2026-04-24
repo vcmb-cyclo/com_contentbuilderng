@@ -18,10 +18,10 @@ class ArticleService
     private readonly TemplateRenderService $templateRenderService;
     private readonly TextUtilityService $textUtilityService;
 
-    public function __construct()
+    public function __construct(TemplateRenderService $templateRenderService)
     {
         $this->formResolverService = new FormResolverService();
-        $this->templateRenderService = new TemplateRenderService();
+        $this->templateRenderService = $templateRenderService;
         $this->textUtilityService = new TextUtilityService();
     }
 

@@ -102,7 +102,7 @@ class plgContentbuilderng_verifyPaypal extends CMSPlugin implements SubscriberIn
             $this->tax = isset($options['plugin_options']['tax']) && $options['plugin_options']['tax'] ? $options['plugin_options']['tax'] : 0;
             $this->ipn = isset($options['plugin_options']['use-ipn']) && $options['plugin_options']['use-ipn'] == 'true' ? true : false;
             $this->item_number = isset($options['plugin_options']['item-number']) && $options['plugin_options']['item-number'] ? $options['plugin_options']['item-number'] : 1;
-            $this->cancel_url = htmlentities(isset($options['plugin_options']['cancel-url']) && $options['plugin_options']['cancel-url'] ? $options['plugin_options']['cancel-url'] : str_replace('&verify=1', '', $return_url));
+            $this->cancel_url = htmlspecialchars(isset($options['plugin_options']['cancel-url']) && $options['plugin_options']['cancel-url'] ? $options['plugin_options']['cancel-url'] : str_replace('&verify=1', '', $return_url), ENT_QUOTES, 'UTF-8');
 
         } else {
             return 'Please specify an amount (price) for PayPal payment';

@@ -63,10 +63,11 @@ class DetailsModel extends ListModel
 
         /** @var SiteApplication $app */
         $app = Factory::getApplication();
+        $container = $app->bootComponent('com_contentbuilderng')->getContainer();
         $this->app = $app;
-        $this->templateRenderService = new TemplateRenderService();
         $this->runtimeUtilityService = new RuntimeUtilityService();
-        $this->listSupportService = $app->bootComponent('com_contentbuilderng')->getContainer()->get(ListSupportService::class);
+        $this->templateRenderService = $container->get(TemplateRenderService::class);
+        $this->listSupportService = $container->get(ListSupportService::class);
         $option = 'com_contentbuilderng';
         $this->frontend = $app->isClient('site');
         $this->directStorageId = max(0, $app->getInput()->getInt('storage_id', 0));
@@ -596,7 +597,7 @@ class DetailsModel extends ListModel
                                         }
                                         if ($out) {
                                             $this->_menu_filter[$order_key] = $ex;
-                                            $ordered_extra_title .= ' &raquo; ' . htmlentities($data->labels[$order_key], ENT_QUOTES, 'UTF-8') . ': ' . htmlentities($out, ENT_QUOTES, 'UTF-8');
+                                            $ordered_extra_title .= ' &raquo; ' . htmlspecialchars($data->labels[$order_key], ENT_QUOTES, 'UTF-8') . ': ' . htmlspecialchars($out, ENT_QUOTES, 'UTF-8');
                                         }
                                     }
                                 } else if ($is_match) {
@@ -616,11 +617,11 @@ class DetailsModel extends ListModel
                                         }
                                         if ($out) {
                                             $this->_menu_filter[$order_key] = $ex;
-                                            $ordered_extra_title .= ' &raquo; ' . htmlentities($data->labels[$order_key], ENT_QUOTES, 'UTF-8') . ': ' . htmlentities($out, ENT_QUOTES, 'UTF-8');
+                                            $ordered_extra_title .= ' &raquo; ' . htmlspecialchars($data->labels[$order_key], ENT_QUOTES, 'UTF-8') . ': ' . htmlspecialchars($out, ENT_QUOTES, 'UTF-8');
                                         }
                                     }
                                 } else {
-                                    $ordered_extra_title .= ' &raquo; ' . htmlentities($data->labels[$order_key], ENT_QUOTES, 'UTF-8') . ': ' . htmlentities(implode(', ', $this->_menu_filter[$order_key]), ENT_QUOTES, 'UTF-8');
+                                    $ordered_extra_title .= ' &raquo; ' . htmlspecialchars($data->labels[$order_key], ENT_QUOTES, 'UTF-8') . ': ' . htmlspecialchars(implode(', ', $this->_menu_filter[$order_key]), ENT_QUOTES, 'UTF-8');
                                 }
                             }
                         }

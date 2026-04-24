@@ -150,7 +150,7 @@ $visibleColumnCount = count($columnOptions);
                             id="itemLabels_<?php echo $row->id ?>"
                             onclick="document.getElementById('itemLabels<?php echo $row->id ?>').style.display='block';this.style.display='none';document.getElementById('itemLabels<?php echo $row->id ?>').focus();">
                             <b>
-                                <?php echo htmlentities($row->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                <?php echo htmlspecialchars($row->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
                             </b>
                         </div>
                         <input class="form-control form-control-sm"
@@ -158,8 +158,8 @@ $visibleColumnCount = count($columnOptions);
                             onkeydown="if (event.key === 'Enter') { event.preventDefault(); this.blur(); }"
                             id="itemLabels<?php echo $row->id ?>" type="text" style="display:none; width: 100%;"
                             name="jform[itemLabels][<?php echo $row->id ?>]"
-                            data-cb-last-saved="<?php echo htmlentities($row->label ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                            value="<?php echo htmlentities($row->label ?? '', ENT_QUOTES, 'UTF-8') ?>" />
+                            data-cb-last-saved="<?php echo htmlspecialchars($row->label ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            value="<?php echo htmlspecialchars($row->label ?? '', ENT_QUOTES, 'UTF-8') ?>" />
 
                         <select class="form-select form-select-sm d-inline-block w-auto cb-item-order-type-select"
                             id="itemOrderTypes<?php echo $row->id ?>" name="jform[itemOrderTypes][<?php echo $row->id ?>]">
@@ -201,7 +201,7 @@ $visibleColumnCount = count($columnOptions);
                     <?php
                     if (!($item->edit_by_type ?? false) && (($row->editable ?? null) || $isModifiedElement)) {
                         $typeBadgeClass = $isModifiedElement ? 'is-modified' : 'is-default';
-                        $typeBadgeTitle = $isModifiedElement ? ' title="' . htmlentities('Element settings changed from default', ENT_QUOTES, 'UTF-8') . '"' : '';
+                        $typeBadgeTitle = $isModifiedElement ? ' title="' . htmlspecialchars('Element settings changed from default', ENT_QUOTES, 'UTF-8') . '"' : '';
                         echo '<div class="mt-1"><a class="cb-item-type-badge ' . $typeBadgeClass . '" href="index.php?option=com_contentbuilderng&amp;view=elementoptions&amp;tmpl=component&amp;element_id=' . $row->id . '&amp;id=' . (int) ($item->id ?? 0) . '" data-bs-toggle="modal" data-bs-target="#text-type-modal"' . $typeBadgeTitle . '>' . ($isModifiedElement ? 'Modified' : 'Default') . '</a></div>';
                     }
                     ?>
@@ -209,7 +209,7 @@ $visibleColumnCount = count($columnOptions);
                 <td class="align-top" data-cb-col="wordwrap">
                     <input class="form-control form-control-sm cb-wordwrap-input" type="text" size="4" maxlength="4" inputmode="numeric" pattern="[0-9]{0,4}" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4);"
                         name="jform[itemWordwrap][<?php echo $row->id ?>]"
-                        value="<?php echo htmlentities($row->wordwrap ?? '', ENT_QUOTES, 'UTF-8') ?>" />
+                        value="<?php echo htmlspecialchars($row->wordwrap ?? '', ENT_QUOTES, 'UTF-8') ?>" />
                 </td>
                 <td class="align-top" data-cb-col="publish">
                     <?php echo $published; ?>

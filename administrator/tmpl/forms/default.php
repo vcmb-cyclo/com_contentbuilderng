@@ -199,13 +199,13 @@ updateClearButtonState();
                                 name="filter_tag"
                                 onchange="var form=document.adminForm;if(form){var start=form.elements['list[start]'];if(start){start.value=0;}var limitStart=form.elements['limitstart'];if(limitStart){limitStart.value=0;}form.submit();}">
                                 <option value="">
-                                    <?php echo htmlentities(Text::_('COM_CONTENTBUILDERNG_FILTER_TAG_ALL'), ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_FILTER_TAG_ALL'), ENT_QUOTES, 'UTF-8'); ?>
                                 </option>
                                 <?php foreach ($this->tags as $tag) : ?>
                                     <option
-                                        value="<?php echo htmlentities($tag->tag, ENT_QUOTES, 'UTF-8'); ?>"
+                                        value="<?php echo htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8'); ?>"
                                         <?php echo strtolower($filterTag) === strtolower((string) $tag->tag) ? 'selected="selected"' : ''; ?>>
-                                        <?php echo htmlentities($tag->tag, ENT_QUOTES, 'UTF-8'); ?>
+                                        <?php echo htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8'); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

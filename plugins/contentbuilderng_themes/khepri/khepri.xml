@@ -2,12 +2,12 @@
 <extension type="plugin" group="contentbuilderng_themes" method="upgrade">
   <name>ContentBuilder NG - Themes - Khepri</name>
   <author>XDA+GIL</author>
-  <creationDate>2026-04-23</creationDate>
+  <creationDate>2026-04-24</creationDate>
   <copyright>(C) 2026 by XDA+GIL</copyright>
   <license>GNU/GPL v2 or later</license>
   <authorEmail>noreply@vcmb.fr</authorEmail>
   <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-  <version>6.1.7-RC20</version>
+  <version>6.1.7-RC21</version>
   <description><![CDATA[A khepri based theme for ContentBuilder Content-Templates]]></description>
   <files>
     <filename plugin="khepri">khepri.php</filename>

@@ -305,7 +305,7 @@ class ExportModel extends BaseDatabaseModel
                                     }
                                     if ($out) {
                                         $this->_menu_filter[$order_key] = $ex;
-                                        $ordered_extra_title .= ' &raquo; ' . htmlentities($data->labels[$order_key], ENT_QUOTES, 'UTF-8') . ': ' . htmlentities($out, ENT_QUOTES, 'UTF-8');
+                                        $ordered_extra_title .= ' &raquo; ' . htmlspecialchars($data->labels[$order_key], ENT_QUOTES, 'UTF-8') . ': ' . htmlspecialchars($out, ENT_QUOTES, 'UTF-8');
                                     }
                                 }
                             } else if ($is_match) {
@@ -325,11 +325,11 @@ class ExportModel extends BaseDatabaseModel
                                     }
                                     if ($out) {
                                         $this->_menu_filter[$order_key] = $ex;
-                                        $ordered_extra_title .= ' &raquo; ' . htmlentities($data->labels[$order_key], ENT_QUOTES, 'UTF-8') . ': ' . htmlentities($out, ENT_QUOTES, 'UTF-8');
+                                        $ordered_extra_title .= ' &raquo; ' . htmlspecialchars($data->labels[$order_key], ENT_QUOTES, 'UTF-8') . ': ' . htmlspecialchars($out, ENT_QUOTES, 'UTF-8');
                                     }
                                 }
                             } else {
-                                $ordered_extra_title .= ' &raquo; ' . htmlentities($data->labels[$order_key], ENT_QUOTES, 'UTF-8') . ': ' . htmlentities(implode(', ', $this->_menu_filter[$order_key]), ENT_QUOTES, 'UTF-8');
+                                $ordered_extra_title .= ' &raquo; ' . htmlspecialchars($data->labels[$order_key], ENT_QUOTES, 'UTF-8') . ': ' . htmlspecialchars(implode(', ', $this->_menu_filter[$order_key]), ENT_QUOTES, 'UTF-8');
                             }
                         }
                     }

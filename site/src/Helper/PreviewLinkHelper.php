@@ -43,9 +43,9 @@ final class PreviewLinkHelper
         return '<input type="hidden" name="cb_preview" value="1" />' . "\n"
             . '<input type="hidden" name="cb_preview_until" value="' . (int) $until . '" />' . "\n"
             . '<input type="hidden" name="cb_preview_actor_id" value="' . (int) $actorId . '" />' . "\n"
-            . '<input type="hidden" name="cb_preview_actor_name" value="' . htmlentities($actorName, ENT_QUOTES, 'UTF-8') . '" />' . "\n"
+            . '<input type="hidden" name="cb_preview_actor_name" value="' . htmlspecialchars($actorName, ENT_QUOTES, 'UTF-8') . '" />' . "\n"
             . '<input type="hidden" name="cb_preview_user_id" value="' . (int) $userId . '" />' . "\n"
-            . '<input type="hidden" name="cb_preview_sig" value="' . htmlentities($sig, ENT_QUOTES, 'UTF-8') . '" />'
-            . ($adminReturn !== '' ? "\n" . '<input type="hidden" name="cb_admin_return" value="' . htmlentities($adminReturn, ENT_QUOTES, 'UTF-8') . '" />' : '');
+            . '<input type="hidden" name="cb_preview_sig" value="' . htmlspecialchars($sig, ENT_QUOTES, 'UTF-8') . '" />'
+            . ($adminReturn !== '' ? "\n" . '<input type="hidden" name="cb_admin_return" value="' . htmlspecialchars($adminReturn, ENT_QUOTES, 'UTF-8') . '" />' : '');
     }
 }

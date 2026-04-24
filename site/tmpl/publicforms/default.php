@@ -47,13 +47,13 @@ if ($this->page_heading) {
         <?php echo Text::_('COM_CONTENTBUILDERNG_FILTER_TAG'); ?>:
         <select name="filter_tag" onchange="document.adminForm.submit();">
             <option value=""> -
-                <?php echo htmlentities(Text::_('COM_CONTENTBUILDERNG_FILTER_TAG_ALL'), ENT_QUOTES, 'UTF-8') ?> -
+                <?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_FILTER_TAG_ALL'), ENT_QUOTES, 'UTF-8') ?> -
             </option>
             <?php
             foreach ($this->tags as $tag) {
                 ?>
-                <option value="<?php echo htmlentities($tag->tag, ENT_QUOTES, 'UTF-8') ?>" <?php echo strtolower($this->lists['filter_tag']) == strtolower($tag->tag) ? ' selected="selected"' : ''; ?>>
-                    <?php echo htmlentities($tag->tag, ENT_QUOTES, 'UTF-8') ?>
+                <option value="<?php echo htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8') ?>" <?php echo strtolower($this->lists['filter_tag']) == strtolower($tag->tag) ? ' selected="selected"' : ''; ?>>
+                    <?php echo htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8') ?>
                 </option>
                 <?php
             }
@@ -152,10 +152,10 @@ if ($this->page_heading) {
         $n = count($this->items);
         for ($i = 0; $i < $n; $i++) {
             $row = $this->items[$i];
-            $link_ = htmlentities($row->name, ENT_QUOTES, 'UTF-8');
+            $link_ = htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8');
             if (($this->show_permissions && $this->perms[$row->id]['view']) || !$this->show_permissions) {
                 $link = Route::_('index.php?option=com_contentbuilderng&title=' . $toUnicodeSlug((string) $row->name) . '&task=list.display&id=' . $row->id);
-                $link_ = '<a href="' . $link . '">' . htmlentities($row->name, ENT_QUOTES, 'UTF-8') . '</a>';
+                $link_ = '<a href="' . $link . '">' . htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8') . '</a>';
             }
             ?>
             <tr class="<?php echo"row$k"; ?>">

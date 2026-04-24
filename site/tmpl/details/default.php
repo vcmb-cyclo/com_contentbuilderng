@@ -408,7 +408,7 @@ CSS
 
     $createdByText = '';
     if (!empty($this->created_by)) {
-        $createdByText = Text::_('COM_CONTENTBUILDERNG_BY') . ' ' . htmlentities((string) $this->created_by, ENT_QUOTES, 'UTF-8');
+        $createdByText = Text::_('COM_CONTENTBUILDERNG_BY') . ' ' . htmlspecialchars((string) $this->created_by, ENT_QUOTES, 'UTF-8');
     }
 
     $modifiedOnText = '';
@@ -418,7 +418,7 @@ CSS
 
     $modifiedByText = '';
     if (!empty($this->modified_by)) {
-        $modifiedByText = Text::_('COM_CONTENTBUILDERNG_BY') . ' ' . htmlentities((string) $this->modified_by, ENT_QUOTES, 'UTF-8');
+        $modifiedByText = Text::_('COM_CONTENTBUILDERNG_BY') . ' ' . htmlspecialchars((string) $this->modified_by, ENT_QUOTES, 'UTF-8');
     }
 
     $createdTrailText = trim($createdOnText . (($createdOnText !== '' && $createdByText !== '') ? ' ' : '') . $createdByText);

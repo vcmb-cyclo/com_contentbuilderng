@@ -27,7 +27,7 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
             </label>
             <input class="form-control form-control-sm" type="text" name="jform[name]" id="name" size="32"
                 style="max-width: 280px;" maxlength="255"
-                value="<?php echo htmlentities($item->name ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                value="<?php echo htmlspecialchars($item->name ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
         </div>
         <div class="col-12 col-lg-3">
             <label for="tag">
@@ -35,7 +35,7 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
             </label>
             <input class="form-control form-control-sm" type="text" name="jform[tag]" id="tag" size="32"
                 style="max-width: 280px;" maxlength="255"
-                value="<?php echo htmlentities($item->tag ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+                value="<?php echo htmlspecialchars($item->tag ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
         </div>
         <div class="col-12 col-lg-3">
             <div class="d-flex align-items-center gap-2 flex-nowrap">
@@ -103,7 +103,7 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
                 <select class="form-select-sm" name="jform[reference_id]" id="cb_form_reference_select" style="max-width: 200px;">
                     <option value="0" selected="selected"><?php echo Text::_('COM_CONTENTBUILDERNG_CHOOSE'); ?></option>
                     <?php foreach ((array) ($item->forms ?? []) as $referenceId => $title) : ?>
-                        <option value="<?php echo $referenceId; ?>"><?php echo htmlentities($title ?? '', ENT_QUOTES, 'UTF-8'); ?></option>
+                        <option value="<?php echo $referenceId; ?>"><?php echo htmlspecialchars($title ?? '', ENT_QUOTES, 'UTF-8'); ?></option>
                     <?php endforeach; ?>
                 </select>
             <?php else : ?>
@@ -121,9 +121,9 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
                 }
                 ?>
                 <?php if ($sourceEditLink !== '') : ?>
-                    <a href="<?php echo htmlspecialchars($sourceEditLink, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlentities($sourceTitle, ENT_QUOTES, 'UTF-8'); ?></a>
+                    <a href="<?php echo htmlspecialchars($sourceEditLink, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($sourceTitle, ENT_QUOTES, 'UTF-8'); ?></a>
                 <?php else : ?>
-                    <?php echo htmlentities($sourceTitle, ENT_QUOTES, 'UTF-8'); ?>
+                    <?php echo htmlspecialchars($sourceTitle, ENT_QUOTES, 'UTF-8'); ?>
                 <?php endif; ?>
                 <input type="hidden" name="jform[reference_id]" value="<?php echo $sourceReferenceId; ?>" />
             <?php endif; ?>

@@ -64,7 +64,7 @@ class CategoriesField extends FormField
         $out .= '<option value="-2">' . Text::_('COM_CONTENTBUILDERNG_INHERIT') . '</option>' . "\n";
 
         foreach ($options as $category) {
-            $out .= '<option ' . ($this->value == $category->value ? ' selected="selected"' : '') . 'value="' . $category->value . '">' . htmlentities($category->text, ENT_QUOTES, 'UTF-8') . '</option>' . "\n";
+            $out .= '<option ' . ($this->value == $category->value ? ' selected="selected"' : '') . 'value="' . $category->value . '">' . htmlspecialchars($category->text, ENT_QUOTES, 'UTF-8') . '</option>' . "\n";
         }
 
         $out .= '</select>' . "\n";
