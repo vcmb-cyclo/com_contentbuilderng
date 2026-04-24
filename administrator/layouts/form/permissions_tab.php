@@ -59,8 +59,10 @@ $frontendTabLabel = '<span class="editlinktip hasTip" title="' . htmlspecialchar
     . '<span class="fa-solid fa-globe me-1" aria-hidden="true"></span>'
     . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DISPLAY_FRONTEND'), ENT_QUOTES, 'UTF-8')
     . '</span>';
-$usersTabLabel = '<span class="fa-solid fa-user me-1" aria-hidden="true"></span>'
-    . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EMAIL_USERS'), ENT_QUOTES, 'UTF-8');
+$usersTabLabel = '<span class="editlinktip hasTip" title="' . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_PERM_USERS_TIP'), ENT_QUOTES, 'UTF-8') . '">'
+    . '<span class="fa-solid fa-user me-1" aria-hidden="true"></span>'
+    . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EMAIL_USERS'), ENT_QUOTES, 'UTF-8')
+    . '</span>';
 $groupHeaderLabel = '<span class="editlinktip hasTip" title="' . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_PERM_GROUP_TIP'), ENT_QUOTES, 'UTF-8') . '">'
     . '<span class="fa-solid fa-users me-1" aria-hidden="true"></span>'
     . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_PERM_GROUP'), ENT_QUOTES, 'UTF-8')

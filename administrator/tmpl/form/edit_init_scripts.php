@@ -2300,8 +2300,9 @@ use Joomla\CMS\Language\Text;
             pendingClass:      null,
             buildDefaultState: function(cbs) {
                 var s = {};
+                var showAllColumns = window.matchMedia('(min-width: 1500px)').matches;
                 cbs.forEach(function(input) {
-                    s[String(input.value || '')] = input.getAttribute('data-cb-default-visible') !== '0';
+                    s[String(input.value || '')] = showAllColumns || input.getAttribute('data-cb-default-visible') !== '0';
                 });
                 return s;
             }
