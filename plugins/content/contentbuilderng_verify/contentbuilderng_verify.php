@@ -78,7 +78,7 @@ class plgContentContentbuilderng_verify extends CMSPlugin implements SubscriberI
             $limitstart = (int) ($event->getArgument('page') ?? $event->getArgument('limitstart') ?? $limitstart);
         }
 
-        if (!$article || !isset ($article->text) || !file_exists(JPATH_SITE .'/administrator/components/com_contentbuilderng/src/contentbuilderng.php')) {
+        if (!$article || !isset ($article->text)) {
             return true;
         }
 

@@ -134,10 +134,6 @@ class plgContentContentbuilderng_download extends CMSPlugin implements Subscribe
     //    $pluginParams = $params->loadString($plugin->params);
 
 
-        if (!file_exists(JPATH_SITE .'/administrator/components/com_contentbuilderng/src/contentbuilderng.php')) {
-            return true;
-        }
-
         $lang = $this->app->getLanguage();
         $lang->load('plg_content_contentbuilderng_download', JPATH_ADMINISTRATOR);
 
@@ -213,9 +209,11 @@ class plgContentContentbuilderng_download extends CMSPlugin implements Subscribe
                     // try to obtain the record id if if this is just an article
                     $this->db->setQuery("Select form.`title_field`,form.`protect_upload_directory`,form.`reference_id`,article.`record_id`,article.`form_id`,form.`type`,form.`published_only`,form.`own_only`,form.`own_only_fe` From #__contentbuilderng_articles As article, #__contentbuilderng_forms As form Where form.`published` = 1 And form.id = article.`form_id` And article.`article_id` = " . $this->db->quote($article->id));
                     $data = $this->db->loadAssoc();
+                    if (!is_array($data) || empty($data['type']) || !array_key_exists('reference_id', $data)) {
+                        return true;
+                    }
 
-                    require_once(JPATH_SITE .'/administrator/components/com_contentbuilderng/src/contentbuilderng.php');
-                    $form = FormSourceFactory::getForm($data['type'], $data['reference_id']);
+                    $form = FormSourceFactory::getForm((string) $data['type'], (string) $data['reference_id']);
                     if (!$form || !$form->exists) {
                         return true;
                     }

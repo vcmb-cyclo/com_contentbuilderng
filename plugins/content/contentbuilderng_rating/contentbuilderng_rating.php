@@ -45,12 +45,6 @@ class plgContentContentbuilderng_rating extends CMSPlugin implements SubscriberI
         $plugin = PluginHelper::getPlugin('content', 'contentbuilderng_rating');
         $pluginParams = (new Registry)->loadString($plugin->params);
 
-        if (!file_exists(JPATH_SITE .'/administrator/components/com_contentbuilderng/src/contentbuilderng.php')) {
-            return true;
-        }
-
-        require_once(JPATH_SITE .'/administrator/components/com_contentbuilderng/src/contentbuilderng.php');
-
         $lang = Factory::getApplication()->getLanguage();
         $lang->load('plg_content_contentbuilderng_rating', JPATH_ADMINISTRATOR);
 
@@ -134,9 +128,11 @@ class plgContentContentbuilderng_rating extends CMSPlugin implements SubscriberI
                         ->where($db->quoteName('article.article_id') . ' = ' . $db->quote($article->id));
                     $db->setQuery($ratingQuery);
                     $data = $db->loadAssoc();
+                    if (!is_array($data) || empty($data['type']) || !array_key_exists('reference_id', $data)) {
+                        return true;
+                    }
 
-                    require_once(JPATH_SITE .'/administrator/components/com_contentbuilderng/src/contentbuilderng.php');
-                    $form = FormSourceFactory::getForm($data['type'], $data['reference_id']);
+                    $form = FormSourceFactory::getForm((string) $data['type'], (string) $data['reference_id']);
                     if (!$form || !$form->exists) {
                         return true;
                     }

@@ -126,9 +126,13 @@ final class InstallerService
             JPATH_ADMINISTRATOR . '/components/com_contentbuilder/classes/PHPExcel.php',
             JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/contentbuilderng.php',
             JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/controller.php',
+            JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/src/contentbuilderng_classes.php',
+            JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/src/controller.php',
+            JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/src/View/Verify/view.raw.php',
             JPATH_SITE . '/components/com_contentbuilderng/contentbuilderng.php',
             JPATH_SITE . '/components/com_contentbuilderng/controller.php',
             JPATH_SITE . '/components/com_contentbuilderng/router.php',
+            JPATH_SITE . '/components/com_contentbuilderng/src/Table/list.php',
         ];
 
         foreach ($paths as $path) {

@@ -36,10 +36,6 @@ class plgContentContentbuilderng_permission_observer extends CMSPlugin implement
             $limitstart = (int) ($event->getArgument('page') ?? $event->getArgument('limitstart') ?? $limitstart);
         }
 
-        if (!file_exists(JPATH_SITE .'/administrator/components/com_contentbuilderng/src/contentbuilderng.php')) {
-            return true;
-        }
-
         if (isset ($article->id) && $article->id) {
 
             $frontend = true;
@@ -65,9 +61,11 @@ class plgContentContentbuilderng_permission_observer extends CMSPlugin implement
                 ->where($db->quoteName('article.article_id') . ' = ' . $db->quote($article->id));
             $db->setQuery($permQuery);
             $data = $db->loadAssoc();
+            if (!is_array($data) || empty($data['type']) || !array_key_exists('reference_id', $data)) {
+                return true;
+            }
 
-            require_once (JPATH_SITE .'/administrator/components/com_contentbuilderng/src/contentbuilderng.php');
-            $form = FormSourceFactory::getForm($data['type'], $data['reference_id']);
+            $form = FormSourceFactory::getForm((string) $data['type'], (string) $data['reference_id']);
 
             if (!$form || !$form->exists) {
                 return true;

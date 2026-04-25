@@ -37,6 +37,7 @@ use Joomla\CMS\User\UserHelper;
 use Joomla\CMS\Event\Model\PrepareFormEvent;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
+use CB\Component\Contentbuilderng\Administrator\Contract\FormElementAfterValidationInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Service\ArticleService;
@@ -1525,7 +1526,7 @@ var contentbuilderng = new function(){
                     $record_return = $data->form->saveRecord($this->app->getInput()->getCmd('record_id', 0), $values);
 
                     foreach ($form_elements_objects as $form_elements_object) {
-                        if ($form_elements_object instanceof \CBFormElementAfterValidation) {
+                        if ($form_elements_object instanceof FormElementAfterValidationInterface) {
                             $form_elements_object->onSaveRecord($record_return);
                         }
                     }
@@ -1785,7 +1786,7 @@ var contentbuilderng = new function(){
 
                     if (isset($form_elements_objects)) {
                         foreach ($form_elements_objects as $form_elements_object) {
-                            if ($form_elements_object instanceof \CBFormElementAfterValidation) {
+                            if ($form_elements_object instanceof FormElementAfterValidationInterface) {
                                 $form_elements_object->onSaveArticle($article_id);
                             }
                         }

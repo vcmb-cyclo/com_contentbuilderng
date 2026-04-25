@@ -108,12 +108,6 @@ class plgContentContentbuilderng_image_scale extends CMSPlugin implements Subscr
 		$max_filesize = (8 * 8 * 8 * 1024 * 2) * intval($pluginParams->def('max_filesize', 4)); // 4M default
 
 		
-		if (!file_exists(JPATH_SITE .'/administrator/components/com_contentbuilderng/src/contentbuilderng.php')) {
-			return true;
-		}
-
-
-
 		/*
 		 * As of Joomla! 1.6 there is just the text passed if the article data is not passed in article context.
 		 * (for instance with categories).
@@ -181,9 +175,11 @@ class plgContentContentbuilderng_image_scale extends CMSPlugin implements Subscr
 					// try to obtain the record id if if this is just an article
 					$this->db->setQuery("Select form.`title_field`,form.`protect_upload_directory`,form.`reference_id`,article.`record_id`,article.`form_id`,form.`type`,form.`published_only`,form.`own_only`,form.`own_only_fe` From #__contentbuilderng_articles As article, #__contentbuilderng_forms As form Where form.`published` = 1 And form.id = article.`form_id` And article.`article_id` = " . $this->db->quote($article->id));
 					$data = $this->db->loadAssoc();
+					if (!is_array($data) || empty($data['type']) || !array_key_exists('reference_id', $data)) {
+						return true;
+					}
 
-					require_once (JPATH_SITE .'/administrator/components/com_contentbuilderng/src/contentbuilderng.php');
-					$form = FormSourceFactory::getForm($data['type'], $data['reference_id']);
+					$form = FormSourceFactory::getForm((string) $data['type'], (string) $data['reference_id']);
 					if (!$form || !$form->exists) {
 						return true;
 					}
@@ -362,7 +358,6 @@ class plgContentContentbuilderng_image_scale extends CMSPlugin implements Subscr
 
 						if (!$use_form) {
 
-							require_once (JPATH_SITE .'/administrator/components/com_contentbuilderng/src/contentbuilderng.php');
 							$use_form = FormSourceFactory::getForm($ref_type, $ref_id);
 						}
 
