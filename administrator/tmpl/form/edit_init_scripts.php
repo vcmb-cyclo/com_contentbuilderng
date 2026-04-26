@@ -1624,7 +1624,14 @@ use Joomla\CMS\Language\Text;
 
         var name = String(field.name || '');
 
-        return /^jform\[order\]\[\d+\]$/.test(name);
+        if (/^jform\[order\]\[\d+\]$/.test(name)) {
+            return true;
+        }
+
+        return name === 'limit'
+            && String(field.id || '') === 'limit'
+            && typeof field.closest === 'function'
+            && !!field.closest('.cb-form-elements-pagination');
     }
 
     function cbShouldTrackField(field) {

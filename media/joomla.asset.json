@@ -20,6 +20,22 @@
             "uri": "com_contentbuilderng/css/form-edit.css"
         },
         {
+            "name": "com_contentbuilderng.menu-options.css",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/menu-options.css"
+        },
+        {
+            "name": "com_contentbuilderng.menu-options.js",
+            "type": "script",
+            "uri": "com_contentbuilderng/js/menu-options.js",
+            "dependencies": [
+                "core"
+            ],
+            "attributes": {
+                "defer": true
+            }
+        },
+        {
             "name": "com_contentbuilderng.contentbuilderng",
             "type": "script",
             "uri": "com_contentbuilderng/js/contentbuilderng.js",

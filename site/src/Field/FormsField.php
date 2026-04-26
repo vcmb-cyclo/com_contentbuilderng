@@ -21,6 +21,9 @@ class FormsField extends FormField
 {
     protected $type = 'Forms';
 
+    private const MENU_OPTIONS_STYLE = 'com_contentbuilderng.menu-options.direct.css';
+    private const MENU_OPTIONS_SCRIPT = 'com_contentbuilderng.menu-options.direct.js';
+
     private const FORM_BOOLEAN_DEFAULTS = [
         'cb_show_author' => 1,
         'cb_show_top_bar' => 1,
@@ -172,203 +175,40 @@ class FormsField extends FormField
         if ($defaultValueFormat === 'COM_CONTENTBUILDERNG_MENU_DEFAULT_VALUE') {
             $defaultValueFormat = 'Default value: %s';
         }
-        $defaultsJson = json_encode(
-            $defaultsByForm,
-            JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
-        );
-        $yesJson = json_encode($yesLabel, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-        $noJson = json_encode($noLabel, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-        $defaultValueFormatJson = json_encode($defaultValueFormat, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-        $selectedJson = json_encode((string) $selectedFormId, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
-        $script = <<<'JS'
-            <style>
-            .cb-menu-default-wrap {
-                display: inline-flex;
-                align-items: center;
-                gap: .75rem;
-                flex-wrap: wrap;
-            }
-            .cb-menu-default-value {
-                display: inline-flex;
-                align-items: center;
-                line-height: 1;
-                white-space: nowrap;
-                background-color: #fff;
-                color: #000;
-                border: 1px solid #6c757d;
-            }
-            </style>
-            <script>
-            (() => {
-                const defaultsByForm = __DEFAULTS_JSON__;
-                const yesLabel = __YES_JSON__;
-                const noLabel = __NO_JSON__;
-                const defaultValueFormat = __DEFAULT_VALUE_FORMAT_JSON__;
-                const initialFormId = __SELECTED_JSON__;
-
-                function findField(selectors) {
-                    for (const selector of selectors) {
-                        const field = document.querySelector(selector);
-                        if (field) {
-                            return field;
-                        }
-                    }
-
-                    return null;
-                }
-
-                function findDescription(fieldName) {
-                    const described = findField([
-                        `#jform_params_settings_${fieldName}-desc`,
-                        `#jform_params_${fieldName}-desc`,
-                    ]);
-                    if (described) {
-                        return described;
-                    }
-
-                    const input = findField([
-                        `[name="jform[params][settings][${fieldName}]"]`,
-                        `[name="jform[params][${fieldName}]"]`,
-                    ]);
-                    const group = input ? input.closest('.control-group, .form-group, .mb-3') : null;
-
-                    return group ? group.querySelector('.form-text') : null;
-                }
-
-                function findInput(fieldName) {
-                    return findField([
-                        `#jform_params_settings_${fieldName}`,
-                        `#jform_params_${fieldName}`,
-                        `[name="jform[params][settings][${fieldName}]"]`,
-                        `[name="jform[params][${fieldName}]"]`,
-                    ]);
-                }
-
-                function findBadgeAnchor(fieldName) {
-                    const input = findInput(fieldName);
-                    if (!input) {
-                        return null;
-                    }
-
-                    if (String(input.type || '').toLowerCase() === 'radio') {
-                        return input.closest('.switcher, .btn-group, fieldset, .radio');
-                    }
-
-                    return input;
-                }
-
-                function renderDefaultValue(value) {
-                    const template = String(defaultValueFormat || 'Default value: %s');
-                    return template.includes('%s') ? template.replace('%s', String(value)) : `${template} ${value}`;
-                }
-
-                function updateDefaultBadge(fieldName, value) {
-                    const anchor = findBadgeAnchor(fieldName);
-                    if (!anchor || !anchor.parentNode) {
-                        return;
-                    }
-
-                    let wrapper = anchor.closest(`.cb-menu-default-wrap[data-cb-default-for="${fieldName}"]`);
-
-                    if (!wrapper) {
-                        wrapper = document.createElement('span');
-                        wrapper.className = 'cb-menu-default-wrap';
-                        wrapper.dataset.cbDefaultFor = fieldName;
-                        anchor.parentNode.insertBefore(wrapper, anchor);
-                        wrapper.appendChild(anchor);
-                    }
-
-                    let badge = wrapper.querySelector('.cb-menu-default-value');
-
-                    if (!value) {
-                        if (badge) {
-                            badge.remove();
-                        }
-
-                        if (!wrapper.querySelector('.cb-menu-default-value')) {
-                            wrapper.replaceWith(anchor);
-                        }
-
-                        return;
-                    }
-
-                    if (!badge) {
-                        badge = document.createElement('span');
-                        badge.className = 'cb-menu-default-value badge rounded-pill';
-                        wrapper.appendChild(badge);
-                    }
-
-                    badge.textContent = renderDefaultValue(value);
-                }
-
-                function updateDescription(fieldName, enabled) {
-                    const description = findDescription(fieldName);
-                    if (!description) {
-                        return;
-                    }
-
-                    const suffix = enabled ? yesLabel : noLabel;
-                    const originalText = description.dataset.cbOriginalText || String(description.textContent || '').trim();
-                    if (originalText === '') {
-                        return;
-                    }
-
-                    description.dataset.cbOriginalText = originalText;
-                    description.textContent = originalText.replace(/\s+[^\s.]+\.?$/, ' ' + suffix + '.');
-                }
-
-                function updateBooleanField(fieldName, enabled) {
-                    const value = enabled ? yesLabel : noLabel;
-                    updateDescription(fieldName, enabled);
-                    updateDefaultBadge(fieldName, value);
-                }
-
-                function updateDescriptions(formId) {
-                    const values = defaultsByForm[String(formId)] || null;
-                    if (!values) {
-                        return;
-                    }
-
-                    updateDefaultBadge('form_id', values.form_name || '');
-                    updateDefaultBadge('cb_category_id', values.default_category_label || '');
-                    updateDefaultBadge('cb_category_menu_filter', noLabel);
-                    updateBooleanField('cb_show_author', Number(values.cb_show_author) === 1);
-                    updateBooleanField('cb_show_top_bar', Number(values.cb_show_top_bar) === 1);
-                    updateBooleanField('cb_show_bottom_bar', Number(values.cb_show_bottom_bar) === 1);
-                    updateBooleanField('cb_show_details_top_bar', Number(values.cb_show_details_top_bar) === 1);
-                    updateBooleanField('cb_show_details_bottom_bar', Number(values.cb_show_details_bottom_bar) === 1);
-                    updateBooleanField('cb_show_details_back_button', Number(values.show_back_button) === 1);
-                    updateBooleanField('show_back_button', Number(values.show_back_button) === 1);
-                    updateBooleanField('cb_filter_in_title', Number(values.cb_filter_in_title) === 1);
-                    updateBooleanField('cb_prefix_in_title', Number(values.cb_prefix_in_title) === 1);
-                }
-
-                window.contentbuilderng_setFormId = function(formId) {
-                    updateDescriptions(formId);
-                };
-
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => {
-                        updateDescriptions(initialFormId);
-                    }, { once: true });
-                } else {
-                    updateDescriptions(initialFormId);
-                }
-            })();
-            </script>
-JS;
-
-        return $select . str_replace(
-            ['__DEFAULTS_JSON__', '__YES_JSON__', '__NO_JSON__', '__DEFAULT_VALUE_FORMAT_JSON__', '__SELECTED_JSON__'],
+        $document = Factory::getApplication()->getDocument();
+        $wa = $document->getWebAssetManager();
+        $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+        if (!$wa->assetExists('style', self::MENU_OPTIONS_STYLE)) {
+            $wa->registerStyle(
+                self::MENU_OPTIONS_STYLE,
+                'media/com_contentbuilderng/css/menu-options.css',
+                [],
+                ['media' => 'all']
+            );
+        }
+        if (!$wa->assetExists('script', self::MENU_OPTIONS_SCRIPT)) {
+            $wa->registerScript(
+                self::MENU_OPTIONS_SCRIPT,
+                'media/com_contentbuilderng/js/menu-options.js',
+                [],
+                ['defer' => true],
+                ['core']
+            );
+        }
+        $wa->useStyle(self::MENU_OPTIONS_STYLE);
+        $wa->useScript(self::MENU_OPTIONS_SCRIPT);
+        $document->addScriptOptions(
+            'com_contentbuilderng.menuOptions',
             [
-                $defaultsJson ?: '{}',
-                $yesJson ?: '""',
-                $noJson ?: '""',
-                $defaultValueFormatJson ?: '"Default value: %s"',
-                $selectedJson ?: '""',
-            ],
-            $script
+                'defaultsByForm' => $defaultsByForm,
+                'yesLabel' => $yesLabel,
+                'noLabel' => $noLabel,
+                'defaultValueFormat' => $defaultValueFormat,
+                'initialFormId' => (string) $selectedFormId,
+            ]
         );
+
+        return $select;
     }
 }

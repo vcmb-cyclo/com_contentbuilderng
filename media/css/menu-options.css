@@ -1,0 +1,111 @@
+.cb-menu-default-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+.cb-menu-default-value {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.5rem;
+    padding: .2rem .55rem;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    background-color: #fff;
+    color: #1f2933;
+    border: 1px solid #6c757d;
+}
+
+.cb-menu-section-heading {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 1.35rem 0 .85rem;
+    padding: .45rem .65rem;
+    border-left: 4px solid var(--template-link-color, var(--bs-primary, #2a69b8));
+    border-bottom: 0;
+    background: color-mix(in srgb, var(--template-bg-light, #f0f4fb) 45%, #fff);
+    color: var(--body-color, #1d2733);
+    font-weight: 700;
+}
+
+.cb-menu-reset-panel {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin: 0;
+}
+
+.cb-menu-reset-panel .btn {
+    white-space: nowrap;
+}
+
+.options-form > fieldset:has(.cb-menu-reset-panel),
+fieldset:has(.cb-menu-reset-panel) {
+    position: relative;
+}
+
+.control-group:has(#jform_params_form_id),
+.control-group:has(#jform_params_settings_form_id),
+.control-group:has(#jform_params_forms),
+.control-group:has(#jform_params_settings_forms) {
+    margin-bottom: .75rem;
+}
+
+.control-group:has(.cb-menu-reset-panel),
+.form-group:has(.cb-menu-reset-panel),
+.mb-3:has(.cb-menu-reset-panel) {
+    height: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+}
+
+.control-group:has(.cb-menu-reset-panel) > .control-label,
+.control-group:has(.cb-menu-reset-panel) > .form-label,
+.control-group:has(.cb-menu-reset-panel) > label,
+.form-group:has(.cb-menu-reset-panel) > .control-label,
+.form-group:has(.cb-menu-reset-panel) > .form-label,
+.form-group:has(.cb-menu-reset-panel) > label,
+.mb-3:has(.cb-menu-reset-panel) > .control-label,
+.mb-3:has(.cb-menu-reset-panel) > .form-label,
+.mb-3:has(.cb-menu-reset-panel) > label {
+    display: none;
+}
+
+.control-group:has(.cb-menu-reset-panel) > .controls,
+.control-group:has(.cb-menu-reset-panel) > .field-value,
+.form-group:has(.cb-menu-reset-panel) > .controls,
+.form-group:has(.cb-menu-reset-panel) > .field-value,
+.mb-3:has(.cb-menu-reset-panel) > .controls,
+.mb-3:has(.cb-menu-reset-panel) > .field-value {
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+}
+
+.cb-menu-reset-panel {
+    position: absolute;
+    top: .75rem;
+    right: 0;
+    z-index: 2;
+}
+
+.control-group:has(.cb-menu-reset-panel) + .control-group:has(.cb-menu-section-heading),
+.control-group:has(#jform_params_form_id) + .control-group:has(.cb-menu-section-heading),
+.control-group:has(#jform_params_settings_form_id) + .control-group:has(.cb-menu-section-heading),
+.control-group:has(#jform_params_forms) + .control-group:has(.cb-menu-section-heading),
+.control-group:has(#jform_params_settings_forms) + .control-group:has(.cb-menu-section-heading) {
+    margin-top: 0;
+}
+
+#jform_params_cb_list_limit,
+#jform_params_settings_cb_list_limit {
+    width: 5rem;
+    max-width: 5rem;
+}

@@ -2,12 +2,12 @@
 <extension type="plugin" group="contentbuilderng_themes" method="upgrade">
   <name>ContentBuilder NG - Themes - Joomla 6</name>
   <author>XDA+GIL</author>
-  <creationDate>2026-04-25</creationDate>
+  <creationDate>2026-04-26</creationDate>
   <copyright>(C) 2026 by XDA+GIL</copyright>
   <license>GNU/GPL v2 or later</license>
   <authorEmail>noreply@vcmb.fr</authorEmail>
   <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-  <version>6.1.7-RC22</version>
+  <version>6.1.7-RC23</version>
   <description><![CDATA[A Joomla 6 compatible theme]]></description>
 
   <files>

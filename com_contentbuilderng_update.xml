@@ -6,10 +6,10 @@
 		<element>Com_contentbuilderng</element>
 		<type>component</type>
 		<client>1</client>
-		<version>6.1.7-RC22</version>
+		<version>6.1.7-RC23</version>
 		<infourl title="ContentBuilder NG">https://breezingforms-ng.vcmb.fr/</infourl>
 		<downloads>
-		<downloadurl type="full" format="zip">https://breezingforms-ng.vcmb.fr/download/com_contentbuilderng-6.1.7-RC22.zip</downloadurl>
+		<downloadurl type="full" format="zip">https://breezingforms-ng.vcmb.fr/download/com_contentbuilderng-6.1.7-RC23.zip</downloadurl>
 		</downloads>
 		<tags>
 			<tag>stable</tag>

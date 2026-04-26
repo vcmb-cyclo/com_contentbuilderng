@@ -329,34 +329,77 @@ class ElementsModel extends ListModel
             return false;
         }
 
-        // 1) Pairing id -> ordre saisi
-        $pairs = [];
+        $submittedOrder = [];
         foreach ($pks as $i => $id) {
             if ($id > 0) {
-                $pairs[] = ['id' => $id, 'o' => (int) ($order[$i] ?? 0)];
+                $submittedOrder[$id] = max(0, (int) ($order[$i] ?? 0));
             }
         }
 
-        // 2) Tri par ordre saisi, puis par id (stabilité si doublons)
-        usort($pairs, function ($a, $b) {
-            // 0 passe en premier
-            if ($a['o'] === 0 && $b['o'] !== 0) return -1;
-            if ($b['o'] === 0 && $a['o'] !== 0) return 1;
+        if (empty($submittedOrder)) {
+            return false;
+        }
 
-            // ensuite tri normal
-            if ($a['o'] === $b['o']) {
-                return $a['id'] <=> $b['id']; // stabilité si doublons
+        $db = $this->getDatabase();
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['id', 'ordering']))
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('form_id') . ' = ' . (int) $formId)
+            ->order($db->quoteName('ordering') . ' ASC, ' . $db->quoteName('id') . ' ASC');
+        $db->setQuery($query);
+        $rows = (array) $db->loadAssocList();
+
+        $rowsById = [];
+        $moveIds = [];
+
+        foreach ($rows as $row) {
+            $id = (int) ($row['id'] ?? 0);
+
+            if ($id < 1) {
+                continue;
             }
 
-            return $a['o'] <=> $b['o'];
+            $currentOrder = (int) ($row['ordering'] ?? 0);
+            $rowsById[$id] = [
+                'id' => $id,
+                'target' => array_key_exists($id, $submittedOrder) ? max(1, $submittedOrder[$id]) : max(1, $currentOrder),
+                'current' => $currentOrder,
+            ];
+
+            if (array_key_exists($id, $submittedOrder) && max(1, $submittedOrder[$id]) !== max(1, $currentOrder)) {
+                $moveIds[$id] = true;
+            }
+        }
+
+        $orderedRows = [];
+        $movedRows = [];
+
+        foreach ($rowsById as $id => $row) {
+            if (isset($moveIds[$id])) {
+                $movedRows[] = $row;
+                continue;
+            }
+
+            $orderedRows[] = $row;
+        }
+
+        usort($movedRows, static function (array $a, array $b): int {
+            if ($a['target'] !== $b['target']) {
+                return $a['target'] <=> $b['target'];
+            }
+
+            return $a['current'] <=> $b['current'];
         });
 
+        foreach ($movedRows as $row) {
+            $position = min(max(1, (int) $row['target']), count($orderedRows) + 1);
+            array_splice($orderedRows, $position - 1, 0, [$row]);
+        }
 
         $table = $this->getTable('Elementoptions');
 
-        // 3) Réassignation séquentielle 1..N dans le groupe
         $n = 1;
-        foreach ($pairs as $row) {
+        foreach ($orderedRows as $row) {
             if (!$table->load((int) $row['id'])) {
                 return false;
             }
@@ -373,7 +416,6 @@ class ElementsModel extends ListModel
             }
         }
 
-        // 4) Normalisation finale (optionnelle mais propre)
         $table->reorder('form_id = ' . (int) $formId);
 
         return true;

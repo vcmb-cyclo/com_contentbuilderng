@@ -54,7 +54,7 @@ $permSectionTitle = static function (string $labelKey, string $iconClass, ?strin
 };
 
 $activePermTab = $session ? $session->get('slideStartOffset', 'permtab1', 'com_contentbuilderng') : 'permtab1';
-$permissionColumnsHiddenByDefault = ['fullarticle', 'language'];
+$permissionColumnsHiddenByDefault = ['fullarticle', 'language', 'rating'];
 $frontendTabLabel = '<span class="editlinktip hasTip" title="' . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_PERM_OWN_TIP'), ENT_QUOTES, 'UTF-8') . '">'
     . '<span class="fa-solid fa-globe me-1" aria-hidden="true"></span>'
     . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DISPLAY_FRONTEND'), ENT_QUOTES, 'UTF-8')
