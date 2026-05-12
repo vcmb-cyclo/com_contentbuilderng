@@ -674,8 +674,42 @@ class FormController extends BaseFormController
 
     private function getEditRedirectUrl(int $formId): string
     {
+        $query = [
+            'option=com_contentbuilderng',
+            'task=form.display',
+            'layout=edit',
+            'id=' . max(0, $formId),
+        ];
+
+        $limitStart = $this->input->getInt('limitstart', -1);
+        if ($limitStart >= 0) {
+            $query[] = 'limitstart=' . $limitStart;
+        }
+
+        $limit = $this->input->getInt('limit', -1);
+        if ($limit < 0) {
+            $list = (array) $this->input->get('list', [], 'array');
+            if (array_key_exists('limit', $list)) {
+                $limit = (int) $list['limit'];
+            }
+        }
+        if ($limit >= 0) {
+            $query[] = 'limit=' . $limit;
+        }
+
+        $list = (array) $this->input->get('list', [], 'array');
+        $ordering = (string) ($list['ordering'] ?? $this->input->getCmd('filter_order', ''));
+        if ($ordering !== '') {
+            $query[] = 'list[ordering]=' . rawurlencode($ordering);
+        }
+
+        $direction = strtoupper((string) ($list['direction'] ?? $this->input->getCmd('filter_order_Dir', '')));
+        if ($direction !== '') {
+            $query[] = 'list[direction]=' . rawurlencode($direction);
+        }
+
         return Route::_(
-            'index.php?option=com_contentbuilderng&task=form.display&layout=edit&id=' . max(0, $formId),
+            'index.php?' . implode('&', $query),
             false
         );
     }

@@ -29,12 +29,12 @@ class MultiformsField extends FormField
         $status = $db->loadObjectList();
 
         $selectedValues = array_map('strval', (array) $this->value);
+        $inputClass = trim($class . ' cb-menu-multiforms-select');
         $select = '<select id="' . htmlspecialchars($this->id, ENT_QUOTES, 'UTF-8') . '"'
             . ' name="' . htmlspecialchars($this->name, ENT_QUOTES, 'UTF-8') . '"'
             . ' ' . $multiple
-            . 'style="width: 100%;"'
             . ' onchange="if(typeof contentbuilderng_setFormId != \'undefined\') { contentbuilderng_setFormId(this.options[this.selectedIndex].value); }"'
-            . ' class="' . htmlspecialchars($class, ENT_QUOTES, 'UTF-8') . '">';
+            . ' class="' . htmlspecialchars($inputClass, ENT_QUOTES, 'UTF-8') . '">';
 
         foreach ($status as $form) {
             $value = (string) ($form->id ?? '');

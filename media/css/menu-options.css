@@ -115,3 +115,9 @@ fieldset:has(.cb-menu-reset-panel) {
     width: 5rem;
     max-width: 5rem;
 }
+
+.cb-menu-multiforms-select {
+    width: min(36rem, calc(100% - 7rem));
+    max-width: min(36rem, calc(100% - 7rem));
+    margin-right: 1rem;
+}
