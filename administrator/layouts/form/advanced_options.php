@@ -56,7 +56,7 @@ $advancedDefaults = [
     'cb_prefix_in_title' => 0,
     'show_filter' => 1,
     'show_records_per_page' => 1,
-    'initial_list_limit' => 25,
+    'initial_list_limit' => 50,
     'published_only' => 0,
     'allow_external_filter' => 0,
     'filter_exact_match' => 1,
@@ -390,7 +390,7 @@ $advancedDefaults = [
                                 min="1"
                                 required="required"
                                 step="1"
-                                value="<?php echo max(1, (int) ($item->initial_list_limit ?? 25)); ?>"
+                                value="<?php echo max(1, (int) ($item->initial_list_limit ?? 50)); ?>"
                             />
                         </div>
                         <div>

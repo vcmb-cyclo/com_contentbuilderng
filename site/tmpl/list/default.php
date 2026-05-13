@@ -1940,7 +1940,7 @@ by this block. -->
 											<?php
 											$currentLimit = (int) (($this->state?->get('list.limit')) ?? ($this->pagination->limit ?? 20));
 											$totalItems = (int) ($this->pagination->total ?? 0);
-											$limitOptions = [5, 10, 20, 25, 50, 100, 500];
+											$limitOptions = [5, 10, 20, 25, 50, 100, 200, 500];
 											if ($currentLimit > 0 && $currentLimit !== $totalItems) {
 												$limitOptions[] = $currentLimit;
 											}

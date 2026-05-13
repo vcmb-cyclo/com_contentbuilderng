@@ -28,7 +28,7 @@
                         <option value="0">COM_CONTENTBUILDERNG_NO</option>
                         <option value="1">COM_CONTENTBUILDERNG_YES</option>
                     </field>
-                    <field type="text" label="COM_CONTENTBUILDERNG_LIST_LIMIT" description="COM_CONTENTBUILDERNG_LIST_LIMIT_DESC" name="cb_list_limit" default="" />
+                    <field type="text" label="COM_CONTENTBUILDERNG_LIST_LIMIT" description="COM_CONTENTBUILDERNG_LIST_LIMIT_DESC" name="cb_list_limit" default="50" />
                     <field type="note" label="COM_CONTENTBUILDERNG_MENU_OPTIONS_EDIT" class="cb-menu-section-heading" />
                     <field name="cb_show_top_bar" type="radio" class="btn-group btn-group-yesno" default="-1" description="COM_CONTENTBUILDERNG_SHOW_TOP_BAR_DESC" label="COM_CONTENTBUILDERNG_SHOW_TOP_BAR">
                         <option value="-1">JOPTION_USE_DEFAULT</option>

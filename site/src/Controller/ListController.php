@@ -372,7 +372,7 @@ class ListController extends BaseController
             $limit = (int) $app->get('list_limit');
         }
         if ($limit < 1) {
-            $limit = 20;
+            $limit = 50;
         }
 
         if ($explicitLimitRequest && array_key_exists('start', $list)) {
