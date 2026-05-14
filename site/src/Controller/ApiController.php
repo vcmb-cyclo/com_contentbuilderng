@@ -17,6 +17,7 @@ use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Site\Model\DetailsModel;
 use CB\Component\Contentbuilderng\Site\Model\EditModel;
 use CB\Component\Contentbuilderng\Site\Model\ListModel;
+use CB\Component\Contentbuilderng\Site\Service\StatsService;
 use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Factory;
@@ -141,99 +142,15 @@ class ApiController extends BaseController
 
     private function getStatsPayload(int $formId): array
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $query = $db->getQuery(true)
-            ->select([
-                $db->quoteName('id'),
-                $db->quoteName('name'),
-                $db->quoteName('type'),
-                $db->quoteName('reference_id'),
-                $db->quoteName('published'),
-            ])
-            ->from($db->quoteName('#__contentbuilderng_forms'))
-            ->where($db->quoteName('id') . ' = ' . (int) $formId);
-        $db->setQuery($query, 0, 1);
-        $formRow = $db->loadAssoc();
+        $filter = (array) $this->input->get('filter', [], 'array');
 
-        if (!is_array($formRow) || empty($formRow['type']) || empty($formRow['reference_id'])) {
-            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
-        }
-
-        $nowSql = Factory::getDate()->toSql();
-        $recordWhere = [
-            $db->quoteName('type') . ' = ' . $db->quote((string) $formRow['type']),
-            $db->quoteName('reference_id') . ' = ' . $db->quote((string) $formRow['reference_id']),
-        ];
-        $statsFilter = $this->getStatsFilterPayload($formId, $formRow);
-
-        if ($statsFilter !== null) {
-            $recordWhere[] = $statsFilter['where'];
-        }
-
-        $query = $db->getQuery(true)
-            ->select([
-                'COUNT(*) AS ' . $db->quoteName('total'),
-                'COALESCE(SUM(CASE WHEN ' . $db->quoteName('published') . ' = 1 THEN 1 ELSE 0 END), 0) AS ' . $db->quoteName('published'),
-                'COALESCE(SUM(CASE WHEN ' . $db->quoteName('published') . ' = 0 THEN 1 ELSE 0 END), 0) AS ' . $db->quoteName('unpublished'),
-                'COALESCE(SUM(CASE WHEN ' . $db->quoteName('is_future') . ' = 1 THEN 1 ELSE 0 END), 0) AS ' . $db->quoteName('future'),
-                'COALESCE(SUM(CASE WHEN ' . $db->quoteName('edited') . ' = 1 THEN 1 ELSE 0 END), 0) AS ' . $db->quoteName('edited'),
-                'COALESCE(SUM(CASE WHEN ' . $db->quoteName('publish_up') . ' IS NOT NULL AND ' . $db->quoteName('publish_up') . ' > ' . $db->quote($nowSql) . ' THEN 1 ELSE 0 END), 0) AS ' . $db->quoteName('scheduled'),
-                'COALESCE(SUM(CASE WHEN ' . $db->quoteName('publish_down') . ' IS NOT NULL AND ' . $db->quoteName('publish_down') . ' < ' . $db->quote($nowSql) . ' THEN 1 ELSE 0 END), 0) AS ' . $db->quoteName('expired'),
-                'COALESCE(SUM(CASE WHEN ' . $db->quoteName('rating_count') . ' > 0 THEN 1 ELSE 0 END), 0) AS ' . $db->quoteName('rated_records'),
-                'COALESCE(SUM(' . $db->quoteName('rating_count') . '), 0) AS ' . $db->quoteName('rating_count'),
-                'COALESCE(SUM(' . $db->quoteName('rating_sum') . '), 0) AS ' . $db->quoteName('rating_sum'),
-                'MAX(' . $db->quoteName('last_update') . ') AS ' . $db->quoteName('last_update'),
-            ])
-            ->from($db->quoteName('#__contentbuilderng_records'))
-            ->where($recordWhere);
-        $db->setQuery($query, 0, 1);
-        $records = $db->loadAssoc() ?: [];
-
-        $ratingCount = (int) ($records['rating_count'] ?? 0);
-        $ratingSum = (int) ($records['rating_sum'] ?? 0);
-
-        $query = $db->getQuery(true)
-            ->select([
-                $db->quoteName('lang_code'),
-                'COUNT(*) AS ' . $db->quoteName('total'),
-            ])
-            ->from($db->quoteName('#__contentbuilderng_records'))
-            ->where($recordWhere)
-            ->group($db->quoteName('lang_code'))
-            ->order($db->quoteName('lang_code'));
-        $db->setQuery($query);
-        $languageRows = $db->loadAssocList() ?: [];
-        $languages = [];
-
-        foreach ($languageRows as $languageRow) {
-            $languages[(string) ($languageRow['lang_code'] ?? '*')] = (int) ($languageRow['total'] ?? 0);
-        }
-
-        $fieldStats = $this->getStatsFieldPayload($formId, $formRow);
-
-        return [
-            'form' => [
-                'id' => (int) $formRow['id'],
-                'name' => (string) ($formRow['name'] ?? ''),
+        return (new StatsService())->getStatsPayload($formId, [
+            'field' => trim((string) $this->input->getString('field', '')),
+            'filter' => [
+                'field' => trim((string) ($filter['field'] ?? '')),
+                'value' => trim((string) ($filter['value'] ?? '')),
             ],
-            'records' => [
-                'total' => (int) ($records['total'] ?? 0),
-                'published' => (int) ($records['published'] ?? 0),
-                'unpublished' => (int) ($records['unpublished'] ?? 0),
-                'future' => (int) ($records['future'] ?? 0),
-                'edited' => (int) ($records['edited'] ?? 0),
-                'scheduled' => (int) ($records['scheduled'] ?? 0),
-                'expired' => (int) ($records['expired'] ?? 0),
-                'last_update' => (string) ($records['last_update'] ?? ''),
-            ],
-            'ratings' => [
-                'rated_records' => (int) ($records['rated_records'] ?? 0),
-                'rating_count' => $ratingCount,
-                'rating_sum' => $ratingSum,
-                'average' => $ratingCount > 0 ? round($ratingSum / $ratingCount, 4) : 0.0,
-            ],
-            'languages' => $languages,
-        ] + ($statsFilter !== null ? ['filter' => $statsFilter['payload']] : []) + ($fieldStats !== null ? ['field' => $fieldStats] : []);
+        ]);
     }
 
     private function getStatsFilterPayload(int $formId, array $formRow): ?array

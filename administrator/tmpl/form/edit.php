@@ -612,6 +612,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                 'apiExampleStatsDisplayUrl' => $apiExampleStatsDisplayUrl,
                 'apiExampleVerboseDisplayUrl' => $apiExampleVerboseDisplayUrl,
                 'apiExamplePayloadJson' => $apiExamplePayloadJson,
+                'formId' => $formId,
             ],
             $componentLayoutBase
         );

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" group="content" version="6.0" method="upgrade">
+    <name>ContentBuilder NG - Content - Stats</name>
+    <creationDate>2026-05-14</creationDate>
+    <author>XDA+GIL</author>
+    <license>GNU/GPL v2 or later https://www.gnu.org/licenses/old-licenses/gpl-2.0.html</license>
+    <copyright>This Joomla! plugin is released under the GNU/GPL license</copyright>
+    <authorEmail>noreply@vcmb.fr</authorEmail>
+    <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
+    <version>6.1.7-RC27</version>
+    <description>PLG_CONTENT_CONTENTBUILDERNG_STATS_XML_DESCRIPTION</description>
+    <files>
+        <filename plugin="contentbuilderng_stats">contentbuilderng_stats.php</filename>
+        <filename>index.html</filename>
+    </files>
+    <languages>
+        <language tag="en-GB">en-GB.plg_content_contentbuilderng_stats.ini</language>
+        <language tag="en-GB">en-GB.plg_content_contentbuilderng_stats.sys.ini</language>
+        <language tag="fr-FR">fr-FR.plg_content_contentbuilderng_stats.ini</language>
+        <language tag="fr-FR">fr-FR.plg_content_contentbuilderng_stats.sys.ini</language>
+        <language tag="de-DE">de-DE.plg_content_contentbuilderng_stats.ini</language>
+        <language tag="de-DE">de-DE.plg_content_contentbuilderng_stats.sys.ini</language>
+    </languages>
+    <config>
+        <fields name="params">
+        </fields>
+    </config>
+</extension>

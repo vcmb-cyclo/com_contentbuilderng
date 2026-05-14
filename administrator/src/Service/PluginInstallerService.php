@@ -147,7 +147,8 @@ final class PluginInstallerService
                     $manifestVersion = $this->getPluginManifestVersion($path);
                     $needsUpdate = !$installedVersion || !$manifestVersion
                         || version_compare((string) $installedVersion, (string) $manifestVersion, '<')
-                        || ((string) $installedVersion !== (string) $manifestVersion);
+                        || ((string) $installedVersion !== (string) $manifestVersion)
+                        || ($folder === 'content' && $element === 'contentbuilderng_stats');
 
                     if (!$needsUpdate) {
                         $this->log("[INFO] Plugin already installed: {$folder}/{$element} (version {$installedVersion})");
@@ -559,7 +560,7 @@ final class PluginInstallerService
             'system' => ['contentbuilderng_system'],
             'contentbuilderng_submit' => ['submit_sample'],
             'contentbuilderng_listaction' => ['trash', 'untrash'],
-            'content' => ['contentbuilderng_verify', 'contentbuilderng_permission_observer', 'contentbuilderng_image_scale', 'contentbuilderng_download', 'contentbuilderng_rating'],
+            'content' => ['contentbuilderng_verify', 'contentbuilderng_permission_observer', 'contentbuilderng_image_scale', 'contentbuilderng_download', 'contentbuilderng_rating', 'contentbuilderng_stats'],
         ];
     }
 

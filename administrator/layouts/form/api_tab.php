@@ -23,6 +23,11 @@ $apiExampleListDisplayUrl = (string) ($displayData['apiExampleListDisplayUrl'] ?
 $apiExampleStatsDisplayUrl = (string) ($displayData['apiExampleStatsDisplayUrl'] ?? '');
 $apiExampleVerboseDisplayUrl = (string) ($displayData['apiExampleVerboseDisplayUrl'] ?? '');
 $apiExamplePayloadJson = (string) ($displayData['apiExamplePayloadJson'] ?? '');
+$formId = (int) ($displayData['formId'] ?? 0);
+$cbStatsTotalSyntax = '{CBStats id=' . $formId . ' output=total}';
+$cbStatsDebugSyntax = '{CBStats id=' . $formId . ' output=total debug=1}';
+$cbStatsFilterSyntax = '{CBStats id=' . $formId . ' filter[field]=NomDuChamp filter[value]="Valeur" output=total}';
+$cbStatsTableSyntax = '{CBStats id=' . $formId . ' field=NomDuChamp output=table}';
 $apiPermissionRequirements = new ApiPermissionRequirementService();
 $permissionLabelKeys = [
     'api' => 'COM_CONTENTBUILDERNG_PERM_API',
@@ -55,12 +60,19 @@ $renderPermissions = static function (array $permissions) use ($permissionLabelK
 
     #cb-form-api-endpoints th:first-child,
     #cb-form-api-endpoints td:first-child {
-        width: 9rem;
+        width: 8rem;
+    }
+
+    #cb-form-api-endpoints th:nth-child(2),
+    #cb-form-api-endpoints td:nth-child(2),
+    #cb-form-api-endpoints th:nth-child(3),
+    #cb-form-api-endpoints td:nth-child(3) {
+        width: 36%;
     }
 
     #cb-form-api-endpoints th:last-child,
     #cb-form-api-endpoints td:last-child {
-        width: 12rem;
+        width: 10rem;
     }
 
     #cb-form-api-endpoints code,
@@ -115,6 +127,17 @@ $renderPermissions = static function (array $permissions) use ($permissionLabelK
                 </a>
             </td>
             <td><?php echo Text::_('COM_CONTENTBUILDERNG_API_GET_STATS_DESC'); ?></td>
+            <td><?php echo $renderPermissions($apiPermissionRequirements->getRequiredPermissions('GET', 'stats', 0)); ?></td>
+        </tr>
+        <tr>
+            <td><code><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_METHOD'); ?></code></td>
+            <td>
+                <code><?php echo htmlspecialchars($cbStatsTotalSyntax, ENT_QUOTES, 'UTF-8'); ?></code><br>
+                <code><?php echo htmlspecialchars($cbStatsDebugSyntax, ENT_QUOTES, 'UTF-8'); ?></code><br>
+                <code><?php echo htmlspecialchars($cbStatsFilterSyntax, ENT_QUOTES, 'UTF-8'); ?></code><br>
+                <code><?php echo htmlspecialchars($cbStatsTableSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
+            </td>
+            <td><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_STATS_DESC'); ?></td>
             <td><?php echo $renderPermissions($apiPermissionRequirements->getRequiredPermissions('GET', 'stats', 0)); ?></td>
         </tr>
         <tr>
