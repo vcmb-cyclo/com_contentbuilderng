@@ -92,6 +92,7 @@ class plgContentContentbuilderng_stats extends CMSPlugin implements SubscriberIn
             }
 
             return match ($output) {
+                'form_name' => htmlspecialchars((string) ($payload['form']['name'] ?? ''), ENT_QUOTES, 'UTF-8'),
                 'table' => $this->renderTable($payload),
                 'count', 'total' => (string) (int) ($total ?? 0),
                 default => (string) (int) ($total ?? 0),
