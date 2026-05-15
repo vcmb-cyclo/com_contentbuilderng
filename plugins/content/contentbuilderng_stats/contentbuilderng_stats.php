@@ -99,7 +99,7 @@ class plgContentContentbuilderng_stats extends CMSPlugin implements SubscriberIn
             }
 
             return match ($output) {
-                'form_name' => htmlspecialchars((string) ($payload['form']['name'] ?? ''), ENT_QUOTES, 'UTF-8'),
+                'form_name' => htmlspecialchars($this->getFormName($payload), ENT_QUOTES, 'UTF-8'),
                 'table' => $this->renderTable($payload),
                 'total' => (string) (int) ($total ?? 0),
             };
@@ -114,6 +114,14 @@ class plgContentContentbuilderng_stats extends CMSPlugin implements SubscriberIn
                 ? 'CBStats error: ' . htmlspecialchars($exception->getMessage(), ENT_QUOTES, 'UTF-8')
                 : '0';
         }
+    }
+
+    private function getFormName(array $payload): string
+    {
+        $form = (array) ($payload['form'] ?? []);
+        $title = trim((string) ($form['title'] ?? ''));
+
+        return $title !== '' ? $title : trim((string) ($form['name'] ?? ''));
     }
 
     private function canViewStats(int $formId): bool

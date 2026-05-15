@@ -25,6 +25,7 @@ final class StatsService
             ->select([
                 $db->quoteName('id'),
                 $db->quoteName('name'),
+                $db->quoteName('title'),
                 $db->quoteName('type'),
                 $db->quoteName('reference_id'),
                 $db->quoteName('published'),
@@ -94,6 +95,7 @@ final class StatsService
             'form' => [
                 'id' => (int) $formRow['id'],
                 'name' => (string) ($formRow['name'] ?? ''),
+                'title' => (string) ($formRow['title'] ?? ''),
             ],
             'records' => [
                 'total' => (int) ($records['total'] ?? 0),
