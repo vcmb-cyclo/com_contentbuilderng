@@ -45,10 +45,17 @@ class plgContentContentbuilderng_stats extends CMSPlugin implements SubscriberIn
         $formId = (int) (($attributes['id'] ?? '') !== '' ? $attributes['id'] : $this->extractId($rawAttributes));
         $debug = stripos($rawAttributes, 'debug') !== false || $this->isEnabled((string) ($attributes['debug'] ?? '0'));
         $output = strtolower(trim((string) ($attributes['output'] ?? 'total')));
+        $allowedOutputs = ['total', 'table', 'form_name'];
         $field = trim((string) ($attributes['field'] ?? ''));
         $filterField = trim((string) ($attributes['filter[field]'] ?? ''));
         $filterValue = trim((string) ($attributes['filter[value]'] ?? ''));
         $value = trim((string) ($attributes['value'] ?? ''));
+
+        if (!in_array($output, $allowedOutputs, true)) {
+            return $debug
+                ? 'CBStats DEBUG: invalid output parameter "' . htmlspecialchars($output, ENT_QUOTES, 'UTF-8') . '". Allowed values: total, table, form_name.'
+                : 'Invalid statistics request.';
+        }
 
         if ($filterField === '' && $field !== '' && $value !== '') {
             $filterField = $field;
@@ -87,15 +94,14 @@ class plgContentContentbuilderng_stats extends CMSPlugin implements SubscriberIn
                 return 'CBStats debug: missing records.total in ' . htmlspecialchars(json_encode($payload), ENT_QUOTES, 'UTF-8');
             }
 
-            if ($debug && in_array($output, ['count', 'total'], true)) {
+            if ($debug && $output === 'total') {
                 return 'CBStats DEBUG: ViewID=' . $formId . '; total=' . (int) ($total ?? 0) . '.';
             }
 
             return match ($output) {
                 'form_name' => htmlspecialchars((string) ($payload['form']['name'] ?? ''), ENT_QUOTES, 'UTF-8'),
                 'table' => $this->renderTable($payload),
-                'count', 'total' => (string) (int) ($total ?? 0),
-                default => (string) (int) ($total ?? 0),
+                'total' => (string) (int) ($total ?? 0),
             };
         } catch (\Throwable $exception) {
             if ((int) $exception->getCode() === 403) {
