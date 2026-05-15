@@ -97,6 +97,10 @@ CREATE TABLE IF NOT EXISTS `#__contentbuilderng_elements`
 (
     1
 ) NOT NULL DEFAULT '0',
+    `api_allowed` tinyint
+(
+    1
+) NOT NULL DEFAULT '0',
     `editable` tinyint
 (
     1

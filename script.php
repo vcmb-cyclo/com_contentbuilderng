@@ -327,6 +327,7 @@ class com_contentbuilderngInstallerScript
                 $this->ensureFormsDisplayColumns();
                 $this->ensureFormsFilterExactMatchDefault();
                 $this->ensureElementsLinkableDefault();
+                $this->ensureElementsApiAllowedColumn();
                 $this->ensureElementsListIncludeDefault();
                 $this->ensureElementsSearchIncludeDefault();
 
@@ -975,6 +976,11 @@ class com_contentbuilderngInstallerScript
     private function ensureElementsLinkableDefault(): void
     {
         $this->schemaService->ensureElementsLinkableDefault();
+    }
+
+    private function ensureElementsApiAllowedColumn(): void
+    {
+        $this->schemaService->ensureElementsApiAllowedColumn();
     }
 
     private function ensureElementsListIncludeDefault(): void

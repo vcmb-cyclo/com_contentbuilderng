@@ -67,6 +67,8 @@ class ElementoptionsTable extends Table
 
     public $editable = 0;
 
+    public $api_allowed = 0;
+
     /**
      * @var int
      */

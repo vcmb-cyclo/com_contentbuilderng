@@ -408,6 +408,16 @@ class FormController extends BaseFormController
         $this->elementsUpdate('editable', 0);
     }
 
+    public function api_allowed(): void
+    {
+        $this->elementsUpdate('api_allowed', 1);
+    }
+
+    public function not_api_allowed(): void
+    {
+        $this->elementsUpdate('api_allowed', 0);
+    }
+
     public function list_include(): void
     {
         $this->elementsUpdate('list_include', 1);

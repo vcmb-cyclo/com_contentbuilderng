@@ -273,6 +273,14 @@ use Joomla\CMS\Language\Text;
                 nextTask: 'form.linkable',
                 enabled: false
             },
+            'form.api_allowed': {
+                nextTask: 'form.not_api_allowed',
+                enabled: true
+            },
+            'form.not_api_allowed': {
+                nextTask: 'form.api_allowed',
+                enabled: false
+            },
             'form.editable': {
                 nextTask: 'form.not_editable',
                 enabled: true
@@ -454,6 +462,8 @@ use Joomla\CMS\Language\Text;
             'form.no_search_include',
             'form.linkable',
             'form.not_linkable',
+            'form.api_allowed',
+            'form.not_api_allowed',
             'form.editable',
             'form.not_editable',
             'form.listpublish',
@@ -704,6 +714,8 @@ use Joomla\CMS\Language\Text;
             case 'form.no_search_include':
             case 'form.linkable':
             case 'form.not_linkable':
+            case 'form.api_allowed':
+            case 'form.not_api_allowed':
             case 'form.editable':
             case 'form.not_editable':
             case 'form.save_labels':

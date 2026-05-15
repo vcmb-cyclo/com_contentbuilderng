@@ -186,6 +186,16 @@ class HtmlView extends BaseHtmlView
             ->text('COM_CONTENTBUILDERNG_NOT_LINKABLE')
             ->icon('fa fa-link text-danger')
             ->listCheck(true);
+        $statusChildToolbar->standardButton('api_allowed')
+            ->task('form.api_allowed')
+            ->text('COM_CONTENTBUILDERNG_API_ALLOWED')
+            ->icon('fa fa-plug text-success')
+            ->listCheck(true);
+        $statusChildToolbar->standardButton('not_api_allowed')
+            ->task('form.not_api_allowed')
+            ->text('COM_CONTENTBUILDERNG_NOT_API_ALLOWED')
+            ->icon('fa fa-plug text-danger')
+            ->listCheck(true);
         $statusChildToolbar->standardButton('editable')
             ->task('form.editable')
             ->text('COM_CONTENTBUILDERNG_EDITABLE')

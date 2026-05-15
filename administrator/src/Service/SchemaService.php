@@ -185,6 +185,41 @@ final class SchemaService
         }
     }
 
+    public function ensureElementsApiAllowedColumn(): void
+    {
+        $db = $this->db();
+
+        try {
+            $cols = $db->getTableColumns('#__contentbuilderng_elements', false);
+
+            if (is_array($cols) && array_key_exists('api_allowed', $cols)) {
+                $db->setQuery(
+                    'ALTER TABLE ' . $db->quoteName('#__contentbuilderng_elements')
+                    . ' MODIFY ' . $db->quoteName('api_allowed') . " TINYINT(1) NOT NULL DEFAULT '0'"
+                );
+                $db->execute();
+                $this->log('[OK] Ensured #__contentbuilderng_elements.api_allowed default is 0.');
+
+                return;
+            }
+        } catch (\Throwable $e) {
+            $this->log('[WARNING] Could not inspect #__contentbuilderng_elements columns: ' . $e->getMessage(), Log::WARNING);
+
+            return;
+        }
+
+        try {
+            $db->setQuery(
+                'ALTER TABLE ' . $db->quoteName('#__contentbuilderng_elements')
+                . ' ADD ' . $db->quoteName('api_allowed') . " TINYINT(1) NOT NULL DEFAULT '0' AFTER " . $db->quoteName('linkable')
+            );
+            $db->execute();
+            $this->log('[OK] Added #__contentbuilderng_elements.api_allowed.');
+        } catch (\Throwable $e) {
+            $this->log('[WARNING] Failed to add #__contentbuilderng_elements.api_allowed: ' . $e->getMessage(), Log::WARNING);
+        }
+    }
+
     public function ensureElementsListIncludeDefault(): void
     {
         $db = $this->db();

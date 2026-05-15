@@ -3,3 +3,4 @@
 
 #adminForm .cb-perm-inherited .form-check-input{background-color:#dce2e8!important;border-color:#b8c2cc!important}
 #adminForm .cb-perm-inherited .form-check-input:indeterminate{background-color:#c8d1db!important;border-color:#9eacba!important}
+.cb-elements-table th[data-cb-col="api"],.cb-elements-table td[data-cb-col="api"]{width:4.75rem;text-align:center}

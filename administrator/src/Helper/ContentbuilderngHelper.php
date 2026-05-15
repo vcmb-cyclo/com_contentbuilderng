@@ -571,6 +571,19 @@ class ContentbuilderngHelper
         );
     }
 
+    public static function listApiAllowed($domain, $row, $i, $publish_icon = 'fa-solid fa-check', $unpublish_icon = 'fa-solid fa-circle-xmark',  $prefix = '')
+    {
+        return self::renderBooleanStateToggle(
+            !empty($row->api_allowed),
+            (int) $i,
+            (string) $prefix . (string) $domain . '.',
+            'api_allowed',
+            'not_api_allowed',
+            'COM_CONTENTBUILDERNG_API_ALLOWED',
+            'COM_CONTENTBUILDERNG_NOT_API_ALLOWED'
+        );
+    }
+
     public static function listVerifiedView($domain, $row, $i, $publish_icon = 'fa-solid fa-check', $unpublish_icon = 'fa-solid fa-circle-xmark',  $prefix = '')
     {
         return self::renderBooleanStateToggle(

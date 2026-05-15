@@ -11,6 +11,7 @@ namespace CB\Component\Contentbuilderng\Site\Service;
 \defined('_JEXEC') or die('Restricted access');
 
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
+use CB\Component\Contentbuilderng\Administrator\Service\ApiFieldPermissionService;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
@@ -124,7 +125,7 @@ final class StatsService
 
         $field = $this->resolveStatsField($formId, $formRow, $filter['field']);
         if ($field === null) {
-            throw new \RuntimeException(Text::sprintf('COM_CONTENTBUILDERNG_API_FIELD_NOT_FOUND', $filter['field']), 400);
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_FIELD_NOT_ALLOWED'), 403);
         }
 
         return [
@@ -207,7 +208,7 @@ final class StatsService
 
         $field = $this->resolveStatsField($formId, $formRow, $requestedField);
         if ($field === null) {
-            throw new \RuntimeException(Text::sprintf('COM_CONTENTBUILDERNG_API_FIELD_NOT_FOUND', $requestedField), 400);
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_FIELD_NOT_ALLOWED'), 403);
         }
 
         $values = match ((string) $formRow['type']) {
@@ -235,6 +236,7 @@ final class StatsService
 
         $names = method_exists($form, 'getElementNames') ? (array) $form->getElementNames() : [];
         $labels = method_exists($form, 'getElementLabels') ? (array) $form->getElementLabels() : [];
+        $allowedReferences = (new ApiFieldPermissionService())->getAllowedReferenceMap($formId);
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
         $query = $db->getQuery(true)
@@ -242,6 +244,7 @@ final class StatsService
             ->from($db->quoteName('#__contentbuilderng_elements'))
             ->where($db->quoteName('form_id') . ' = ' . (int) $formId)
             ->where($db->quoteName('published') . ' = 1')
+            ->where($db->quoteName('api_allowed') . ' = 1')
             ->order($db->quoteName('ordering'));
         $db->setQuery($query);
         $rows = $db->loadAssocList() ?: [];
@@ -250,6 +253,9 @@ final class StatsService
 
         foreach ($rows as $row) {
             $referenceId = (string) ($row['reference_id'] ?? '');
+            if ($referenceId === '' || !isset($allowedReferences[$referenceId])) {
+                continue;
+            }
             $name = (string) ($names[$referenceId] ?? '');
             $label = (string) (($row['label'] ?? '') !== '' ? $row['label'] : ($labels[$referenceId] ?? ''));
             $candidates = [$referenceId, $name, $label, (string) ($labels[$referenceId] ?? '')];

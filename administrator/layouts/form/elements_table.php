@@ -27,6 +27,7 @@ $columnOptions = [
     'list' => Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_LIST'),
     'search' => Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_SEARCH'),
     'link' => Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_LINK'),
+    'api' => Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_API'),
     'edit' => Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_EDIT'),
     'wordwrap' => Text::_('COM_CONTENTBUILDERNG_LIST_WORDWRAP'),
     'publish' => Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_PUBLISH'),
@@ -98,6 +99,12 @@ $visibleColumnCount = count($columnOptions);
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_LINK'), 'linkable') : Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_LINK'); ?>
                 </span>
             </th>
+            <th id="cb-form-view-elements-heading-api-allowed" data-cb-col="api">
+                <span class="editlinktip hasTip cb-elements-heading-label"
+                    title="<?php echo Text::_('COM_CONTENTBUILDERNG_API_ALLOWED_TIP'); ?>">
+                    <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_API'), 'api_allowed') : Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_API'); ?>
+                </span>
+            </th>
             <th id="cb-form-view-elements-heading-editable" data-cb-col="edit">
                 <span class="editlinktip hasTip cb-elements-heading-label"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_EDITABLE_TIP'); ?>">
@@ -134,6 +141,7 @@ $visibleColumnCount = count($columnOptions);
             $listInclude = ContentbuilderngHelper::listIncludeInList('form', $row, $i);
             $searchInclude = ContentbuilderngHelper::listIncludeInSearch('form', $row, $i);
             $linkable = ContentbuilderngHelper::listLinkable('form', $row, $i);
+            $apiAllowed = ContentbuilderngHelper::listApiAllowed('form', $row, $i);
             $editable = ContentbuilderngHelper::listEditable('form', $row, $i);
             $isModifiedElement = is_callable($isModifiedElementSettings) ? (bool) $isModifiedElementSettings($row) : false;
         ?>
@@ -196,6 +204,9 @@ $visibleColumnCount = count($columnOptions);
                 <td class="align-top" data-cb-col="link">
                     <?php echo $linkable; ?>
                 </td>
+                <td class="align-top" data-cb-col="api">
+                    <?php echo $apiAllowed; ?>
+                </td>
                 <td class="align-top" data-cb-col="edit">
                     <?php echo $editable; ?>
                     <?php
@@ -246,7 +257,7 @@ $visibleColumnCount = count($columnOptions);
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="10">
+            <td colspan="11">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div class="d-flex flex-wrap align-items-center gap-2">
                         <?php echo $pagination ? $pagination->getPagesCounter() : ''; ?>

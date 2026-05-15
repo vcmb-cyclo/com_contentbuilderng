@@ -12,6 +12,7 @@ namespace CB\Component\Contentbuilderng\Site\Controller;
 
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Service\ApiPermissionRequirementService;
+use CB\Component\Contentbuilderng\Administrator\Service\ApiFieldPermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Site\Model\DetailsModel;
@@ -419,15 +420,24 @@ class ApiController extends BaseController
             throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_FORM_ERROR'), 404);
         }
 
+        $fieldReferenceId = $this->input->getCmd('field_reference_id', '');
+        $whereField = $this->input->getCmd('where_field', '');
+        $apiFields = new ApiFieldPermissionService();
+        if (!$apiFields->isReferenceAllowed($formId, $fieldReferenceId)
+            || ($whereField !== '' && !$apiFields->isReferenceAllowed($formId, $whereField))
+        ) {
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_FIELD_NOT_ALLOWED'), 403);
+        }
+
         $values = $form->getUniqueValues(
-            $this->input->getCmd('field_reference_id', ''),
-            $this->input->getCmd('where_field', ''),
+            $fieldReferenceId,
+            $whereField,
             $this->input->get('where', '', 'string')
         );
 
         return [
             'code' => 0,
-            'field_reference_id' => $this->input->getCmd('field_reference_id', ''),
+            'field_reference_id' => $fieldReferenceId,
             'msg' => $values,
         ];
     }
@@ -635,6 +645,7 @@ class ApiController extends BaseController
         if (isset($subject->form) && is_object($subject->form) && method_exists($subject->form, 'getElementNames')) {
             $elementNames = (array) $subject->form->getElementNames();
         }
+        $allowedReferences = (new ApiFieldPermissionService())->getAllowedReferenceMap($formId);
 
         $items = [];
         foreach ($subject->items as $row) {
@@ -652,6 +663,9 @@ class ApiController extends BaseController
                     continue;
                 }
                 $referenceId = substr((string) $prop, 3);
+                if (!isset($allowedReferences[$referenceId])) {
+                    continue;
+                }
                 $key = (string) ($elementNames[$referenceId] ?? $referenceId);
                 $entry['values'][$key] = $value;
             }
@@ -693,9 +707,15 @@ class ApiController extends BaseController
             throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_RECORD_NOT_FOUND'), 404);
         }
 
+        $allowedReferences = (new ApiFieldPermissionService())->getAllowedReferenceMap($formId);
         $fields = [];
         foreach ($subject->items as $item) {
             if (!is_object($item)) {
+                continue;
+            }
+
+            $referenceId = (string) ($item->recElementId ?? '');
+            if ($referenceId === '' || !isset($allowedReferences[$referenceId])) {
                 continue;
             }
 
@@ -705,7 +725,7 @@ class ApiController extends BaseController
             }
 
             $fields[$name] = [
-                'reference_id' => (string) ($item->recElementId ?? ''),
+                'reference_id' => $referenceId,
                 'label' => (string) ($item->recLabel ?? $name),
                 'value' => $item->recValue ?? null,
             ];
@@ -785,11 +805,13 @@ class ApiController extends BaseController
 
         $form = $this->loadFormObject($formId);
         $elementNames = method_exists($form, 'getElementNames') ? (array) $form->getElementNames() : [];
+        $allowedReferences = (new ApiFieldPermissionService())->getAllowedReferenceMap($formId);
         $nameToRef = [];
         foreach ($elementNames as $ref => $name) {
             $nameToRef[(string) $name] = (string) $ref;
         }
 
+        $hasAllowedField = false;
         foreach ($fields as $fieldKey => $fieldValue) {
             $key = (string) $fieldKey;
             $referenceId = $nameToRef[$key] ?? null;
@@ -799,7 +821,15 @@ class ApiController extends BaseController
             if ($referenceId === null) {
                 continue;
             }
+            if (!isset($allowedReferences[(string) $referenceId])) {
+                continue;
+            }
+            $hasAllowedField = true;
             $this->input->post->set('cb_' . $referenceId, $fieldValue);
+        }
+
+        if (!$hasAllowedField) {
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_FIELD_NOT_ALLOWED'), 403);
         }
 
         $this->input->set('id', $formId);
