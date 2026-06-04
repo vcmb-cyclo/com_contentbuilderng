@@ -1305,7 +1305,109 @@ CSS
 		return 'background-color:#' + hex + ';color:' + textColor + ';';
 	}
 
-	function contentbuilderngUpdateStateUi(recordId, stateId, title, color) {
+	function contentbuilderngGetStateSelectColors(color) {
+		var hex = String(color || '').replace(/^#/, '').toUpperCase();
+		if (/^[0-9A-F]{3}$/.test(hex)) {
+			hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+		}
+
+		if (!/^[0-9A-F]{6}$/.test(hex)) {
+			return null;
+		}
+
+		var red = parseInt(hex.substring(0, 2), 16);
+		var green = parseInt(hex.substring(2, 4), 16);
+		var blue = parseInt(hex.substring(4, 6), 16);
+		var brightness = ((red * 299) + (green * 587) + (blue * 114)) / 1000;
+
+		return {
+			background: '#' + hex,
+			foreground: brightness > 160 ? '#111827' : '#F9FAFB'
+		};
+	}
+
+	function contentbuilderngApplyStateSelectStyle(select, color) {
+		var colors = contentbuilderngGetStateSelectColors(color);
+		if (!select || !colors) {
+			return;
+		}
+
+		var arrowColor = colors.foreground.replace('#', '%23');
+		var arrow = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3E%3Cpath fill=\'none\' stroke=\'' + arrowColor + '\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.8\' d=\'m3.5 6 4.5 4.5L12.5 6\'/%3E%3C/svg%3E")';
+
+		select.style.setProperty('background-color', colors.background, 'important');
+		select.style.setProperty('color', colors.foreground, 'important');
+		select.style.setProperty('border-color', colors.background, 'important');
+		select.style.setProperty('opacity', '1', 'important');
+		select.style.setProperty('background-image', arrow, 'important');
+		select.style.setProperty('background-repeat', 'no-repeat', 'important');
+		select.style.setProperty('background-position', 'right .75rem center', 'important');
+		select.style.setProperty('background-size', '16px 12px', 'important');
+		select.style.setProperty('padding-right', '2.25rem', 'important');
+	}
+
+	function contentbuilderngClearStateSelectStyle(select) {
+		if (!select) {
+			return;
+		}
+
+		select.style.removeProperty('background-color');
+		select.style.removeProperty('color');
+		select.style.removeProperty('border-color');
+		select.style.removeProperty('opacity');
+		select.style.removeProperty('background-image');
+		select.style.removeProperty('background-repeat');
+		select.style.removeProperty('background-position');
+		select.style.removeProperty('background-size');
+		select.style.removeProperty('padding-right');
+	}
+
+	function contentbuilderngApplyInitialStateSelectStyles(root) {
+		var scope = root || document;
+		scope.querySelectorAll('[data-cb-state-select]').forEach(function(select) {
+			var selectedOption = select.selectedIndex >= 0 ? select.options[select.selectedIndex] : null;
+			var stateColor = selectedOption ? String(selectedOption.getAttribute('data-state-color') || '') : '';
+
+			if (String(select.value || '') !== '' && stateColor !== '') {
+				contentbuilderngApplyStateSelectStyle(select, stateColor);
+			} else {
+				contentbuilderngClearStateSelectStyle(select);
+			}
+		});
+	}
+
+	function contentbuilderngEnsureStateOption(select, stateId, title, color, sourceOption) {
+		if (!select || stateId === '0' || stateId === '') {
+			return;
+		}
+
+		var option = Array.prototype.find.call(select.options, function(candidate) {
+			return String(candidate.value) === String(stateId);
+		});
+
+		if (option) {
+			return;
+		}
+
+		option = document.createElement('option');
+		option.value = stateId;
+		option.textContent = title || stateId;
+		option.setAttribute('data-state-title', title || '');
+		option.setAttribute('data-state-color', color || '');
+
+		if (sourceOption) {
+			Array.prototype.forEach.call(sourceOption.attributes, function(attribute) {
+				if (attribute.name !== 'selected') {
+					option.setAttribute(attribute.name, attribute.value);
+				}
+			});
+			option.textContent = sourceOption.textContent;
+		}
+
+		select.appendChild(option);
+	}
+
+	function contentbuilderngUpdateStateUi(recordId, stateId, title, color, sourceOption) {
 		var selector = '[data-record-id="' + contentbuilderngEscapeSelector(recordId) + '"]';
 		var stateCells = document.querySelectorAll('[data-cb-state-cell]' + selector);
 		var stateBadges = document.querySelectorAll('[data-cb-state-badge]' + selector);
@@ -1314,11 +1416,12 @@ CSS
 		var badgeStyle = contentbuilderngGetStateBadgeStyle(normalizedColor);
 
 		stateSelects.forEach(function(select) {
+			contentbuilderngEnsureStateOption(select, stateId, title, normalizedColor, sourceOption);
 			select.value = stateId === '0' ? '' : stateId;
 			if (badgeStyle !== '') {
-				select.setAttribute('style', badgeStyle);
+				contentbuilderngApplyStateSelectStyle(select, normalizedColor);
 			} else {
-				select.removeAttribute('style');
+				contentbuilderngClearStateSelectStyle(select);
 			}
 		});
 
@@ -1405,7 +1508,7 @@ CSS
 					select.setAttribute('data-original-value', normalizedStateId === '0' ? '' : normalizedStateId);
 				}
 
-				contentbuilderngUpdateStateUi(String(targetRecordId), normalizedStateId, stateTitle, stateColor);
+				contentbuilderngUpdateStateUi(String(targetRecordId), normalizedStateId, stateTitle, stateColor, selectedOption);
 			})
 			.catch(function (error) {
 				if (select) {
@@ -1617,6 +1720,7 @@ CSS
 			contentbuilderngHandlePublishToggleClick(toggle);
 		});
 
+		contentbuilderngApplyInitialStateSelectStyles(form);
 		contentbuilderng_updateBoxchecked(form);
 		});
 	</script>
