@@ -711,6 +711,7 @@ class TemplateRenderService
             }
         }
 
+        $sourceEditableTypes = method_exists($form, 'getEditableElementTypes') ? (array) $form->getEditableElementTypes() : [];
         $item = null;
         if ($execPrepare) {
             $editablePrepare = $result['editable_prepare'] ?? '';
@@ -787,6 +788,10 @@ class TemplateRenderService
             $elementHint = $element['hint'] ?? '';
             $isEditable = (int) ($element['editable'] ?? 1) === 1;
 
+            if ($elementType === 'text' && isset($sourceEditableTypes[(string) $elementReferenceId])) {
+                $elementType = (string) $sourceEditableTypes[(string) $elementReferenceId];
+            }
+
             if ($elementType == 'captcha' || trim($element['validations'] ?? '') != '' || trim($element['custom_validation_script'] ?? '') != '') {
                 $asterisk = ' <span class="cbRequired" style="color:red;">*</span>';
             }
@@ -856,7 +861,7 @@ class TemplateRenderService
                 case 'checkboxgroup':
                 case 'radiogroup':
                     $options->seperator = ',';
-                    $options->horizontal = $options->horizontal ?? false;
+                    $options->horizontal = $options->horizontal ?? true;
                     $options->horizontal_length = $options->horizontal_length ?? '';
                     if ($form->isGroup($item['id'])) {
                         $groupdef = $form->getGroupDefinition($item['id']);
@@ -864,6 +869,7 @@ class TemplateRenderService
                         $sep = $options->seperator;
                         $group = explode($sep, $failedValues !== null && isset($failedValues[$element['reference_id']]) && is_array($failedValues[$element['reference_id']]) ? implode($sep, $failedValues[$element['reference_id']]) : ($hasRecords ? $item['value'] : $element['default_value']));
                         $theItem = '<input name="cb_' . $item['id'] . '[]" type="hidden" value="cbGroupMark"/>';
+                        $theItem .= '<div class="cbFormField cbGroupFields d-flex flex-wrap align-items-center gap-3">';
                         foreach ($groupdef as $value => $label) {
                             $checked = '';
                             $for = $i != 0 ? '_' . $i : '';
@@ -873,12 +879,10 @@ class TemplateRenderService
                                     break;
                                 }
                             }
-                            $theItem .= '<div style="' . ($options->horizontal ? 'float: left;' . ($options->horizontal_length ? 'width: ' . $options->horizontal_length . ';' : '') . 'display: inline; margin-right: 2px;' : '') . '" class="cbFormField cbGroupField"><input class="form-check-input" id="cb_' . $item['id'] . $for . '" name="cb_' . $item['id'] . '[]" type="' . ($element['type'] == 'checkboxgroup' ? 'checkbox' : 'radio') . '" value="' . htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8') . '"' . $checked . '/> <label for="cb_' . $item['id'] . $for . '">' . htmlspecialchars(trim($label), ENT_QUOTES, 'UTF-8') . '</label> </div>';
+                            $theItem .= '<div style="' . ($options->horizontal_length ? 'width: ' . $options->horizontal_length . ';' : '') . '" class="cbGroupField form-check form-check-inline d-inline-flex align-items-center gap-1 mb-0"><input class="form-check-input mt-0" id="cb_' . $item['id'] . $for . '" name="cb_' . $item['id'] . '[]" type="' . ($elementType == 'checkboxgroup' ? 'checkbox' : 'radio') . '" value="' . htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8') . '"' . $checked . '/> <label class="form-check-label" for="cb_' . $item['id'] . $for . '">' . htmlspecialchars(trim($label), ENT_QUOTES, 'UTF-8') . '</label> </div>';
                             $i++;
                         }
-                        if ($options->horizontal) {
-                            $theItem .= '<div style="clear:both;"></div>';
-                        }
+                        $theItem .= '</div>';
                     } else {
                         $theItem .= '<span style="color:red">ELEMENT IS NOT A GROUP</span>';
                     }

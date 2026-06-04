@@ -69,6 +69,7 @@ class FormSupportService
         $db = $this->db;
         $ids = [];
         $elements = (array) $form->getElementLabels();
+        $editableTypes = method_exists($form, 'getEditableElementTypes') ? (array) $form->getEditableElementTypes() : [];
 
         $query = $db->getQuery(true)
             ->select([$db->quoteName('reference_id'), $db->quoteName('label')])
@@ -118,7 +119,7 @@ class FormSupportService
                         $db->quote($title),
                         $db->quote($formId),
                         $db->quote($referenceId),
-                        $db->quote('text'),
+                        $db->quote((string) ($editableTypes[(string) $referenceId] ?? 'text')),
                         $db->quote(PackedDataHelper::encodePackedData($options)),
                         1,
                         0,

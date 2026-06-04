@@ -994,6 +994,36 @@ class contentbuilderng_com_breezingforms
         return $elements;
     }
 
+    public function getEditableElementTypes(): array
+    {
+        $types = array();
+
+        if ($this->elements) {
+            foreach ($this->elements as $element) {
+                $referenceId = (string) ($element['id'] ?? '');
+                if ($referenceId === '') {
+                    continue;
+                }
+
+                switch ((string) ($element['type'] ?? '')) {
+                    case 'Radio Group':
+                        $types[$referenceId] = 'radiogroup';
+                        break;
+                    case 'Select List':
+                        $types[$referenceId] = 'select';
+                        break;
+                    case 'Checkbox Group':
+                        $types[$referenceId] = 'checkboxgroup';
+                        break;
+                    default:
+                        $types[$referenceId] = 'text';
+                }
+            }
+        }
+
+        return $types;
+    }
+
     public function getPageTitle()
     {
         return $this->properties->title;
