@@ -7,7 +7,7 @@
   <license>GNU/GPL v2 or later</license>
   <authorEmail>noreply@vcmb.fr</authorEmail>
   <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-  <version>6.1.7-RC27</version>
+  <version>6.1.7-RC29</version>
   <description><![CDATA[A dark mode theme based on Joomla 6]]></description>
 
   <files>
@@ -16,4 +16,3 @@
     <filename>index.html</filename>
   </files>
 </extension>
-
