@@ -193,6 +193,53 @@ class TemplateRenderService
         ];
     }
 
+    private function renderReadonlyGroupField(object $form, string $elementId, string $elementType, string $value): string
+    {
+        if (!method_exists($form, 'isGroup') || !method_exists($form, 'getGroupDefinition') || !$form->isGroup($elementId)) {
+            return '';
+        }
+
+        $groupDefinition = (array) $form->getGroupDefinition($elementId);
+        if ($groupDefinition === []) {
+            return '';
+        }
+
+        $selectedValues = array_map('trim', explode(',', $value));
+        if ($elementType === 'select') {
+            $html = '<div class="cbFormField cbSelectField"><select class="form-select form-select-sm d-inline-block w-auto" disabled="disabled">';
+
+            foreach ($groupDefinition as $optionValue => $optionLabel) {
+                $optionValue = trim((string) $optionValue);
+                $optionLabel = trim((string) $optionLabel);
+                $selected = in_array($optionValue, $selectedValues, true) ? ' selected="selected"' : '';
+                $html .= '<option value="' . htmlspecialchars($optionValue, ENT_QUOTES, 'UTF-8') . '"' . $selected . '>' . htmlspecialchars($optionLabel, ENT_QUOTES, 'UTF-8') . '</option>';
+            }
+
+            return $html . '</select></div>';
+        }
+
+        $inputType = $elementType === 'checkboxgroup' ? 'checkbox' : 'radio';
+        $elementIdAttribute = preg_replace('/[^A-Za-z0-9_\-]/', '_', $elementId) ?? $elementId;
+        $html = '<div class="cbFormField cbGroupFields d-flex flex-wrap align-items-center gap-3">';
+        $index = 0;
+
+        foreach ($groupDefinition as $optionValue => $optionLabel) {
+            $optionValue = trim((string) $optionValue);
+            $optionLabel = trim((string) $optionLabel);
+            $checked = in_array($optionValue, $selectedValues, true) ? ' checked="checked"' : '';
+            $fieldId = 'cb_details_' . $elementIdAttribute . '_' . $index;
+
+            $html .= '<div class="cbGroupField form-check form-check-inline d-inline-flex align-items-center gap-1 mb-0">'
+                . '<input class="form-check-input mt-0" id="' . htmlspecialchars($fieldId, ENT_QUOTES, 'UTF-8') . '" type="' . $inputType . '" disabled="disabled"' . $checked . ' />'
+                . '<label class="form-check-label" for="' . htmlspecialchars($fieldId, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($optionLabel, ENT_QUOTES, 'UTF-8') . '</label>'
+                . '</div>';
+
+            $index++;
+        }
+
+        return $html . '</div>';
+    }
+
     public function applyItemWrappers($contentbuilderngFormId, array $items, $form)
     {
         $db = $this->db;
@@ -401,9 +448,12 @@ class TemplateRenderService
         $result = $db->loadAssoc();
 
         if (is_array($result) && $result['details_template']) {
+            $form = $this->getForm($result['type'], $result['reference_id']);
+            $sourceEditableTypes = is_object($form) && method_exists($form, 'getEditableElementTypes')
+                ? (array) $form->getEditableElementTypes()
+                : [];
             $user = null;
             if ($result['act_as_registration']) {
-                $form = $this->getForm($result['type'], $result['reference_id']);
                 $meta = $form->getRecordMetadata($recordId);
                 $db->setQuery("Select * From #__users Where id = " . $meta->created_id);
                 $user = $db->loadObject();
@@ -412,6 +462,7 @@ class TemplateRenderService
             $_template = array();
             $labels = array();
             $allowHtml = array();
+            $renderedGroupFields = array();
 
             $db->setQuery("Select `label`,`reference_id`,`options` From #__contentbuilderng_elements Where form_id = " . (int) $contentbuilderngFormId);
             $labels_ = $db->loadAssocList();
@@ -448,8 +499,24 @@ class TemplateRenderService
                     }
                 }
 
-                $items[$item->recName]['value'] = ($item->recValue != '' ? $item->recValue : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'));
                 $items[$item->recName]['id'] = $item->recElementId;
+                $itemValue = ($item->recValue != '' ? $item->recValue : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'));
+                $elementType = (string) ($sourceEditableTypes[(string) $item->recElementId] ?? '');
+
+                if (
+                    is_object($form)
+                    && $item->recValue != ''
+                    && in_array($elementType, ['radiogroup', 'checkboxgroup', 'select'], true)
+                ) {
+                    $renderedGroupValue = $this->renderReadonlyGroupField($form, (string) $item->recElementId, $elementType, (string) $item->recValue);
+
+                    if ($renderedGroupValue !== '') {
+                        $itemValue = $renderedGroupValue;
+                        $renderedGroupFields[$item->recElementId] = true;
+                    }
+                }
+
+                $items[$item->recName]['value'] = $itemValue;
                 $regex = "/([\{]hide-if-empty " . $item->recName . "[\}])(.*)([\{][\/]hide[\}])/isU";
                 $regex2 = "/([\{]hide-if-matches " . $item->recName . " (.*)[\}])(.*)([\{][\/]hide-if-matches[\}])/isU";
                 $matches = array();
@@ -478,9 +545,11 @@ class TemplateRenderService
                     continue;
                 }
                 $items[$key]['label'] = htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8');
-                $items[$key]['value'] = isset($allowHtml[$item['id']])
+                $items[$key]['value'] = isset($renderedGroupFields[$item['id']])
+                    ? $item['value']
+                    : (isset($allowHtml[$item['id']])
                     ? $textUtilityService->cleanString($item['value'])
-                    : nl2br($textUtilityService->allhtmlspecialchars($this->callContentbuilderngHelper('cbinternal', $item['value'])));
+                    : nl2br($textUtilityService->allhtmlspecialchars($this->callContentbuilderngHelper('cbinternal', $item['value']))));
             }
 
             $detailsPrepare = $result['details_prepare'] ?? '';
