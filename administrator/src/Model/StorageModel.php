@@ -1332,7 +1332,7 @@ class StorageModel extends AdminModel
         }
 
         if ($handle === FALSE) {
-            return Text::_('JLIB_FILESYSTEM_ERROR_FILE_NOT_FOUND');
+            return Text::_('COM_CONTENTBUILDERNG_FILE_NOT_FOUND');
         }
 
         if ($handle !== FALSE) {
