@@ -18,12 +18,8 @@
     </description>
     <files>
         <filename plugin="date_not_before">date_not_before.php</filename>
+        <folder>language</folder>
     </files>
-    <languages>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_validation_date_not_before.ini</language>
-        <language tag="de-DE">de-DE.plg_contentbuilderng_validation_date_not_before.ini</language>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_validation_date_not_before.sys.ini</language>
-    </languages>
 
     <config>
         <fields name="params">

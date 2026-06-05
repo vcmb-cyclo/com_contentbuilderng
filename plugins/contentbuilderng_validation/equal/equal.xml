@@ -18,12 +18,8 @@
     </description>
     <files>
         <filename plugin="equal">equal.php</filename>
+        <folder>language</folder>
     </files>
-    <languages>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_validation_equal.ini</language>
-        <language tag="de-DE">de-DE.plg_contentbuilderng_validation_equal.ini</language>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_validation_equal.sys.ini</language>
-    </languages>
 
     <config>
         <fields name="params">

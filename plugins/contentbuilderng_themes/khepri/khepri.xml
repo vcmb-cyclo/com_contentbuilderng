@@ -11,8 +11,6 @@
   <description><![CDATA[A khepri based theme for ContentBuilder Content-Templates]]></description>
   <files>
     <filename plugin="khepri">khepri.php</filename>
+    <folder>language</folder>
   </files>
-    <languages>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_themes_khepri.sys.ini</language>
-    </languages>
 </extension>

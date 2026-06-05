@@ -16,12 +16,8 @@
     </description>
     <files>
         <filename plugin="email">email.php</filename>
+        <folder>language</folder>
     </files>
-    <languages>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_validation_email.ini</language>
-        <language tag="de-DE">de-DE.plg_contentbuilderng_validation_email.ini</language>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_validation_email.sys.ini</language>
-    </languages>
 
     <config>
         <fields name="params">

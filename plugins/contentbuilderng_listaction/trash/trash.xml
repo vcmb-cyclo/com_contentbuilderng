@@ -16,12 +16,8 @@
     </description>
     <files>
         <filename plugin="trash">trash.php</filename>
+        <folder>language</folder>
     </files>
-    <languages>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_listaction_trash.ini</language>
-        <language tag="de-DE">de-DE.plg_contentbuilderng_listaction_trash.ini</language>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_listaction_trash.sys.ini</language>
-    </languages>
 
     <config>
         <fields name="params">

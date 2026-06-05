@@ -16,12 +16,8 @@
     </description>
     <files>
         <filename plugin="date_is_valid">date_is_valid.php</filename>
+        <folder>language</folder>
     </files>
-    <languages>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_validation_date_is_valid.ini</language>
-        <language tag="de-DE">de-DE.plg_contentbuilderng_validation_date_is_valid.ini</language>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_validation_date_is_valid.sys.ini</language>
-    </languages>
 
     <config>
         <fields name="params">

@@ -14,8 +14,6 @@
     <filename plugin="dark">dark.php</filename>
     <filename>dark.xml</filename>
     <filename>index.html</filename>
+    <folder>language</folder>
   </files>
-    <languages>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_themes_dark.sys.ini</language>
-    </languages>
 </extension>

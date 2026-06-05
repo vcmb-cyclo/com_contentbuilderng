@@ -14,8 +14,6 @@
     <filename plugin="joomla6">joomla6.php</filename>
     <filename>joomla6.xml</filename>
     <filename>index.html</filename>
+    <folder>language</folder>
   </files>
-    <languages>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_themes_joomla6.sys.ini</language>
-    </languages>
 </extension>

@@ -16,10 +16,8 @@
     </description>
     <files>
         <filename plugin="contentbuilderng_system">contentbuilderng_system.php</filename>
+        <folder>language</folder>
     </files>
-    <languages>
-        <language tag="en-GB">en-GB.plg_system_contentbuilderng_system.sys.ini</language>
-    </languages>
     <config>
         <fields name="params">
             <fieldset name="basic">

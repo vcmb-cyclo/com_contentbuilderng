@@ -11,8 +11,6 @@
   <description><![CDATA[A blank theme without any style]]></description>
   <files>
     <filename plugin="blank">blank.php</filename>
+    <folder>language</folder>
   </files>
-    <languages>
-        <language tag="en-GB">en-GB.plg_contentbuilderng_themes_blank.sys.ini</language>
-    </languages>
 </extension>
