@@ -29,11 +29,7 @@ use CB\Component\Contentbuilderng\Administrator\Service\MigrationService;
 use CB\Component\Contentbuilderng\Administrator\Service\PluginInstallerService;
 use CB\Component\Contentbuilderng\Administrator\Service\SchemaService;
 
-$serviceBasePath = is_dir(__DIR__ . '/admin/src/Service')
-    ? __DIR__ . '/admin/src/Service'
-    : (is_dir(__DIR__ . '/administrator/src/Service')
-        ? __DIR__ . '/administrator/src/Service'
-        : __DIR__ . '/src/Service');
+$serviceBasePath = __DIR__ . '/admin/src/Service';
 
 require_once $serviceBasePath . '/InstallerService.php';
 require_once $serviceBasePath . '/MigrationService.php';
