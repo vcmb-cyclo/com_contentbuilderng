@@ -1211,13 +1211,13 @@ var contentbuilderng = new function(){
                                             foreach ($_items as $_item) {
                                                 if ($_item->recElementId == $the_upload_fields[$id]['reference_id']) {
                                                     $_value = $_item->recValue;
-                                                    $_files = explode("\n", str_replace("\r", '', $_value));
-                                                    foreach ($_files as $_file) {
-                                                        if (strpos(strtolower($_file), '{cbsite}') === 0) {
-                                                            $_file = str_replace(array('{cbsite}', '{CBSite}'), array(JPATH_SITE, JPATH_SITE), $_file);
+                                                    $cbFiles = explode("\n", str_replace("\r", '', $_value));
+                                                    foreach ($cbFiles as $cbFile) {
+                                                        if (strpos(strtolower($cbFile), '{cbsite}') === 0) {
+                                                            $cbFile = str_replace(array('{cbsite}', '{CBSite}'), array(JPATH_SITE, JPATH_SITE), $cbFile);
                                                         }
-                                                        if (ContentbuilderngHelper::is_internal_path($_file) && file_exists($_file)) {
-                                                            File::delete($_file);
+                                                        if (ContentbuilderngHelper::is_internal_path($cbFile) && file_exists($cbFile)) {
+                                                            File::delete($cbFile);
                                                         }
                                                         $values[$id] = '';
                                                     }
@@ -1332,12 +1332,12 @@ var contentbuilderng = new function(){
                                                 foreach ($_items as $_item) {
                                                     if ($_item->recElementId == $the_upload_fields[$id]['reference_id']) {
                                                         $_value = $_item->recValue;
-                                                        $_files = explode("\n", str_replace("\r", '', $_value));
-                                                        foreach ($_files as $_file) {
-                                                            if (strpos(strtolower($_file), '{cbsite}') === 0) {
-                                                                $_file = str_replace(array('{cbsite}', '{CBSite}'), array(JPATH_SITE, JPATH_SITE), $_file);
+                                                        $cbFiles = explode("\n", str_replace("\r", '', $_value));
+                                                        foreach ($cbFiles as $cbFile) {
+                                                            if (strpos(strtolower($cbFile), '{cbsite}') === 0) {
+                                                                $cbFile = str_replace(array('{cbsite}', '{CBSite}'), array(JPATH_SITE, JPATH_SITE), $cbFile);
                                                             }
-                                                            $files_to_delete[] = $_file;
+                                                            $files_to_delete[] = $cbFile;
                                                         }
                                                         break;
                                                     }

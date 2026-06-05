@@ -79,8 +79,10 @@ final class MenuParamHelper
 
     public static function hasExplicitListLimitRequest(): bool
     {
-        return (isset($_GET['list']) && is_array($_GET['list']) && array_key_exists('limit', $_GET['list']))
-            || (isset($_POST['list']) && is_array($_POST['list']) && array_key_exists('limit', $_POST['list']));
+        $input = Factory::getApplication()->getInput();
+        $getList = $input->get->get('list', [], 'array');
+        $postList = $input->post->get('list', [], 'array');
+        return array_key_exists('limit', $getList) || array_key_exists('limit', $postList);
     }
 
     private static function getFormInitialListLimit(int $formId): int

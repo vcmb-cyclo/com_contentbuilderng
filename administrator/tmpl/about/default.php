@@ -221,7 +221,7 @@ $repairWorkflowCurrentStep = $repairWorkflowSteps[$repairWorkflowCurrentIndex] ?
 $repairWorkflowCurrentStepId = is_array($repairWorkflowCurrentStep) ? (string) ($repairWorkflowCurrentStep['id'] ?? '') : '';
 $repairWorkflowCurrentStatus = is_array($repairWorkflowCurrentStep) ? (string) ($repairWorkflowCurrentStep['status'] ?? 'pending') : 'pending';
 $repairWorkflowCurrentResult = is_array($repairWorkflowCurrentStep) ? (array) ($repairWorkflowCurrentStep['result'] ?? []) : [];
-$repairWorkflowRequested = isset($_GET['repair_workflow']) && (int) $_GET['repair_workflow'] === 1;
+$repairWorkflowRequested = Factory::getApplication()->getInput()->getInt('repair_workflow', 0) === 1;
 $repairWorkflowIsActive = $repairWorkflowRequested && !empty($repairWorkflow) && (bool) ($repairWorkflow['active'] ?? false);
 $repairWorkflowIsCompleted = (bool) ($repairWorkflow['completed'] ?? false);
 $repairWorkflowHasNext = $repairWorkflowIsActive && $repairWorkflowCurrentIndex < count($repairWorkflowSteps) - 1;
