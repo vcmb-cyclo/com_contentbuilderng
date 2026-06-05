@@ -37,16 +37,11 @@
 
  <files folder="site">
     <filename>index.html</filename>
+    <folder>language</folder>
     <folder>layouts</folder>
     <folder>src</folder>
     <folder>tmpl</folder>
  </files>
-
- <languages folder="components/com_contentbuilderng">
-    <language tag="en-GB">languages/en-GB/en-GB.com_contentbuilderng.ini</language>
-    <language tag="de-DE">languages/de-DE/de-DE.com_contentbuilderng.ini</language>
-    <language tag="fr-FR">languages/fr-FR/fr-FR.com_contentbuilderng.ini</language>
- </languages>
 
 <!-- ===================== -->
 <!-- ADMINISTRATION -->
@@ -66,8 +61,9 @@
         <filename>composer.lock</filename>
         <filename>config.xml</filename>
         <filename>index.html</filename>
-        
+
         <folder>forms</folder>
+        <folder>language</folder>
         <folder>services</folder>
         <folder>vendor</folder>
         <folder>src</folder>
@@ -75,18 +71,6 @@
         <folder>layouts</folder>
         <folder>tmpl</folder>
     </files>
-
-    <languages folder="administrator/components/com_contentbuilderng">
-        <language tag="en-GB">languages/en-GB/en-GB.com_contentbuilderng.ini</language>
-        <language tag="en-GB">languages/en-GB/en-GB.com_contentbuilderng.menu.ini</language>
-        <language tag="en-GB">languages/en-GB/en-GB.com_contentbuilderng.sys.ini</language>
-        <language tag="de-DE">languages/de-DE/de-DE.com_contentbuilderng.ini</language>
-        <language tag="de-DE">languages/de-DE/de-DE.com_contentbuilderng.menu.ini</language>
-        <language tag="de-DE">languages/de-DE/de-DE.com_contentbuilderng.sys.ini</language>
-        <language tag="fr-FR">languages/fr-FR/fr-FR.com_contentbuilderng.ini</language>
-        <language tag="fr-FR">languages/fr-FR/fr-FR.com_contentbuilderng.menu.ini</language>
-        <language tag="fr-FR">languages/fr-FR/fr-FR.com_contentbuilderng.sys.ini</language>
-    </languages>
 
 </administration>
 
