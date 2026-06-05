@@ -114,8 +114,15 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
                 $sourceTypeName = trim((string) ($item->type_name ?? ''));
                 $sourceEditLink = '';
 
-                if ($sourceType === 'com_breezingforms' && $sourceReferenceId > 0 && $sourceTypeName !== '') {
-                    $sourceEditLink = Route::_('index.php?option=com_breezingforms&act=quickmode&formName=' . rawurlencode($sourceTypeName) . '&form=' . $sourceReferenceId, false);
+                if (in_array($sourceType, ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true) && $sourceReferenceId > 0 && $sourceTypeName !== '') {
+                    $bfOption = $sourceType;
+                    foreach (['com_breezingformsng', 'com_breezingforms_ng', 'com_breezingforms'] as $_opt) {
+                        if (is_file(JPATH_ROOT . '/components/' . $_opt . '/breezingforms.php')) {
+                            $bfOption = $_opt;
+                            break;
+                        }
+                    }
+                    $sourceEditLink = Route::_('index.php?option=' . $bfOption . '&act=quickmode&formName=' . rawurlencode($sourceTypeName) . '&form=' . $sourceReferenceId, false);
                 } elseif ($sourceType === 'com_contentbuilderng' && $sourceReferenceId > 0) {
                     $sourceEditLink = Route::_('index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . $sourceReferenceId, false);
                 }
