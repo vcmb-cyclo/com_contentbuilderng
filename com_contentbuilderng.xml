@@ -54,22 +54,8 @@
 <administration>
     <menu>COM_CONTENTBUILDERNG</menu>
     <submenu>
-        <menu view="storages">
-            COM_CONTENTBUILDERNG_STORAGES
-            <params>
-                <menu-quicktask>index.php?option=com_contentbuilderng&amp;task=storage.add</menu-quicktask>
-                <menu-quicktask-title>COM_CONTENTBUILDERNG_MENUS_NEW_STORAGE</menu-quicktask-title>
-                <menu-quicktask-icon>plus</menu-quicktask-icon>
-            </params>
-        </menu>
-        <menu view="forms">
-            COM_CONTENTBUILDERNG_LIST
-            <params>
-                <menu-quicktask>index.php?option=com_contentbuilderng&amp;task=form.add</menu-quicktask>
-                <menu-quicktask-title>COM_CONTENTBUILDERNG_MENUS_NEW_VIEW</menu-quicktask-title>
-                <menu-quicktask-icon>plus</menu-quicktask-icon>
-            </params>
-        </menu>
+        <menu view="storages">COM_CONTENTBUILDERNG_STORAGES</menu>
+        <menu view="forms">COM_CONTENTBUILDERNG_LIST</menu>
         <menu view="about">COM_CONTENTBUILDERNG_ABOUT</menu>
     </submenu>
 

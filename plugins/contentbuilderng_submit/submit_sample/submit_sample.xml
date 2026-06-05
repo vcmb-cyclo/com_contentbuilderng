@@ -8,7 +8,7 @@
 	<authorEmail>noreply@vcmb.fr</authorEmail>
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
 	<version>6.1.7-RC30</version>
-	<administration></administration>
+
 	<description>
 	<![CDATA[
         Sample on how to use submit plugins
@@ -21,5 +21,7 @@
     </languages>
 
     <config>
+        <fields name="params">
+        </fields>
     </config>
 </extension>
