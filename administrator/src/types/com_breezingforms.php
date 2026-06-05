@@ -108,6 +108,7 @@ class contentbuilderng_com_breezingforms
                 ->where($db->quoteName('type') . ' NOT IN (' . implode(',', array_map([$db, 'quote'], $excludedTypes)) . ')')
                 ->where($db->quoteName('form') . ' = ' . (int) $id)
                 ->where($db->quoteName('published') . ' = 1')
+                ->where($db->quoteName('logging') . ' = 1')
                 ->order($db->quoteName('ordering'));
             $db->setQuery($elemQuery);
             $this->elements = $db->loadAssocList();
