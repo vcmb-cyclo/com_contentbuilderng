@@ -17,9 +17,6 @@
     <files>
         <filename plugin="submit_sample">submit_sample.php</filename>
     </files>
-    <languages>
-    </languages>
-
     <config>
         <fields name="params">
         </fields>

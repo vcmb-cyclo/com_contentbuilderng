@@ -17,9 +17,6 @@
     <files>
         <filename plugin="paypal">paypal.php</filename>
     </files>
-    <languages>
-    </languages>
-
     <config>
         <fields name="params">
             <fieldset name="basic">
