@@ -17,6 +17,9 @@
     <files>
         <filename plugin="contentbuilderng_permission_observer">contentbuilderng_permission_observer.php</filename>
     </files>
+    <languages>
+        <language tag="en-GB">en-GB.plg_content_contentbuilderng_permission_observer.sys.ini</language>
+    </languages>
     <config>
         <fields name="params">
         </fields>

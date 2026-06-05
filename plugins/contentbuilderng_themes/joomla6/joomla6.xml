@@ -15,4 +15,7 @@
     <filename>joomla6.xml</filename>
     <filename>index.html</filename>
   </files>
+    <languages>
+        <language tag="en-GB">en-GB.plg_contentbuilderng_themes_joomla6.sys.ini</language>
+    </languages>
 </extension>

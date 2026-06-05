@@ -15,4 +15,7 @@
     <filename>dark.xml</filename>
     <filename>index.html</filename>
   </files>
+    <languages>
+        <language tag="en-GB">en-GB.plg_contentbuilderng_themes_dark.sys.ini</language>
+    </languages>
 </extension>

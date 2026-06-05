@@ -1,6 +1,6 @@
 <extension type="component" method="upgrade" version="6.0">
     <name>COM_CONTENTBUILDERNG</name>
-    <creationDate>2026-06-04</creationDate>
+    <creationDate>2026-06-05</creationDate>
     <author>XDA+GIL</author>
     <authorEmail>bf@vcmb.fr</authorEmail>
     <authorUrl>https://breezingforms-ng.vcmb.fr</authorUrl>

@@ -20,6 +20,7 @@
     <languages>
         <language tag="en-GB">en-GB.plg_contentbuilderng_validation_date_is_valid.ini</language>
         <language tag="de-DE">de-DE.plg_contentbuilderng_validation_date_is_valid.ini</language>
+        <language tag="en-GB">en-GB.plg_contentbuilderng_validation_date_is_valid.sys.ini</language>
     </languages>
 
     <config>

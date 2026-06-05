@@ -17,6 +17,9 @@
     <files>
         <filename plugin="contentbuilderng_image_scale">contentbuilderng_image_scale.php</filename>
     </files>
+    <languages>
+        <language tag="en-GB">en-GB.plg_content_contentbuilderng_image_scale.sys.ini</language>
+    </languages>
     <config>
         <fields name="params">
             <fieldset name="basic">
