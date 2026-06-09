@@ -23,7 +23,7 @@ jobs:
           tools: composer:v2
 
       - name: Install production dependencies
-        working-directory: administrator
+        working-directory: admin
         run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
 
       - name: Resolve package version
@@ -43,13 +43,13 @@ jobs:
       - name: Assemble distribution
         run: |
           mkdir -p build/package
-          cp -R administrator build/package/
+          cp -R admin build/package/
           cp -R site build/package/
           cp -R media build/package/
           cp -R plugins build/package/
           cp com_contentbuilderng.xml build/package/
           cp script.php build/package/
-          rm -rf build/package/administrator/vendor/bin
+          rm -rf build/package/admin/vendor/bin
 
       - name: Create archive
         working-directory: build/package
