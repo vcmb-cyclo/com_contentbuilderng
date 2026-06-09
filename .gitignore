@@ -1,6 +1,5 @@
 .vscode/
 *.zip
-administrator/.phpunit.cache/
-administrator/vendor/
-administrator/.phpunit.result.cache
-
+admin/.phpunit.cache/
+admin/.phpunit.result.cache
+admin/vendor/
