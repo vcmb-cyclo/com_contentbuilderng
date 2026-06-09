@@ -11,6 +11,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 \defined('_JEXEC') or die;
 
+use CB\Component\Contentbuilderng\Administrator\Helper\Audit\ElementReferenceAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\EncodingAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\GeneratedArticleCategoryAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\DatabaseAuditHelper;
@@ -136,8 +137,9 @@ class RepairWorkflowService
             'plugin_duplicates'    => $this->buildPluginDuplicateStepResult(PluginExtensionDedupHelper::repair($db)),
             'historical_menu_entries' => $this->buildHistoricalMenuStepResult(PackedDataMigrationHelper::repairLegacyMenuEntriesStep($db)),
             'bf_field_sync'        => $this->buildBfFieldSyncStepResult(DatabaseAuditHelper::run()),
-            'generated_article_categories' => $this->buildGeneratedArticleCategoryStepResult(GeneratedArticleCategoryAuditHelper::repair($db)),
-            default                => throw new \RuntimeException('Unknown repair step: ' . $stepId),
+            'generated_article_categories'   => $this->buildGeneratedArticleCategoryStepResult(GeneratedArticleCategoryAuditHelper::repair($db)),
+            'element_reference_consistency'  => $this->buildElementReferenceConsistencyStepResult(ElementReferenceAuditHelper::repair($db)),
+            default                          => throw new \RuntimeException('Unknown repair step: ' . $stepId),
         };
     }
 
@@ -556,25 +558,31 @@ class RepairWorkflowService
                 $elementReferenceLines[] = 'View #' . $formId . ($formName !== '' ? ' (' . $formName . ')' : '') . ': ' . implode(' | ', $issueParts);
             }
 
+            $orphanFormsCount  = count(array_filter($elementReferenceIssues, static fn($i) => !empty($i['orphan_reference_ids'])));
+            $totalOrphanCount  = (int) array_sum(array_map(static fn($i) => count((array) ($i['orphan_reference_ids'] ?? [])), $elementReferenceIssues));
+            $orphanPreviewLines = [];
+            foreach ($elementReferenceIssues as $elementReferenceIssue) {
+                $orphans = (array) ($elementReferenceIssue['orphan_reference_ids'] ?? []);
+                if ($orphans === []) {
+                    continue;
+                }
+                $fid   = (int) ($elementReferenceIssue['form_id'] ?? 0);
+                $fname = trim((string) ($elementReferenceIssue['form_name'] ?? ''));
+                $refs  = array_map(static fn($o) => trim((string) ($o['reference_id'] ?? '')), array_filter($orphans, 'is_array'));
+                $orphanPreviewLines[] = 'View #' . $fid . ($fname !== '' ? ' (' . $fname . ')' : '') . ': orphan reference_ids [' . implode(', ', $refs) . ']';
+            }
+
             $prechecks['element_reference_consistency'] = [
-                'count' => count($elementReferenceIssues),
-                'description' => match (true) {
-                    count($elementReferenceIssues) <= 0 => 'No element reference_id incoherence was detected by the last audit.',
-                    count($elementReferenceIssues) === 1 => '1 view has duplicate, empty, or orphan element reference_id values. This diagnostic step does not perform an automatic repair.',
-                    default => count($elementReferenceIssues) . ' views have duplicate, empty, or orphan element reference_id values. This diagnostic step does not perform an automatic repair.',
+                'count'        => $orphanFormsCount,
+                'description'  => match (true) {
+                    $orphanFormsCount <= 0 => 'No orphan element reference_id was detected by the last audit.',
+                    $orphanFormsCount === 1 => '1 view has ' . $totalOrphanCount . ' orphan element reference_id(s) that can be removed in this step.',
+                    default => $orphanFormsCount . ' views have ' . $totalOrphanCount . ' orphan element reference_id(s) that can be removed in this step.',
                 },
-                'skip_summary' => '',
-                'has_errors' => false,
-                'mode' => 'diagnostic',
-                'result' => [
-                    'level' => count($elementReferenceIssues) > 0 ? 'warning' : 'message',
-                    'summary' => match (true) {
-                        count($elementReferenceIssues) <= 0 => 'No element reference_id incoherence detected by the last audit.',
-                        count($elementReferenceIssues) === 1 => '1 element reference_id incoherence detected. Review the affected view in the Audit section.',
-                        default => count($elementReferenceIssues) . ' element reference_id incoherences detected. Review the affected views in the Audit section.',
-                    },
-                    'lines' => $elementReferenceLines,
-                ],
+                'skip_summary' => 'No orphan element reference_id detected by the last audit. Skipped automatically.',
+                'has_errors'   => false,
+                'details'      => $totalOrphanCount . ' orphan element mapping(s) across ' . $orphanFormsCount . ' view(s).',
+                'lines'        => $orphanPreviewLines,
             ];
 
             $prechecks['generated_article_categories'] = [
@@ -985,6 +993,61 @@ class RepairWorkflowService
             'summary' => $views > 0
                 ? 'BF field sync diagnostic: ' . $views . ' views require manual review (' . $missing . ' source fields missing in CB, ' . $orphan . ' extra fields in CB).'
                 : 'No BF field synchronization issue detected.',
+            'lines' => $lines,
+        ];
+    }
+
+    private function buildElementReferenceConsistencyStepResult(array $summary): array
+    {
+        $lines = [];
+
+        foreach ((array) ($summary['forms'] ?? []) as $form) {
+            if (!is_array($form)) {
+                continue;
+            }
+
+            $line = 'View #' . (int) ($form['form_id'] ?? 0)
+                . ($form['form_name'] !== '' ? ' "' . $form['form_name'] . '"' : '')
+                . ' [' . (string) ($form['status'] ?? '') . ']'
+                . ' orphans_deleted=' . (int) ($form['orphans_deleted'] ?? 0);
+            $error = trim((string) ($form['error'] ?? ''));
+            if ($error !== '') {
+                $line .= ', error=' . $error;
+            }
+            $lines[] = $line;
+        }
+
+        foreach ((array) ($summary['warnings'] ?? []) as $warning) {
+            $warning = trim((string) $warning);
+            if ($warning !== '') {
+                $lines[] = 'Warning: ' . $warning;
+            }
+        }
+
+        $scanned        = (int) ($summary['scanned'] ?? 0);
+        $formsRepaired  = (int) ($summary['forms_with_orphans'] ?? 0);
+        $deleted        = (int) ($summary['orphans_deleted'] ?? 0);
+        $unchanged      = (int) ($summary['unchanged'] ?? 0);
+        $errors         = (int) ($summary['errors'] ?? 0);
+
+        if ($scanned > 0 && $formsRepaired === 0 && $errors === 0) {
+            return [
+                'level'   => 'message',
+                'summary' => Text::sprintf('COM_CONTENTBUILDERNG_ELEMENT_REFERENCE_REPAIR_UP_TO_DATE', $scanned),
+                'lines'   => $lines,
+            ];
+        }
+
+        return [
+            'level'   => $errors > 0 ? 'warning' : 'message',
+            'summary' => Text::sprintf(
+                'COM_CONTENTBUILDERNG_ELEMENT_REFERENCE_REPAIR_SUMMARY',
+                $scanned,
+                $formsRepaired,
+                $deleted,
+                $unchanged,
+                $errors
+            ),
             'lines' => $lines,
         ];
     }
