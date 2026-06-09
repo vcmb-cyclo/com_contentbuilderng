@@ -90,11 +90,20 @@ Response format:
 ```json
 {
   "success": true,
-  "message": null,
-  "messages": null,
+  "messages": [],
   "data": {}
 }
 ```
+
+Sparse fieldsets are supported on `GET` requests:
+
+```text
+index.php?option=com_contentbuilderng&task=api.display&id=25&fields[items]=record_id,title,slug
+index.php?option=com_contentbuilderng&task=api.display&id=25&action=stats&fields[records]=total,published
+```
+
+`fields[items]` accepts both item properties such as `record_id` and allowed business field names stored in `values`.
+When sparse fieldsets are used, top-level resources not named in `fields[...]` are omitted. Request several resources with several parameters, for example `fields[records]=total&fields[ratings]=average`.
 
 There is no backward compatibility for `task=ajax.display`.
 

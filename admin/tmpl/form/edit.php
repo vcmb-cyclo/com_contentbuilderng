@@ -157,8 +157,19 @@ $apiExampleListUrl = $apiExampleListDisplayUrl . $apiPreviewQuery;
 $apiExampleUpdateUrl = $apiEndpointBase . '&record_id=' . (int) $apiExampleRecordId;
 $apiExampleStatsDisplayUrl = $apiEndpointBase . '&action=stats';
 $apiExampleStatsUrl = $apiExampleStatsDisplayUrl . $apiPreviewQuery;
+$apiExampleFilteredStatsDisplayUrl = $apiExampleStatsDisplayUrl
+    . '&filter[field]=NomDuChamp&filter[value]=200%20km*&fields[records]=total';
+$apiExampleFilteredStatsUrl = $apiExampleFilteredStatsDisplayUrl . $apiPreviewQuery;
 $apiExampleVerboseDisplayUrl = $apiExampleDetailDisplayUrl . '&verbose=1';
 $apiExampleVerboseUrl = $apiExampleVerboseDisplayUrl . $apiPreviewQuery;
+$apiSparseFieldNames = array_slice(array_keys($apiExampleFields), 0, 2);
+$apiSparseFieldList = implode(',', array_map('rawurlencode', $apiSparseFieldNames));
+$apiExampleSparseListDisplayUrl = $apiExampleListDisplayUrl . '&fields[items]=record_id,' . $apiSparseFieldList;
+$apiExampleSparseDetailDisplayUrl = $apiExampleDetailDisplayUrl . '&fields[fields]=' . $apiSparseFieldList;
+$apiExampleSparseStatsDisplayUrl = $apiExampleStatsDisplayUrl . '&fields[records]=total,published';
+$apiExampleSparseListUrl = $apiExampleSparseListDisplayUrl . $apiPreviewQuery;
+$apiExampleSparseDetailUrl = $apiExampleSparseDetailDisplayUrl . $apiPreviewQuery;
+$apiExampleSparseStatsUrl = $apiExampleSparseStatsDisplayUrl . $apiPreviewQuery;
 $isBreezingFormsType = in_array(
     (string) ($this->item->type ?? ''),
     ['com_breezingforms', 'com_breezingforms_ng'],
@@ -606,11 +617,19 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                 'apiExampleListUrl' => $apiExampleListUrl,
                 'apiExampleUpdateUrl' => $apiExampleUpdateUrl,
                 'apiExampleStatsUrl' => $apiExampleStatsUrl,
+                'apiExampleFilteredStatsUrl' => $apiExampleFilteredStatsUrl,
                 'apiExampleVerboseUrl' => $apiExampleVerboseUrl,
                 'apiExampleDetailDisplayUrl' => $apiExampleDetailDisplayUrl,
                 'apiExampleListDisplayUrl' => $apiExampleListDisplayUrl,
                 'apiExampleStatsDisplayUrl' => $apiExampleStatsDisplayUrl,
+                'apiExampleFilteredStatsDisplayUrl' => $apiExampleFilteredStatsDisplayUrl,
                 'apiExampleVerboseDisplayUrl' => $apiExampleVerboseDisplayUrl,
+                'apiExampleSparseListUrl' => $apiExampleSparseListUrl,
+                'apiExampleSparseDetailUrl' => $apiExampleSparseDetailUrl,
+                'apiExampleSparseStatsUrl' => $apiExampleSparseStatsUrl,
+                'apiExampleSparseListDisplayUrl' => $apiExampleSparseListDisplayUrl,
+                'apiExampleSparseDetailDisplayUrl' => $apiExampleSparseDetailDisplayUrl,
+                'apiExampleSparseStatsDisplayUrl' => $apiExampleSparseStatsDisplayUrl,
                 'apiExamplePayloadJson' => $apiExamplePayloadJson,
                 'formId' => $formId,
             ],

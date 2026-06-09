@@ -41,8 +41,12 @@ class ContentbuilderngComponent extends MVCComponent implements BootableExtensio
         // Charge les langues du core (lib_joomla) pour avoir les clés JLIB_*/J* traduites.
         Factory::getApplication()->getLanguage()->load('lib_joomla', JPATH_ADMINISTRATOR, null, true);
 
-        // Et celles du composant (normalement déjà fait, mais safe)
-        Factory::getApplication()->getLanguage()->load('com_contentbuilderng', JPATH_ADMINISTRATOR, null, true);
+        Factory::getApplication()->getLanguage()->load(
+            'com_contentbuilderng',
+            JPATH_ADMINISTRATOR . '/components/com_contentbuilderng',
+            null,
+            true
+        );
     }
 
     public function getContainer(): ContainerInterface

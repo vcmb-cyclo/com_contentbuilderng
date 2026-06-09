@@ -35,8 +35,16 @@ final class StatsService
         $db->setQuery($query, 0, 1);
         $formRow = $db->loadAssoc();
 
-        if (!is_array($formRow) || empty($formRow['type']) || empty($formRow['reference_id'])) {
+        if (!is_array($formRow) || empty($formRow['type'])) {
             throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
+        }
+
+        if (empty($formRow['reference_id'])) {
+            $messageKey = (string) $formRow['type'] === 'com_breezingforms'
+                ? 'COM_CONTENTBUILDERNG_BREEZINGFORMS_VIEW_NOT_FOUND'
+                : 'COM_CONTENTBUILDERNG_FORM_NOT_FOUND';
+
+            throw new \RuntimeException(Text::_($messageKey), 404);
         }
 
         $nowSql = Factory::getDate()->toSql();
@@ -134,7 +142,7 @@ final class StatsService
             'where' => $this->getStatsFilterWhere($formRow, $field, $filter['value']),
             'payload' => [
                 'field' => $filter['field'],
-                'value' => $filter['value'],
+                'value' => implode(' | ', $filter['value']),
             ],
         ];
     }
@@ -143,27 +151,33 @@ final class StatsService
     {
         $filter = (array) ($options['filter'] ?? []);
         $field = trim((string) ($filter['field'] ?? ''));
-        $value = trim((string) ($filter['value'] ?? ''));
+        $values = array_values(array_filter(
+            array_map(
+                static fn($value): string => trim((string) $value),
+                (array) ($filter['values'] ?? [$filter['value'] ?? ''])
+            ),
+            static fn(string $value): bool => $value !== ''
+        ));
 
-        if ($field !== '' && $value !== '') {
-            return ['field' => $field, 'value' => $value];
+        if ($field !== '' && $values !== []) {
+            return ['field' => $field, 'value' => array_values(array_unique($values))];
         }
 
         return null;
     }
 
-    private function getStatsFilterWhere(array $formRow, array $field, string $value): string
+    private function getStatsFilterWhere(array $formRow, array $field, array $values): string
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
 
         return match ((string) $formRow['type']) {
-            'com_contentbuilderng' => $this->getContentbuilderngStatsFilterWhere($formRow, $field, $value),
-            'com_breezingforms' => $db->quoteName('record_id') . ' IN (' . $this->getBreezingFormsStatsFilterRecordQuery($formRow, $field, $value) . ')',
+            'com_contentbuilderng' => $this->getContentbuilderngStatsFilterWhere($formRow, $field, $values),
+            'com_breezingforms' => $db->quoteName('record_id') . ' IN (' . $this->getBreezingFormsStatsFilterRecordQuery($formRow, $field, $values) . ')',
             default => '1 = 0',
         };
     }
 
-    private function getContentbuilderngStatsFilterWhere(array $formRow, array $field, string $value): string
+    private function getContentbuilderngStatsFilterWhere(array $formRow, array $field, array $values): string
     {
         $form = FormSourceFactory::getForm((string) $formRow['type'], (string) $formRow['reference_id']);
         $properties = is_object($form) && isset($form->properties) && is_object($form->properties) ? $form->properties : null;
@@ -174,15 +188,16 @@ final class StatsService
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
         $tableName = ((int) ($properties->bytable ?? 0) === 1 ? '' : '#__') . (string) $properties->name;
+        $valueColumn = 'TRIM(' . $db->quoteName('source.' . (string) $field['name']) . ')';
         $query = $db->getQuery(true)
             ->select($db->quoteName('source.id'))
             ->from($db->quoteName($tableName, 'source'))
-            ->where('TRIM(' . $db->quoteName('source.' . (string) $field['name']) . ') = ' . $db->quote($value));
+            ->where($this->buildStatsValueCondition($valueColumn, $values));
 
         return $db->quoteName('record_id') . ' IN (' . (string) $query . ')';
     }
 
-    private function getBreezingFormsStatsFilterRecordQuery(array $formRow, array $field, string $value): string
+    private function getBreezingFormsStatsFilterRecordQuery(array $formRow, array $field, array $values): string
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
         $valueColumn = $db->quoteName('subrecords.value');
@@ -195,9 +210,26 @@ final class StatsService
                 . $db->quoteName('subrecords.element') . ' = ' . (int) $field['reference_id']
                 . ' OR ' . $db->quoteName('subrecords.name') . ' = ' . $db->quote((string) $field['name'])
                 . ')')
-            ->where('TRIM(' . $valueColumn . ') = ' . $db->quote($value));
+            ->where($this->buildStatsValueCondition('TRIM(' . $valueColumn . ')', $values));
 
         return (string) $query;
+    }
+
+    private function buildStatsValueCondition(string $column, array $values): string
+    {
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $filterValues = new StatsFilterValueService();
+        $conditions = [];
+
+        foreach ($values as $value) {
+            $value = (string) $value;
+            $conditions[] = $filterValues->hasWildcard($value)
+                ? $column . ' LIKE ' . $db->quote($filterValues->toSqlLikePattern($value))
+                    . ' ESCAPE ' . $db->quote('\\')
+                : $column . ' = ' . $db->quote($value);
+        }
+
+        return '(' . implode(' OR ', $conditions) . ')';
     }
 
     private function getStatsFieldPayload(int $formId, array $formRow, array $options): ?array

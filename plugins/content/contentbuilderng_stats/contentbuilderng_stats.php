@@ -8,6 +8,7 @@
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
 use CB\Component\Contentbuilderng\Site\Service\StatsService;
+use CB\Component\Contentbuilderng\Site\Service\StatsFilterValueService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
@@ -70,6 +71,13 @@ class plgContentContentbuilderng_stats extends CMSPlugin implements SubscriberIn
                     require_once $servicePath;
                 }
             }
+            if (!class_exists(StatsFilterValueService::class)) {
+                $servicePath = JPATH_ROOT . '/components/com_contentbuilderng/src/Service/StatsFilterValueService.php';
+
+                if (is_file($servicePath)) {
+                    require_once $servicePath;
+                }
+            }
 
             if ($formId < 1) {
                 throw new \RuntimeException(
@@ -86,6 +94,7 @@ class plgContentContentbuilderng_stats extends CMSPlugin implements SubscriberIn
                 'filter' => [
                     'field' => $filterField,
                     'value' => $filterValue,
+                    'values' => (new StatsFilterValueService())->parseAlternatives($filterValue),
                 ],
             ]);
             $total = $payload['records']['total'] ?? null;

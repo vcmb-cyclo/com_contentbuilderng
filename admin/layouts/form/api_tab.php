@@ -17,16 +17,24 @@ $apiExampleDetailUrl = (string) ($displayData['apiExampleDetailUrl'] ?? '');
 $apiExampleListUrl = (string) ($displayData['apiExampleListUrl'] ?? '');
 $apiExampleUpdateUrl = (string) ($displayData['apiExampleUpdateUrl'] ?? '');
 $apiExampleStatsUrl = (string) ($displayData['apiExampleStatsUrl'] ?? '');
+$apiExampleFilteredStatsUrl = (string) ($displayData['apiExampleFilteredStatsUrl'] ?? '');
 $apiExampleVerboseUrl = (string) ($displayData['apiExampleVerboseUrl'] ?? '');
 $apiExampleDetailDisplayUrl = (string) ($displayData['apiExampleDetailDisplayUrl'] ?? '');
 $apiExampleListDisplayUrl = (string) ($displayData['apiExampleListDisplayUrl'] ?? '');
 $apiExampleStatsDisplayUrl = (string) ($displayData['apiExampleStatsDisplayUrl'] ?? '');
+$apiExampleFilteredStatsDisplayUrl = (string) ($displayData['apiExampleFilteredStatsDisplayUrl'] ?? '');
 $apiExampleVerboseDisplayUrl = (string) ($displayData['apiExampleVerboseDisplayUrl'] ?? '');
+$apiExampleSparseListUrl = (string) ($displayData['apiExampleSparseListUrl'] ?? '');
+$apiExampleSparseDetailUrl = (string) ($displayData['apiExampleSparseDetailUrl'] ?? '');
+$apiExampleSparseStatsUrl = (string) ($displayData['apiExampleSparseStatsUrl'] ?? '');
+$apiExampleSparseListDisplayUrl = (string) ($displayData['apiExampleSparseListDisplayUrl'] ?? '');
+$apiExampleSparseDetailDisplayUrl = (string) ($displayData['apiExampleSparseDetailDisplayUrl'] ?? '');
+$apiExampleSparseStatsDisplayUrl = (string) ($displayData['apiExampleSparseStatsDisplayUrl'] ?? '');
 $apiExamplePayloadJson = (string) ($displayData['apiExamplePayloadJson'] ?? '');
 $formId = (int) ($displayData['formId'] ?? 0);
 $cbStatsTotalSyntax = '{CBStats id=' . $formId . ' output=total}';
 $cbStatsDebugSyntax = '{CBStats id=' . $formId . ' output=total debug=1}';
-$cbStatsFilterSyntax = '{CBStats id=' . $formId . ' filter[field]=NomDuChamp filter[value]="Valeur" output=total}';
+$cbStatsFilterSyntax = '{CBStats id=' . $formId . ' filter[field]=NomDuChamp filter[value]="200 km* | 300 km*" output=total}';
 $cbStatsTableSyntax = '{CBStats id=' . $formId . ' field=NomDuChamp output=table}';
 $apiPermissionRequirements = new ApiPermissionRequirementService();
 $permissionLabelKeys = [
@@ -122,11 +130,23 @@ $renderPermissions = static function (array $permissions) use ($permissionLabelK
         <tr>
             <td><code>GET</code></td>
             <td>
-                <a href="<?php echo htmlspecialchars($apiExampleStatsUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
-                    <code><?php echo htmlspecialchars($apiExampleStatsDisplayUrl, ENT_QUOTES, 'UTF-8'); ?></code>
-                </a>
+                <div class="mb-2">
+                    <strong class="d-block"><?php echo Text::_('COM_CONTENTBUILDERNG_API_STATS_GLOBAL_EXAMPLE'); ?></strong>
+                    <a href="<?php echo htmlspecialchars($apiExampleStatsUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
+                        <code><?php echo htmlspecialchars($apiExampleStatsDisplayUrl, ENT_QUOTES, 'UTF-8'); ?></code>
+                    </a>
+                </div>
+                <div>
+                    <strong class="d-block"><?php echo Text::_('COM_CONTENTBUILDERNG_API_STATS_FILTERED_EXAMPLE'); ?></strong>
+                    <a href="<?php echo htmlspecialchars($apiExampleFilteredStatsUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
+                        <code><?php echo htmlspecialchars($apiExampleFilteredStatsDisplayUrl, ENT_QUOTES, 'UTF-8'); ?></code>
+                    </a>
+                </div>
             </td>
-            <td><?php echo Text::_('COM_CONTENTBUILDERNG_API_GET_STATS_DESC'); ?></td>
+            <td>
+                <strong class="d-block mb-1"><?php echo Text::_('COM_CONTENTBUILDERNG_API_STATS_SECTION_TITLE'); ?></strong>
+                <?php echo Text::_('COM_CONTENTBUILDERNG_API_GET_STATS_DESC'); ?>
+            </td>
             <td><?php echo $renderPermissions($apiPermissionRequirements->getRequiredPermissions('GET', 'stats', 0)); ?></td>
         </tr>
         <tr>
@@ -158,6 +178,33 @@ $renderPermissions = static function (array $permissions) use ($permissionLabelK
     <a href="<?php echo htmlspecialchars($apiExampleVerboseUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
         <code class="cb-form-api-inline-code"><?php echo htmlspecialchars($apiExampleVerboseDisplayUrl, ENT_QUOTES, 'UTF-8'); ?></code>
     </a>
+</div>
+<div class="card mb-3">
+    <div class="card-body">
+        <h4 class="card-title"><?php echo Text::_('COM_CONTENTBUILDERNG_API_SPARSE_FIELDSETS_TITLE'); ?></h4>
+        <p><?php echo Text::_('COM_CONTENTBUILDERNG_API_SPARSE_FIELDSETS_INTRO'); ?></p>
+        <ul class="mb-2">
+            <li>
+                <strong><?php echo Text::_('COM_CONTENTBUILDERNG_API_SPARSE_FIELDSETS_LIST'); ?></strong>
+                <a href="<?php echo htmlspecialchars($apiExampleSparseListUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
+                    <code class="cb-form-api-inline-code"><?php echo htmlspecialchars($apiExampleSparseListDisplayUrl, ENT_QUOTES, 'UTF-8'); ?></code>
+                </a>
+            </li>
+            <li>
+                <strong><?php echo Text::_('COM_CONTENTBUILDERNG_API_SPARSE_FIELDSETS_DETAIL'); ?></strong>
+                <a href="<?php echo htmlspecialchars($apiExampleSparseDetailUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
+                    <code class="cb-form-api-inline-code"><?php echo htmlspecialchars($apiExampleSparseDetailDisplayUrl, ENT_QUOTES, 'UTF-8'); ?></code>
+                </a>
+            </li>
+            <li>
+                <strong><?php echo Text::_('COM_CONTENTBUILDERNG_API_SPARSE_FIELDSETS_STATS'); ?></strong>
+                <a href="<?php echo htmlspecialchars($apiExampleSparseStatsUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
+                    <code class="cb-form-api-inline-code"><?php echo htmlspecialchars($apiExampleSparseStatsDisplayUrl, ENT_QUOTES, 'UTF-8'); ?></code>
+                </a>
+            </li>
+        </ul>
+        <p class="text-muted mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_API_SPARSE_FIELDSETS_NOTE'); ?></p>
+    </div>
 </div>
 <label id="cb-form-api-payload" for="cb_api_example_payload" class="form-label"><strong><?php echo Text::_('COM_CONTENTBUILDERNG_API_JSON_LABEL'); ?></strong></label>
 <textarea id="cb_api_example_payload" class="form-control" rows="7" readonly="readonly"><?php echo htmlspecialchars($apiExamplePayloadJson, ENT_QUOTES, 'UTF-8'); ?></textarea>

@@ -18,6 +18,7 @@ use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Site\Model\DetailsModel;
 use CB\Component\Contentbuilderng\Site\Model\EditModel;
 use CB\Component\Contentbuilderng\Site\Model\ListModel;
+use CB\Component\Contentbuilderng\Site\Service\SparseFieldsetService;
 use CB\Component\Contentbuilderng\Site\Service\StatsService;
 use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
@@ -93,6 +94,7 @@ class ApiController extends BaseController
 
             if ($action !== '') {
                 $payload = $this->handleAction($action, $formId, $recordId);
+                $payload = $this->applySparseFieldsets($payload, $method);
                 $this->sendJson($payload);
                 return;
             }
@@ -102,6 +104,7 @@ class ApiController extends BaseController
                     ? $this->getDetailPayload($formId, $recordId)
                     : $this->getListPayload($formId);
 
+                $payload = $this->applySparseFieldsets($payload, $method);
                 $this->sendJson($payload);
                 return;
             }
@@ -152,6 +155,17 @@ class ApiController extends BaseController
                 'value' => trim((string) ($filter['value'] ?? '')),
             ],
         ]);
+    }
+
+    private function applySparseFieldsets(array $payload, string $method): array
+    {
+        if ($method !== 'GET') {
+            return $payload;
+        }
+
+        $fieldsets = $this->input->get('fields', [], 'array');
+
+        return (new SparseFieldsetService())->filter($payload, is_array($fieldsets) ? $fieldsets : []);
     }
 
     private function getStatsFilterPayload(int $formId, array $formRow): ?array
@@ -968,15 +982,14 @@ class ApiController extends BaseController
     {
         $response = [
             'success' => true,
-            'message' => null,
-            'messages' => null,
+            'messages' => [],
             'data' => $payload,
         ];
 
         $this->siteApp->setHeader('Content-Type', 'application/json; charset=utf-8', true);
         $this->siteApp->sendHeaders();
         $json = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
-        echo $json === false ? '{"success":false,"message":"JSON encoding error","messages":null,"data":null}' : $json;
+        echo $json === false ? '{"success":false,"messages":["JSON encoding error"],"data":null}' : $json;
         $this->siteApp->close();
     }
 
@@ -992,15 +1005,14 @@ class ApiController extends BaseController
 
         $response = [
             'success' => false,
-            'message' => $e->getMessage(),
-            'messages' => null,
+            'messages' => [$e->getMessage()],
             'data' => null,
         ];
 
         $this->siteApp->setHeader('Content-Type', 'application/json; charset=utf-8', true);
         $this->siteApp->sendHeaders();
         $json = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
-        echo $json === false ? '{"success":false,"message":"JSON encoding error","messages":null,"data":null}' : $json;
+        echo $json === false ? '{"success":false,"messages":["JSON encoding error"],"data":null}' : $json;
         $this->siteApp->close();
     }
 
