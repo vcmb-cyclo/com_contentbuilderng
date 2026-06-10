@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ContentBuilder NG
  * @author      Xavier DANO / XDA+GIL

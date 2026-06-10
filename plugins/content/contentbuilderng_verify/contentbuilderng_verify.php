@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @version     6.0
  * @package     ContentBuilder NG No Verify

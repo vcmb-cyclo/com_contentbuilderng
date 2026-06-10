@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ContentBuilder NG template prepare helper.
  *

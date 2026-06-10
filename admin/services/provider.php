@@ -3,7 +3,7 @@
 /**
  * @package     Extension
  * @author      Xavier DANO
- * @link        
+ * @link        https://breezingforms-ng.vcmb.fr
  * @copyright   Copyright © 2026 by XDA+GIL
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */

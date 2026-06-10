@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Default page.
  * @package     ContentBuilder NG

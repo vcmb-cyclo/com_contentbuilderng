@@ -74,6 +74,10 @@ $previewActorId = $input->getInt('cb_preview_actor_id', 0);
 $previewActorName = (string) $input->getString('cb_preview_actor_name', '');
 $previewUserId = $input->getInt('cb_preview_user_id', 0);
 $isAdminPreview = $input->getBool('cb_preview_ok', false);
+$joomlaDebug    = defined('JDEBUG') && JDEBUG;
+$isBfLinked     = $isAdminPreview && $joomlaDebug
+    && in_array($this->source_type ?? '', ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true)
+    && ($this->source_reference_id ?? 0) > 0;
 $currentUser = $app->getIdentity();
 $currentSessionLabel = trim((string) ($currentUser->name ?? ''));
 if ($currentSessionLabel === '') {
@@ -1761,6 +1765,9 @@ CSS
                 <?php if ($showPreviewSessionBadge): ?>
                     <span class="badge text-bg-secondary ms-1">Session: <?php echo htmlspecialchars($currentSessionLabel, ENT_QUOTES, 'UTF-8'); ?></span>
                 <?php endif; ?>
+                <?php if ($joomlaDebug): ?>
+                    <span class="badge text-bg-danger ms-1"><span class="fa-solid fa-bug me-1" aria-hidden="true"></span>Debug</span>
+                <?php endif; ?>
 				<?php if (!$directStorageMode) : ?>
 					<span class="cb-preview-config-help" title="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" tabindex="0">
 						<span class="fa-solid fa-circle-question" aria-hidden="true"></span>
@@ -2433,6 +2440,9 @@ by this block. -->
 			<table class="table table-striped table-hover align-middle cb-list-table">
 			<thead>
 				<tr>
+					<?php if ($isBfLinked): ?>
+						<th class="table-light text-muted" width="5" title="BreezingForms Record ID">BF</th>
+					<?php endif; ?>
 					<?php
 						if ($showPreviewLink && ($view_allowed || $this->own_only)) {
 						?>
@@ -2570,6 +2580,13 @@ by this block. -->
                     $rowCanEdit = $edit_allowed || $canAccessOwnedRecord('edit', $row->colRecord);
 				?>
 				<tr class="<?php echo "row$k"; ?>">
+					<?php if ($isBfLinked): ?>
+						<td class="text-muted small hidden-phone">
+							<a href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>administrator/index.php?option=com_breezingformsng&act=managerecs&task=edit&record_id=<?php echo (int) $row->colRecord; ?>&form_selection=0" target="_blank" rel="noopener noreferrer" title="BreezingForms #<?php echo (int) $row->colRecord; ?>">
+								<?php echo (int) $row->colRecord; ?>
+							</a>
+						</td>
+					<?php endif; ?>
 					<?php
 					if ($showPreviewLink && ($view_allowed || $hasOwnerViewRule)) {
 					?>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ContentBuilder NG
  * @author      Markus Bopp / XDA+GIL
@@ -138,7 +139,9 @@ class HtmlView extends BaseHtmlView
         $this->title_field = (string) ($subject->title_field ?? '');
         $this->form = $subject->form ?? null;
         $this->lists = $lists;
-        $this->items = is_array($subject->items ?? null) ? $subject->items : [];
+        $this->items               = is_array($subject->items ?? null) ? $subject->items : [];
+        $this->source_type         = (string) ($subject->type ?? '');
+        $this->source_reference_id = (int) ($subject->reference_id ?? 0);
         $this->pagination = $pagination;
         $this->total = $total;
         $this->preview_no_list_fields = !empty($subject->preview_no_list_fields);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ContentBuilder NG
  * @author      Markus Bopp / XDA+GIL

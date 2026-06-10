@@ -6,7 +6,7 @@
  * @author  Jan Odvarko, http://odvarko.cz
  * @created 2008-06-15
  * @updated 2011-06-09
- * @link    http://jscolor.com
+ * @link     http://jscolor.com
  */
 
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ContentBuilder NG Stats
  * @copyright   Copyright © 2026 by XDA+GIL

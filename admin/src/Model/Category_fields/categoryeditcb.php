@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @version		$Id$
  * @copyright	Copyright © 2005 - 2011 Open Source Matters, Inc. All rights reserved.

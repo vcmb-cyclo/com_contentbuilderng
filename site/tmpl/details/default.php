@@ -78,6 +78,7 @@ $previewActorId = $input->getInt('cb_preview_actor_id', 0);
 $previewActorName = (string) $input->getString('cb_preview_actor_name', '');
 $previewUserId = $input->getInt('cb_preview_user_id', 0);
 $isAdminPreview = $input->getBool('cb_preview_ok', false);
+$joomlaDebug    = defined('JDEBUG') && JDEBUG;
 $currentUser = Factory::getApplication()->getIdentity();
 $currentSessionLabel = trim((string) ($currentUser->name ?? ''));
 if ($currentSessionLabel === '') {
@@ -287,6 +288,9 @@ CSS
                 <?php endif; ?>
                 <?php if ($showPreviewSessionBadge): ?>
                     <span class="badge text-bg-secondary ms-1">Session: <?php echo htmlspecialchars($currentSessionLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                <?php endif; ?>
+                <?php if ($joomlaDebug): ?>
+                    <span class="badge text-bg-danger ms-1"><span class="fa-solid fa-bug me-1" aria-hidden="true"></span>Debug</span>
                 <?php endif; ?>
                 <?php if (!$directStorageMode) : ?>
                     <span class="cb-preview-config-help" title="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" tabindex="0">
