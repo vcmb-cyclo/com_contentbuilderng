@@ -180,6 +180,11 @@ class com_contentbuilderngInstallerScript
                     $this->captureUpdatePackageSnapshot();
                 }
 
+                // Purge ALL stale *contentbuilder* language files before Joomla copies new ones.
+                // Prevents old files (wrong naming, wrong version, old lang-prefix format) from
+                // polluting the new installation and causing mixed-language display.
+                $this->purgeStaleLanguageFiles();
+
                 // Disable legacy plugins first, especially system/contentbuilder_system
                 $this->disableLegacyPluginsInPriorityOrder($context);
 
@@ -314,7 +319,6 @@ class com_contentbuilderngInstallerScript
                 // Cleanup old directories/files (best-effort)
                 $this->removeOldDirectories();
                 $this->removeObsoleteFiles();
-                $this->removeObsoleteLanguageFiles();
 
                 // Ensure media templates / upload dir
                 $this->ensureMediaListTemplateInstalled();
@@ -695,7 +699,12 @@ class com_contentbuilderngInstallerScript
     {
         try {
             $language = Factory::getApplication()->getLanguage();
-            $basePaths = [JPATH_ADMINISTRATOR];
+
+            // 1) Component's own language directory (current installed location)
+            // 2) Package source paths (available during install before files are copied)
+            $basePaths = [
+                JPATH_ADMINISTRATOR . '/components/com_contentbuilderng',
+            ];
 
             if (is_dir(__DIR__ . '/administrator/languages')) {
                 $basePaths[] = __DIR__ . '/administrator';
@@ -703,6 +712,11 @@ class com_contentbuilderngInstallerScript
 
             if (is_dir(__DIR__ . '/languages')) {
                 $basePaths[] = __DIR__;
+            }
+
+            // Package layout: admin/language/ (source during install)
+            if (is_dir(__DIR__ . '/admin/language')) {
+                $basePaths[] = __DIR__ . '/admin';
             }
 
             $basePaths = array_values(array_unique($basePaths));
@@ -939,6 +953,11 @@ class com_contentbuilderngInstallerScript
     private function removeObsoleteFiles(): void
     {
         $this->installerService->removeObsoleteFiles();
+    }
+
+    private function purgeStaleLanguageFiles(): void
+    {
+        $this->installerService->purgeStaleLanguageFiles();
     }
 
     private function removeObsoleteLanguageFiles(): void

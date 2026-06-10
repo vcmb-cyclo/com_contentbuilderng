@@ -25,6 +25,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\Audit\GeneratedArticleCat
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\HistoricalAssetAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\InvalidDatetimeSortAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\MenuViewAuditHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StaleLanguageFilesAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormDisplayColumnsHelper;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
@@ -249,6 +250,8 @@ final class DatabaseAuditHelper
         $errors = array_merge($errors, $invalidDatetimeSortErrors);
         [$generatedArticleCategoryIssues, $generatedArticleCategoryErrors] = GeneratedArticleCategoryAuditHelper::inspect($db);
         $errors = array_merge($errors, $generatedArticleCategoryErrors);
+        [$staleLanguageFiles, $staleLanguageErrors] = StaleLanguageFilesAuditHelper::inspect();
+        $errors = array_merge($errors, $staleLanguageErrors);
 
         return DatabaseAuditReportBuilder::build([
             'tables' => $tables,
@@ -264,6 +267,8 @@ final class DatabaseAuditHelper
             'mixed_table_collations' => $mixedTableCollations,
             'missing_audit_columns_scanned' => (int) ($auditColumnsSummary['scanned'] ?? 0),
             'missing_audit_columns' => $missingAuditColumns,
+            'missing_form_audit_columns_scanned' => (int) ($formAuditColumnsSummary['scanned'] ?? 0),
+            'missing_form_audit_columns' => $missingFormAuditColumns,
             'plugin_extension_duplicates' => $pluginExtensionDuplicates,
             'bf_view_field_sync_issues' => $bfFieldSyncIssues,
             'menu_view_issues' => $menuViewIssues,
@@ -271,6 +276,7 @@ final class DatabaseAuditHelper
             'element_reference_issues' => $elementReferenceIssues,
             'invalid_datetime_sort_issues' => $invalidDatetimeSortIssues,
             'generated_article_category_issues' => $generatedArticleCategoryIssues,
+            'stale_language_files' => $staleLanguageFiles,
             'cb_tables' => $cbTableStats,
             'errors' => $errors,
         ], $toAlias);

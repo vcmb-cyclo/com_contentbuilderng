@@ -90,6 +90,9 @@ $frontendPermissionIssues = (array) ($auditReport['frontend_permission_issues'] 
 $elementReferenceIssues = (array) ($auditReport['element_reference_issues'] ?? []);
 $invalidDatetimeSortIssues = (array) ($auditReport['invalid_datetime_sort_issues'] ?? []);
 $generatedArticleCategoryIssues = (array) ($auditReport['generated_article_category_issues'] ?? []);
+$staleLanguageFiles = (array) ($auditReport['stale_language_files'] ?? []);
+$staleLanguageFilesCount = (int) ($auditSummary['stale_language_files'] ?? count($staleLanguageFiles));
+$hasStaleLanguageFiles = $staleLanguageFilesCount > 0;
 $encodingTargetCharset = (string) ($auditSummary['encoding_target_charset'] ?? 'utf8mb4');
 $encodingTargetCollation = (string) ($auditSummary['encoding_target_collation'] ?? 'utf8mb4_0900_ai_ci');
 $missingAuditColumnsTotal = (int) ($auditSummary['missing_audit_columns_total'] ?? 0);
@@ -1241,6 +1244,11 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
                         <th scope="row"><?php echo $renderAuditSummaryLink('generated_article_categories', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_GENERATED_ARTICLE_CATEGORY_ROWS')); ?></th>
                         <td><?php echo $generatedArticleCategoryRowCount; ?></td>
                     </tr>
+                    <tr class="<?php echo $hasStaleLanguageFiles ? 'table-warning' : ''; ?>">
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('stale_language_files'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('stale_language_files', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STALE_LANGUAGE_FILES')); ?></th>
+                        <td><?php echo $staleLanguageFilesCount; ?></td>
+                    </tr>
                     <tr>
                         <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('cb_tables_total'); ?></td>
                         <th scope="row"><?php echo $renderAuditSummaryLink('cb_table_stats', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_TABLES_TOTAL')); ?></th>
@@ -2003,6 +2011,28 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
                     </table>
                 </div>
             <?php endif; ?>
+            </div>
+
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('stale_language_files'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 23;">
+                <h4 class="h6 mt-3<?php echo $hasStaleLanguageFiles ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('stale_language_files', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STALE_LANGUAGE_FILES'), $hasStaleLanguageFiles); ?></h4>
+                <?php if (empty($staleLanguageFiles)) : ?>
+                    <div class="alert cb-audit-ok-alert">
+                        <span class="cb-audit-section-title">
+                            <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
+                            <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_STALE_LANGUAGE_FILES'); ?></span>
+                        </span>
+                    </div>
+                <?php else : ?>
+                    <ol class="mb-0 ps-3">
+                        <?php foreach ($staleLanguageFiles as $staleLanguageFile) : ?>
+                            <?php if (!is_array($staleLanguageFile)) { continue; } ?>
+                            <li>
+                                <code><?php echo htmlspecialchars((string) ($staleLanguageFile['file'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></code>
+                                <span class="text-muted ms-1">(<?php echo htmlspecialchars((string) ($staleLanguageFile['scope'] ?? ''), ENT_QUOTES, 'UTF-8'); ?> / <?php echo htmlspecialchars((string) ($staleLanguageFile['lang_tag'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>)</span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ol>
+                <?php endif; ?>
             </div>
 
             <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('table_encoding'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 6;">

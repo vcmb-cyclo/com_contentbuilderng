@@ -15,6 +15,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 \defined('_JEXEC') or die;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\ElementReferenceAuditHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StaleLanguageFilesAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\EncodingAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\GeneratedArticleCategoryAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\DatabaseAuditHelper;
@@ -47,6 +48,7 @@ class RepairWorkflowService
         'frontend_permission_consistency',
         'element_reference_consistency',
         'generated_article_categories',
+        'stale_language_files',
     ];
 
     public function createWorkflowState(): array
@@ -142,6 +144,7 @@ class RepairWorkflowService
             'bf_field_sync'        => $this->buildBfFieldSyncStepResult(DatabaseAuditHelper::run()),
             'generated_article_categories'   => $this->buildGeneratedArticleCategoryStepResult(GeneratedArticleCategoryAuditHelper::repair($db)),
             'element_reference_consistency'  => $this->buildElementReferenceConsistencyStepResult(ElementReferenceAuditHelper::repair($db)),
+            'stale_language_files'           => $this->buildStaleLanguageFilesStepResult(StaleLanguageFilesAuditHelper::repair()),
             default                          => throw new \RuntimeException('Unknown repair step: ' . $stepId),
         };
     }
@@ -599,8 +602,20 @@ class RepairWorkflowService
                 'has_errors' => false,
                 'details' => $generatedArticleCategoryRows . ' generated articles currently use an invalid category.',
             ];
+
+            $staleLanguageCount = (int) ($auditSummary['stale_language_files'] ?? 0);
+            $prechecks['stale_language_files'] = [
+                'count' => $staleLanguageCount,
+                'description' => match (true) {
+                    $staleLanguageCount <= 0 => 'No stale ContentBuilder language file found in the global language directories.',
+                    $staleLanguageCount === 1 => '1 stale ContentBuilder language file was found in the global language directories and can be removed in this step.',
+                    default => $staleLanguageCount . ' stale ContentBuilder language files were found in the global language directories and can be removed in this step.',
+                },
+                'skip_summary' => 'No stale language file found. Skipped automatically.',
+                'has_errors' => false,
+            ];
         } catch (\Throwable $e) {
-            foreach (['duplicate_indexes', 'historical_tables', 'historical_menu_entries', 'table_encoding', 'audit_columns', 'form_audit_columns', 'plugin_duplicates', 'bf_field_sync', 'menu_view_consistency', 'frontend_permission_consistency', 'element_reference_consistency', 'generated_article_categories'] as $stepId) {
+            foreach (['duplicate_indexes', 'historical_tables', 'historical_menu_entries', 'table_encoding', 'audit_columns', 'form_audit_columns', 'plugin_duplicates', 'bf_field_sync', 'menu_view_consistency', 'frontend_permission_consistency', 'element_reference_consistency', 'generated_article_categories', 'stale_language_files'] as $stepId) {
                 $prechecks[$stepId] = [
                     'count' => 1,
                     'description' => 'Pre-check unavailable for this step. You can still run the repair manually.',
@@ -1102,6 +1117,34 @@ class RepairWorkflowService
                 (int) ($summary['errors'] ?? 0)
             ),
             'lines' => $lines,
+        ];
+    }
+
+    private function buildStaleLanguageFilesStepResult(array $summary): array
+    {
+        $lines = [];
+
+        foreach ((array) ($summary['removed'] ?? []) as $path) {
+            $lines[] = 'Removed: ' . $path;
+        }
+
+        foreach ((array) ($summary['warnings'] ?? []) as $warning) {
+            $warning = trim((string) $warning);
+            if ($warning !== '') {
+                $lines[] = 'Warning: ' . $warning;
+            }
+        }
+
+        $scanned  = (int) ($summary['scanned'] ?? 0);
+        $repaired = (int) ($summary['repaired'] ?? 0);
+        $errors   = (int) ($summary['errors'] ?? 0);
+
+        return [
+            'level'   => $errors > 0 ? 'warning' : 'message',
+            'summary' => $scanned === 0
+                ? 'No stale ContentBuilder language file found.'
+                : sprintf('%d stale language file(s) found, %d removed, %d error(s).', $scanned, $repaired, $errors),
+            'lines'   => $lines,
         ];
     }
 

@@ -151,21 +151,80 @@ final class InstallerService
         }
     }
 
+    /**
+     * Purge ALL *contentbuilder* language files before Joomla copies the new package files.
+     * Called from preflight so stale files (wrong name format, wrong language, old version)
+     * cannot pollute the fresh installation.
+     */
+    public function purgeStaleLanguageFiles(): void
+    {
+        $basePaths = [
+            JPATH_ADMINISTRATOR . '/language',
+            JPATH_ROOT . '/language',
+        ];
+
+        $totalRemoved = 0;
+
+        foreach ($basePaths as $basePath) {
+            if (!is_dir($basePath)) {
+                continue;
+            }
+
+            $langDirs = glob($basePath . '/*', GLOB_ONLYDIR) ?: [];
+
+            foreach ($langDirs as $langDir) {
+                $matches = glob($langDir . '/*contentbuilder*') ?: [];
+
+                foreach ($matches as $match) {
+                    if (!is_file($match)) {
+                        continue;
+                    }
+
+                    try {
+                        if (File::delete($match)) {
+                            $this->log("[OK] Purged stale language file: {$match}.");
+                            $totalRemoved++;
+                        } else {
+                            $this->log("[WARNING] Could not purge stale language file: {$match}.", Log::WARNING);
+                        }
+                    } catch (\Throwable $e) {
+                        $this->log("[WARNING] Error purging stale language file {$match}: " . $e->getMessage(), Log::WARNING);
+                    }
+                }
+            }
+        }
+
+        if ($totalRemoved === 0) {
+            $this->log('[INFO] No stale ContentBuilder language files found to purge.');
+        } else {
+            $this->log("[OK] Purged {$totalRemoved} stale ContentBuilder language file(s) before installation.");
+        }
+    }
+
     public function removeObsoleteLanguageFiles(): void
     {
         $languageTags = ['en-GB', 'fr-FR', 'de-DE'];
-        $patterns = [
-            'com_contentbuilderng.ini',
-            'com_contentbuilderng.menu.ini',
-            'com_contentbuilderng.sys.ini',
+
+        // Only OLD naming patterns — current com_contentbuilderng.ini files are NOT listed here.
+        // Covers: old lang-prefix format (fr-FR.com_contentbuilderng.ini),
+        //         legacy component names (com_contentbuilder, com_contentbuilder_ng, etc.).
+        $patterns = [];
+        $legacyBases = [
+            'com_contentbuilder',
+            'com_contentbuilder-ng',
+            'com_contentbuilder_ng',
+            'com_contentbuilderng',  // catches old fr-FR.com_contentbuilderng.ini prefix format
         ];
-        $legacyBases = ['com_contentbuilder', 'com_contentbuilder-ng', 'com_contentbuilder_ng'];
         $legacySuffixes = ['.ini', '.menu.ini', '.sys.ini'];
 
         foreach ($legacyBases as $legacyBase) {
             foreach ($legacySuffixes as $legacySuffix) {
+                // Old Joomla 3-style: fr-FR.com_contentbuilderng.ini
                 $patterns[] = '*.' . $legacyBase . $legacySuffix;
-                $patterns[] = $legacyBase . $legacySuffix;
+                // Bare legacy name (but never the current com_contentbuilderng.ini)
+                if ($legacyBase !== 'com_contentbuilderng') {
+                    $patterns[] = $legacyBase . $legacySuffix;
+                }
             }
         }
 
