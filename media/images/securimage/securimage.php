@@ -4,6 +4,8 @@
  * @package     ContentBuilder NG
  * @author      XDA+GIL
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
