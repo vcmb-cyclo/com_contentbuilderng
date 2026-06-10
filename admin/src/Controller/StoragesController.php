@@ -61,6 +61,8 @@ final class StoragesController extends AdminController
      *
      * @return  \Joomla\CMS\MVC\Model\BaseDatabaseModel|false  Model object on success; otherwise false on failure.
      */
+
+    #[\Override]
     public function getModel($name = 'Storage', $prefix = 'Administrator', $config = ['ignore_request' => true])
     {
         return parent::getModel($name, $prefix, $config);
@@ -76,6 +78,7 @@ final class StoragesController extends AdminController
         return [];
     }
 
+    #[\Override]
     public function display($cachable = false, $urlparams = []): void
     {
         $this->input->set('view', $this->view_list);

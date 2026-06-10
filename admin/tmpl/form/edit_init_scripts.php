@@ -534,6 +534,50 @@ use Joomla\CMS\Language\Text;
         return '';
     }
 
+    function cbSetOrCreateHidden(form, name, value) {
+        var el = form.querySelector('input[name="' + name + '"][type="hidden"][data-cb-temp]');
+        if (!el) {
+            el = document.createElement('input');
+            el.type = 'hidden';
+            el.name = name;
+            el.setAttribute('data-cb-temp', '1');
+            form.appendChild(el);
+        }
+        el.value = value;
+    }
+
+    var cbFlagTaskMap = {
+        'form.linkable':          { field: 'linkable',       value: '1' },
+        'form.not_linkable':      { field: 'linkable',       value: '0' },
+        'form.editable':          { field: 'editable',       value: '1' },
+        'form.not_editable':      { field: 'editable',       value: '0' },
+        'form.api_allowed':       { field: 'api_allowed',    value: '1' },
+        'form.not_api_allowed':   { field: 'api_allowed',    value: '0' },
+        'form.list_include':      { field: 'list_include',   value: '1' },
+        'form.no_list_include':   { field: 'list_include',   value: '0' },
+        'form.search_include':    { field: 'search_include', value: '1' },
+        'form.no_search_include': { field: 'search_include', value: '0' }
+    };
+    var cbPublishTaskMap = {
+        'form.listpublish':   '1',
+        'form.listunpublish': '0',
+        'form.publish':       '1',
+        'form.unpublish':     '0'
+    };
+
+    function cbResolveServerTask(task, formData) {
+        if (cbFlagTaskMap[task]) {
+            formData.set('field', cbFlagTaskMap[task].field);
+            formData.set('value', cbFlagTaskMap[task].value);
+            return 'form.element_flag';
+        }
+        if (cbPublishTaskMap[task] !== undefined) {
+            formData.set('value', cbPublishTaskMap[task]);
+            return 'form.element_publish';
+        }
+        return task;
+    }
+
     function cbSubmitTaskAjax(task, rowId, onSuccess, onError, triggerElement) {
         var form = document.getElementById('adminForm') || document.adminForm;
         if (!form) {
@@ -553,7 +597,8 @@ use Joomla\CMS\Language\Text;
         cbAnimateSaveButton();
 
         var formData = new FormData(form);
-        formData.set('task', task);
+        var resolvedTask = cbResolveServerTask(task, formData);
+        formData.set('task', resolvedTask);
         formData.set('cb_ajax', '1');
         formData.set('option', 'com_contentbuilderng');
 
@@ -698,29 +743,40 @@ use Joomla\CMS\Language\Text;
                 cbBypassDirtyBeforeUnload();
                 cbSubmitFormCancel(form, task);
                 break;
-            case 'form.publish':
-            case 'form.unpublish':
             case 'form.formpublish':
             case 'form.formunpublish':
-            case 'form.listpublish':
-            case 'form.listunpublish':
             case 'form.listorderdown':
             case 'form.listorderup':
             case 'form.saveorder':
             case 'form.listremove':
-            case 'form.list_include':
-            case 'form.no_list_include':
-            case 'form.search_include':
-            case 'form.no_search_include':
-            case 'form.linkable':
-            case 'form.not_linkable':
-            case 'form.api_allowed':
-            case 'form.not_api_allowed':
-            case 'form.editable':
-            case 'form.not_editable':
             case 'form.save_labels':
                 Joomla.submitform(task, form);
                 break;
+            case 'form.publish':
+            case 'form.unpublish':
+            case 'form.listpublish':
+            case 'form.listunpublish':
+            case 'form.linkable':
+            case 'form.not_linkable':
+            case 'form.editable':
+            case 'form.not_editable':
+            case 'form.api_allowed':
+            case 'form.not_api_allowed':
+            case 'form.list_include':
+            case 'form.no_list_include':
+            case 'form.search_include':
+            case 'form.no_search_include': {
+                var fakeFormData = new FormData();
+                var serverTask = cbResolveServerTask(task, fakeFormData);
+                ['field', 'value'].forEach(function(name) {
+                    var val = fakeFormData.get(name);
+                    if (val !== null) {
+                        cbSetOrCreateHidden(form, name, val);
+                    }
+                });
+                Joomla.submitform(serverTask, form);
+                break;
+            }
             case 'form.save':
             case 'form.save2new':
             case 'form.apply':

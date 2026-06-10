@@ -123,98 +123,6 @@ class FormController extends BaseFormController
         return true;
     }
 
-
-    /**
-     * Apply : sauvegarde et reste sur l'édition
-     */
-    /*public function apply($key = null, $urlVar = null)
-    {
-        $model = $this->getModel('Form', '', ['ignore_request' => true]);
-        if (!$model) {
-            throw new \RuntimeException('FormModel introuvable');
-        }
-
-        try {
-            $id = $model->store();
-
-            if (!$id) {
-                $this->setRedirect(
-                    Route::_(
-                        'index.php?option=com_contentbuilderng&task=form.display&layout=edit&id=' . (int) $this->input->getInt('id', 0),
-                        false
-                    ),
-                    Text::_('COM_CONTENTBUILDERNG_SAVE_FAILED'),
-                    'error'
-                );
-                return false;
-            }
-
-            $this->setRedirect(
-                Route::_('index.php?option=com_contentbuilderng&task=form.display&layout=edit&id=' . (int) $id, false),
-                Text::_('JLIB_APPLICATION_SAVE_SUCCESS'),
-                'message'
-            );
-
-            return true;
-        } catch (\Throwable $e) {
-            $this->setMessage($e->getMessage(), 'warning');
-            $this->setRedirect(
-                Route::_(
-                    'index.php?option=com_contentbuilderng&task=form.display&layout=edit&id=' . (int) $this->input->getInt('id', 0),
-                    false
-                )
-            );
-            return false;
-        }
-    }
-*/
-    /*
-    public function save($key = null, $urlVar = null)
-    {
-        $model = $this->getModel('Form', '', ['ignore_request' => true]);
-        if (!$model) {
-            throw new \RuntimeException('FormModel introuvable');
-        }
-
-        try {
-            $id = $model->store();
-
-            if (!$id) {
-                $this->setRedirect(
-                    Route::_(
-                        'index.php?option=com_contentbuilderng&task=form.display&layout=edit&id=' . (int) $this->input->getInt('id', 0),
-                        false
-                    ),
-                    Text::_('COM_CONTENTBUILDERNG_SAVE_FAILED'),
-                    'error'
-                );
-                return false;
-            }
-
-            // ✅ Comportement actuel: rester sur l'édition
-            $this->setRedirect(
-                Route::_('index.php?option=com_contentbuilderng&task=form.display&layout=edit&id=' . (int) $id, false),
-                Text::_('JLIB_APPLICATION_SAVE_SUCCESS'),
-                'message'
-            );
-
-            // 👉 Si tu veux plutôt revenir à la liste après Save :
-            // $this->setRedirect(Route::_('index.php?option=com_contentbuilderng&task=forms.display', false), Text::_('JLIB_APPLICATION_SAVE_SUCCESS'));
-
-            return true;
-        } catch (\Throwable $e) {
-            $this->setMessage($e->getMessage(), 'warning');
-            $this->setRedirect(
-                Route::_(
-                    'index.php?option=com_contentbuilderng&task=form.display&layout=edit&id=' . (int) $this->input->getInt('id', 0),
-                    false
-                )
-            );
-            return false;
-        }
-    }*/
-
-
     protected function getRedirectToItemAppend($recordId = null, $urlVar = 'id')
     {
         // Preserve Joomla core behavior for "Save & New":
@@ -288,12 +196,6 @@ class FormController extends BaseFormController
             return false;
         }
     }
-
-    public function editable_include(): void
-    {
-        $this->editable();
-    }
-
 
     // ==================================================================
     // Toutes les tâches sur la liste des ÉLÉMENTS (champs du formulaire)
@@ -391,55 +293,26 @@ class FormController extends BaseFormController
     }
 
 
-    // Les tâches batch sur les éléments (linkable, editable, etc.)
-    public function linkable(): void
+    private const ALLOWED_FLAGS = ['linkable', 'editable', 'api_allowed', 'list_include', 'search_include'];
+
+    public function element_flag(): void
     {
-        $this->elementsUpdate('linkable', 1);
+        $field = $this->input->getCmd('field');
+        $value = $this->input->getInt('value') !== 0 ? 1 : 0;
+
+        if (!in_array($field, self::ALLOWED_FLAGS, true)) {
+            throw new \InvalidArgumentException('Invalid flag: ' . $field);
+        }
+
+        $this->elementsUpdate($field, $value);
     }
 
-    public function not_linkable(): void
+    public function element_publish(): bool
     {
-        $this->elementsUpdate('linkable', 0);
-    }
+        $value = $this->input->getInt('value') !== 0 ? 1 : 0;
+        $msgKey = $value === 1 ? 'COM_CONTENTBUILDERNG_PUBLISHED' : 'COM_CONTENTBUILDERNG_UNPUBLISHED';
 
-    public function editable(): void
-    {
-        $this->elementsUpdate('editable', 1);
-    }
-
-    public function not_editable(): void
-    {
-        $this->elementsUpdate('editable', 0);
-    }
-
-    public function api_allowed(): void
-    {
-        $this->elementsUpdate('api_allowed', 1);
-    }
-
-    public function not_api_allowed(): void
-    {
-        $this->elementsUpdate('api_allowed', 0);
-    }
-
-    public function list_include(): void
-    {
-        $this->elementsUpdate('list_include', 1);
-    }
-
-    public function no_list_include(): void
-    {
-        $this->elementsUpdate('list_include', 0);
-    }
-
-    public function search_include(): void
-    {
-        $this->elementsUpdate('search_include', 1);
-    }
-
-    public function no_search_include(): void
-    {
-        $this->elementsUpdate('search_include', 0);
+        return $this->elementsPublish($value, $msgKey);
     }
 
     public function save_labels(): bool
@@ -466,26 +339,6 @@ class FormController extends BaseFormController
         );
 
         return true;
-    }
-
-    public function listpublish(): bool
-    {
-        return $this->elementsPublish(1, 'COM_CONTENTBUILDERNG_PUBLISHED');
-    }
-
-    public function listunpublish(): bool
-    {
-        return $this->elementsPublish(0, 'COM_CONTENTBUILDERNG_UNPUBLISHED');
-    }
-
-    public function publish(): bool
-    {
-        return $this->elementsPublish(1, 'COM_CONTENTBUILDERNG_PUBLISHED');
-    }
-
-    public function unpublish(): bool
-    {
-        return $this->elementsPublish(0, 'COM_CONTENTBUILDERNG_UNPUBLISHED');
     }
 
     public function formpublish(): bool
