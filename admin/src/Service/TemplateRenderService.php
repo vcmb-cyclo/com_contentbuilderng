@@ -206,16 +206,17 @@ class TemplateRenderService
 
         $selectedValues = array_map('trim', explode(',', $value));
         if ($elementType === 'select') {
-            $html = '<div class="cbFormField cbSelectField"><select class="form-select form-select-sm d-inline-block w-auto" disabled="disabled">';
+            $selectedLabels = [];
 
             foreach ($groupDefinition as $optionValue => $optionLabel) {
-                $optionValue = trim((string) $optionValue);
-                $optionLabel = trim((string) $optionLabel);
-                $selected = in_array($optionValue, $selectedValues, true) ? ' selected="selected"' : '';
-                $html .= '<option value="' . htmlspecialchars($optionValue, ENT_QUOTES, 'UTF-8') . '"' . $selected . '>' . htmlspecialchars($optionLabel, ENT_QUOTES, 'UTF-8') . '</option>';
+                if (in_array(trim((string) $optionValue), $selectedValues, true)) {
+                    $selectedLabels[] = htmlspecialchars(trim((string) $optionLabel), ENT_QUOTES, 'UTF-8');
+                }
             }
 
-            return $html . '</select></div>';
+            $displayText = $selectedLabels !== [] ? implode(', ', $selectedLabels) : '&mdash;';
+
+            return '<div class="cbFormField cbSelectField">' . $displayText . '</div>';
         }
 
         $inputType = $elementType === 'checkboxgroup' ? 'checkbox' : 'radio';
