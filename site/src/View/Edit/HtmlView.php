@@ -600,6 +600,7 @@ class HtmlView extends BaseHtmlView
 CSS;
     }
 
+    #[\Override]
     public function display($tpl = null): void
     {
         $app = Factory::getApplication();

@@ -24,6 +24,7 @@ class DisplayController extends BaseController
 {
     protected $default_view = 'storages';
 
+    #[\Override]
     public function display($cachable = false, $urlparams = [])
     {
         $app = Factory::getApplication();

@@ -18,6 +18,7 @@ use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 
 class ExportController extends BaseController
 {
+    #[\Override]
     public function display($cachable = false, $urlparams = []): void
     {
         $formId = (int) $this->input->getInt('id', 0);

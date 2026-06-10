@@ -29,6 +29,7 @@ use Joomla\Input\Input;
 
 class UsersModel extends ListModel
 {
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory
@@ -54,6 +55,7 @@ class UsersModel extends ListModel
         parent::__construct($config, $factory);
     }
 
+    #[\Override]
     protected function populateState($ordering = 'u.id', $direction = 'ASC')
     {
         /** @var CMSApplication $app */
@@ -74,6 +76,7 @@ class UsersModel extends ListModel
         $this->setState('filter.form_id', $formId);
     }
 
+    #[\Override]
     protected function getListQuery(): QueryInterface
     {
         $db    = $this->getDatabase();

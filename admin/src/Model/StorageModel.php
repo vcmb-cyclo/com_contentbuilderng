@@ -158,6 +158,7 @@ class StorageModel extends AdminModel
         return 'field' . mt_rand(0, mt_getrandmax());
     }
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory
@@ -167,6 +168,7 @@ class StorageModel extends AdminModel
         $this->option = 'com_contentbuilderng';
     }
 
+    #[\Override]
     public function getTable($type = 'Storage', $prefix = 'Administrator', $config = [])
     {
         // Méthode moderne via MVCFactory du composant
@@ -188,6 +190,7 @@ class StorageModel extends AdminModel
     }
 
 
+    #[\Override]
     public function getForm($data = [], $loadData = true)
     {
         $form = $this->loadForm(
@@ -206,6 +209,7 @@ class StorageModel extends AdminModel
         return $app->getUserState($this->option . '.edit.storage.data', $data);
     }
 
+    #[\Override]
     protected function populateState()
     {
         parent::populateState();
@@ -933,6 +937,7 @@ class StorageModel extends AdminModel
         }
     }
 
+     #[\Override]
      public function delete(&$pks)
     {
         $pks = (array) $pks;

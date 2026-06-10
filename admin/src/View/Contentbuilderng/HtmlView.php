@@ -17,6 +17,7 @@ use Joomla\CMS\Uri\Uri;
 
 class HtmlView extends BaseHtmlView
 {
+    #[\Override]
     public function display($tpl = null)
     {
         // 1️⃣ Récupération du WebAssetManager

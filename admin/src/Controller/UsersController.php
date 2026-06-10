@@ -73,6 +73,7 @@ class UsersController extends BaseController
         return $model;
     }
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory,
@@ -206,6 +207,7 @@ class UsersController extends BaseController
         $this->renderUsersList();
     }
     
+    #[\Override]
     public function edit()
     {
         $this->input->set('view', 'User');
@@ -216,11 +218,13 @@ class UsersController extends BaseController
         parent::display();
     }
 
+    #[\Override]
     public function apply()
     {
         $this->save(true);
     }
 
+    #[\Override]
     public function publish() {
         $this->checkToken();
 
@@ -243,6 +247,7 @@ class UsersController extends BaseController
         $this->setRedirect(Route::_($this->getUsersListLink($this->input->getInt('limitstart')), false), Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'));
     }
     
+    #[\Override]
     public function unpublish() {
         $this->checkToken();
 
@@ -265,6 +270,7 @@ class UsersController extends BaseController
         $this->setRedirect(Route::_($this->getUsersListLink($this->input->getInt('limitstart')), false), Text::_('COM_CONTENTBUILDERNG_UNPUBLISHED'));
     }
     
+    #[\Override]
     public function save($keep_task = false)
     {
         $this->checkToken();
@@ -292,12 +298,14 @@ class UsersController extends BaseController
         $this->setRedirect(Route::_($link, false), $msg);
     }
 
+    #[\Override]
     public function cancel()
     {
         $msg = Text::_( 'COM_CONTENTBUILDERNG_CANCELLED' );
         $this->setRedirect(Route::_($this->getUsersListLink(0), false), $msg);
     }
 
+    #[\Override]
     public function display($cachable = false, $urlparams = array())
     {
         $this->renderUsersList();

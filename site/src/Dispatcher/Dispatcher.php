@@ -8,6 +8,7 @@ use Joomla\CMS\Dispatcher\ComponentDispatcher;
 
 class Dispatcher extends ComponentDispatcher
 {
+    #[\Override]
     public function dispatch(): void
     {
         $input = $this->input;

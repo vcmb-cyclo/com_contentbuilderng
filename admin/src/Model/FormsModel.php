@@ -36,6 +36,7 @@ use CB\Component\Contentbuilderng\Administrator\Model\FormModel;
 
 class FormsModel extends ListModel
 {
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory
@@ -57,6 +58,7 @@ class FormsModel extends ListModel
         parent::__construct($config, $factory);
     }
 
+    #[\Override]
     protected function populateState($ordering = 'a.ordering', $direction = 'ASC')
     {
         /** @var CMSApplication $app */
@@ -160,6 +162,7 @@ class FormsModel extends ListModel
         $db->execute();
     }
 
+    #[\Override]
     protected function getListQuery(): QueryInterface
     {
         $db    = $this->getDatabase();
@@ -230,6 +233,7 @@ class FormsModel extends ListModel
     /**
      * Adds a resolved source title for list rendering.
      */
+    #[\Override]
     public function getItems(): array
     {
         $items = parent::getItems();
@@ -261,6 +265,7 @@ class FormsModel extends ListModel
      * Supprime plusieurs formulaires
      * Appelée automatiquement par AdminController
      */
+    #[\Override]
     public function delete($pks = null): bool
     {
         $pks = (array) $pks;

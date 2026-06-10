@@ -38,6 +38,7 @@ class HtmlView extends BaseHtmlView
     public string $storageTableLookupName = '';
     public string $storageTableErrorMessage = '';
 
+    #[\Override]
     public function display($tpl = null): void
     {         
         if ($this->getLayout() === 'help') {

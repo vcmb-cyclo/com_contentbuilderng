@@ -78,6 +78,7 @@ class FormController extends BaseFormController
         return $model;
     }
 
+    #[\Override]
     public function edit($key = null, $urlVar = null)
     {
         try {
@@ -102,6 +103,7 @@ class FormController extends BaseFormController
     /**
      * Nouveau
      */
+    #[\Override]
     public function add()
     {
         try {
@@ -115,6 +117,7 @@ class FormController extends BaseFormController
         }
     }
 
+    #[\Override]
     public function cancel($key = null): bool
     {
         $this->checkToken();

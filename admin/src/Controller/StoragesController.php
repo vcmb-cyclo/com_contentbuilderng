@@ -38,6 +38,7 @@ final class StoragesController extends AdminController
     protected $view_list = 'storages';
     protected $view_item = 'storage';
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory,

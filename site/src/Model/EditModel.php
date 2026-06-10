@@ -186,6 +186,7 @@ class EditModel extends BaseDatabaseModel
         return $data;
     }
 
+    #[\Override]
     public function getItem($pk = null)
     {
         $data = $this->getData();
@@ -197,6 +198,7 @@ class EditModel extends BaseDatabaseModel
         return $data ?: null;
     }
 
+    #[\Override]
     public function getForm($data = [], $loadData = true)
     {
         $item = $this->getItem();
@@ -289,6 +291,7 @@ class EditModel extends BaseDatabaseModel
         return $real === false ? '' : $this->normalizePath($real);
     }
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory

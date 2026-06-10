@@ -30,6 +30,7 @@ use CB\Component\Contentbuilderng\Administrator\View\Contentbuilderng\HtmlView a
 
 class HtmlView extends BaseHtmlView
 {
+    #[\Override]
     public function display($tpl = null)
     {
         if ($this->getLayout() === 'help') {

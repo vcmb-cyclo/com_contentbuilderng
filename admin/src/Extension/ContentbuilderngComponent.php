@@ -38,6 +38,7 @@ class ContentbuilderngComponent extends MVCComponent implements BootableExtensio
 
     private ?ContainerInterface $container = null;
 
+    #[\Override]
     public function boot(ContainerInterface $container): void
     {
         $this->container = $container;

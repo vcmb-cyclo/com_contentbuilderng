@@ -41,6 +41,7 @@ final class FormsController extends AdminController
     protected $view_list = 'forms';
     protected $view_item = 'form';
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory,
@@ -85,6 +86,7 @@ final class FormsController extends AdminController
      *
      * @return  \Joomla\CMS\MVC\Model\BaseDatabaseModel|false  Model object on success; otherwise false on failure.
      */
+    #[\Override]
     public function getModel($name = 'Form', $prefix = 'Administrator', $config = ['ignore_request' => true])
     {
         return parent::getModel($name, $prefix, $config);
@@ -110,6 +112,7 @@ final class FormsController extends AdminController
         return $message;
     }
 
+    #[\Override]
     public function delete(): void
     {
         // Vérif CSRF.

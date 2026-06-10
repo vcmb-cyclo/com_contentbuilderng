@@ -287,6 +287,7 @@ class ListModel extends BaseListModel
         return $this->directStorageId;
     }
 
+    #[\Override]
     protected function populateState($ordering = null, $direction = null)
     {
         /** @var CMSWebApplication $app */
@@ -1194,6 +1195,7 @@ class ListModel extends BaseListModel
         return null;
     }
 
+    #[\Override]
     public function getItems()
     {
         $data = $this->getData(); // ton getData() récupère déjà $data->items

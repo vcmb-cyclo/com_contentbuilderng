@@ -39,6 +39,7 @@ class ElementsModel extends ListModel
     /**
      * Constructor.
      */
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory
@@ -63,6 +64,7 @@ class ElementsModel extends ListModel
     }
 
 
+    #[\Override]
     public function getTable($name = 'Elementoptions', $prefix = 'CB\\Component\\Contentbuilderng\\Administrator\\Table\\', $options = [])
     {
         $db = $this->getDatabase();
@@ -109,6 +111,7 @@ class ElementsModel extends ListModel
     /**
      * Méthode pour initialiser les états (filtres, pagination, tri)
      */
+    #[\Override]
     protected function populateState($ordering = 'ordering', $direction = 'asc')
     {
         /** @var CMSApplication $app */
@@ -223,6 +226,7 @@ class ElementsModel extends ListModel
      * Construction de la requête pour récupérer la liste des éléments
      */
 
+    #[\Override]
     protected function getListQuery(): DatabaseQuery
     {
         $db    = $this->getDatabase();

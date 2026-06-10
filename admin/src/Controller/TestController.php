@@ -18,6 +18,7 @@ use Joomla\CMS\MVC\Controller\BaseController;
 
 class TestController extends BaseController
 {
+    #[\Override]
     public function display($cachable = false, $urlparams = [])
     {
         return parent::display($cachable, $urlparams);

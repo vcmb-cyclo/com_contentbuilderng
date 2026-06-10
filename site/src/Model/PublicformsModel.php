@@ -64,6 +64,7 @@ class PublicformsModel extends ListModel
     /** @var SiteApplication */
     private SiteApplication $app;
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory

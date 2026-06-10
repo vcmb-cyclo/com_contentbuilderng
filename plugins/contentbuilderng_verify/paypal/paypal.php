@@ -37,6 +37,7 @@ class plgContentbuilderng_verifyPaypal extends CMSPlugin implements SubscriberIn
     private $amount = 0;
     private $cancel_url = '';
 
+    #[\Override]
     public function __construct($subject, array $config = [])
     {
         parent::__construct($subject, $config);

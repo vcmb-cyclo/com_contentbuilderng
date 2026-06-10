@@ -43,6 +43,7 @@ class FormModel extends AdminModel
 
     private array $_default_list_states = [];
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory
@@ -256,6 +257,7 @@ class FormModel extends AdminModel
         return true;
     }
 
+    #[\Override]
     public function getForm($data = [], $loadData = true)
     {
         // Intelephense may not resolve inherited AdminModel::loadForm() in this workspace.
@@ -269,6 +271,7 @@ class FormModel extends AdminModel
         return $form ?: false;
     }
 
+    #[\Override]
     protected function populateState(): void
     {
         // Déjà le parent.
@@ -525,6 +528,7 @@ class FormModel extends AdminModel
      * MAIN DETAILS AREA
      */
 
+    #[\Override]
     public function getItem($formId = null)
     {
         if ($formId === null) {
@@ -891,6 +895,7 @@ class FormModel extends AdminModel
         }
     }
 
+    #[\Override]
     public function save($data): bool
     {
         $app   = $this->getApp();
@@ -1395,6 +1400,7 @@ class FormModel extends AdminModel
     }
 
 
+    #[\Override]
     public function delete(&$pks)
     {
         if (empty($pks)) {

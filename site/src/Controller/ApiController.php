@@ -39,6 +39,7 @@ class ApiController extends BaseController
     private SiteApplication $siteApp;
     private bool $frontend;
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory,
@@ -55,6 +56,7 @@ class ApiController extends BaseController
         $this->frontend = $this->siteApp->isClient('site');
     }
 
+    #[\Override]
     public function display($cachable = false, $urlparams = []): void
     {
         try {

@@ -66,6 +66,7 @@ class StorageController extends BaseFormController
         return in_array($resolvedName, $tableList, true);
     }
 
+    #[\Override]
     public function edit($key = null, $urlVar = null)
     {
         try {
@@ -91,6 +92,7 @@ class StorageController extends BaseFormController
      * Surcharge save pour appeler les méthodes spécifiques du modèle (save/storeCsv).
      * Task: storage.save / storage.apply
      */
+    #[\Override]
     public function save($key = null, $urlVar = null)
     {
         $this->checkToken();
@@ -379,6 +381,7 @@ class StorageController extends BaseFormController
     /**
      * Force apply task through this controller custom save flow.
      */
+    #[\Override]
     public function apply($key = null, $urlVar = null)
     {
         return $this->save($key, $urlVar);
@@ -480,6 +483,7 @@ class StorageController extends BaseFormController
      * Task: storage.delete (au lieu de remove)
      * Joomla va passer cid[] dans l’input.
      */
+    #[\Override]
     public function delete()
     {
         $this->checkToken();
@@ -546,6 +550,7 @@ class StorageController extends BaseFormController
     }
 
 
+    #[\Override]
     public function add()
     {
         $this->setRedirect('index.php?option=com_contentbuilderng&task=storage.display&layout=edit&id=0');
@@ -562,11 +567,13 @@ class StorageController extends BaseFormController
         return $this->moveStorageField(1);
     }
 
+    #[\Override]
     public function publish(): bool
     {
         return $this->storagesPublish(1, 'COM_CONTENTBUILDERNG_PUBLISHED');
     }
 
+    #[\Override]
     public function unpublish(): bool
     {
         return $this->storagesPublish(0, 'COM_CONTENTBUILDERNG_UNPUBLISHED');
@@ -583,6 +590,7 @@ class StorageController extends BaseFormController
     }
 
     /* 
+    #[\Override]
     public function publish()
     {
         $app = Factory::getApplication();
@@ -603,6 +611,7 @@ class StorageController extends BaseFormController
             Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'));
     }
 
+    #[\Override]
     public function unpublish()
     {
         $app = Factory::getApplication();

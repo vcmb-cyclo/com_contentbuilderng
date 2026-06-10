@@ -34,6 +34,7 @@ class StoragefieldsModel extends ListModel
      */
     private int $storageId = 0;
 
+    #[\Override]
     public function __construct($config = [], ?MVCFactoryInterface $factory = null)
     {
         $this->filter_fields = [
@@ -57,6 +58,7 @@ class StoragefieldsModel extends ListModel
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     protected function populateState($ordering = 'ordering', $direction = 'asc'): void
     {
         /** @var CMSApplication $app */
@@ -125,6 +127,7 @@ class StoragefieldsModel extends ListModel
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     protected function getListQuery(): DatabaseQuery
     {
         $db = $this->getDatabase();
@@ -174,6 +177,7 @@ class StoragefieldsModel extends ListModel
         return $query;
     }
 
+    #[\Override]
     public function getTable($name = 'StorageFields', $prefix = 'CB\\Component\\Contentbuilderng\\Administrator\\Table\\', $options = [])
     {
         if ($name === 'StorageFields') {
@@ -241,6 +245,7 @@ class StoragefieldsModel extends ListModel
         return true;
     }
 
+    #[\Override]
     public function publish(array $pks, int $value = 1): bool
     {
         $pks = (array) $pks;

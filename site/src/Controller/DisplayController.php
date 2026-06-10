@@ -16,6 +16,7 @@ use Joomla\CMS\Dispatcher\ComponentDispatcher;
 
 class Dispatcher extends ComponentDispatcher
 {
+    #[\Override]
     public function dispatch(): void
     {
         // On lit les variables AVANT la sélection du controller

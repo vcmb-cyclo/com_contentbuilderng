@@ -59,6 +59,7 @@ class DetailsModel extends ListModel
     private SiteApplication $app;
     private int $directStorageId = 0;
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory) {

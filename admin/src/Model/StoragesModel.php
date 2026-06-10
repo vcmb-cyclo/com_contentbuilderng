@@ -34,6 +34,7 @@ class StoragesModel extends ListModel
     // Optionnel mais recommandé : définir le nom de la table (sans postfix)
     protected $table = 'Storage';
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory
@@ -54,6 +55,7 @@ class StoragesModel extends ListModel
         parent::__construct($config, $factory);
     }
 
+    #[\Override]
     protected function populateState($ordering = 'a.ordering', $direction = 'ASC')
     {
         /** @var CMSApplication $app */
@@ -83,6 +85,7 @@ class StoragesModel extends ListModel
     }
 
 
+    #[\Override]
     protected function getListQuery(): QueryInterface
     {
         $db    = $this->getDatabase();
@@ -149,6 +152,7 @@ class StoragesModel extends ListModel
      * Supprime plusieurs formulaires
      * Appelée automatiquement par AdminController
      */
+    #[\Override]
     public function delete($pks = null): bool
     {
         $pks = (array) $pks;

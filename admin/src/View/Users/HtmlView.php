@@ -37,6 +37,7 @@ class HtmlView extends BaseHtmlView
      */
     protected $state;
 
+    #[\Override]
     public function display($tpl = null): void
     {
         /** @var UsersModel $model */

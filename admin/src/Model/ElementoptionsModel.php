@@ -49,6 +49,7 @@ class ElementoptionsModel extends BaseDatabaseModel
         return $this->getApp()->getDispatcher();
     }
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory
@@ -549,6 +550,7 @@ class ElementoptionsModel extends BaseDatabaseModel
     /**
      * Publie ou dépublie plusieurs Elements.
      */
+    #[\Override]
     public function publish(array $pks, int $value = 1): bool
     {
         $pks = (array) $pks;

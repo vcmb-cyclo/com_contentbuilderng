@@ -81,6 +81,7 @@ class EditController extends BaseController
         return true;
     }
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory,
@@ -129,11 +130,13 @@ class EditController extends BaseController
      *
      * @return  \Joomla\CMS\MVC\Model\BaseDatabaseModel|false  Model object on success; otherwise false on failure.
      */
+    #[\Override]
     public function getModel($name = 'Edit', $prefix = 'Site', $config = ['ignore_request' => true])
     {
         return parent::getModel($name, $prefix, $config);
     }
 
+    #[\Override]
     public function save($apply = false)
     {
         $isAdminPreview = $this->applyPreviewContextForAction();
@@ -203,11 +206,13 @@ class EditController extends BaseController
         $this->setRedirect($link, $msg, $type);
     }
 
+    #[\Override]
     public function apply()
     {
         $this->save(true);
     }
 
+    #[\Override]
     public function delete()
     {
         $isAdminPreview = $this->applyPreviewContextForAction();
@@ -312,6 +317,7 @@ class EditController extends BaseController
         $this->setRedirect($link, $msg, 'message');
     }
 
+    #[\Override]
     public function publish()
     {
         $storageId = (int) $this->siteApp->input->getInt('storage_id', 0);
@@ -504,6 +510,7 @@ class EditController extends BaseController
         $this->siteApp->close();
     }
 
+    #[\Override]
     public function display($cachable = false, $urlparams = array())
     {
         $app   = $this->siteApp;

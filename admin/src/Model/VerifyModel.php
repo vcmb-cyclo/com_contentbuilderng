@@ -82,6 +82,7 @@ class VerifyModel extends BaseDatabaseModel
         return $fallback;
     }
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory

@@ -45,6 +45,7 @@ class DetailsController extends BaseController
         return new PermissionService();
     }
 
+    #[\Override]
     public function __construct(
         $config,
         MVCFactoryInterface $factory,

@@ -43,6 +43,7 @@ class HtmlView extends BaseHtmlView
      * @param   string  $tpl  Nom du template alternatif
      * @return  void
      */
+    #[\Override]
     public function display($tpl = null)
     {
         if ($this->getLayout() === 'help') {

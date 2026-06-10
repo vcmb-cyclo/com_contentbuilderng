@@ -17,6 +17,7 @@ use Joomla\CMS\MVC\Controller\BaseController;
 
 class VerifyController extends BaseController
 {
+    #[\Override]
     public function display($cachable = false, $urlparams = [])
     {
         $this->input->set('tmpl', $this->input->getWord('tmpl', null));

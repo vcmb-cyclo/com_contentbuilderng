@@ -29,6 +29,7 @@ class HtmlView extends BaseHtmlView
     protected $item;
     protected $form;
 
+    #[\Override]
     public function display($tpl = null): void
     {
         $this->state = $this->getModel()->getState();

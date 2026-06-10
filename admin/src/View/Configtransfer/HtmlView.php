@@ -38,6 +38,7 @@ class HtmlView extends BaseHtmlView
     protected bool $exportStorageContent = false;
     protected string $mode = 'export';
 
+    #[\Override]
     public function display($tpl = null)
     {
         if ($this->getLayout() === 'help') {

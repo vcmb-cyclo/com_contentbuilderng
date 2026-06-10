@@ -37,6 +37,7 @@ class HtmlView extends BaseHtmlView
     protected array $packedPayloadReport = [];
     protected array $repairWorkflow = [];
 
+    #[\Override]
     public function display($tpl = null)
     {
         /** @var AdministratorApplication $app */
