@@ -20,6 +20,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Administrator\View\Contentbuilderng\HtmlView as BaseHtmlView;
@@ -139,16 +140,20 @@ class HtmlView extends BaseHtmlView
             $previewPayload = PreviewLinkHelper::buildPayload((string) $formId, $previewUntil, $previewActorId, $previewActorName, $previewUserId);
             $previewSig = hash_hmac('sha256', $previewPayload, $secret);
 
-            $links[$formId] = Uri::root()
-                . 'index.php?option=com_contentbuilderng&task=list.display&id='
-                . $formId
-                . '&cb_preview=1'
-                . '&cb_preview_until=' . $previewUntil
-                . '&cb_preview_actor_id=' . $previewActorId
-                . '&cb_preview_actor_name=' . rawurlencode($previewActorName)
-                . '&cb_preview_user_id=' . $previewUserId
-                . '&cb_preview_sig=' . $previewSig
-                . '&cb_admin_return=forms';
+            $links[$formId] = Route::link(
+                'site',
+                'index.php?option=com_contentbuilderng&view=list&id=' . $formId
+                    . '&cb_preview=1'
+                    . '&cb_preview_until=' . $previewUntil
+                    . '&cb_preview_actor_id=' . $previewActorId
+                    . '&cb_preview_actor_name=' . rawurlencode($previewActorName)
+                    . '&cb_preview_user_id=' . $previewUserId
+                    . '&cb_preview_sig=' . $previewSig
+                    . '&cb_admin_return=forms',
+                false,
+                Route::TLS_IGNORE,
+                true
+            );
         }
 
         return $links;

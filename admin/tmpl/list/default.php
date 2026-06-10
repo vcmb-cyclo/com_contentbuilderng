@@ -41,7 +41,6 @@ $wa = $document->getWebAssetManager();
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 
 $wa->useScript('core');
-$wa->useScript('jquery');
 $wa->useScript('com_contentbuilderng.contentbuilderng');
 
 
@@ -65,48 +64,63 @@ if ($themeJs !== '') {
         }
     }
 </style>
-<script type="text/javascript">
-<!--
-    function contentbuilderng_state() {
+<script>
+(function () {
+    const getForm = () => document.getElementById('adminForm');
+
+    const cbSetTask = (task) => {
+        const form = getForm();
+        if (!form) return;
         document.getElementById('controller').value = 'edit';
         document.getElementById('view').value = 'edit';
-        document.getElementById('task').value = 'list.state';
-        document.adminForm.submit();
-    }
-    function contentbuilderng_publish() {
-        document.getElementById('controller').value = 'edit';
-        document.getElementById('view').value = 'edit';
-        document.getElementById('task').value = 'list.publish';
-        document.adminForm.submit();
-    }
-    function contentbuilderng_language() {
-        document.getElementById('controller').value = 'edit';
-        document.getElementById('view').value = 'edit';
-        document.getElementById('task').value = 'list.language';
-        document.adminForm.submit();
-    }
-    function contentbuilderng_delete() {
-        var confirmed = confirm('<?php echo Text::_('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MESSAGE'); ?>');
-        if (confirmed) {
-            document.getElementById('controller').value = 'edit';
-            document.getElementById('view').value = 'edit';
-            document.getElementById('task').value = 'list.delete';
-            document.adminForm.submit();
+        document.getElementById('task').value = task;
+        form.submit();
+    };
+
+    // Centralised action handler — replaces all onclick="contentbuilderng_*()"
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-cb-action]');
+        if (!btn) return;
+        switch (btn.dataset.cbAction) {
+            case 'delete': {
+                const ok = confirm('<?php echo Text::_('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MESSAGE'); ?>');
+                if (ok) cbSetTask('list.delete');
+                break;
+            }
+            case 'state':    cbSetTask('list.state');    break;
+            case 'publish':  cbSetTask('list.publish');  break;
+            case 'language': cbSetTask('list.language'); break;
+            case 'reset':
+                ['contentbuilderng_filter', 'list_state_filter', 'list_publish_filter', 'list_language_filter'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.tagName === 'SELECT' ? (el.selectedIndex = 0) : (el.value = '');
+                });
+                getForm()?.submit();
+                break;
         }
-    }
-    jQuery(document).ready(function () {
-        jQuery(function () {
-            jQuery("#contentbuilderng_filter").keypress(function (e) {
-                if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
-                    jQuery('#cbSearchButton').click();
-                    return false;
-                } else {
-                    return true;
+    });
+
+    // Auto-submit selects and inputs marked with js-cb-autosubmit
+    document.addEventListener('change', function (e) {
+        if (e.target.classList.contains('js-cb-autosubmit')) {
+            getForm()?.submit();
+        }
+    });
+
+    // Enter in filter field triggers search button
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterInput = document.getElementById('contentbuilderng_filter');
+        if (filterInput) {
+            filterInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('cbSearchButton')?.click();
+                    e.preventDefault();
                 }
             });
-        });
+        }
     });
-    //-->
+})();
 </script>
 
 <?php if ($this->page_title): ?>
@@ -132,10 +146,10 @@ if ($themeJs !== '') {
     if ($new_allowed) {
         ?>
         <div class="col-12 col-sm-auto d-grid d-sm-block">
-            <button class="btn btn-sm btn-primary cbButton cbNewButton"
-                onclick="location.href='<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display&backtolist=1&id=' . Factory::getApplication()->getInput()->getInt('id', 0) . (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->getInput()->get('tmpl', '', 'string') : '') . (Factory::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->getInput()->get('layout', '', 'string') : '') . '&record_id=0&limitstart=' . Factory::getApplication()->getInput()->getInt('limitstart', 0) . '&filter_order=' . Factory::getApplication()->getInput()->getCmd('filter_order')); ?>'">
+            <a class="btn btn-sm btn-primary cbButton cbNewButton"
+                href="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display&backtolist=1&id=' . Factory::getApplication()->getInput()->getInt('id', 0) . (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->getInput()->get('tmpl', '', 'string') : '') . (Factory::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->getInput()->get('layout', '', 'string') : '') . '&record_id=0&limitstart=' . Factory::getApplication()->getInput()->getInt('limitstart', 0) . '&filter_order=' . Factory::getApplication()->getInput()->getCmd('filter_order')); ?>">
                 <?php echo Text::_('COM_CONTENTBUILDERNG_NEW'); ?>
-            </button>
+            </a>
         </div>
         <?php
     }
@@ -145,7 +159,7 @@ if ($themeJs !== '') {
     if ($delete_allowed) {
         ?>
         <div class="col-12 col-sm-auto d-grid d-sm-block">
-            <button class="btn btn-sm btn-outline-danger cbButton cbDeleteButton" onclick="contentbuilderng_delete();">
+            <button class="btn btn-sm btn-outline-danger cbButton cbDeleteButton" type="button" data-cb-action="delete">
                 <i class="fa fa-trash" aria-hidden="true"></i>
                 <?php echo Text::_('COM_CONTENTBUILDERNG_DELETE'); ?>
             </button>
@@ -192,8 +206,7 @@ if ($themeJs !== '') {
                                 </select>
                             </div>
                             <div class="col-12 col-sm-auto">
-                                <button class="btn btn-sm btn-outline-primary cbButton cbSearchButton"
-                                    onclick="contentbuilderng_state();">
+                                <button class="btn btn-sm btn-outline-primary cbButton cbSearchButton" type="button" data-cb-action="state">
                                     <?php echo Text::_('COM_CONTENTBUILDERNG_APPLY'); ?>
                                 </button>
                             </div>
@@ -221,8 +234,7 @@ if ($themeJs !== '') {
                                 </select>
                             </div>
                             <div class="col-12 col-sm-auto">
-                                <button class="btn btn-sm btn-outline-primary cbButton cbSearchButton"
-                                    onclick="contentbuilderng_publish();">
+                                <button class="btn btn-sm btn-outline-primary cbButton cbSearchButton" type="button" data-cb-action="publish">
                                     <?php echo Text::_('COM_CONTENTBUILDERNG_APPLY'); ?>
                                 </button>
                             </div>
@@ -256,8 +268,7 @@ if ($themeJs !== '') {
                                 </select>
                             </div>
                             <div class="col-12 col-sm-auto">
-                                <button class="btn btn-sm btn-outline-primary cbButton cbSearchButton"
-                                    onclick="contentbuilderng_language();">
+                                <button class="btn btn-sm btn-outline-primary cbButton cbSearchButton" type="button" data-cb-action="language">
                                     <?php echo Text::_('COM_CONTENTBUILDERNG_APPLY'); ?>
                                 </button>
                             </div>
@@ -279,16 +290,14 @@ if ($themeJs !== '') {
                     <?php echo Text::_('COM_CONTENTBUILDERNG_FILTER'); ?>
                 </div>
                 <div class="col-12 col-md-auto">
-                    <input class="form-control form-control-sm" type="text" id="contentbuilderng_filter" name="filter"
-                        value="<?php echo $this->escape($this->lists['filter']); ?>"
-                        onchange="document.adminForm.submit();" />
+                    <input class="form-control form-control-sm js-cb-autosubmit" type="text" id="contentbuilderng_filter" name="filter"
+                        value="<?php echo $this->escape($this->lists['filter']); ?>" />
                 </div>
                 <?php
                 if ($this->list_state && count($this->states)) {
                     ?>
                     <div class="col-12 col-md-auto">
-                        <select class="form-select form-select-sm d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0;" name="list_state_filter" id="list_state_filter"
-                            onchange="document.adminForm.submit();">
+                        <select class="form-select form-select-sm d-inline-block cb-list-compact-select js-cb-autosubmit" style="width: fit-content; min-width: 0;" name="list_state_filter" id="list_state_filter">
                             <option value="0"> -
                                 <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?> -
                             </option>
@@ -309,8 +318,8 @@ if ($themeJs !== '') {
                 if ($this->list_publish && $publish_allowed) {
                     ?>
                     <div class="col-12 col-md-auto">
-                        <select class="form-select form-select-sm d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0;" name="list_publish_filter"
-                            id="list_publish_filter" onchange="document.adminForm.submit();">
+                        <select class="form-select form-select-sm d-inline-block cb-list-compact-select js-cb-autosubmit" style="width: fit-content; min-width: 0;" name="list_publish_filter"
+                            id="list_publish_filter">
                             <option value="-1"> -
                                 <?php echo Text::_('JOPTION_SELECT_PUBLISHED'); ?> -
                             </option>
@@ -328,8 +337,8 @@ if ($themeJs !== '') {
                 if ($this->list_language) {
                     ?>
                     <div class="col-12 col-md-auto">
-                        <select class="form-select form-select-sm d-inline-block cb-list-compact-select" style="width: fit-content; min-width: 0;" name="list_language_filter"
-                            id="list_language_filter" onchange="document.adminForm.submit();">
+                        <select class="form-select form-select-sm d-inline-block cb-list-compact-select js-cb-autosubmit" style="width: fit-content; min-width: 0;" name="list_language_filter"
+                            id="list_language_filter">
                             <option value=""> -
                                 <?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?> -
                             </option>
@@ -352,13 +361,12 @@ if ($themeJs !== '') {
                     <div class="row g-2 align-items-center flex-sm-nowrap">
                         <div class="col-12 col-sm-auto d-grid d-sm-block">
                             <button type="submit" class="btn btn-sm btn-primary cbButton cbSearchButton"
-                                id="cbSearchButton" onclick="document.adminForm.submit();">
+                                id="cbSearchButton">
                                 <?php echo Text::_('COM_CONTENTBUILDERNG_SEARCH') ?>
                             </button>
                         </div>
                         <div class="col-12 col-sm-auto d-grid d-sm-block">
-                            <button class="btn btn-sm btn-outline-secondary cbButton cbResetButton"
-                                onclick="document.getElementById('contentbuilderng_filter').value='';<?php echo $this->list_language && count($this->languages) ?"if(document.getElementById('list_language_filter')) document.getElementById('list_language_filter').selectedIndex=0;" :""; ?><?php echo $this->list_state && count($this->states) ?"if(document.getElementById('list_state_filter')) document.getElementById('list_state_filter').selectedIndex=0;" :""; ?><?php echo $this->list_publish ?"if(document.getElementById('list_publish_filter')) document.getElementById('list_publish_filter').selectedIndex=0;" :""; ?>document.adminForm.submit();">
+                            <button class="btn btn-sm btn-outline-secondary cbButton cbResetButton" type="button" data-cb-action="reset">
                                 <?php echo Text::_('COM_CONTENTBUILDERNG_RESET') ?>
                             </button>
                         </div>
@@ -556,7 +564,7 @@ if ($themeJs !== '') {
                         ?>
                         <td>
                             <a href="<?php echo $edit_link; ?>">
-                                <img src="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>media/com_contentbuilderng/images/edit.png" alt="Edit"
+                                <img src="<?php echo Uri::root(); ?>media/com_contentbuilderng/images/edit.png" alt="Edit"
                                     border="0" width="18" height="18" /></a>
                         </td>
                         <?php

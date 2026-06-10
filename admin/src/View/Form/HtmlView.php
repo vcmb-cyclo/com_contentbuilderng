@@ -42,7 +42,7 @@ class HtmlView extends BaseHtmlView
         $app->getInput()->set('hidemainmenu', true);
 
         // JS
-        /** @var \Joomla\CMS\Document\AdminDocument $document */
+        /** @var \Joomla\CMS\Document\HtmlDocument $document */
         $document = $this->getDocument();
         $wa = $document->getWebAssetManager();
         $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
@@ -224,15 +224,19 @@ class HtmlView extends BaseHtmlView
         $previewUserId = (int) ($identity->id ?? 0);
         $previewPayload = PreviewLinkHelper::buildPayload((string) $formId, $previewUntil, $previewActorId, $previewActorName, $previewUserId);
             $previewSig = hash_hmac('sha256', $previewPayload, (string) $app->get('secret'));
-            $previewUrl = Uri::root()
-                . 'index.php?option=com_contentbuilderng&task=list.display&id='
-                . $formId
-                . '&cb_preview=1'
-                . '&cb_preview_until=' . $previewUntil
-                . '&cb_preview_actor_id=' . $previewActorId
-                . '&cb_preview_actor_name=' . rawurlencode($previewActorName)
-                . '&cb_preview_user_id=' . $previewUserId
-                . '&cb_preview_sig=' . $previewSig;
+            $previewUrl = Route::link(
+                'site',
+                'index.php?option=com_contentbuilderng&view=list&id=' . $formId
+                    . '&cb_preview=1'
+                    . '&cb_preview_until=' . $previewUntil
+                    . '&cb_preview_actor_id=' . $previewActorId
+                    . '&cb_preview_actor_name=' . rawurlencode($previewActorName)
+                    . '&cb_preview_user_id=' . $previewUserId
+                    . '&cb_preview_sig=' . $previewSig,
+                false,
+                Route::TLS_IGNORE,
+                true
+            );
             $toolbar->appendButton(
                 'Link',
                 'eye',

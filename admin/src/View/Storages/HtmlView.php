@@ -20,6 +20,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Document\HtmlDocument;
+use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Administrator\Model\StoragesModel;
@@ -124,16 +125,20 @@ class HtmlView extends BaseHtmlView
             $previewPayload = PreviewLinkHelper::buildPayload('storage:' . $storageId, $previewUntil, $previewActorId, $previewActorName, $previewUserId);
             $previewSig = hash_hmac('sha256', $previewPayload, $secret);
 
-            $links[$storageId] = Uri::root()
-                . 'index.php?option=com_contentbuilderng&task=list.display&storage_id='
-                . $storageId
-                . '&cb_preview=1'
-                . '&cb_preview_until=' . $previewUntil
-                . '&cb_preview_actor_id=' . $previewActorId
-                . '&cb_preview_actor_name=' . rawurlencode($previewActorName)
-                . '&cb_preview_user_id=' . $previewUserId
-                . '&cb_preview_sig=' . $previewSig
-                . '&cb_admin_return=storages';
+            $links[$storageId] = Route::link(
+                'site',
+                'index.php?option=com_contentbuilderng&view=list&storage_id=' . $storageId
+                    . '&cb_preview=1'
+                    . '&cb_preview_until=' . $previewUntil
+                    . '&cb_preview_actor_id=' . $previewActorId
+                    . '&cb_preview_actor_name=' . rawurlencode($previewActorName)
+                    . '&cb_preview_user_id=' . $previewUserId
+                    . '&cb_preview_sig=' . $previewSig
+                    . '&cb_admin_return=storages',
+                false,
+                Route::TLS_IGNORE,
+                true
+            );
         }
 
         return $links;

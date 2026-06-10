@@ -51,14 +51,14 @@ $previewLinks = is_array($this->previewLinks ?? null) ? $this->previewLinks : []
 ?>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-var form = document.getElementById('adminForm');
+const form = document.getElementById('adminForm');
 
 if (!form) {
     return;
 }
 
-var setValue = function(name, value) {
-    var element = form.elements[name];
+const setValue = (name, value) => {
+    const element = form.elements[name];
     if (element) {
         element.value = value;
     }
@@ -68,8 +68,8 @@ document.querySelectorAll('#adminForm .js-stools-column-order').forEach(function
     link.addEventListener('click', function(event) {
         event.preventDefault();
 
-        var order = String(link.getAttribute('data-order') || '');
-        var dir = String(link.getAttribute('data-direction') || 'ASC').toUpperCase();
+        const order = String(link.getAttribute('data-order') || '');
+        const dir = String(link.getAttribute('data-direction') || 'ASC').toUpperCase();
 
         setValue('filter_order', order);
         setValue('filter_order_Dir', dir.toLowerCase());
@@ -84,18 +84,18 @@ document.querySelectorAll('#adminForm .js-stools-column-order').forEach(function
     });
 });
 
-var clearButton = document.getElementById('cb-storages-clear');
-var searchInput = document.getElementById('filter_search');
-var stateInput = document.getElementById('filter_state');
+const clearButton = document.getElementById('cb-storages-clear');
+const searchInput = document.getElementById('filter_search');
+const stateInput = document.getElementById('filter_state');
 
-var updateClearButtonState = function() {
+const updateClearButtonState = () => {
     if (!clearButton) {
         return;
     }
 
-    var hasSearch = !!String(searchInput && searchInput.defaultValue || '').trim();
-    var hasState = !!String(stateInput && stateInput.value || '').trim();
-    var isActive = hasSearch || hasState;
+    const hasSearch = !!String(searchInput && searchInput.defaultValue || '').trim();
+    const hasState = !!String(stateInput && stateInput.value || '').trim();
+    const isActive = hasSearch || hasState;
 
     clearButton.disabled = !isActive;
     clearButton.classList.toggle('btn-primary', isActive);
@@ -103,8 +103,25 @@ var updateClearButtonState = function() {
     clearButton.setAttribute('aria-disabled', isActive ? 'false' : 'true');
 };
 
-if (stateInput) {
-    stateInput.addEventListener('change', updateClearButtonState);
+const filterAndResetPage = () => {
+    setValue('limitstart', 0);
+    setValue('list[start]', 0);
+    form.submit();
+};
+
+form.addEventListener('change', function(e) {
+    if (e.target.classList.contains('js-cb-filter-change')) {
+        updateClearButtonState();
+        filterAndResetPage();
+    }
+});
+
+if (clearButton) {
+    clearButton.addEventListener('click', function() {
+        if (searchInput) searchInput.value = '';
+        if (stateInput) stateInput.value = '';
+        filterAndResetPage();
+    });
 }
 
 updateClearButtonState();
@@ -152,8 +169,7 @@ updateClearButtonState();
                         <button
                             id="cb-storages-clear"
                             type="button"
-                            class="btn btn-outline-secondary"
-                            onclick="document.getElementById('filter_search').value='';document.getElementById('filter_state').value='';document.adminForm.submit();">
+                            class="btn btn-outline-secondary">
                             <?php echo Text::_('JSEARCH_FILTER_CLEAR'); ?>
                         </button>
                     </div>
@@ -163,8 +179,7 @@ updateClearButtonState();
                         <select
                             name="filter_state"
                             id="filter_state"
-                            class="form-select form-select-sm js-select-submit-on-change"
-                            onchange="var form=document.adminForm;if(form){var start=form.elements['list[start]'];if(start){start.value=0;}var limitStart=form.elements['limitstart'];if(limitStart){limitStart.value=0;}form.submit();}">
+                            class="form-select form-select-sm js-cb-filter-change">
                             <option value=""><?php echo Text::_('JOPTION_SELECT_PUBLISHED'); ?></option>
                             <option value="P" <?php echo $filterState === 'P' ? 'selected="selected"' : ''; ?>>
                                 <?php echo Text::_('JPUBLISHED'); ?>

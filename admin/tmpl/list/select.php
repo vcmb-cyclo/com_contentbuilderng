@@ -88,7 +88,7 @@ if ($themeJs !== '') {
         document.adminForm.submit();
     }
     function contentbuilderng_delete() {
-        var confirmed = confirm('<?php echo Text::_('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MESSAGE'); ?>');
+        const confirmed = confirm('<?php echo Text::_('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MESSAGE'); ?>');
         if (confirmed) {
             document.getElementById('controller').value = 'edit';
             document.getElementById('view').value = 'edit';
@@ -105,7 +105,7 @@ if ($themeJs !== '') {
         }
 
         if (window.parent.Joomla && window.parent.Joomla.Modal) {
-            var currentModal = window.parent.Joomla.Modal.getCurrent();
+            const currentModal = window.parent.Joomla.Modal.getCurrent();
             if (currentModal) {
                 currentModal.close();
                 return;

@@ -258,7 +258,6 @@ $ratingCsrfToken = Session::getFormToken();
 // Charge le manifeste joomla.asset.json du composant
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 
-$wa->useScript('jquery');
 $wa->useScript('com_contentbuilderng.contentbuilderng');
 
 $___getpost = 'post';

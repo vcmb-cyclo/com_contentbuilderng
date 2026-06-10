@@ -65,14 +65,14 @@ $fullOrdering = trim($order . ' ' . strtoupper($orderDir));
 ?>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-var form = document.getElementById('adminForm');
+const form = document.getElementById('adminForm');
 
 if (!form) {
     return;
 }
 
-var setValue = function(name, value) {
-    var element = form.elements[name];
+const setValue = (name, value) => {
+    const element = form.elements[name];
     if (element) {
         element.value = value;
     }
@@ -82,8 +82,8 @@ document.querySelectorAll('#adminForm .js-stools-column-order').forEach(function
     link.addEventListener('click', function(event) {
         event.preventDefault();
 
-        var order = String(link.getAttribute('data-order') || '');
-        var dir = String(link.getAttribute('data-direction') || 'ASC').toUpperCase();
+        const order = String(link.getAttribute('data-order') || '');
+        const dir = String(link.getAttribute('data-direction') || 'ASC').toUpperCase();
 
         setValue('filter_order', order);
         setValue('filter_order_Dir', dir.toLowerCase());
@@ -97,20 +97,20 @@ document.querySelectorAll('#adminForm .js-stools-column-order').forEach(function
     });
 });
 
-var clearButton = document.getElementById('cb-forms-clear');
-var searchInput = document.getElementById('filter_search');
-var stateInput = document.getElementById('filter_state');
-var tagInput = document.getElementById('filter_tag');
+const clearButton = document.getElementById('cb-forms-clear');
+const searchInput = document.getElementById('filter_search');
+const stateInput = document.getElementById('filter_state');
+const tagInput = document.getElementById('filter_tag');
 
-var updateClearButtonState = function() {
+const updateClearButtonState = () => {
     if (!clearButton) {
         return;
     }
 
-    var hasSearch = !!String(searchInput && searchInput.defaultValue || '').trim();
-    var hasState = !!String(stateInput && stateInput.value || '').trim();
-    var hasTag = !!String(tagInput && tagInput.value || '').trim();
-    var isActive = hasSearch || hasState || hasTag;
+    const hasSearch = !!String(searchInput && searchInput.defaultValue || '').trim();
+    const hasState = !!String(stateInput && stateInput.value || '').trim();
+    const hasTag = !!String(tagInput && tagInput.value || '').trim();
+    const isActive = hasSearch || hasState || hasTag;
 
     clearButton.disabled = !isActive;
     clearButton.classList.toggle('btn-primary', isActive);
@@ -118,13 +118,27 @@ var updateClearButtonState = function() {
     clearButton.setAttribute('aria-disabled', isActive ? 'false' : 'true');
 };
 
-[stateInput, tagInput].forEach(function(field) {
-    if (!field) {
-        return;
-    }
+const filterAndResetPage = () => {
+    setValue('limitstart', 0);
+    setValue('list[start]', 0);
+    form.submit();
+};
 
-    field.addEventListener('change', updateClearButtonState);
+form.addEventListener('change', function(e) {
+    if (e.target.classList.contains('js-cb-filter-change')) {
+        updateClearButtonState();
+        filterAndResetPage();
+    }
 });
+
+if (clearButton) {
+    clearButton.addEventListener('click', function() {
+        if (searchInput) searchInput.value = '';
+        if (stateInput) stateInput.value = '';
+        if (tagInput) tagInput.value = '';
+        filterAndResetPage();
+    });
+}
 
 updateClearButtonState();
 });
@@ -171,8 +185,7 @@ updateClearButtonState();
                             <button
                                 id="cb-forms-clear"
                                 type="button"
-                                class="btn btn-outline-secondary"
-                                onclick="document.getElementById('filter_search').value='';document.getElementById('filter_state').value='';document.getElementById('filter_tag').value='';document.adminForm.submit();">
+                                class="btn btn-outline-secondary">
                                 <?php echo Text::_('JSEARCH_FILTER_CLEAR'); ?>
                             </button>
                         </div>
@@ -182,8 +195,7 @@ updateClearButtonState();
                             <select
                                 name="filter_state"
                                 id="filter_state"
-                                class="form-select form-select-sm js-select-submit-on-change"
-                                onchange="var form=document.adminForm;if(form){var start=form.elements['list[start]'];if(start){start.value=0;}var limitStart=form.elements['limitstart'];if(limitStart){limitStart.value=0;}form.submit();}">
+                                class="form-select form-select-sm js-cb-filter-change">
                                 <option value=""><?php echo Text::_('JOPTION_SELECT_PUBLISHED'); ?></option>
                                 <option value="P" <?php echo $filterState === 'P' ? 'selected="selected"' : ''; ?>>
                                     <?php echo Text::_('JPUBLISHED'); ?>
@@ -197,10 +209,9 @@ updateClearButtonState();
                         <div class="btn-group">
                             <label for="filter_tag" class="visually-hidden"><?php echo Text::_('COM_CONTENTBUILDERNG_FILTER_TAG'); ?></label>
                             <select
-                                class="form-select form-select-sm js-select-submit-on-change"
+                                class="form-select form-select-sm js-cb-filter-change"
                                 id="filter_tag"
-                                name="filter_tag"
-                                onchange="var form=document.adminForm;if(form){var start=form.elements['list[start]'];if(start){start.value=0;}var limitStart=form.elements['limitstart'];if(limitStart){limitStart.value=0;}form.submit();}">
+                                name="filter_tag">
                                 <option value="">
                                     <?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_FILTER_TAG_ALL'), ENT_QUOTES, 'UTF-8'); ?>
                                 </option>

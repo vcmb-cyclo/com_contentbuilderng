@@ -1,26 +1,23 @@
 <?php
 \defined('_JEXEC') or die;
 
-use Joomla\CMS\Language\Text;
 ?>
 
 <script>
-    let textTypeModal = document.getElementById('text-type-modal');
+    const textTypeModal = document.getElementById('text-type-modal');
     textTypeModal.addEventListener('shown.bs.modal', function(event) {
-        const modal = jQuery('#text-type-modal');
-        const body = modal.find('.modal-body');
-        body.css('display', 'none');
-        modal.find('iframe').attr('src', event.relatedTarget.href);
-        body.css('display', '');
+        const body = textTypeModal.querySelector('.modal-body');
+        body.style.display = 'none';
+        textTypeModal.querySelector('iframe').src = event.relatedTarget.href;
+        body.style.display = '';
     });
 
-    let editModal = document.getElementById('edit-modal');
+    const editModal = document.getElementById('edit-modal');
     editModal.addEventListener('shown.bs.modal', function(event) {
-        const modal = jQuery('#edit-modal');
-        const body = modal.find('.modal-body');
-        body.css('display', 'none');
-        modal.find('iframe').attr('src', event.relatedTarget.href);
-        body.css('display', '');
+        const body = editModal.querySelector('.modal-body');
+        body.style.display = 'none';
+        editModal.querySelector('iframe').src = event.relatedTarget.href;
+        body.style.display = '';
     });
 
     window.addEventListener('message', function(event) {
@@ -82,19 +79,18 @@ use Joomla\CMS\Language\Text;
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-        var typeSelect = document.getElementById('cb_form_type_select');
+        const typeSelect = document.getElementById('cb_form_type_select');
         if (typeSelect) {
-            var isBreezingFormsType = function (value) {
-                return value === 'com_breezingforms' || value === 'com_breezingforms_ng';
-            };
+            const isBreezingFormsType = (value) =>
+                value === 'com_breezingforms' || value === 'com_breezingforms_ng';
 
-            var updateTypeTitle = function () {
-                var option = typeSelect.options[typeSelect.selectedIndex];
+            const updateTypeTitle = () => {
+                const option = typeSelect.options[typeSelect.selectedIndex];
                 typeSelect.title = option ? (option.getAttribute('data-full') || option.value || '') : '';
             };
 
-            var syncAutoPublishDefault = function () {
-                var field = document.querySelector('input[type="checkbox"][name="jform[auto_publish]"]');
+            const syncAutoPublishDefault = () => {
+                const field = document.querySelector('input[type="checkbox"][name="jform[auto_publish]"]');
                 if (!field) {
                     return;
                 }
@@ -109,10 +105,10 @@ use Joomla\CMS\Language\Text;
             syncAutoPublishDefault();
         }
 
-        var resetButton = document.getElementById('cb-reset-list-intro');
+        const resetButton = document.getElementById('cb-reset-list-intro');
         if (resetButton) {
             resetButton.addEventListener('click', function () {
-                var confirmMessage = resetButton.getAttribute('data-confirm') || '';
+                const confirmMessage = resetButton.getAttribute('data-confirm') || '';
 
                 if (confirmMessage && !window.confirm(confirmMessage)) {
                     return;

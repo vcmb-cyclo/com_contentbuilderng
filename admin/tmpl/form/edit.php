@@ -734,7 +734,6 @@ $editModalParams = [
 echo HTMLHelper::_('bootstrap.renderModal', 'edit-modal', $editModalParams);
 
 $wa = $app->getDocument()->getWebAssetManager();
-$wa->useScript('jquery');
 //$wa->useScript('bootstrap.tab');
 
 $viewTabTooltips = [

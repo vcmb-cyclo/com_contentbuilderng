@@ -55,22 +55,6 @@
             }
         },
         {
-            "name": "com_contentbuilderng.contentbuilderng",
-            "type": "script",
-            "uri": "com_contentbuilderng/js/contentbuilderng.js",
-            "dependencies": [
-                "core"
-            ]
-        },
-        {
-            "name": "com_contentbuilderng.jscolor",
-            "type": "script",
-            "uri": "com_contentbuilderng/js/jscolor/jscolor.js",
-            "dependencies": [
-                "core"
-            ]
-        },
-        {
             "name": "com_contentbuilderng.coloris.css",
             "type": "style",
             "uri": "https://cdn.jsdelivr.net/npm/@melloware/coloris@0.25.0/dist/coloris.min.css"
