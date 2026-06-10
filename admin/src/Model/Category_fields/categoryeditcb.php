@@ -15,7 +15,7 @@ use Joomla\CMS\Form\Field\ListField;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
 
-class JFormFieldCategoryEditCb extends ListField
+class FormFieldCategoryEditCb extends ListField
 {
     /**
      * A flexible category list that respects access controls
