@@ -1,11 +1,11 @@
 <?php
 
 /**
- * @version		$Id$
  * @copyright	Copyright © 2005 - 2011 Open Source Matters, Inc. All rights reserved.
- * @license		GNU General Public License version 2 or later; see LICENSE.txt
  * @copyright   Copyright © 2026 by XDA+GIL
- */
+ * @link        https://breezingforms-ng.vcmb.fr
+ * @license		GNU General Public License version 2 or later; see LICENSE.txt
+  */
 
 namespace CB\Component\Contentbuilderng\Administrator\Model\CategoryFields;
 
