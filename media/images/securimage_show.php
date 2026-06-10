@@ -1,7 +1,7 @@
 <?php
  /**
- * @package     ContentBuilder NG
- * @copyright Copyright © 2026 by XDA+GIL
+ * @package     ContentBuilderNG
+ * @copyright Copyright © 2026 XDA+GIL
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
 */ 
  

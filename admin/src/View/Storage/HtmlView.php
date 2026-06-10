@@ -1,10 +1,11 @@
 <?php
 
 /**
- * @package     ContentBuilder NG
- * @author      Markus Bopp / XDA+GIL
+ * @package     ContentBuilderNG
+ * @author      Markus Bopp
+ * @author      XDA+GIL
  * @link        https://breezingforms-ng.vcmb.fr
- * @copyright   Copyright © 2026 by XDA+GIL
+ * @copyright   Copyright © 2026 XDA+GIL
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
 */
 

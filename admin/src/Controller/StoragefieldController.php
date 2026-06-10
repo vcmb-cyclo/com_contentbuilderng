@@ -1,4 +1,22 @@
 <?php
+
+/**
+ * ContentBuilder NG Storage field controller.
+ *
+ * Handles actions for storage fields in the admin interface.
+ *
+ * @package     ContentBuilderNG
+ * @subpackage  Administrator.Controller
+ * @author      Xavier DANO
+ * @copyright   Copyright © 2024–2026 XDA+GIL
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @link        https://breezingforms-ng.vcmb.fr
+ * @since       6.0.0  Joomla 6 rewrite.
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+
 namespace CB\Component\Contentbuilderng\Administrator\Controller;
 
 \defined('_JEXEC') or die;

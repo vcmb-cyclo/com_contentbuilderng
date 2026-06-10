@@ -3,7 +3,7 @@
 /**
  * Compatibility shim for legacy media list previews.
  *
- * @package     ContentBuilder NG
+ * @package     ContentBuilderNG
  * @author      XDA+GIL
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  *

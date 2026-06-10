@@ -2,8 +2,8 @@
 
 /**
  * @version     6.0
- * @package     ContentBuilder NG Image Scale
- * @copyright   Copyright © 2026 by XDA+GIL 
+ * @package     ContentBuilderNG Image Scale
+ * @copyright   Copyright © 2026 XDA+GIL 
  * @license     Released under the terms of the GNU General Public License
  **/
 

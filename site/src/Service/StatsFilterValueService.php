@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     ContentBuilder NG
+ * @package     ContentBuilderNG
  * @author      XDA+GIL
  * @link        https://breezingforms-ng.vcmb.fr
  * @license     GNU General Public License version 2 or later; see LICENSE.txt

@@ -7,10 +7,12 @@
  *
  * @package     Extension
  * @author      Xavier DANO
- * @copyright   Copyright © 2026 by XDA+GIL
+ * @copyright   Copyright © 2026 XDA+GIL
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @link        https://breezingforms-ng.vcmb.fr
  * @since       6.0.0  Joomla 6 rewrite.
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 // administrator/src/Extension/ContentbuilderngComponent.php

@@ -2,7 +2,7 @@
 
 /**
  * @copyright	Copyright © 2005 - 2011 Open Source Matters, Inc. All rights reserved.
- * @copyright   Copyright © 2026 by XDA+GIL
+ * @copyright   Copyright © 2026 XDA+GIL
  * @link        https://breezingforms-ng.vcmb.fr
  * @license		GNU General Public License version 2 or later; see LICENSE.txt
   */

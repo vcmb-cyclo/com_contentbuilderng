@@ -2,8 +2,8 @@
 
 /**
  * @version     6.0
- * @package     ContentBuilder NG No Verify
- * @copyright   Copyright © 2026 by XDA+GIL
+ * @package     ContentBuilderNG No Verify
+ * @copyright   Copyright © 2026 XDA+GIL
  * @license     Released under the terms of the GNU General Public License
  **/
 
