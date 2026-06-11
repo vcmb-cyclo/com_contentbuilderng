@@ -26,6 +26,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataMigrationHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\PluginExtensionDedupHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\StorageAuditColumnsHelper;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
@@ -142,12 +143,26 @@ class RepairWorkflowService
             'form_audit_columns'   => $this->buildFormAuditColumnsStepResult(FormDisplayColumnsHelper::repair($db)),
             'plugin_duplicates'    => $this->buildPluginDuplicateStepResult(PluginExtensionDedupHelper::repair($db)),
             'historical_menu_entries' => $this->buildHistoricalMenuStepResult(PackedDataMigrationHelper::repairLegacyMenuEntriesStep($db)),
-            'bf_field_sync'        => $this->buildBfFieldSyncStepResult(BfFieldSyncAuditHelper::repair($db)),
+            'bf_field_sync'        => $this->buildBfFieldSyncStepResult($this->repairBfFieldSync($db)),
             'generated_article_categories'   => $this->buildGeneratedArticleCategoryStepResult(GeneratedArticleCategoryAuditHelper::repair($db)),
             'element_reference_consistency'  => $this->buildElementReferenceConsistencyStepResult(ElementReferenceAuditHelper::repair($db)),
             'stale_language_files'           => $this->buildStaleLanguageFilesStepResult(StaleLanguageFilesAuditHelper::repair()),
             default                          => throw new \RuntimeException('Unknown repair step: ' . $stepId),
         };
+    }
+
+    private function repairBfFieldSync(DatabaseInterface $db): array
+    {
+        $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return BfFieldSyncAuditHelper::repair(
+            $db,
+            $component->getContainer()->get(FormSupportService::class)
+        );
     }
 
     public function logStepResult(string $stepId, string $action, array $result): void
@@ -467,7 +482,7 @@ class RepairWorkflowService
                 'count' => $bfFieldSyncViews,
                 'description' => match (true) {
                     $bfFieldSyncViews <= 0 => 'No BF-linked CB view synchronization issue was detected by the last audit.',
-                    default => $bfFieldSyncViews . ' BF-linked CB views have synchronization issues (' . $bfMissingInCbTotal . ' source fields missing in CB, ' . $bfOrphanInCbTotal . ' extra fields in CB). Orphan CB elements (fields present in CB but not logged in BF) will be automatically deleted.',
+                    default => $bfFieldSyncViews . ' BF-linked CB views have synchronization issues (' . $bfMissingInCbTotal . ' source fields missing in CB, ' . $bfOrphanInCbTotal . ' extra fields in CB). Missing source fields will be automatically added and orphan CB elements will be deleted.',
                 },
                 'skip_summary' => 'No BF-linked CB view synchronization issue detected by the pre-check. Skipped automatically.',
                 'has_errors' => false,
@@ -987,7 +1002,8 @@ class RepairWorkflowService
     private function buildBfFieldSyncStepResult(array $repairSummary): array
     {
         $scanned        = (int) ($repairSummary['scanned'] ?? 0);
-        $withOrphans    = (int) ($repairSummary['forms_with_orphans'] ?? 0);
+        $withChanges    = (int) ($repairSummary['forms_with_changes'] ?? 0);
+        $added          = (int) ($repairSummary['fields_added'] ?? 0);
         $deleted        = (int) ($repairSummary['orphans_deleted'] ?? 0);
         $errors         = (int) ($repairSummary['errors'] ?? 0);
         $forms          = (array) ($repairSummary['forms'] ?? []);
@@ -1002,11 +1018,24 @@ class RepairWorkflowService
             $formId   = (int) ($form['form_id'] ?? 0);
             $formName = trim((string) ($form['form_name'] ?? ''));
             $status   = trim((string) ($form['status'] ?? ''));
-            $n        = (int) ($form['orphans_deleted'] ?? 0);
+            $addedCount = (int) ($form['fields_added'] ?? 0);
+            $removedCount = (int) ($form['orphans_deleted'] ?? 0);
+            $addedLabels = array_values(array_filter(array_map('strval', (array) ($form['added'] ?? []))));
+            $removedLabels = array_values(array_filter(array_map('strval', (array) ($form['removed'] ?? []))));
             $line     = 'View #' . $formId . ($formName !== '' ? ' "' . $formName . '"' : '');
-            $line    .= $status === 'repaired'
-                ? ' — ' . $n . ' orphan element' . ($n !== 1 ? 's' : '') . ' deleted.'
-                : ' — error: ' . trim((string) ($form['error'] ?? 'unknown'));
+            if ($status === 'repaired') {
+                $line .= ' — ' . $addedCount . ' missing source field' . ($addedCount !== 1 ? 's' : '') . ' added';
+                if ($addedLabels !== []) {
+                    $line .= ' (' . implode(', ', $addedLabels) . ')';
+                }
+                $line .= ', ' . $removedCount . ' orphan element' . ($removedCount !== 1 ? 's' : '') . ' deleted';
+                if ($removedLabels !== []) {
+                    $line .= ' (' . implode(', ', $removedLabels) . ')';
+                }
+                $line .= '.';
+            } else {
+                $line .= ' — error: ' . trim((string) ($form['error'] ?? 'unknown'));
+            }
             $lines[]  = $line;
         }
 
@@ -1017,15 +1046,15 @@ class RepairWorkflowService
             }
         }
 
-        if ($deleted === 0 && $errors === 0) {
-            $lines[] = 'No orphan BF elements found in CB views. Nothing to repair.';
+        if ($added === 0 && $deleted === 0 && $errors === 0) {
+            $lines[] = 'No BF field synchronization issue found in CB views. Nothing to repair.';
         }
 
         $level = $errors > 0 ? 'warning' : 'message';
         $summary = match (true) {
-            $errors > 0 => 'BF field sync repair completed with errors: ' . $deleted . ' orphan element' . ($deleted !== 1 ? 's' : '') . ' deleted across ' . $withOrphans . ' view' . ($withOrphans !== 1 ? 's' : '') . ' (' . $scanned . ' scanned, ' . $errors . ' error' . ($errors !== 1 ? 's' : '') . ').',
-            $deleted > 0 => 'BF field sync repair: ' . $deleted . ' orphan element' . ($deleted !== 1 ? 's' : '') . ' deleted across ' . $withOrphans . ' view' . ($withOrphans !== 1 ? 's' : '') . ' (' . $scanned . ' scanned).',
-            default      => 'BF field sync: no orphan elements found (' . $scanned . ' BF-linked view' . ($scanned !== 1 ? 's' : '') . ' scanned).',
+            $errors > 0 => 'BF field sync repair completed with errors: ' . $added . ' missing field' . ($added !== 1 ? 's' : '') . ' added, ' . $deleted . ' orphan element' . ($deleted !== 1 ? 's' : '') . ' deleted across ' . $withChanges . ' view' . ($withChanges !== 1 ? 's' : '') . ' (' . $scanned . ' scanned, ' . $errors . ' error' . ($errors !== 1 ? 's' : '') . ').',
+            $added > 0 || $deleted > 0 => 'BF field sync repair: ' . $added . ' missing field' . ($added !== 1 ? 's' : '') . ' added and ' . $deleted . ' orphan element' . ($deleted !== 1 ? 's' : '') . ' deleted across ' . $withChanges . ' view' . ($withChanges !== 1 ? 's' : '') . ' (' . $scanned . ' scanned).',
+            default      => 'BF field sync: no synchronization issue found (' . $scanned . ' BF-linked view' . ($scanned !== 1 ? 's' : '') . ' scanned).',
         };
 
         return [

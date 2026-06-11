@@ -15,6 +15,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Helper\Audit;
 \defined('_JEXEC') or die('Restricted access');
 
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
+use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use Joomla\Database\DatabaseInterface;
 
 final class BfFieldSyncAuditHelper
@@ -39,13 +40,15 @@ final class BfFieldSyncAuditHelper
      * }
      */
     /**
-     * @return array{scanned:int,forms_with_orphans:int,orphans_deleted:int,unchanged:int,forms:array<int,array{form_id:int,form_name:string,orphans_deleted:int,status:string,error?:string}>,errors:int,warnings:array<int,string>}
+     * @return array{scanned:int,forms_with_changes:int,forms_with_orphans:int,fields_added:int,orphans_deleted:int,unchanged:int,forms:array<int,array{form_id:int,form_name:string,fields_added:int,orphans_deleted:int,added:array<int,string>,removed:array<int,string>,status:string,error?:string}>,errors:int,warnings:array<int,string>}
      */
-    public static function repair(DatabaseInterface $db): array
+    public static function repair(DatabaseInterface $db, FormSupportService $formSupportService): array
     {
         $summary = [
             'scanned'            => 0,
+            'forms_with_changes' => 0,
             'forms_with_orphans' => 0,
+            'fields_added'       => 0,
             'orphans_deleted'    => 0,
             'unchanged'          => 0,
             'forms'              => [],
@@ -61,7 +64,8 @@ final class BfFieldSyncAuditHelper
                     ->where(
                         $db->quoteName('type') . ' IN ('
                         . $db->quote('com_breezingforms') . ','
-                        . $db->quote('com_breezingforms_ng') . ')'
+                        . $db->quote('com_breezingforms_ng') . ','
+                        . $db->quote('com_breezingformsng') . ')'
                     )
                     ->where($db->quoteName('reference_id') . ' > 0')
                     ->order($db->quoteName('id') . ' ASC')
@@ -89,44 +93,33 @@ final class BfFieldSyncAuditHelper
                     continue;
                 }
 
-                $validRefs = array_map('strval', array_keys((array) $sourceForm->getElementLabels()));
-
-                if ($validRefs === []) {
+                if ((array) $sourceForm->getElementLabels() === []) {
                     $summary['unchanged']++;
                     continue;
                 }
 
-                $quotedRefs = array_map([$db, 'quote'], $validRefs);
-                $db->setQuery(
-                    $db->getQuery(true)
-                        ->select('COUNT(*)')
-                        ->from($db->quoteName('#__contentbuilderng_elements'))
-                        ->where($db->quoteName('form_id') . ' = ' . $formId)
-                        ->where($db->quoteName('reference_id') . ' != ' . $db->quote(''))
-                        ->where($db->quoteName('reference_id') . ' NOT IN (' . implode(',', $quotedRefs) . ')')
-                );
-                $orphanCount = (int) $db->loadResult();
+                $syncReport = $formSupportService->synchElements($formId, $sourceForm);
+                $addedCount = (int) ($syncReport['added_count'] ?? 0);
+                $removedCount = (int) ($syncReport['removed_count'] ?? 0);
 
-                if ($orphanCount === 0) {
+                if ($addedCount === 0 && $removedCount === 0) {
                     $summary['unchanged']++;
                     continue;
                 }
 
-                $db->setQuery(
-                    $db->getQuery(true)
-                        ->delete($db->quoteName('#__contentbuilderng_elements'))
-                        ->where($db->quoteName('form_id') . ' = ' . $formId)
-                        ->where($db->quoteName('reference_id') . ' != ' . $db->quote(''))
-                        ->where($db->quoteName('reference_id') . ' NOT IN (' . implode(',', $quotedRefs) . ')')
-                );
-                $db->execute();
-
-                $summary['forms_with_orphans']++;
-                $summary['orphans_deleted'] += $orphanCount;
+                $summary['forms_with_changes']++;
+                $summary['fields_added'] += $addedCount;
+                $summary['orphans_deleted'] += $removedCount;
+                if ($removedCount > 0) {
+                    $summary['forms_with_orphans']++;
+                }
                 $summary['forms'][] = [
                     'form_id'         => $formId,
                     'form_name'       => $formName,
-                    'orphans_deleted' => $orphanCount,
+                    'fields_added'    => $addedCount,
+                    'orphans_deleted' => $removedCount,
+                    'added'           => array_values((array) ($syncReport['added'] ?? [])),
+                    'removed'         => array_values((array) ($syncReport['removed'] ?? [])),
                     'status'          => 'repaired',
                 ];
             } catch (\Throwable $e) {
@@ -135,7 +128,10 @@ final class BfFieldSyncAuditHelper
                 $summary['forms'][] = [
                     'form_id'         => $formId,
                     'form_name'       => $formName,
+                    'fields_added'    => 0,
                     'orphans_deleted' => 0,
+                    'added'           => [],
+                    'removed'         => [],
                     'status'          => 'error',
                     'error'           => $e->getMessage(),
                 ];
@@ -157,7 +153,8 @@ final class BfFieldSyncAuditHelper
                 ->where(
                     $db->quoteName('type') . ' IN ('
                     . $db->quote('com_breezingforms') . ','
-                    . $db->quote('com_breezingforms_ng') . ')'
+                    . $db->quote('com_breezingforms_ng') . ','
+                    . $db->quote('com_breezingformsng') . ')'
                 )
                 ->where($db->quoteName('reference_id') . ' > 0');
 
