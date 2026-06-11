@@ -27,9 +27,7 @@ use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\Database\QueryInterface;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\Application\CMSApplication;
-use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\Input\Input;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Model\FormModel;
@@ -117,7 +115,8 @@ class FormsModel extends ListModel
             ->where($db->quoteName('profile_key') . ' = ' . $db->quote($profileKey))
             ->order($db->quoteName('ordering') . ' ASC');
 
-        $db->setQuery($query, 0, 1);
+        $query->setLimit(1);
+        $db->setQuery($query);
         $value = $db->loadResult();
 
         if ($value === null) {
@@ -155,7 +154,7 @@ class FormsModel extends ListModel
         $db->setQuery(
             $db->getQuery(true)
                 ->insert($db->quoteName('#__user_profiles'))
-                ->columns($db->quoteName($columns))
+                ->columns(array_map([$db, 'quoteName'], $columns))
                 ->values(implode(',', $values))
         );
         $db->execute();
@@ -169,7 +168,7 @@ class FormsModel extends ListModel
 
         // Base query
         $query->select('a.*')
-            ->from($db->quoteName('#__contentbuilderng_forms', 'a'));
+            ->from($db->quoteName('#__contentbuilderng_forms') . ' AS ' . $db->quoteName('a'));
 
         // Published filter (filter.state : 'P' or 'U')
         $filterState = strtoupper(trim((string) $this->getState('filter.state')));
@@ -264,7 +263,6 @@ class FormsModel extends ListModel
      * Supprime plusieurs formulaires
      * Appelée automatiquement par AdminController
      */
-    #[\Override]
     public function delete($pks = null): bool
     {
         $pks = (array) $pks;

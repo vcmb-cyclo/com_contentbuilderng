@@ -80,7 +80,7 @@ class ElementsModel extends ListModel
 
 
     
-    public function setFormId($formid)
+    public function setFormId(int $formid): void
     {
         $this->formId = $formid;
     }
@@ -233,32 +233,32 @@ class ElementsModel extends ListModel
 
         // Sélectionner les colonnes pertinentes de #__contentbuilderng_elements
         $query->select(
-            $db->quoteName([
-                'id',
-                'form_id',
-                'reference_id',
-                'type',
-                'change_type',
-                'options',
-                'custom_init_script',
-                'custom_action_script',
-                'custom_validation_script',
-                'validation_message',
-                'default_value',
-                'hint',
-                'label',
-                'list_include',
-                'search_include',
-                'item_wrapper',
-                'wordwrap',
-                'linkable',
-                'editable',
-                'api_allowed',
-                'validations',
-                'published',
-                'order_type',
-                'ordering'
-            ])
+            [
+                $db->quoteName('id'),
+                $db->quoteName('form_id'),
+                $db->quoteName('reference_id'),
+                $db->quoteName('type'),
+                $db->quoteName('change_type'),
+                $db->quoteName('options'),
+                $db->quoteName('custom_init_script'),
+                $db->quoteName('custom_action_script'),
+                $db->quoteName('custom_validation_script'),
+                $db->quoteName('validation_message'),
+                $db->quoteName('default_value'),
+                $db->quoteName('hint'),
+                $db->quoteName('label'),
+                $db->quoteName('list_include'),
+                $db->quoteName('search_include'),
+                $db->quoteName('item_wrapper'),
+                $db->quoteName('wordwrap'),
+                $db->quoteName('linkable'),
+                $db->quoteName('editable'),
+                $db->quoteName('api_allowed'),
+                $db->quoteName('validations'),
+                $db->quoteName('published'),
+                $db->quoteName('order_type'),
+                $db->quoteName('ordering'),
+            ]
         )
             ->from($db->quoteName('#__contentbuilderng_elements'))
             ->where($db->quoteName('form_id') . ' = ' . (int) $this->getState('form.id'));  // Filtre par form_id
@@ -293,7 +293,7 @@ class ElementsModel extends ListModel
 
 
 
-    public function move($direction): bool
+    public function move(int $direction): bool
     {
         // Assure formId même si populateState n’a pas tourné
         $formId = $this->resolveCurrentFormId();
@@ -349,7 +349,10 @@ class ElementsModel extends ListModel
 
         $db = $this->getDatabase();
         $query = $db->getQuery(true)
-            ->select($db->quoteName(['id', 'ordering']))
+            ->select([
+                $db->quoteName('id'),
+                $db->quoteName('ordering'),
+            ])
             ->from($db->quoteName('#__contentbuilderng_elements'))
             ->where($db->quoteName('form_id') . ' = ' . (int) $formId)
             ->order($db->quoteName('ordering') . ' ASC, ' . $db->quoteName('id') . ' ASC');
@@ -478,8 +481,18 @@ class ElementsModel extends ListModel
     function getData(int $formId)
     {
         $this->formId = $formId;
-        $this->getDatabase()->setQuery($this->_buildQuery(), $this->getState('limitstart'), $this->getState('limit'));
-        $elements = $this->getDatabase()->loadObjectList();
+        $db = $this->getDatabase();
+        $query = $db->getQuery(true)
+            ->select('*')
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('form_id') . ' = ' . (int) $this->formId)
+            ->order($db->quoteName('ordering') . ' ASC')
+            ->setLimit(
+                (int) $this->getState('limit', 0),
+                (int) $this->getState('limitstart', 0)
+            );
+        $db->setQuery($query);
+        $elements = $db->loadObjectList();
 
         return $elements;
     }

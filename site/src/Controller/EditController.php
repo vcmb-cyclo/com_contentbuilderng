@@ -133,7 +133,6 @@ class EditController extends BaseController
         return parent::getModel($name, $prefix, $config);
     }
 
-    #[\Override]
     public function save($apply = false)
     {
         $isAdminPreview = $this->applyPreviewContextForAction();
@@ -203,13 +202,11 @@ class EditController extends BaseController
         $this->setRedirect($link, $msg, $type);
     }
 
-    #[\Override]
     public function apply()
     {
         $this->save(true);
     }
 
-    #[\Override]
     public function delete()
     {
         $isAdminPreview = $this->applyPreviewContextForAction();
@@ -314,7 +311,6 @@ class EditController extends BaseController
         $this->setRedirect($link, $msg, 'message');
     }
 
-    #[\Override]
     public function publish()
     {
         $storageId = (int) $this->siteApp->input->getInt('storage_id', 0);

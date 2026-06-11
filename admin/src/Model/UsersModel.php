@@ -23,9 +23,7 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\Database\QueryInterface;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\MVC\Model\ListModel;
-use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\Input\Input;
 
 class UsersModel extends ListModel
 {
@@ -93,10 +91,10 @@ class UsersModel extends ListModel
                 'COALESCE(a.records, 0)       AS records',
                 'COALESCE(a.published, 1)     AS published',
             ])
-            ->from($db->quoteName('#__users', 'u'))
+            ->from($db->quoteName('#__users') . ' AS ' . $db->quoteName('u'))
             ->join(
                 'LEFT',
-                $db->quoteName('#__contentbuilderng_users', 'a')
+                $db->quoteName('#__contentbuilderng_users') . ' AS ' . $db->quoteName('a')
                 . ' ON ' . $db->quoteName('a.userid') . ' = ' . $db->quoteName('u.id')
                 . ' AND ' . $db->quoteName('a.form_id') . ' = ' . (int) $formId
             );
@@ -179,7 +177,8 @@ class UsersModel extends ListModel
                     ->insert($db->quoteName('#__contentbuilderng_users'))
                     ->columns([$db->quoteName('form_id'), $db->quoteName('userid'), $db->quoteName('published')])
                     ->values((int) $formId . ', ' . (int) $uid . ', 1');
-                $db->setQuery($insert)->execute();
+                $db->setQuery($insert);
+                $db->execute();
             }
         }
 
@@ -189,7 +188,8 @@ class UsersModel extends ListModel
             ->where($db->quoteName('form_id') . ' = ' . (int) $formId)
             ->where($db->quoteName('userid') . ' IN (' . implode(',', $cids) . ')');
 
-        $db->setQuery($update)->execute();
+        $db->setQuery($update);
+        $db->execute();
     }
 
     public function setUnpublished(): void
@@ -219,7 +219,8 @@ class UsersModel extends ListModel
                     ->insert($db->quoteName('#__contentbuilderng_users'))
                     ->columns([$db->quoteName('form_id'), $db->quoteName('userid'), $db->quoteName('published')])
                     ->values((int) $formId . ', ' . (int) $uid . ', 1');
-                $db->setQuery($insert)->execute();
+                $db->setQuery($insert);
+                $db->execute();
             }
         }
 
@@ -229,6 +230,7 @@ class UsersModel extends ListModel
             ->where($db->quoteName('form_id') . ' = ' . (int) $formId)
             ->where($db->quoteName('userid') . ' IN (' . implode(',', $cids) . ')');
 
-        $db->setQuery($update)->execute();
+        $db->setQuery($update);
+        $db->execute();
     }
 }

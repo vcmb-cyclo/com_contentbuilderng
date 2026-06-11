@@ -24,6 +24,7 @@ use Joomla\Database\DatabaseInterface;
 use Joomla\Filesystem\Folder;
 use Joomla\Filesystem\File;
 use Joomla\Utilities\ArrayHelper;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\PathService;
@@ -75,11 +76,7 @@ class ElementoptionsModel extends BaseDatabaseModel
      * MAIN DETAILS AREA
      */
 
-    /**
-     *
-     * @param int $id
-     */
-    function setIds($id, $element_id)
+    public function setIds(int $id, int $element_id): void
     {
         // Set id and wipe data
         $this->_id = $id;
@@ -206,7 +203,13 @@ class ElementoptionsModel extends BaseDatabaseModel
             return 1;
         }
         $setClauses = [];
-        $formSupportService = $this->getApp()->bootComponent('com_contentbuilderng')->getContainer()->get(FormSupportService::class);
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        $formSupportService = $component->getContainer()->get(FormSupportService::class);
         $pathService = new PathService();
         $plugins = $formSupportService->getFormElementsPlugins();
         $type = $input->getCmd('field_type', '');
@@ -549,7 +552,6 @@ class ElementoptionsModel extends BaseDatabaseModel
     /**
      * Publie ou dépublie plusieurs Elements.
      */
-    #[\Override]
     public function publish(array $pks, int $value = 1): bool
     {
         $pks = (array) $pks;

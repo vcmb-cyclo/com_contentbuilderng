@@ -31,7 +31,6 @@ class ListController extends BaseController
         return new PermissionService();
     }
 
-    #[\Override]
     public function delete(): void
     {
         if (!$this->checkToken('post', false)) {
@@ -211,7 +210,6 @@ class ListController extends BaseController
         $this->setRedirect($link, $message, 'message');
     }
 
-    #[\Override]
     public function publish(): void
     {
         if (!$this->checkToken('post', false)) {

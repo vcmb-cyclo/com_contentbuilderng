@@ -30,7 +30,6 @@ use CB\Component\Contentbuilderng\Administrator\Service\StorageFieldService;
 
 class StoragefieldController extends BaseController
 {
-    #[\Override]
     public function add(): bool
     {
         $this->checkToken();

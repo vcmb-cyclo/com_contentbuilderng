@@ -92,7 +92,7 @@ class StoragesModel extends ListModel
 
         // Base query
         $query->select('a.*')
-            ->from($db->quoteName('#__contentbuilderng_storages', 'a'));
+            ->from($db->quoteName('#__contentbuilderng_storages') . ' AS ' . $db->quoteName('a'));
 
         // Published filter.
         $filterState = strtoupper(trim((string) $this->getState('filter.state')));
@@ -151,7 +151,6 @@ class StoragesModel extends ListModel
      * Supprime plusieurs formulaires
      * Appelée automatiquement par AdminController
      */
-    #[\Override]
     public function delete($pks = null): bool
     {
         $pks = (array) $pks;
@@ -168,13 +167,14 @@ class StoragesModel extends ListModel
         }
         $factory = $component->getMVCFactory();
 
-        $formModel = $factory->createModel('storage', 'Administrator', ['ignore_request' => true]);
+        /** @var StorageModel|null $storageModel */
+        $storageModel = $factory->createModel('storage', 'Administrator', ['ignore_request' => true]);
 
-        if (!$formModel) {
+        if (!$storageModel instanceof StorageModel) {
             return false;
         }
 
-        if (!$formModel->delete($pks)) {
+        if (!$storageModel->delete($pks)) {
             return false;
         }
 
@@ -272,7 +272,7 @@ class StoragesModel extends ListModel
             $row->load($items[$i]);
             if ($row->ordering != $order[$i]) {
                 $row->ordering = $order[$i];
-                if (!$row->save()) {
+                if (!$row->check() || !$row->store()) {
                     return false;
                 }
             } // if

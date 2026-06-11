@@ -113,7 +113,7 @@ class VerifyModel extends BaseDatabaseModel
 
         if (!$verification_id) {
             $user_id = (int) ($this->app->getIdentity()->id ?? 0);
-            $setup = $this->app->getSession()->get($plugin . $verification_name, '', 'com_contentbuilderng.verify.' . $plugin . $verification_name);
+            $setup = $this->app->getSession()->get('com_contentbuilderng.verify.' . $plugin . $verification_name, '');
         } else {
             $this->getDatabase()->setQuery("Select `setup`,`user_id` From #__contentbuilderng_verifications Where `verification_hash` = " . $this->getDatabase()->quote($verification_id));
             $setup = $this->getDatabase()->loadAssoc();
@@ -159,9 +159,9 @@ class VerifyModel extends BaseDatabaseModel
 
         if (isset($out['require_view']) && is_numeric($out['require_view']) && intval($out['require_view']) > 0) {
 
-            if ($this->app->getSession()->get('cb_last_record_user_id', 0, 'com_contentbuilderng')) {
-                $user_id = $this->app->getSession()->get('cb_last_record_user_id', 0, 'com_contentbuilderng');
-                $this->app->getSession()->clear('cb_last_record_user_id', 'com_contentbuilderng');
+            if ($this->app->getSession()->get('com_contentbuilderng.cb_last_record_user_id', 0)) {
+                $user_id = $this->app->getSession()->get('com_contentbuilderng.cb_last_record_user_id', 0);
+                $this->app->getSession()->remove('com_contentbuilderng.cb_last_record_user_id');
             }
 
             $id = intval($out['require_view']);
@@ -199,7 +199,7 @@ class VerifyModel extends BaseDatabaseModel
         }
 
         // clearing session after possible required view to make re-visits possible
-        $this->app->getSession()->clear($plugin . $verification_name, 'com_contentbuilderng.verify.' . $plugin . $verification_name);
+        $this->app->getSession()->remove('com_contentbuilderng.verify.' . $plugin . $verification_name);
 
         $verification_data = '';
         if (is_array($rec) && count($rec)) {
@@ -422,7 +422,7 @@ class VerifyModel extends BaseDatabaseModel
         }
     }
 
-    public function activate_by_admin($token)
+    public function activate_by_admin(string $token)
     {
 
         $user = $this->app->getIdentity();
@@ -514,7 +514,7 @@ class VerifyModel extends BaseDatabaseModel
         $this->app->redirect(Route::_('index.php?option=com_users', false));
     }
 
-    public function activate($token)
+    public function activate(string $token)
     {
         $this->app->getLanguage()->load('com_users', JPATH_SITE);
 

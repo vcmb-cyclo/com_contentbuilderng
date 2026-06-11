@@ -69,7 +69,7 @@ class UserModel extends BaseDatabaseModel
         }
     }
 
-    function  __construct($config)
+    public function __construct(array $config = [])
     {
         parent::__construct($config);
 
@@ -82,11 +82,8 @@ class UserModel extends BaseDatabaseModel
      * MAIN DETAILS AREA
      */
 
-    /**
-     *
-     * @param int $id
-     */
-    function setIds($id, $form_id) {
+    public function setIds(int $id, int $form_id): void
+    {
         // Set id and wipe data
         $this->_id = $id;
         $this->_form_id = $form_id;

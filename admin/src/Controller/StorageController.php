@@ -381,7 +381,6 @@ class StorageController extends BaseFormController
     /**
      * Force apply task through this controller custom save flow.
      */
-    #[\Override]
     public function apply($key = null, $urlVar = null)
     {
         return $this->save($key, $urlVar);
@@ -483,7 +482,6 @@ class StorageController extends BaseFormController
      * Task: storage.delete (au lieu de remove)
      * Joomla va passer cid[] dans l’input.
      */
-    #[\Override]
     public function delete()
     {
         $this->checkToken();
@@ -567,13 +565,11 @@ class StorageController extends BaseFormController
         return $this->moveStorageField(1);
     }
 
-    #[\Override]
     public function publish(): bool
     {
         return $this->storagesPublish(1, 'COM_CONTENTBUILDERNG_PUBLISHED');
     }
 
-    #[\Override]
     public function unpublish(): bool
     {
         return $this->storagesPublish(0, 'COM_CONTENTBUILDERNG_UNPUBLISHED');

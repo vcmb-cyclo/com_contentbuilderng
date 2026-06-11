@@ -31,6 +31,7 @@ use Joomla\Filesystem\File;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\PathService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
@@ -44,8 +45,8 @@ class FormModel extends AdminModel
     private array $_default_list_states = [];
 
     public function __construct(
-        array $config = [],
-        ?MVCFactoryInterface $factory = null
+        array $config,
+        ?MVCFactoryInterface $factory
     ) {
         // IMPORTANT : on transmet factory/app/input à ListModel
         parent::__construct($config, $factory);
@@ -61,6 +62,17 @@ class FormModel extends AdminModel
     private function getInput()
     {
         return $this->getApp()->input;
+    }
+
+    private function getFormSupportService(): FormSupportService
+    {
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component->getContainer()->get(FormSupportService::class);
     }
 
     private function getCurrentFormId(): int
@@ -93,7 +105,7 @@ class FormModel extends AdminModel
         return $states;
     }
 
-    private function normalizeListStateColor($value): string
+    private function normalizeListStateColor(mixed $value): string
     {
         $hex = strtoupper(ltrim(trim((string) $value), '#'));
 
@@ -256,7 +268,6 @@ class FormModel extends AdminModel
         return true;
     }
 
-    #[\Override]
     public function getForm($data = [], $loadData = true)
     {
         // Intelephense may not resolve inherited AdminModel::loadForm() in this workspace.
@@ -742,7 +753,7 @@ class FormModel extends AdminModel
         }
 
         $data->forms = array();
-        $formSupportService = $this->getApp()->bootComponent('com_contentbuilderng')->getContainer()->get(FormSupportService::class);
+        $formSupportService = $this->getFormSupportService();
         $pathService = new PathService();
 
         $data->types = $formSupportService->getTypes();
@@ -900,7 +911,7 @@ class FormModel extends AdminModel
         $app   = $this->getApp();
         $input = $app->getInput();
         $db    = $this->getDatabase();
-        $formSupportService = $this->getApp()->bootComponent('com_contentbuilderng')->getContainer()->get(FormSupportService::class);
+        $formSupportService = $this->getFormSupportService();
         $pathService = new PathService();
 
         // 1) Récupération standard + RAW/HTML (nécessaire pour tes éditeurs)
@@ -1138,7 +1149,7 @@ class FormModel extends AdminModel
         // Liste des groupes (tu l’utilises déjà)
         $q = $db->getQuery(true)
             ->select("node.id AS value")
-            ->from($db->quoteName('#__usergroups', 'node'));
+            ->from($db->quoteName('#__usergroups') . ' AS ' . $db->quoteName('node'));
         $db->setQuery($q);
         $groupIds = $db->loadColumn() ?: [];
 
@@ -1551,7 +1562,7 @@ class FormModel extends AdminModel
         return true;
     }
 
-    public function move($direction): bool
+    public function move(int $direction): bool
     {
         $pk = (int) $this->getState($this->getName() . '.id');
 
@@ -1583,7 +1594,7 @@ class FormModel extends AdminModel
         return $this->copyByIds($pks);
     }
 
-    private function copyByIds($cids): bool
+    private function copyByIds(array $cids): bool
     {
         $cids = array_values((array) $cids);
         ArrayHelper::toInteger($cids);

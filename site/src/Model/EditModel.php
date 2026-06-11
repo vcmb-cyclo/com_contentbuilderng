@@ -39,6 +39,7 @@ use Joomla\CMS\User\User;
 use Joomla\CMS\User\UserHelper;
 use Joomla\CMS\Event\Model\PrepareFormEvent;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Contract\FormElementAfterValidationInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
@@ -78,6 +79,17 @@ class EditModel extends BaseDatabaseModel
     private function getMenuToggle(string $key, int $default = 0): int
     {
         return MenuParamHelper::resolveInputOrMenuToggle($this->app, $key, $default);
+    }
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
     }
 
     private $_page_title = '';
@@ -172,7 +184,8 @@ class EditModel extends BaseDatabaseModel
             $query->where($db->quoteName('reference_id') . ' = ' . $db->quote((string) $data->reference_id));
         }
 
-        $db->setQuery($query, 0, 1);
+        $query->setLimit(1);
+        $db->setQuery($query);
         $ratingRow = $db->loadAssoc();
 
         if (!$ratingRow) {
@@ -186,7 +199,6 @@ class EditModel extends BaseDatabaseModel
         return $data;
     }
 
-    #[\Override]
     public function getItem($pk = null)
     {
         $data = $this->getData();
@@ -198,7 +210,6 @@ class EditModel extends BaseDatabaseModel
         return $data ?: null;
     }
 
-    #[\Override]
     public function getForm($data = [], $loadData = true)
     {
         $item = $this->getItem();
@@ -212,7 +223,7 @@ class EditModel extends BaseDatabaseModel
         return preg_replace('#/+#', '/', $path) ?? $path;
     }
 
-    private function toSafePathToken($value): string
+    private function toSafePathToken(mixed $value): string
     {
         if (is_array($value)) {
             $value = array_values(array_filter($value, static fn($v) => $v !== null && $v !== '' && $v !== 'cbGroupMark'));
@@ -245,9 +256,8 @@ class EditModel extends BaseDatabaseModel
         return strncasecmp($realPath, $siteRoot . '/', strlen($siteRoot) + 1) === 0 || strcasecmp($realPath, $siteRoot) === 0;
     }
 
-    function createPathByTokens($path, array $names)
+    private function createPathByTokens(string $path, array $names): string
     {
-        $path = (string) $path;
         if (trim($path) === '') {
             return '';
         }
@@ -300,7 +310,7 @@ class EditModel extends BaseDatabaseModel
 
         /** @var AdministratorApplication|SiteApplication $app */
         $app = Factory::getApplication();
-        $container = $app->bootComponent('com_contentbuilderng')->getContainer();
+        $container = $this->getComponent()->getContainer();
         $this->app = $app;
         $this->runtimeUtilityService = new RuntimeUtilityService();
         $this->listSupportService = $container->get(ListSupportService::class);
@@ -413,11 +423,7 @@ class EditModel extends BaseDatabaseModel
      * MAIN DETAILS AREA
      */
 
-    /**
-     *
-     * @param int $id
-     */
-    function setIds($id, $record_id)
+    public function setIds(int $id, int $record_id): void
     {
         // Set id and wipe data
         $this->_id = $id;
@@ -471,8 +477,8 @@ class EditModel extends BaseDatabaseModel
                     $db = $this->getDatabase();
                     $query = $db->getQuery(true)
                         ->select(['content.id', 'content.modified_by', 'content.version', 'content.hits', 'content.catid'])
-                        ->from($db->quoteName('#__contentbuilderng_articles', 'articles'))
-                        ->innerJoin($db->quoteName('#__content', 'content') . ' ON content.id = articles.article_id')
+                        ->from($db->quoteName('#__contentbuilderng_articles') . ' AS ' . $db->quoteName('articles'))
+                        ->innerJoin($db->quoteName('#__content') . ' AS ' . $db->quoteName('content') . ' ON content.id = articles.article_id')
                         ->where('(content.state = 1 OR content.state = 0)')
                         ->where($db->quoteName('articles.form_id') . ' = ' . (int)$this->_id)
                         ->where($db->quoteName('articles.record_id') . ' = ' . $db->quote($this->_record_id));
@@ -647,9 +653,9 @@ class EditModel extends BaseDatabaseModel
                                         $rec->recValue = $user->name;
                                     } else
                                         if ($data->registration_username_field == $rec->recElementId) {
-                                        $item->recValue = $user->username;
+                                        $rec->recValue = $user->username;
                                     } else
-                                            if ($data->registration_email_field == $item->recElementId) {
+                                            if ($data->registration_email_field == $rec->recElementId) {
                                         $rec->recValue = $user->email;
                                     } else
                                                 if ($data->registration_email_repeat_field == $rec->recElementId) {
@@ -815,14 +821,14 @@ var contentbuilderng = new function(){
         return null;
     }
 
-    public static function customValidate($code, $field, $fields, $record_id, $form, $value)
+    public static function customValidate(string $code, $field, $fields, $record_id, $form, $value)
     {
         $msg = '';
         eval($code);
         return $msg;
     }
 
-    public static function customAction($code, $record_id, $article_id, $form, $field, $fields, array $values)
+    public static function customAction(string $code, $record_id, $article_id, $form, $field, $fields, array $values)
     {
         $msg = '';
         eval($code);
@@ -881,7 +887,7 @@ var contentbuilderng = new function(){
 
         PluginHelper::importPlugin('contentbuilderng_submit');
         $session = $this->app->getSession();
-        $session->clear('cb_failed_values', 'com_contentbuilderng.' . $this->_id);
+        $session->remove('com_contentbuilderng.' . $this->_id . '.cb_failed_values');
         $this->app->getInput()->set('cb_submission_failed', 0);
 
         $query = $this->_buildQuery();
@@ -1359,7 +1365,7 @@ var contentbuilderng = new function(){
                                                 $uploaded = false;
                                                 $msg = Text::_('COM_CONTENTBUILDERNG_UPLOAD_FAILED');
                                             } else {
-                                                $uploaded = File::upload($src, $dest . '/' . $filename, false, true);
+                                                $uploaded = File::upload($src, $dest . '/' . $filename, false);
                                             }
 
                                             if (!$uploaded) {
@@ -1524,7 +1530,7 @@ var contentbuilderng = new function(){
                     $submit_before_result = $dispatcher->dispatch('onBeforeSubmit', new \Joomla\CMS\Event\GenericEvent('onBeforeSubmit', array($this->app->getInput()->getCmd('record_id', 0), $data->form, $values)));
 
                     if ($this->app->getInput()->get('cb_submission_failed', 0, 'string')) {
-                        $session->set('cb_failed_values', $values, 'com_contentbuilderng.' . $this->_id);
+                        $session->set('com_contentbuilderng.' . $this->_id . '.cb_failed_values', $values);
                         return $this->app->getInput()->getCmd('record_id', 0);
                     }
 
@@ -1556,7 +1562,7 @@ var contentbuilderng = new function(){
 
                             if (intval($user_id) > 0) {
 
-                                $session->set('cb_last_record_user_id', $user_id, 'com_contentbuilderng');
+                                $session->set('com_contentbuilderng.cb_last_record_user_id', $user_id);
 
                                 $data->form->saveRecordUserData(
                                     $record_return,
@@ -1605,7 +1611,7 @@ var contentbuilderng = new function(){
 
                                 if (intval($user_id) > 0) {
 
-                                    $session->set('cb_last_record_user_id', $user_id, 'com_contentbuilderng');
+                                    $session->set('com_contentbuilderng.cb_last_record_user_id', $user_id);
 
                                     $data->form->saveRecordUserData(
                                         $record_return,
@@ -1625,8 +1631,9 @@ var contentbuilderng = new function(){
 
                                     $_now = Factory::getDate();
 
-                                    $setup = $session->get($data->registration_bypass_plugin . $verification_name, '', 'com_contentbuilderng.verify.' . $data->registration_bypass_plugin . $verification_name);
-                                    $session->clear($data->registration_bypass_plugin . $verification_name, 'com_contentbuilderng.verify.' . $data->registration_bypass_plugin . $verification_name);
+                                    $verificationSessionKey = 'com_contentbuilderng.verify.' . $data->registration_bypass_plugin . $verification_name;
+                                    $setup = $session->get($verificationSessionKey, '');
+                                    $session->remove($verificationSessionKey);
                                     $___now = $_now->toSql();
 
                                     $this->getDatabase()->setQuery("
@@ -1787,7 +1794,7 @@ var contentbuilderng = new function(){
 
                     $permissionService = new PermissionService();
                     $full = $this->frontend ? $permissionService->authorizeFe('fullarticle') : $permissionService->authorize('fullarticle');
-                    $article_id = $this->app->bootComponent('com_contentbuilderng')->getContainer()->get(ArticleService::class)->createArticle($this->_id, $record_return, $data->items, $ids, $data->title_field, $data->form->getRecordMetadata($record_return), $config, $full, $this->frontend ? $data->limited_article_options_fe : $data->limited_article_options, $this->app->getInput()->get('cb_category_id', null, 'string'));
+                    $article_id = $this->getComponent()->getContainer()->get(ArticleService::class)->createArticle($this->_id, $record_return, $data->items, $ids, $data->title_field, $data->form->getRecordMetadata($record_return), $config, $full, $this->frontend ? $data->limited_article_options_fe : $data->limited_article_options, $this->app->getInput()->get('cb_category_id', null, 'string'));
 
                     if (isset($form_elements_objects)) {
                         foreach ($form_elements_objects as $form_elements_object) {
@@ -2072,7 +2079,16 @@ var contentbuilderng = new function(){
         return false;
     }
 
-    function register($bypass_plugin, $bypass_verification_name, $verification_id, $user_id, $the_name_field, $the_username_field, $the_email_field, $the_password_field)
+    private function register(
+        string $bypass_plugin,
+        string $bypass_verification_name,
+        string $verification_id,
+        int $user_id,
+        mixed $the_name_field,
+        mixed $the_username_field,
+        mixed $the_email_field,
+        mixed $the_password_field
+    ): int|false
     {
         if ($the_name_field === null || $the_email_field === null || $the_password_field === null || $the_username_field === null) {
             return 0;

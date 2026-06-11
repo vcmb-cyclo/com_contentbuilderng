@@ -224,7 +224,8 @@ class ConfigImportService
                         ->set($db->quoteName('params') . ' = ' . $db->quote(json_encode($params)))
                         ->where($db->quoteName('type') . ' = ' . $db->quote('component'))
                         ->where($db->quoteName('element') . ' = ' . $db->quote('com_contentbuilderng'));
-                    $db->setQuery($query)->execute();
+                    $db->setQuery($query);
+                    $db->execute();
                     $details[] = Text::_('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_PARAMS_UPDATED');
                     continue;
                 }
@@ -463,8 +464,9 @@ class ConfigImportService
             $query = $db->getQuery(true)
                 ->select([$db->quoteName('id'), $db->quoteName('name'), $db->quoteName('bytable')])
                 ->from($db->quoteName('#__contentbuilderng_storages'))
-                ->where($db->quoteName('name') . ' = ' . $db->quote($sourceStorageName));
-            $db->setQuery($query, 0, 1);
+                ->where($db->quoteName('name') . ' = ' . $db->quote($sourceStorageName))
+                ->setLimit(1);
+            $db->setQuery($query);
             $storage = (array) $db->loadAssoc();
 
             $storageName = trim((string) ($storage['name'] ?? ''));
@@ -497,7 +499,9 @@ class ConfigImportService
         }
 
         if ($importMode === self::MODE_REPLACE) {
-            $db->setQuery($db->getQuery(true)->delete($db->quoteName($tableAlias)))->execute();
+            $deleteQuery = $db->getQuery(true)->delete($db->quoteName($tableAlias));
+            $db->setQuery($deleteQuery);
+            $db->execute();
         }
 
         $imported = 0;
@@ -523,8 +527,12 @@ class ConfigImportService
                 if ($importMode === self::MODE_MERGE && $hasIdColumn && array_key_exists('id', $filtered)) {
                     $rowId = (int) $filtered['id'];
                     if ($rowId > 0) {
-                        $existsQuery = $db->getQuery(true)->select('1')->from($db->quoteName($tableAlias))->where($db->quoteName('id') . ' = ' . $rowId);
-                        $db->setQuery($existsQuery, 0, 1);
+                        $existsQuery = $db->getQuery(true)
+                            ->select('1')
+                            ->from($db->quoteName($tableAlias))
+                            ->where($db->quoteName('id') . ' = ' . $rowId)
+                            ->setLimit(1);
+                        $db->setQuery($existsQuery);
                         $exists = (int) $db->loadResult() === 1;
 
                         if ($exists) {
@@ -539,7 +547,8 @@ class ConfigImportService
                             }
                             if ($setCount > 0) {
                                 $updateQuery->where($db->quoteName('id') . ' = ' . $rowId);
-                                $db->setQuery($updateQuery)->execute();
+                                $db->setQuery($updateQuery);
+                                $db->execute();
                             }
                             $imported++;
                             continue;
@@ -555,7 +564,8 @@ class ConfigImportService
                     $values[] = $value === null ? 'NULL' : $db->quote((string) $value);
                 }
                 $insertQuery->values(implode(',', $values));
-                $db->setQuery($insertQuery)->execute();
+                $db->setQuery($insertQuery);
+                $db->execute();
                 $imported++;
             } catch (\Throwable $e) {
                 throw new \RuntimeException(
@@ -755,7 +765,11 @@ class ConfigImportService
         if ($ids === []) {
             return;
         }
-        $db->setQuery($db->getQuery(true)->delete($db->quoteName($tableAlias))->where($db->quoteName($columnName) . ' IN (' . implode(',', $ids) . ')'))->execute();
+        $query = $db->getQuery(true)
+            ->delete($db->quoteName($tableAlias))
+            ->where($db->quoteName($columnName) . ' IN (' . implode(',', $ids) . ')');
+        $db->setQuery($query);
+        $db->execute();
     }
 
     private function findRowIdByColumns(DatabaseInterface $db, string $tableAlias, array $columnValues): int
@@ -767,7 +781,8 @@ class ConfigImportService
         foreach ($columnValues as $columnName => $value) {
             $query->where($db->quoteName($columnName) . ' = ' . ($value === null ? 'NULL' : $db->quote((string) $value)));
         }
-        $db->setQuery($query, 0, 1);
+        $query->setLimit(1);
+        $db->setQuery($query);
         return (int) $db->loadResult();
     }
 
@@ -777,7 +792,8 @@ class ConfigImportService
         foreach ($columnValues as $columnName => $value) {
             $query->where($db->quoteName($columnName) . ' = ' . ($value === null ? 'NULL' : $db->quote((string) $value)));
         }
-        $db->setQuery($query, 0, 1);
+        $query->setLimit(1);
+        $db->setQuery($query);
         $row = $db->loadAssoc();
         return is_array($row) ? $row : [];
     }
@@ -869,7 +885,8 @@ class ConfigImportService
             return;
         }
         $query->where($db->quoteName('id') . ' = ' . $id);
-        $db->setQuery($query)->execute();
+        $db->setQuery($query);
+        $db->execute();
     }
 
     private function updateRowByColumns(DatabaseInterface $db, string $tableAlias, array $columnValues, array $row): void
@@ -889,7 +906,8 @@ class ConfigImportService
         foreach ($columnValues as $columnName => $value) {
             $query->where($db->quoteName($columnName) . ' = ' . ($value === null ? 'NULL' : $db->quote((string) $value)));
         }
-        $db->setQuery($query)->execute();
+        $db->setQuery($query);
+        $db->execute();
     }
 
     private function insertRow(DatabaseInterface $db, string $tableAlias, array $row): int
@@ -905,7 +923,8 @@ class ConfigImportService
             $values[] = $value === null ? 'NULL' : $db->quote((string) $value);
         }
         $query->values(implode(',', $values));
-        $db->setQuery($query)->execute();
+        $db->setQuery($query);
+        $db->execute();
         return (int) $db->insertid();
     }
 }

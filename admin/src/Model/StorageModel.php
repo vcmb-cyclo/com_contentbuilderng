@@ -167,7 +167,6 @@ class StorageModel extends AdminModel
         $this->option = 'com_contentbuilderng';
     }
 
-    #[\Override]
     public function getTable($type = 'Storage', $prefix = 'Administrator', $config = [])
     {
         // Méthode moderne via MVCFactory du composant
@@ -188,11 +187,11 @@ class StorageModel extends AdminModel
         return $table;
     }
 
-
-    #[\Override]
     public function getForm($data = [], $loadData = true)
     {
-        $form = $this->loadForm(
+        // Intelephense may not resolve inherited AdminModel::loadForm() in this workspace.
+        $loadForm = 'loadForm';
+        $form = $this->{$loadForm}(
             $this->option . '.storage',
             'storage',
             ['control' => 'jform', 'load_data' => $loadData]
@@ -985,7 +984,7 @@ class StorageModel extends AdminModel
     }
 
 
-    function storeCsv($file, ?int $storageId = null)
+    public function storeCsv(array $file, ?int $storageId = null): bool
     {
         $this->lastImportSummary = [];
         $start = microtime(true);
@@ -1034,7 +1033,7 @@ class StorageModel extends AdminModel
         }
 
         $dest = JPATH_SITE . '/tmp/' . md5(mt_rand(0, mt_getrandmax())) . '_' . $file['name'];
-        $uploaded = File::upload($file['tmp_name'], $dest, false, true);
+        $uploaded = File::upload($file['tmp_name'], $dest, false);
 
         if (!$uploaded) {
             $this->setError('Could not upload the import file to tmp');
@@ -1236,7 +1235,7 @@ class StorageModel extends AdminModel
         }
 
         $dest = JPATH_SITE . '/tmp/' . md5(mt_rand(0, mt_getrandmax())) . '_' . $safeName;
-        $uploaded = File::upload((string) $file['tmp_name'], $dest, false, true);
+        $uploaded = File::upload((string) $file['tmp_name'], $dest, false);
         if (!$uploaded) {
             return [];
         }
@@ -1296,7 +1295,10 @@ class StorageModel extends AdminModel
         return $normalized;
     }
 
-    function utf8_fopen_read($fileName, $encoding)
+    /**
+     * @return resource|false
+     */
+    private function utf8_fopen_read(string $fileName, string $encoding)
     {
         $fc = iconv($encoding, 'UTF-8//TRANSLIT', file_get_contents($fileName));
         $handle = fopen("php://memory", "rw");
@@ -1320,7 +1322,7 @@ class StorageModel extends AdminModel
     }
 
 
-    function csv_file_to_table($source_file, $data, $max_line_length = 1000000)
+    private function csv_file_to_table(string $source_file, array $data, int $max_line_length = 1000000): int|string
     {
 
         $encoding = $this->resolveCsvRepairEncoding(
@@ -1440,7 +1442,7 @@ class StorageModel extends AdminModel
         return $this->storageId;
     }
 
-    function quote_all_array($values)
+    private function quote_all_array(array $values): array
     {
         foreach ($values as $key => $value)
             if (is_array($value))
@@ -1450,7 +1452,7 @@ class StorageModel extends AdminModel
         return $values;
     }
 
-    function quote_all($value)
+    private function quote_all(mixed $value): string
     {
         if (is_null($value))
             return "''";

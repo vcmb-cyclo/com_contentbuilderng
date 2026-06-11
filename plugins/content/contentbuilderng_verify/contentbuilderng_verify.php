@@ -165,8 +165,9 @@ class plgContentContentbuilderng_verify extends CMSPlugin implements SubscriberI
 
                     $plugin_settings = 'return-site=' . ($return_site ? base64_encode($return_site) : '') . '&return-admin=' . ($return_admin ? base64_encode($return_admin) : '') . '&client=' . ($this->app->isClient('site') ? 0 : 1) . '&plugin=' . $plugin . '&verification_msg=' . urlencode($verification_msg) . '&verification_name=' . urlencode($verification_name) . '&verify_view=' . $verify_view . '&verify_levels=' . $verify_levels . '&require_view=' . $require_view . '&plugin_options=' . base64_encode($this->buildStr($plugin_options));
 
-                    $this->app->getSession()->clear($plugin . $verification_name, 'com_contentbuilderng.verify.' . $plugin . $verification_name);
-                    $this->app->getSession()->set($plugin . $verification_name, $plugin_settings, 'com_contentbuilderng.verify.' . $plugin . $verification_name);
+                    $verificationSessionKey = 'com_contentbuilderng.verify.' . $plugin . $verification_name;
+                    $this->app->getSession()->remove($verificationSessionKey);
+                    $this->app->getSession()->set($verificationSessionKey, $plugin_settings);
 
                     $link = Uri::root(true) . '/index.php?option=com_contentbuilderng&view=verify&plugin=' . urlencode($plugin) . '&verification_name=' . urlencode($verification_name) . '&format=raw';
                     PluginHelper::importPlugin('contentbuilderng_verify', $plugin);

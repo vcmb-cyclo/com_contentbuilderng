@@ -691,10 +691,11 @@ class TemplateRenderService
         $app = $this->getApp();
         $session = $app->getSession();
 
-        $failedValues = $session->get('cb_failed_values', null, 'com_contentbuilderng.' . $contentbuilderngFormId);
+        $failedValuesKey = 'com_contentbuilderng.' . $contentbuilderngFormId . '.cb_failed_values';
+        $failedValues = $session->get($failedValuesKey);
 
         if ($failedValues !== null) {
-            $session->clear('cb_failed_values', 'com_contentbuilderng.' . $contentbuilderngFormId);
+            $session->remove($failedValuesKey);
         }
 
         $db = $this->db;

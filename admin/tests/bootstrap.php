@@ -65,8 +65,8 @@ namespace Joomla\Database {
         {
             public function getPrefix(): string;
             public function getTableColumns(string $table, bool $type = true): array;
-            public function quoteName(string $name): string;
-            public function setQuery(string $query): void;
+            public function quoteName(array|string $name, array|string|null $as = null): array|string;
+            public function setQuery(QueryInterface|string $query): void;
             public function execute(): void;
         }
     }
@@ -414,6 +414,15 @@ namespace Joomla\CMS\MVC\Model {
         {
             /** @var string|array<int,string>|null */
             protected $error = null;
+
+            protected function populateState()
+            {
+            }
+
+            public function delete(&$pks)
+            {
+                return true;
+            }
 
             public function setError($error): void
             {

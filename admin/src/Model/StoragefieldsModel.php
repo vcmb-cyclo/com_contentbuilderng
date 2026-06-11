@@ -132,7 +132,7 @@ class StoragefieldsModel extends ListModel
         $db = $this->getDatabase();
         $query = $db->getQuery(true);
 
-        $query->select($db->quoteName([
+        $query->select(array_map([$db, 'quoteName'], [
             'id',
             'storage_id',
             'name',
@@ -244,7 +244,6 @@ class StoragefieldsModel extends ListModel
         return true;
     }
 
-    #[\Override]
     public function publish(array $pks, int $value = 1): bool
     {
         $pks = (array) $pks;

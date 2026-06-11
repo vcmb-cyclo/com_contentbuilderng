@@ -45,7 +45,7 @@ class ArticleService
         return (int) ($this->getApp()->getIdentity()->id ?? 0);
     }
 
-    public function createArticle($contentbuilderngFormId, $recordId, array $record, array $elementsAllowed, $titleField = '', $metadata = null, $config = [], $full = false, $limitedOptions = true, $menuCatId = null)
+    public function createArticle(int $contentbuilderngFormId, int $recordId, array $record, array $elementsAllowed, $titleField = '', $metadata = null, $config = [], $full = false, $limitedOptions = true, $menuCatId = null)
     {
         $app = $this->getApp();
         $input = $app->getInput();

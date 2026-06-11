@@ -17,13 +17,16 @@ namespace CB\Component\Contentbuilderng\Site\Model;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\Application\CMSWebApplication;
+use Joomla\CMS\Application\AdministratorApplication;
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\Registry\Registry;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Event\Content\ContentPrepareEvent;
+use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\MVC\Model\ListModel as BaseListModel;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PublishedRecordVisibilityHelper;
@@ -69,16 +72,18 @@ class ListModel extends BaseListModel
 
     private $_page_heading = '';
 
-    /** @var CMSWebApplication */
-    private $app;
+    private AdministratorApplication|SiteApplication $app;
 
-    function  __construct($config)
+    public function __construct(
+        array $config = [],
+        ?MVCFactoryInterface $factory = null
+    )
     {
-        parent::__construct($config);
+        parent::__construct($config, $factory);
 
-        /** @var CMSWebApplication $app */
+        /** @var AdministratorApplication|SiteApplication $app */
         $app = Factory::getApplication();
-        $container = $app->bootComponent('com_contentbuilderng')->getContainer();
+        $container = $this->getComponent()->getContainer();
         $this->app = $app;
         $this->listSupportService = $container->get(ListSupportService::class);
         $this->runtimeUtilityService = new RuntimeUtilityService();
@@ -270,7 +275,18 @@ class ListModel extends BaseListModel
         $app->getSession()->set($option . 'formsd_screen', $currentScreenKey);
     }
 
-    function setId($id)
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    public function setId(int $id): void
     {
         // Set id and wipe data
         $this->_id      = $id;
@@ -290,7 +306,7 @@ class ListModel extends BaseListModel
     #[\Override]
     protected function populateState($ordering = null, $direction = null)
     {
-        /** @var CMSWebApplication $app */
+        /** @var AdministratorApplication|SiteApplication $app */
         $app = $this->app;
         parent::populateState($ordering, $direction);
 
@@ -353,7 +369,7 @@ class ListModel extends BaseListModel
 
     private function getPaginationStateKeyPrefix(): string
     {
-        /** @var CMSWebApplication $app */
+        /** @var AdministratorApplication|SiteApplication $app */
         $app = $this->app;
         $option = 'com_contentbuilderng';
 
@@ -386,7 +402,7 @@ class ListModel extends BaseListModel
 
     private function getCurrentListScreenKey(): string
     {
-        /** @var CMSWebApplication $app */
+        /** @var AdministratorApplication|SiteApplication $app */
         $app = $this->app;
 
         $scope = $this->isDirectStorageMode()
@@ -449,7 +465,8 @@ class ListModel extends BaseListModel
             ])
             ->from($db->quoteName('#__contentbuilderng_storages'))
             ->where($db->quoteName('id') . ' = ' . (int) $storageId);
-        $db->setQuery($query, 0, 1);
+        $query->setLimit(1);
+        $db->setQuery($query);
         $storage = $db->loadObject();
 
         if (!$storage || (int) ($storage->bytable ?? 0) === 1) {
@@ -1145,7 +1162,10 @@ class ListModel extends BaseListModel
                     if ($data->list_language) {
                         $data->lang_codes = $recordMeta['lang_codes'];
                     }
-                    $data->languages = (Factory::getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(FormSupportService::class))->getLanguageCodes();
+                    $data->languages = $this->getComponent()
+                        ->getContainer()
+                        ->get(FormSupportService::class)
+                        ->getLanguageCodes();
 
                     // Search for the {readmore} tag and split the text up accordingly.
                     $pattern = '#<hr\s+id=("|\')system-readmore("|\')\s*\/*>#i';
@@ -1215,9 +1235,8 @@ class ListModel extends BaseListModel
     }
 
 
-    function startsWith($haystack, $needle)
+    private function startsWith(string $haystack, string $needle): bool
     {
-        $length = strlen($needle);
-        return (substr($haystack, 0, $length) === $needle);
+        return str_starts_with($haystack, $needle);
     }
 }
