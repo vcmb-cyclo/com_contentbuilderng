@@ -442,13 +442,13 @@ class ListModel extends BaseListModel
         $app->setUserState($paginationStateKey . '.start', 0);
 
         // Reset current form external filter state.
-        $session->clear('com_contentbuilderng.filter_signal.' . $this->_id);
-        $session->clear('com_contentbuilderng.filter.' . $this->_id);
-        $session->clear('com_contentbuilderng.calendar_filter_from.' . $this->_id);
-        $session->clear('com_contentbuilderng.calendar_filter_to.' . $this->_id);
-        $session->clear('com_contentbuilderng.calendar_formats.' . $this->_id);
-        $session->clear('com_contentbuilderng.filter_keywords.' . $this->_id);
-        $session->clear('com_contentbuilderng.filter_article_categories.' . $this->_id);
+        $session->remove('com_contentbuilderng.filter_signal.' . $this->_id);
+        $session->remove('com_contentbuilderng.filter.' . $this->_id);
+        $session->remove('com_contentbuilderng.calendar_filter_from.' . $this->_id);
+        $session->remove('com_contentbuilderng.calendar_filter_to.' . $this->_id);
+        $session->remove('com_contentbuilderng.calendar_formats.' . $this->_id);
+        $session->remove('com_contentbuilderng.filter_keywords.' . $this->_id);
+        $session->remove('com_contentbuilderng.filter_article_categories.' . $this->_id);
     }
 
     protected function loadDirectStorageDefinition(): object
@@ -795,13 +795,13 @@ class ListModel extends BaseListModel
 
                     if ($app->getInput()->getBool('filter_reset', false)) {
 
-                        $app->getSession()->clear('com_contentbuilderng.filter_signal.' . $this->_id);
-                        $app->getSession()->clear('com_contentbuilderng.filter.' . $this->_id);
-                        $app->getSession()->clear('com_contentbuilderng.calendar_filter_from.' . $this->_id);
-                        $app->getSession()->clear('com_contentbuilderng.calendar_filter_to.' . $this->_id);
-                        $app->getSession()->clear('com_contentbuilderng.calendar_formats.' . $this->_id);
-                        $app->getSession()->clear('com_contentbuilderng.filter_keywords.' . $this->_id);
-                        $app->getSession()->clear('com_contentbuilderng.filter_article_categories.' . $this->_id);
+                        $app->getSession()->remove('com_contentbuilderng.filter_signal.' . $this->_id);
+                        $app->getSession()->remove('com_contentbuilderng.filter.' . $this->_id);
+                        $app->getSession()->remove('com_contentbuilderng.calendar_filter_from.' . $this->_id);
+                        $app->getSession()->remove('com_contentbuilderng.calendar_filter_to.' . $this->_id);
+                        $app->getSession()->remove('com_contentbuilderng.calendar_formats.' . $this->_id);
+                        $app->getSession()->remove('com_contentbuilderng.filter_keywords.' . $this->_id);
+                        $app->getSession()->remove('com_contentbuilderng.filter_article_categories.' . $this->_id);
                     } else if (
                         (
                             $app->getSession()->get('com_contentbuilderng.filter_signal.' . $this->_id, false)
