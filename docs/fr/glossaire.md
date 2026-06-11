@@ -9,6 +9,11 @@ sorties de plugins.
 
 Contenu Joomla éventuellement créé et lié à un enregistrement ContentBuilder NG.
 
+## Audit
+
+Diagnostic de l'écran **À propos** qui recherche les problèmes de base, de menus, de
+collation, de plugins et de champs avant d'éventuelles réparations.
+
 ## Backend
 
 Administration Joomla.
@@ -90,6 +95,11 @@ Code PHP exécuté avant le rendu d'un template détail ou édition.
 État contrôlant la visibilité d'une vue ou d'un enregistrement. Les dates de début et
 de fin peuvent aussi intervenir.
 
+## Rating / évaluation
+
+Note attribuée à un enregistrement quand la vue l'autorise. Les valeurs agrégées sont
+mises en cache et exposées par l'API et le plugin `CBRating`.
+
 ## REPAIR DB
 
 Workflow de réparation proposé dans l'écran À propos après un audit.
@@ -101,6 +111,11 @@ Paramètre `fields[ressource]` limitant les champs et ressources d'une réponse 
 ## Stats
 
 Permission et endpoint donnant accès aux statistiques d'une vue.
+
+## Source / Type
+
+Origine des données d'une vue, identifiée par un `type` (par exemple
+`contentbuilderng` ou `breezingforms`) et une `reference_id`.
 
 ## Stockage interne
 

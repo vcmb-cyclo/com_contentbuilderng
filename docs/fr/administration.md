@@ -77,7 +77,7 @@ Checklist avant import :
 - [ ] encodage vérifié
 - [ ] option de suppression des données comprise
 
-> **TODO capture d'écran :** onglets Stockage, Informations et import de fichier.
+> 📷 *Capture à ajouter : onglets Stockage, Informations et import de fichier — `docs/fr/img/admin-stockage-edition.png`*
 
 ## Écran Vues
 
@@ -263,6 +263,8 @@ Cet écran est lié à une vue et gère les paramètres individuels :
 À vérifier : l'usage exact de chaque colonne dépend du workflow de vérification
 configuré dans la vue.
 
+<a id="plugins"></a>
+
 ## Gestion des plugins Joomla
 
 Le paquet installe plusieurs groupes de plugins. Leur activation se contrôle dans
@@ -304,7 +306,7 @@ Le plugin de vérification PayPal propose des identifiants de production, des
 identifiants de test et un mode Sandbox. La validité du workflow PayPal avec votre
 compte et les API PayPal actuelles est **À vérifier** avant toute utilisation réelle.
 
-> **TODO capture d'écran :** filtrage des plugins Joomla sur « ContentBuilder NG ».
+> 📷 *Capture à ajouter : filtrage des plugins Joomla sur « ContentBuilder NG » — `docs/fr/img/admin-plugins.png`*
 
 ## Écran À propos
 

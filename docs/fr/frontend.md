@@ -31,6 +31,8 @@ Selon la configuration, l'utilisateur peut :
 Les actions réellement visibles dépendent à la fois de la configuration d'affichage et
 des permissions calculées.
 
+> 📷 *Capture à ajouter : liste frontend avec barre de recherche, filtres et pagination — `docs/fr/img/frontend-liste.png`*
+
 ## Recherche et filtres
 
 Un champ doit être marqué **Inclus dans la recherche** pour être interrogé.

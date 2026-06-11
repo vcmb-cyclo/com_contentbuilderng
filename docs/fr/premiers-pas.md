@@ -16,7 +16,7 @@ Ce tutoriel crée une petite liste de contacts à partir d'un stockage interne.
 Le nom technique devient une table préfixée par Joomla. Évitez de le modifier après
 la mise en production.
 
-> **TODO capture d'écran :** création d'un stockage interne et ajout de champs.
+> 📷 *Capture à ajouter : création d'un stockage interne et ajout de champs — `docs/fr/img/premiers-pas-stockage.png`*
 
 ## 2. Créer une vue
 
@@ -73,8 +73,8 @@ Consultez [Permissions et ACL](permissions-acl.md) avant une ouverture publique.
 1. Ouvrez **Menus** dans Joomla.
 2. Créez un élément de menu.
 3. Choisissez un type ContentBuilder NG :
-   **Vue liste**, **Créer**, **Enregistrement**, **Dernier** ou
-   **Liste de vues publiques**.
+   **Vue liste**, **Détails de l'enregistrement**, **Créer un élément de menu**
+   (création/édition), **Dernier** ou **Liste de vues publiques**.
 4. Sélectionnez la vue.
 5. Conservez les options de menu sur « Utiliser la valeur par défaut » au départ.
 6. Publiez le menu.

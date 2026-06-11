@@ -2,6 +2,17 @@
 
 ContentBuilder NG combines Joomla groups with a permission matrix for each view.
 
+## Two ACL layers
+
+ContentBuilder NG layers two access-control levels:
+
+1. **The Joomla component ACL**, configured in **Components > ContentBuilder NG >
+   Options > Permissions** (standard Joomla tab). `access.xml` declares the actions
+   `core.manage`, `core.admin`, `contentbuilderng.manage`, and
+   `contentbuilderng.admin`. It controls who can administer the component.
+2. **The per-view permission matrix**, described below, which drives functional access
+   to data on the frontend and backend.
+
 ## Separate contexts
 
 Each view has separate **frontend** and **backend** permissions. Granting a backend

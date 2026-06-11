@@ -63,8 +63,17 @@ Depending on configuration, a list provides search, filters, sorting, pagination
 multi-selection, publishing, custom states, creation, editing, deletion, XLSX export,
 and preview links.
 
-Menu layouts include standard tables, cards, tiles, compact tables, and numbered
-custom layouts.
+Several list layouts are bundled and selectable on the menu item: `default` (standard
+table), `listcompact` (compact), `listcard` (cards), `listtiles` (tiles), plus
+`listone`, `listtwo`, and `listthree`. They can be overridden (see
+[Templates and customization](templates-customization.md)).
+
+### List states and selection
+
+When the matching options are enabled on the view, ContentBuilder NG stores per-record
+and per-user states in `#__contentbuilderng_list_states` and
+`#__contentbuilderng_list_records`. These support list actions (trash / restore) and
+multi-selection.
 
 ## Templates
 
@@ -83,3 +92,17 @@ plugin.
 The JSON API reuses view permissions, explicitly authorized fields, and visibility
 rules. It supports list and detail reads, record updates, statistics, ratings, and
 unique values. It does not bypass Joomla ACL.
+
+## Verification (verify)
+
+Some actions (view, create, edit) can require a prior verification step, with a
+validity period in days and a redirect URL. Plugins in the `contentbuilderng_verify`
+family (for example `passthrough` and `paypal`) handle this flow. Verifications are
+stored in `#__contentbuilderng_verifications` and per-user state in
+`#__contentbuilderng_users`. *To verify against your configuration.*
+
+## Rating
+
+Views can allow a rating per record (the `rating` action). Aggregated values are
+cached in `#__contentbuilderng_rating_cache` and exposed by the API
+(`action=rating`) and the rating content plugin.

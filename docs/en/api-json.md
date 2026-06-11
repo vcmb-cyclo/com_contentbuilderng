@@ -153,6 +153,20 @@ Parameters:
 
 Permissions: **API + List Access**. Both referenced fields must be API-authorized.
 
+Response:
+
+```json
+{
+  "success": true,
+  "messages": [],
+  "data": {
+    "code": 0,
+    "field_reference_id": "17",
+    "msg": ["Value A", "Value B"]
+  }
+}
+```
+
 ## Rating
 
 ```text
@@ -161,11 +175,14 @@ POST /index.php?option=com_contentbuilderng&task=api.display&id=3&action=rating&
 
 Permissions: **API + Rating**.
 
-Methods other than `POST` are refused. The rating level count comes from the view.
-The controller uses session and IP information to limit repeated votes.
+Methods other than `POST` are refused. The rating level count comes from the view
+(`rating_slots`). The controller uses session and IP information to limit repeated
+votes.
 
-The exact CSRF token requirements for an external caller are **To verify** in the
-target Joomla authentication context.
+> ⚠️ **Warning:** the `rating` action requires a valid **Joomla CSRF token**. The
+> controller calls `Session::checkToken` (in `post` or `get`) and returns a
+> `JINVALID_TOKEN` (403) error when the token is missing or invalid. An external caller
+> must therefore hold an authenticated Joomla session and send the form token.
 
 ## Statistics
 

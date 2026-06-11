@@ -157,6 +157,20 @@ Permissions : **API + List Access**.
 
 Les deux champs de référence doivent être autorisés par l'API.
 
+Réponse :
+
+```json
+{
+  "success": true,
+  "messages": [],
+  "data": {
+    "code": 0,
+    "field_reference_id": "17",
+    "msg": ["Valeur A", "Valeur B"]
+  }
+}
+```
+
 ## Évaluation
 
 ```text
@@ -166,11 +180,13 @@ POST /index.php?option=com_contentbuilderng&task=api.display&id=3&action=rating&
 Permissions : **API + Évaluation**.
 
 L'action refuse les méthodes autres que `POST`. Le nombre de niveaux dépend du
-paramètre d'évaluation de la vue. Le contrôleur utilise la session et l'adresse IP
-pour limiter les votes répétés.
+paramètre d'évaluation de la vue (`rating_slots`). Le contrôleur utilise la session et
+l'adresse IP pour limiter les votes répétés.
 
-Le mécanisme exact de jeton CSRF attendu pour un appel externe est **À vérifier** dans
-votre contexte d'authentification Joomla.
+> ⚠️ **Attention :** l'action `rating` exige un **jeton CSRF Joomla** valide. Le
+> contrôleur appelle `Session::checkToken` (en `post` ou `get`) et renvoie une erreur
+> `JINVALID_TOKEN` (403) si le jeton est absent ou invalide. Un appel externe doit donc
+> disposer d'une session Joomla authentifiée et transmettre le jeton de formulaire.
 
 ## Statistiques
 

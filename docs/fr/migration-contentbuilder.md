@@ -27,6 +27,13 @@ Le dépôt documente et implémente notamment :
 L'installateur ne fusionne pas deux tables non vides concurrentes. Ce cas nécessite
 une analyse manuelle.
 
+> 📷 *Capture à ajouter : journal de l'installateur après migration, avec les messages de reprise des tables — `docs/fr/img/migration-journal.png`*
+
+> ℹ️ **Note :** ce que **REPAIR DB** peut faire (mise à jour de schéma, normalisation
+> des dates et index, synchronisation des champs des vues liées à BreezingForms, etc.)
+> est détaillé dans le guide racine `MIGRATION_GUIDE.md`. Les opérations DDL sont
+> validées implicitement par MySQL/MariaDB : un `ROLLBACK` SQL ne les annule pas.
+
 ## Sauvegardes obligatoires
 
 Avant toute migration :

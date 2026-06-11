@@ -114,8 +114,18 @@ La liste affiche des enregistrements avec, selon la configuration :
 - export XLSX ;
 - liens de prévisualisation.
 
-Plusieurs layouts de menu existent : tableau standard, cartes, tuiles, compact et
-layouts personnalisés numérotés.
+Plusieurs layouts de liste sont livrés et sélectionnables sur l'élément de menu :
+`default` (tableau standard), `listcompact` (compact), `listcard` (cartes),
+`listtiles` (tuiles), ainsi que `listone`, `listtwo` et `listthree`. Ils sont
+surchargeables (voir [Templates et personnalisation](templates-personnalisation.md)).
+
+### États de liste et sélection
+
+Lorsque les options correspondantes sont activées sur la vue, ContentBuilder NG
+mémorise des états par enregistrement et par utilisateur dans
+`#__contentbuilderng_list_states` et `#__contentbuilderng_list_records`. Ils
+permettent par exemple des actions de liste (corbeille / restauration) et la
+sélection multiple.
 
 ## Templates
 
@@ -152,4 +162,19 @@ L'API JSON réutilise la configuration de la vue :
 - statistiques, évaluation et valeurs uniques.
 
 Elle n'est pas une API indépendante contournant l'ACL Joomla.
+
+## Vérification (verify)
+
+Certaines actions (voir, créer, éditer) peuvent exiger une étape de vérification
+préalable, avec une durée de validité en jours et une URL de redirection. Les plugins
+de la famille `contentbuilderng_verify` (par exemple `passthrough` et `paypal`)
+traitent ce flux. Les vérifications sont enregistrées dans
+`#__contentbuilderng_verifications` et l'état par utilisateur dans
+`#__contentbuilderng_users`. *À vérifier selon votre configuration.*
+
+## Évaluation (rating)
+
+Les vues peuvent autoriser une note par enregistrement (action `rating`). Les valeurs
+agrégées sont mises en cache dans `#__contentbuilderng_rating_cache` et exposées par
+l'API (`action=rating`) et le plugin de contenu d'évaluation.
 

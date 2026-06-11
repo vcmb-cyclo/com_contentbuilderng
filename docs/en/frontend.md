@@ -24,6 +24,8 @@ create, edit, delete, publish, or change state.
 Actions are visible only when both display configuration and calculated permissions
 allow them.
 
+> 📷 *Screenshot to add: frontend list with search bar, filters, and pagination — `docs/en/img/frontend-list.png`*
+
 ## Search and filters
 
 A field must be marked **Include in search** before it can be searched.

@@ -8,6 +8,11 @@ Field option permitting exposure through the API, statistics, and some plugin ou
 
 Joomla content optionally created and linked to a ContentBuilder NG record.
 
+## Audit
+
+Diagnostic on the **About** screen that scans database, menu, collation, plugin, and
+field issues before any repairs.
+
 ## Backend
 
 The Joomla administrator application.
@@ -86,6 +91,11 @@ PHP code executed before rendering a details or edit template.
 
 State controlling visibility of a view or record. Start and end dates can also apply.
 
+## Rating
+
+A score assigned to a record when the view allows it. Aggregated values are cached and
+exposed through the API and the `CBRating` plugin.
+
 ## REPAIR DB
 
 Repair workflow offered by the About screen after an audit.
@@ -97,6 +107,11 @@ Repair workflow offered by the About screen after an audit.
 ## Stats
 
 Permission and endpoint providing statistics for a view.
+
+## Source / Type
+
+The origin of a view's data, identified by a `type` (for example `contentbuilderng`
+or `breezingforms`) and a `reference_id`.
 
 ## Internal storage
 

@@ -16,7 +16,7 @@ This tutorial creates a small contacts list using internal storage.
 The technical name becomes a Joomla-prefixed table. Avoid changing it after
 production data exists.
 
-> **TODO screenshot:** creating internal storage and adding fields.
+> 📷 *Screenshot to add: creating internal storage and adding fields — `docs/en/img/getting-started-storage.png`*
 
 ## 2. Create a view
 
@@ -72,8 +72,8 @@ Read [Permissions and ACL](permissions-acl.md) before public deployment.
 
 1. Open Joomla **Menus**.
 2. Create a menu item.
-3. Select a ContentBuilder NG type: **List View**, **Create**, **Record Details**,
-   **Latest**, or **Public Views List**.
+3. Select a ContentBuilder NG type: **List View**, **Record Details**, **Create menu
+   item** (create/edit), **Latest**, or **Public Views List**.
 4. Select the view.
 5. Initially keep menu overrides set to their defaults.
 6. Publish the menu item.

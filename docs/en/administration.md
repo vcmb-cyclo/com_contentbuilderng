@@ -59,7 +59,7 @@ Import checklist:
 - [ ] encoding checked
 - [ ] delete-existing-data option understood
 
-> **TODO screenshot:** Storage, Information, and file import tabs.
+> 📷 *Screenshot to add: Storage, Information, and file import tabs — `docs/en/img/admin-storage-edit.png`*
 
 ## Views screen
 
@@ -199,6 +199,8 @@ publication of user access.
 The exact meaning of every column depends on the configured verification workflow:
 **To verify** for the target configuration.
 
+<a id="plugins"></a>
+
 ## Joomla plugin management
 
 The package installs several plugin groups. Enable and configure them from
@@ -234,7 +236,7 @@ plugin provides production credentials, test credentials, and Sandbox mode.
 Compatibility with the current PayPal account and APIs is **To verify** before live
 use.
 
-> **TODO screenshot:** filtering Joomla plugins by “ContentBuilder NG”.
+> 📷 *Screenshot to add: filtering Joomla plugins by "ContentBuilder NG" — `docs/en/img/admin-plugins.png`*
 
 ## About screen
 

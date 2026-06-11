@@ -18,25 +18,29 @@ Recommended workflow:
 
 ## Field variables
 
-Templates and email settings can use field variables. The language help documents
-forms such as:
+Templates and email settings reference fields by their technical name. The rendering
+service (`TemplateRenderService`) replaces the following placeholders:
 
 ```text
-{email}
-{first_name}
-{RECORD_ID}
+{fieldname:label}     the field label
+{fieldname:value}     the field value
+{value}               the raw value inside a column wrapper
+{value_inline}        the raw value inside an article wrapper
+{webpath fieldname}   absolute web path of an uploaded file
+{CBSite} / {cbsite}   the site root URL
+{hide-if-empty fieldname} ... {/hide}   hides a block when the field is empty
 ```
 
-The available variable name depends on the source field name. Use technical names
-that remain stable when labels are translated.
+Use technical field names that remain stable when labels are translated.
 
 ## Simple email example
 
 ```html
-<h2>New request</h2>
-<p>Name: {name}</p>
-<p>Email: {email}</p>
-<p>Record: {RECORD_ID}</p>
+<p>New request:</p>
+<p><strong>{name:label}</strong>: {name:value}</p>
+{hide-if-empty message}
+<p><strong>{message:label}</strong>: {message:value}</p>
+{/hide}
 ```
 
 Test both user and administrator templates and verify HTML/text mode.
@@ -92,12 +96,28 @@ installed plugin help and templates.
 
 ## Joomla overrides
 
-Use Joomla template overrides for component layout changes that should remain outside
-the extension package. Create overrides through the Joomla template manager where
-possible.
+Frontend layouts live in `site/tmpl/<view>/` in the source (installed under
+`components/com_contentbuilderng/tmpl/`). Use Joomla template overrides for component
+layout changes that should remain outside the extension package.
 
-The exact path proposed by Joomla's **Create Overrides** screen for each layout is
-**To verify** on the installed site.
+Bundled list layouts (the `list` view):
+
+- `default` (table);
+- `listcompact`;
+- `listcard`;
+- `listtiles`;
+- `listone`, `listtwo`, `listthree`.
+
+The standard Joomla override path is:
+
+```text
+templates/<your_template>/html/com_contentbuilderng/list/default.php
+```
+
+> ℹ️ **Note:** the Joomla **System > Site Templates > [your template] > Create
+> Overrides** screen lists the component views and copies the chosen layout to the
+> right location. The exact path depends on the view name (`list`, `details`, `edit`,
+> `latest`, `publicforms`) and the layout — *to verify* in your installation.
 
 ## Do not edit directly
 
@@ -122,5 +142,4 @@ plugin, or a maintained project patch instead.
 - review custom PHP after updates;
 - disable Debug after diagnosis.
 
-> **TODO screenshot:** generating a template example and opening the preparation
-> editor.
+> 📷 *Screenshot to add: generating a template example and opening the PHP preparation editor — `docs/en/img/templates-preparation.png`*

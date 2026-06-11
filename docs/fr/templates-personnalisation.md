@@ -36,15 +36,18 @@ Les templates générés utilisent des noms de champs. Les templates d'e-mail em
 notamment :
 
 ```text
-{nom:label}
-{nom:value}
-{hide-if-empty nom}
-{/hide}
+{nom:label}     le libellé du champ
+{nom:value}     la valeur du champ
+{value}         la valeur brute dans un wrapper de colonne
+{value_inline}  la valeur brute dans un wrapper d'article
+{webpath nom}   le chemin web absolu d'un fichier envoyé
+{CBSite} / {cbsite}   l'URL racine du site
+{hide-if-empty nom} ... {/hide}   masque un bloc si le champ est vide
 ```
 
-La syntaxe exacte disponible dans les templates détail et édition dépend du moteur de
-rendu et du type source. Utilisez les exemples générés pour votre vue comme référence
-prioritaire.
+Ces remplacements sont effectués par le service de rendu (`TemplateRenderService`).
+Utilisez les exemples générés pour votre vue comme référence prioritaire, car les
+champs disponibles dépendent de la source.
 
 ## Exemple simple d'e-mail
 
@@ -115,12 +118,29 @@ historiques utilisés sur votre site.
 
 ## Overrides Joomla
 
-Les layouts frontend se trouvent dans `site/tmpl` dans le dépôt source. Pour une
-personnalisation de site, préférez le mécanisme d'override du template Joomla lorsque
-le layout s'y prête, au lieu de modifier les fichiers installés du composant.
+Les layouts frontend se trouvent dans `site/tmpl/<vue>/` dans le dépôt source
+(installés sous `components/com_contentbuilderng/tmpl/`). Pour une personnalisation de
+site, préférez le mécanisme d'override du template Joomla lorsque le layout s'y prête,
+au lieu de modifier les fichiers installés du composant.
 
-À vérifier : le chemin exact proposé par l'écran Joomla **Créer des substitutions**
-selon le layout ContentBuilder NG choisi.
+Layouts de liste livrés (vue `list`) :
+
+- `default` (tableau) ;
+- `listcompact` ;
+- `listcard` ;
+- `listtiles` ;
+- `listone`, `listtwo`, `listthree`.
+
+Le chemin d'override Joomla standard est :
+
+```text
+templates/<votre_template>/html/com_contentbuilderng/list/default.php
+```
+
+> ℹ️ **Note :** l'écran Joomla **Système > Templates de site > [votre template] >
+> Créer des substitutions** liste les vues du composant et copie le layout choisi au
+> bon emplacement. Le chemin précis dépend du nom de la vue (`list`, `details`,
+> `edit`, `latest`, `publicforms`) et du layout — *à vérifier* dans votre installation.
 
 ## Ce qu'il ne faut pas modifier directement
 
@@ -147,5 +167,5 @@ Une mise à jour peut remplacer ces fichiers.
 - contrôlez le mode sombre si le thème Dark est utilisé ;
 - désactivez le Debug après validation.
 
-> **TODO capture d'écran :** génération d'un template exemple et éditeur de préparation.
+> 📷 *Capture à ajouter : génération d'un template exemple et éditeur de préparation PHP — `docs/fr/img/templates-preparation.png`*
 

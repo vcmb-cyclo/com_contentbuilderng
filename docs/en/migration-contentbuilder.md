@@ -26,6 +26,13 @@ The repository documents and implements:
 The installer does not merge two competing non-empty tables. That case requires
 manual analysis.
 
+> 📷 *Screenshot to add: installer log after migration, showing table migration messages — `docs/en/img/migration-log.png`*
+
+> ℹ️ **Note:** what **REPAIR DB** can do (schema updates, date and index
+> normalization, synchronizing fields of BreezingForms-linked views, and so on) is
+> detailed in the root `MIGRATION_GUIDE.md`. DDL operations are implicitly committed
+> by MySQL/MariaDB: a SQL `ROLLBACK` will not undo them.
+
 ## Required backups
 
 Before migration, create:
