@@ -79,7 +79,6 @@ Recherchez les liens contenant :
 
 ```text
 option=com_contentbuilder
-option=com_contentbuilder_ng
 ```
 
 et remplacez-les par `option=com_contentbuilderng` si l'installateur ne les a pas
@@ -184,4 +183,3 @@ environnement attendu, mais la matrice exacte de versions n'est pas documentée 
 8. vérifier la publication, la langue et les filtres ;
 9. relancer l'audit ;
 10. reproduire sur une copie avant toute réparation SQL.
-

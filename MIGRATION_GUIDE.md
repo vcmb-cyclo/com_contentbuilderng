@@ -13,7 +13,7 @@ uniquement au diagnostic ou à la reprise après échec.
 - Joomla 6.0 ou supérieur.
 - PHP 8.1 ou supérieur.
 - MySQL ou MariaDB, comme prévu par le manifeste du composant.
-- Migration depuis les noms historiques `contentbuilder` et `contentbuilder_ng`.
+- Migration depuis le nom historique `contentbuilder`.
 - Migration d'une version antérieure de `com_contentbuilderng`.
 
 Une migration directe sur le site de production est déconseillée. Effectuez d'abord
@@ -45,8 +45,8 @@ Pendant l'installation ou la mise à jour, ContentBuilder NG :
 
 1. vérifie les versions de Joomla et PHP ainsi que l'écriture des fichiers existants ;
 2. désactive les anciens plugins ContentBuilder avant de charger le nouveau code ;
-3. détecte et renomme les tables `#__contentbuilder_*` ou
-   `#__contentbuilder_ng_*` en `#__contentbuilderng_*` ;
+3. détecte et renomme les tables `#__contentbuilder_*` en
+   `#__contentbuilderng_*` ;
 4. migre les entrées du composant dans `#__extensions`, les assets et les liens de
    menus vers `com_contentbuilderng` ;
 5. normalise les anciennes valeurs de type stockées dans les tables ContentBuilder ;
@@ -119,7 +119,6 @@ WHERE type = 'component'
   AND element IN (
     'contentbuilder',
     'com_contentbuilder',
-    'com_contentbuilder_ng',
     'com_contentbuilderng'
   )
 ORDER BY extension_id;
@@ -205,7 +204,6 @@ Recherchez les références suivantes dans vos personnalisations :
 
 ```text
 option=com_contentbuilder
-option=com_contentbuilder_ng
 ```
 
 La cible actuelle est :

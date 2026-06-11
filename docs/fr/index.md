@@ -1,5 +1,7 @@
 # Documentation utilisateur de ContentBuilder NG
 
+[English documentation](../en/index.md)
+
 ContentBuilder NG est un composant Joomla 6 permettant de construire des applications
 de données configurables : formulaires, listes, fiches détail, édition, permissions,
 articles Joomla, notifications, exports et API JSON.
@@ -86,4 +88,3 @@ Utilisez-le pour :
 
 > **TODO capture d'écran :** page d'accueil de ContentBuilder NG dans
 > l'administration Joomla 6.
-

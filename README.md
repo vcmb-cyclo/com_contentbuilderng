@@ -39,6 +39,7 @@ Only **GitHub Releases** should be considered stable and suitable for production
 ## Documentation
 
 - **[Documentation utilisateur en français](docs/fr/index.md)**
+- **[English user documentation](docs/en/index.md)**
 - **[Administrator Migration Guide](MIGRATION_GUIDE.md)**
 - **[Testing Guide](TESTING.md)**
 

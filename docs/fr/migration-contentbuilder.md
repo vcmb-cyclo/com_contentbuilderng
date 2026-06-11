@@ -13,8 +13,8 @@ supprimer les données nécessaires.
 
 Le dépôt documente et implémente notamment :
 
-- le renommage des tables `#__contentbuilder_*` et
-  `#__contentbuilder_ng_*` vers `#__contentbuilderng_*` ;
+- le renommage des tables `#__contentbuilder_*` vers
+  `#__contentbuilderng_*` ;
 - la normalisation des entrées d'extension et de menus ;
 - la normalisation des types de source historiques ;
 - la mise à jour du schéma, des dates, index et colonnes attendues ;
@@ -62,7 +62,6 @@ Remplacez :
 
 ```text
 option=com_contentbuilder
-option=com_contentbuilder_ng
 ```
 
 par :
@@ -161,4 +160,3 @@ Une ancienne intégration qui lisait tous les champs doit être adaptée.
 
 Pour la procédure de reprise et de rollback détaillée, le dépôt contient également le
 guide administrateur racine `MIGRATION_GUIDE.md`.
-
