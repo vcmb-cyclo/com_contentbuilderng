@@ -24,6 +24,7 @@ class ListSupportService
                 'state_titles' => [],
                 'published_items' => [],
                 'lang_codes' => [],
+                'cb_record_ids' => [],
             ];
         }
 
@@ -35,6 +36,7 @@ class ListSupportService
             'state_titles' => [],
             'published_items' => [],
             'lang_codes' => [],
+            'cb_record_ids' => [],
         ];
 
         $db->setQuery(
@@ -55,7 +57,7 @@ class ListSupportService
 
         if ($referenceId) {
             $db->setQuery(
-                'Select records.published, records.lang_code, records.record_id'
+                'Select records.id, records.published, records.lang_code, records.record_id'
                 . ' From #__contentbuilderng_records As records'
                 . ' Where `type` = ' . $db->quote($type)
                 . ' And reference_id = ' . $db->quote($referenceId)
@@ -65,10 +67,29 @@ class ListSupportService
             foreach ((array) $db->loadAssocList() as $row) {
                 $meta['published_items'][$row['record_id']] = $row['published'];
                 $meta['lang_codes'][$row['record_id']] = $row['lang_code'];
+                $meta['cb_record_ids'][$row['record_id']] = (int) $row['id'];
             }
         }
 
         return $meta;
+    }
+
+    public function getInternalRecordId(string $type, $referenceId, $recordId): int
+    {
+        if ($type === '' || !$referenceId || $recordId === null || $recordId === '') {
+            return 0;
+        }
+
+        $query = $this->db->getQuery(true)
+            ->select($this->db->quoteName('id'))
+            ->from($this->db->quoteName('#__contentbuilderng_records'))
+            ->where($this->db->quoteName('type') . ' = ' . $this->db->quote($type))
+            ->where($this->db->quoteName('reference_id') . ' = ' . $this->db->quote($referenceId))
+            ->where($this->db->quoteName('record_id') . ' = ' . $this->db->quote($recordId));
+
+        $this->db->setQuery($query);
+
+        return (int) $this->db->loadResult();
     }
 
     public function getListSearchableElements(int $formId): array

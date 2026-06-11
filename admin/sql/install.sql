@@ -244,6 +244,13 @@ CREATE TABLE IF NOT EXISTS `#__contentbuilderng_elements`
 --
 -- -- Publish --
 --   published                       1 = view is active; 0 = disabled.
+--   debug_mode                      1 = enable view-specific frontend debugging.
+--   debug_show_bf_id                1 = show the BreezingForms record ID column.
+--   debug_enable_logs               1 = write a CBNG entry for frontend requests.
+--   debug_show_request_logs         1 = show CBNG entries from the current request.
+--   debug_show_permissions          1 = show resolved frontend permissions.
+--   debug_show_filters              1 = show active frontend filters.
+--   debug_show_cb_id                1 = show the internal CBNG record ID.
 --   ordering                        Display order in the admin forms list.
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__contentbuilderng_forms`
@@ -297,6 +304,13 @@ CREATE TABLE IF NOT EXISTS `#__contentbuilderng_forms`
     `default_lang_code_ignore`            tinyint(1)   NOT NULL DEFAULT '0',
     `create_articles`                     tinyint(1)   NOT NULL DEFAULT '1',
     `published`                           tinyint(1)   NOT NULL DEFAULT '0',
+    `debug_mode`                          tinyint(1)   NOT NULL DEFAULT '0',
+    `debug_show_bf_id`                    tinyint(1)   NOT NULL DEFAULT '0',
+    `debug_enable_logs`                   tinyint(1)   NOT NULL DEFAULT '0',
+    `debug_show_request_logs`             tinyint(1)   NOT NULL DEFAULT '0',
+    `debug_show_permissions`              tinyint(1)   NOT NULL DEFAULT '0',
+    `debug_show_filters`                  tinyint(1)   NOT NULL DEFAULT '0',
+    `debug_show_cb_id`                    tinyint(1)   NOT NULL DEFAULT '0',
     `initial_sort_order`                  varchar(255) COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-1',
     `initial_sort_order2`                 varchar(255) COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-1',
     `initial_sort_order3`                 varchar(255) COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-1',

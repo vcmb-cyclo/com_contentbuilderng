@@ -23,7 +23,7 @@ use CB\Component\Contentbuilderng\Site\Model\EditModel;
 use CB\Component\Contentbuilderng\Site\Model\ListModel;
 use CB\Component\Contentbuilderng\Site\Service\SparseFieldsetService;
 use CB\Component\Contentbuilderng\Site\Service\StatsService;
-use Joomla\CMS\Application\CMSApplicationInterface;
+use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
@@ -532,13 +532,14 @@ class ApiController extends BaseController
             . " And `ip` = " . $db->quote($clientIp)
         );
         $cached = $db->loadResult();
-        $rated = $this->siteApp->getSession()->get('rated' . $formId . $recordId, false, 'com_contentbuilderng.rating');
+        $ratingSessionKey = 'com_contentbuilderng.rating.rated' . $formId . $recordId;
+        $rated = $this->siteApp->getSession()->get($ratingSessionKey, false);
 
         if ($rated || $cached) {
             return ['code' => 1, 'msg' => Text::_('COM_CONTENTBUILDERNG_RATED_ALREADY')];
         }
 
-        $this->siteApp->getSession()->set('rated' . $formId . $recordId, true, 'com_contentbuilderng.rating');
+        $this->siteApp->getSession()->set($ratingSessionKey, true);
 
         $db->setQuery(
             "Update #__contentbuilderng_records"

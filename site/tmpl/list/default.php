@@ -19,9 +19,11 @@ use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Session\Session;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Helper\RatingHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
@@ -77,8 +79,7 @@ $previewActorId = $input->getInt('cb_preview_actor_id', 0);
 $previewActorName = (string) $input->getString('cb_preview_actor_name', '');
 $previewUserId = $input->getInt('cb_preview_user_id', 0);
 $isAdminPreview = $input->getBool('cb_preview_ok', false);
-$joomlaDebug    = defined('JDEBUG') && JDEBUG;
-$isBfLinked     = $isAdminPreview && $joomlaDebug
+$isBfLinked     = !empty($this->debug_mode) && !empty($this->debug_show_bf_id)
     && in_array($this->source_type ?? '', ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true)
     && ($this->source_reference_id ?? 0) > 0;
 $currentUser = $app->getIdentity();
@@ -1738,6 +1739,49 @@ CSS
 		</h1>
 	</div>
 <?php endif; ?>
+	<?php if (!empty($this->debug_mode)): ?>
+		<div class="mb-3">
+			<span class="badge text-bg-danger fs-6 px-3 py-2">
+				<span class="fa-solid fa-bug me-1" aria-hidden="true"></span><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_BADGE'); ?>
+			</span>
+		</div>
+		<?php
+		$debugPermissions = [
+			'view' => $view_allowed,
+			'new' => $new_allowed,
+			'edit' => $edit_allowed,
+			'delete' => $delete_allowed,
+			'state' => $state_allowed,
+			'publish' => $publish_allowed,
+			'language' => $language_allowed,
+			'rating' => $rating_allowed,
+		];
+		$debugFilters = [
+			'search' => (string) ($state?->get('formsd_filter') ?? ''),
+			'state' => (int) ($state?->get('formsd_filter_state') ?? 0),
+			'published' => (int) ($state?->get('formsd_filter_publish') ?? -1),
+			'language' => (string) ($state?->get('formsd_filter_language') ?? ''),
+			'ordering' => $listState['ordering'],
+			'direction' => $listState['direction'],
+			'limit' => $listState['limit'],
+			'start' => $listState['start'],
+		];
+		if (!empty($this->debug_enable_logs)) {
+			Logger::info('Frontend list debug request', [
+				'formId' => (int) ($this->form_id ?? 0),
+				'total' => (int) ($this->total ?? 0),
+			]);
+		}
+		echo LayoutHelper::render('contentbuilderng.debug_panel', [
+			'showPermissions' => !empty($this->debug_show_permissions),
+			'permissions' => $debugPermissions,
+			'showFilters' => !empty($this->debug_show_filters),
+			'filters' => $debugFilters,
+			'showLogs' => !empty($this->debug_enable_logs) && !empty($this->debug_show_request_logs),
+			'logs' => Logger::getRequestEntries(),
+		]);
+		?>
+	<?php endif; ?>
 	<?php if ($isAdminPreview || $directStorageMode): ?>
 			<div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
 				<span>
@@ -1766,9 +1810,6 @@ CSS
 	                <?php endif; ?>
                 <?php if ($showPreviewSessionBadge): ?>
                     <span class="badge text-bg-secondary ms-1">Session: <?php echo htmlspecialchars($currentSessionLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-                <?php endif; ?>
-                <?php if ($joomlaDebug): ?>
-                    <span class="badge text-bg-danger ms-1"><span class="fa-solid fa-bug me-1" aria-hidden="true"></span>Debug</span>
                 <?php endif; ?>
 				<?php if (!$directStorageMode) : ?>
 					<span class="cb-preview-config-help" title="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" tabindex="0">
@@ -2275,6 +2316,9 @@ by this block. -->
 
 							<div class="cb-list-card-meta">
 								<span class="cb-list-card-badge">#<?php echo (int) $row->colRecord; ?></span>
+								<?php if (!empty($this->debug_show_cb_id)) : ?>
+									<span class="cb-list-card-badge">CBNG #<?php echo (int) ($this->cb_record_ids[$row->colRecord] ?? 0); ?></span>
+								<?php endif; ?>
 								<?php if ($this->list_state && ($hasStateControl || $hasStaticStateBadge)) : ?>
 									<?php if ($hasStateControl && !$isTilesVariant) : ?>
 										<?php $currentStateTitle = $this->state_titles[$row->colRecord] ?? ''; ?>
@@ -2445,6 +2489,9 @@ by this block. -->
 					<?php if ($isBfLinked): ?>
 						<th class="table-light text-muted" width="5" title="BreezingForms Record ID">BF</th>
 					<?php endif; ?>
+					<?php if (!empty($this->debug_show_cb_id)): ?>
+						<th class="table-light text-muted" width="5"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_CB_ID_COLUMN'); ?></th>
+					<?php endif; ?>
 					<?php
 						if ($showPreviewLink && ($view_allowed || $this->own_only)) {
 						?>
@@ -2588,6 +2635,9 @@ by this block. -->
 								<?php echo (int) $row->colRecord; ?>
 							</a>
 						</td>
+					<?php endif; ?>
+					<?php if (!empty($this->debug_show_cb_id)): ?>
+						<td class="text-muted small hidden-phone"><?php echo (int) ($this->cb_record_ids[$row->colRecord] ?? 0); ?></td>
 					<?php endif; ?>
 					<?php
 					if ($showPreviewLink && ($view_allowed || $hasOwnerViewRule)) {

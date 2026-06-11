@@ -636,6 +636,13 @@ class FormModel extends AdminModel
             $data->show_back_button = 1;
             $data->cb_filter_in_title = 0;
             $data->cb_prefix_in_title = 0;
+            $data->debug_mode = 0;
+            $data->debug_show_bf_id = 0;
+            $data->debug_enable_logs = 0;
+            $data->debug_show_request_logs = 0;
+            $data->debug_show_permissions = 0;
+            $data->debug_show_filters = 0;
+            $data->debug_show_cb_id = 0;
             $data->email_template = '';
             $data->email_subject = '';
             $data->email_alternative_from = '';
@@ -750,6 +757,20 @@ class FormModel extends AdminModel
 
         if (!isset($data->cb_prefix_in_title)) {
             $data->cb_prefix_in_title = 0;
+        }
+
+        if (!isset($data->debug_mode)) {
+            $data->debug_mode = 0;
+        }
+
+        if (!isset($data->debug_show_bf_id)) {
+            $data->debug_show_bf_id = 0;
+        }
+
+        foreach (['debug_enable_logs', 'debug_show_request_logs', 'debug_show_permissions', 'debug_show_filters', 'debug_show_cb_id'] as $debugField) {
+            if (!isset($data->$debugField)) {
+                $data->$debugField = 0;
+            }
         }
 
         $data->forms = array();
@@ -979,6 +1000,13 @@ class FormModel extends AdminModel
             'show_back_button',
             'cb_filter_in_title',
             'cb_prefix_in_title',
+            'debug_mode',
+            'debug_show_bf_id',
+            'debug_enable_logs',
+            'debug_show_request_logs',
+            'debug_show_permissions',
+            'debug_show_filters',
+            'debug_show_cb_id',
             'metadata',
             'export_xls',
             'print_button',

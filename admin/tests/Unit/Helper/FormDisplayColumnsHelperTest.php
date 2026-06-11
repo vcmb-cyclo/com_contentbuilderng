@@ -26,6 +26,13 @@ final class FormDisplayColumnsHelperTest extends TestCase
             'show_back_button' => 'TINYINT(1) NOT NULL DEFAULT 1',
             'cb_filter_in_title' => 'TINYINT(1) NOT NULL DEFAULT 0',
             'cb_prefix_in_title' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_mode' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_show_bf_id' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_enable_logs' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_show_request_logs' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_show_permissions' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_show_filters' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_show_cb_id' => 'TINYINT(1) NOT NULL DEFAULT 0',
         ], FormDisplayColumnsHelper::requiredColumns());
     }
 
@@ -49,7 +56,7 @@ final class FormDisplayColumnsHelperTest extends TestCase
 
         self::assertSame(1, $summary['scanned']);
         self::assertSame(1, $summary['missing_tables']);
-        self::assertSame(6, $summary['missing_columns_total']);
+        self::assertSame(13, $summary['missing_columns_total']);
         self::assertCount(1, $summary['issues']);
         self::assertSame('#__contentbuilderng_forms', $summary['issues'][0]['table']);
         self::assertSame([
@@ -59,6 +66,13 @@ final class FormDisplayColumnsHelperTest extends TestCase
             'show_preview_link',
             'list_last_modification',
             'cb_prefix_in_title',
+            'debug_mode',
+            'debug_show_bf_id',
+            'debug_enable_logs',
+            'debug_show_request_logs',
+            'debug_show_permissions',
+            'debug_show_filters',
+            'debug_show_cb_id',
         ], $summary['issues'][0]['missing']);
     }
 
@@ -86,25 +100,39 @@ final class FormDisplayColumnsHelperTest extends TestCase
         $db->method('setQuery')->willReturnCallback(static function (string $query) use (&$sql): void {
             $sql[] = $query;
         });
-        $db->expects(self::exactly(2))->method('execute');
+        $db->expects(self::exactly(9))->method('execute');
 
         $summary = FormDisplayColumnsHelper::repair($db);
 
         self::assertSame(1, $summary['scanned']);
         self::assertSame(1, $summary['issues']);
-        self::assertSame(2, $summary['repaired']);
+        self::assertSame(9, $summary['repaired']);
         self::assertSame(0, $summary['unchanged']);
         self::assertSame(0, $summary['errors']);
         self::assertSame('repaired', $summary['tables'][0]['status']);
         self::assertSame([
             'cb_show_details_bottom_bar',
             'cb_prefix_in_title',
+            'debug_mode',
+            'debug_show_bf_id',
+            'debug_enable_logs',
+            'debug_show_request_logs',
+            'debug_show_permissions',
+            'debug_show_filters',
+            'debug_show_cb_id',
         ], $summary['tables'][0]['missing']);
         self::assertSame([
             'cb_show_details_bottom_bar',
             'cb_prefix_in_title',
+            'debug_mode',
+            'debug_show_bf_id',
+            'debug_enable_logs',
+            'debug_show_request_logs',
+            'debug_show_permissions',
+            'debug_show_filters',
+            'debug_show_cb_id',
         ], $summary['tables'][0]['added']);
-        self::assertCount(2, $sql);
+        self::assertCount(9, $sql);
         self::assertTrue(
             \in_array(
                 'ALTER TABLE `#__contentbuilderng_forms` ADD `cb_prefix_in_title` TINYINT(1) NOT NULL DEFAULT 0',
@@ -115,6 +143,20 @@ final class FormDisplayColumnsHelperTest extends TestCase
         self::assertTrue(
             \in_array(
                 'ALTER TABLE `#__contentbuilderng_forms` ADD `cb_show_details_bottom_bar` TINYINT(1) NOT NULL DEFAULT 0',
+                $sql,
+                true
+            )
+        );
+        self::assertTrue(
+            \in_array(
+                'ALTER TABLE `#__contentbuilderng_forms` ADD `debug_mode` TINYINT(1) NOT NULL DEFAULT 0',
+                $sql,
+                true
+            )
+        );
+        self::assertTrue(
+            \in_array(
+                'ALTER TABLE `#__contentbuilderng_forms` ADD `debug_show_bf_id` TINYINT(1) NOT NULL DEFAULT 0',
                 $sql,
                 true
             )

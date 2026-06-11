@@ -24,6 +24,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\RuntimeUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
@@ -67,7 +68,11 @@ class DetailsModel extends ListModel
 
         /** @var SiteApplication $app */
         $app = Factory::getApplication();
-        $container = $app->bootComponent('com_contentbuilderng')->getContainer();
+        $component = $app->bootComponent('com_contentbuilderng');
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+        $container = $component->getContainer();
         $this->app = $app;
         $this->runtimeUtilityService = new RuntimeUtilityService();
         $this->templateRenderService = $container->get(TemplateRenderService::class);
@@ -170,15 +175,11 @@ class DetailsModel extends ListModel
      * MAIN DETAILS AREA
      */
 
-    /**
-     *
-     * @param int $id
-     */
-    function setIds($id, $record_id)
+    public function setIds(int $id, int|string $recordId): void
     {
         // Set id and wipe data
         $this->_id = $id;
-        $this->_record_id = $record_id;
+        $this->_record_id = $recordId;
         $this->_data = null;
     }
 
@@ -199,6 +200,11 @@ class DetailsModel extends ListModel
 
     private function appendListStateData(object $data): object
     {
+        $data->cb_record_id = $this->listSupportService->getInternalRecordId(
+            (string) ($data->type ?? ''),
+            $data->reference_id ?? 0,
+            $this->_record_id
+        );
         $data->list_state = (int) ($data->list_state ?? 0);
         $data->states = [];
         $data->state_ids = [];
@@ -247,7 +253,8 @@ class DetailsModel extends ListModel
             $query->where($db->quoteName('reference_id') . ' = ' . $db->quote((string) $data->reference_id));
         }
 
-        $db->setQuery($query, 0, 1);
+        $query->setLimit(1);
+        $db->setQuery($query);
         $ratingRow = $db->loadAssoc();
 
         if (!$ratingRow) {
@@ -275,7 +282,8 @@ class DetailsModel extends ListModel
             ])
             ->from($db->quoteName('#__contentbuilderng_storages'))
             ->where($db->quoteName('id') . ' = ' . (int) $storageId);
-        $db->setQuery($query, 0, 1);
+        $query->setLimit(1);
+        $db->setQuery($query);
         $storage = $db->loadObject();
 
         if (!$storage || (int) ($storage->bytable ?? 0) === 1) {

@@ -129,6 +129,13 @@ class FormTable extends Table
     public $show_back_button = 1;
     public $cb_filter_in_title = 0;
     public $cb_prefix_in_title = 0;
+    public $debug_mode = 0;
+    public $debug_show_bf_id = 0;
+    public $debug_enable_logs = 0;
+    public $debug_show_request_logs = 0;
+    public $debug_show_permissions = 0;
+    public $debug_show_filters = 0;
+    public $debug_show_cb_id = 0;
 
     public $act_as_registration = 0;
     public $registration_username_field = '';

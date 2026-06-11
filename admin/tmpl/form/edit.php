@@ -485,6 +485,10 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         // Démarrer les onglets
         $activeViewTab = trim((string) $app->getInput()->getCmd('tab', ''));
         $allowedViewTabs = ['tab0', 'tab1', 'tab2', 'tab3', 'tab5', 'tab6', 'tab7', 'tab8', 'tab9', 'tab10'];
+        $debugModeEnabled = !empty($this->item->debug_mode);
+        if ($debugModeEnabled) {
+            $allowedViewTabs[] = 'tab11';
+        }
         if (!in_array($activeViewTab, $allowedViewTabs, true)) {
             $activeViewTab = 'tab0';
         }
@@ -612,6 +616,18 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
             $componentLayoutBase
         );
         echo HTMLHelper::_('uitab.endTab');
+        if ($debugModeEnabled) {
+            echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab11', $viewTabLabel('fa-solid fa-bug', 'COM_CONTENTBUILDERNG_TAB_DEBUG', 'COM_CONTENTBUILDERNG_TAB_DEBUG_TIP'));
+            echo LayoutHelper::render(
+                'form.debug_tab',
+                [
+                    'item' => $this->item,
+                    'renderCheckbox' => $renderCheckbox,
+                ],
+                $componentLayoutBase
+            );
+            echo HTMLHelper::_('uitab.endTab');
+        }
         echo HTMLHelper::_('uitab.addTab', 'view-pane', 'tab6', $viewTabLabel('fa-solid fa-plug', 'COM_CONTENTBUILDERNG_API_TAB_TITLE', 'COM_CONTENTBUILDERNG_TAB_TIP_API'));
         echo LayoutHelper::render(
             'form.api_tab',

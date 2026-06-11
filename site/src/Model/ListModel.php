@@ -630,6 +630,7 @@ class ListModel extends BaseListModel
             $this->_total = $storage->form->getListRecordsTotal($ids, $this->getState('formsd_filter'), $searchableElements);
             $recordMeta = $this->listSupportService->getListRecordMeta($data->items, (int) $storage->id, (string) $data->type, $data->reference_id);
             $data->published_items = $recordMeta['published_items'];
+            $data->cb_record_ids = $recordMeta['cb_record_ids'];
         } else {
             $data->items = [];
             $this->_total = 0;
@@ -1151,6 +1152,7 @@ class ListModel extends BaseListModel
                     $data->published_items = array();
                     $data->states = $this->listSupportService->getListStates($this->_id);
                     $recordMeta = $this->listSupportService->getListRecordMeta($data->items, $this->_id, (string) $data->type, $data->reference_id);
+                    $data->cb_record_ids = $recordMeta['cb_record_ids'];
                     if ($data->list_state) {
                         $data->state_colors = $recordMeta['state_colors'];
                         $data->state_titles = $recordMeta['state_titles'];

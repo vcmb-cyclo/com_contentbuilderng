@@ -131,6 +131,11 @@ class EditModel extends BaseDatabaseModel
 
     private function appendListStateData(object $data): object
     {
+        $data->cb_record_id = $this->listSupportService->getInternalRecordId(
+            (string) ($data->type ?? ''),
+            $data->reference_id ?? 0,
+            $this->_record_id
+        );
         $data->list_state = (int) ($data->list_state ?? 0);
         $data->states = [];
         $data->state_ids = [];

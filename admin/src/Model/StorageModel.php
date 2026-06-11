@@ -935,8 +935,11 @@ class StorageModel extends AdminModel
         }
     }
 
-     #[\Override]
-     public function delete(&$pks)
+    /**
+     * @param array<int,int|string>|int|string $pks
+     */
+    #[\Override]
+    public function delete(&$pks)
     {
         $pks = (array) $pks;
         ArrayHelper::toInteger($pks);

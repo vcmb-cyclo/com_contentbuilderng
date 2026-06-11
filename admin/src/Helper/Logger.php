@@ -30,6 +30,7 @@ final class Logger
     private const LOG_FILE = 'com_contentbuilderng.log';
     private const MAX_ROTATED_FILES = 10;
     private static bool $registered = false;
+    private static array $requestEntries = [];
 
     private static function register(): void
     {
@@ -225,6 +226,15 @@ final class Logger
         return $json ? ($message . ' | ' . $json) : $message;
     }
 
+    private static function sanitizeForDisplay(string $message): string
+    {
+        return (string) preg_replace(
+            '/("(?:password|passwd|token|secret|cookie|signature|sig)"\s*:\s*)("(?:\\\\.|[^"])*"|[^,}\s]+)/i',
+            '$1"[redacted]"',
+            $message
+        );
+    }
+
     /** Debug seulement si debug Joomla activé */
     public static function debug(string $message, array $context = []): void
     {
@@ -281,7 +291,22 @@ final class Logger
             $message
         );
 
+        self::$requestEntries[] = [
+            'time' => $now->format('H:i:s'),
+            'level' => $priorityName,
+            'category' => $category,
+            'message' => self::sanitizeForDisplay($message),
+        ];
+
         file_put_contents($file, $line, FILE_APPEND | LOCK_EX);
+    }
+
+    /**
+     * @return array<int,array{time:string,level:string,category:string,message:string}>
+     */
+    public static function getRequestEntries(): array
+    {
+        return self::$requestEntries;
     }
 
     private static function priorityToString(int $priority): string

@@ -30,6 +30,13 @@ class HtmlView extends BaseHtmlView
     public int $cb_show_author = 1;
     public int $cb_filter_in_title = 0;
     public int $cb_prefix_in_title = 0;
+    public int $debug_mode = 0;
+    public int $debug_show_bf_id = 0;
+    public int $debug_enable_logs = 0;
+    public int $debug_show_request_logs = 0;
+    public int $debug_show_permissions = 0;
+    public int $debug_show_filters = 0;
+    public int $debug_show_cb_id = 0;
 
     function display($tpl = null)
     {
@@ -106,6 +113,13 @@ class HtmlView extends BaseHtmlView
         $this->cb_show_author = (int) ($subject->cb_show_author ?? 1);
         $this->cb_filter_in_title = (int) ($subject->cb_filter_in_title ?? 0);
         $this->cb_prefix_in_title = (int) ($subject->cb_prefix_in_title ?? 0);
+        $this->debug_mode = (int) ($subject->debug_mode ?? 0);
+        $this->debug_show_bf_id = (int) ($subject->debug_show_bf_id ?? 0);
+        $this->debug_enable_logs = (int) ($subject->debug_enable_logs ?? 0);
+        $this->debug_show_request_logs = (int) ($subject->debug_show_request_logs ?? 0);
+        $this->debug_show_permissions = (int) ($subject->debug_show_permissions ?? 0);
+        $this->debug_show_filters = (int) ($subject->debug_show_filters ?? 0);
+        $this->debug_show_cb_id = (int) ($subject->debug_show_cb_id ?? 0);
 
         $this->page_class = $subject->page_class;
         $this->show_page_heading = $subject->show_page_heading;
@@ -139,6 +153,7 @@ class HtmlView extends BaseHtmlView
         $this->published_items = is_array($subject->published_items ?? null) ? $subject->published_items : [];
         $this->languages = is_array($subject->languages ?? null) ? $subject->languages : [];
         $this->lang_codes = is_array($subject->lang_codes ?? null) ? $subject->lang_codes : [];
+        $this->cb_record_ids = is_array($subject->cb_record_ids ?? null) ? $subject->cb_record_ids : [];
         $this->title_field = (string) ($subject->title_field ?? '');
         $this->form = $subject->form ?? null;
         $this->lists = $lists;

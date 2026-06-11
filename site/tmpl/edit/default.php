@@ -22,6 +22,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Helper\RatingHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
@@ -39,7 +40,6 @@ $rating_allowed = $frontend ? $permissionService->authorizeFe('rating') : $permi
 $view_allowed = $frontend ? $permissionService->authorizeFe('view') : $permissionService->authorize('view');
 $fullarticle_allowed = $frontend ? $permissionService->authorizeFe('fullarticle') : $permissionService->authorize('fullarticle');
 $isAdminPreview = $app->getInput()->getBool('cb_preview_ok', false);
-$joomlaDebug    = defined('JDEBUG') && JDEBUG;
 $getStateBadgeStyle = static function ($recordId, array $stateColors): string {
     $color = strtoupper(trim((string) ($stateColors[$recordId] ?? '')));
     $color = ltrim($color, '#');
@@ -761,6 +761,47 @@ CSS
     }
 </script>
 <div class="cbEditableWrapper" id="cbEditableWrapper<?php echo $this->id; ?>">
+    <?php if (!empty($this->debug_mode)): ?>
+        <div class="mb-3">
+            <span class="badge text-bg-danger fs-6 px-3 py-2">
+                <span class="fa-solid fa-bug me-1" aria-hidden="true"></span><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_BADGE'); ?>
+            </span>
+        </div>
+        <?php
+        $debugPermissions = [
+            'view' => $view_allowed,
+            'new' => $new_allowed,
+            'edit' => $edit_allowed,
+            'delete' => $delete_allowed,
+            'state' => $state_allowed,
+            'rating' => $rating_allowed,
+            'fullarticle' => $fullarticle_allowed,
+        ];
+        $debugFilters = [
+            'record_id' => $recordId,
+            'ordering' => $listState['ordering'] ?? '',
+            'direction' => $listState['direction'] ?? '',
+            'limit' => $listState['limit'] ?? 0,
+            'start' => $listState['start'] ?? 0,
+        ];
+        if (!empty($this->debug_enable_logs)) {
+            Logger::info('Frontend edit debug request', [
+                'formId' => (int) $id,
+                'recordId' => (string) $recordId,
+            ]);
+        }
+        echo LayoutHelper::render('contentbuilderng.debug_panel', [
+            'showCbRecordId' => !empty($this->debug_show_cb_id),
+            'cbRecordId' => (int) ($this->cb_record_id ?? 0),
+            'showPermissions' => !empty($this->debug_show_permissions),
+            'permissions' => $debugPermissions,
+            'showFilters' => !empty($this->debug_show_filters),
+            'filters' => $debugFilters,
+            'showLogs' => !empty($this->debug_enable_logs) && !empty($this->debug_show_request_logs),
+            'logs' => Logger::getRequestEntries(),
+        ]);
+        ?>
+    <?php endif; ?>
     <?php if ($isAdminPreview): ?>
         <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <span>
@@ -770,9 +811,6 @@ CSS
                 <?php endif; ?>
                 <?php if ($showPreviewSessionBadge): ?>
                     <span class="badge text-bg-secondary ms-1">Session: <?php echo htmlspecialchars($currentSessionLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-                <?php endif; ?>
-                <?php if ($joomlaDebug): ?>
-                    <span class="badge text-bg-danger ms-1"><span class="fa-solid fa-bug me-1" aria-hidden="true"></span>Debug</span>
                 <?php endif; ?>
                 <span class="cb-preview-config-help" title="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" tabindex="0">
                     <span class="fa-solid fa-circle-question" aria-hidden="true"></span>

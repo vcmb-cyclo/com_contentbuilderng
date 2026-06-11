@@ -66,6 +66,14 @@ class HtmlView extends BaseHtmlView
     public int $cb_show_bottom_bar = 0;
     public int $cb_filter_in_title = 0;
     public int $cb_prefix_in_title = 0;
+    public int $debug_mode = 0;
+    public int $debug_show_bf_id = 0;
+    public int $debug_enable_logs = 0;
+    public int $debug_show_request_logs = 0;
+    public int $debug_show_permissions = 0;
+    public int $debug_show_filters = 0;
+    public int $debug_show_cb_id = 0;
+    public int $cb_record_id = 0;
     public int $list_state = 0;
     public array $states = [];
     public array $state_ids = [];
@@ -624,7 +632,10 @@ CSS;
                     'save_button_title', 'id', 'article_options', 'article_settings',
                     'limited_options', 'show_id_column', 'toc', 'tpl',
                     'cb_show_author', 'cb_show_top_bar', 'cb_show_bottom_bar',
-                    'cb_filter_in_title', 'cb_prefix_in_title', 'list_state',
+                    'cb_filter_in_title', 'cb_prefix_in_title', 'debug_mode',
+                    'debug_show_bf_id', 'debug_enable_logs', 'debug_show_request_logs',
+                    'debug_show_permissions', 'debug_show_filters', 'debug_show_cb_id',
+                    'cb_record_id', 'list_state',
                     'states', 'state_ids', 'state_titles', 'state_colors',
                     'list_rating', 'rating_slots', 'rating', 'rating_count', 'rating_sum',
                 ];

@@ -24,6 +24,25 @@ $elementsTableHtml = (string) ($displayData['elementsTableHtml'] ?? '');
 if (!is_object($item) || !is_callable($formatTypeDisplay)) {
     return;
 }
+
+$renderDebugToggle = static function (bool $enabled): string {
+    $html = (string) HTMLHelper::_(
+        'jgrid.published',
+        $enabled ? 1 : 0,
+        0,
+        'form.form',
+        true,
+        'cbdebugstate'
+    );
+    $html = preg_replace('/\saria-labelledby="[^"]*"/', '', $html) ?? $html;
+    $html = preg_replace('#<div role="tooltip"[^>]*>.*?</div>#s', '', $html) ?? $html;
+
+    return preg_replace(
+        '/\sonclick="[^"]*"/',
+        ' onclick="return contentbuilderngToggleDebugMode(event);"',
+        $html
+    ) ?? $html;
+};
 ?>
 <fieldset id="cb-form-view-general" class="border rounded p-3 mb-3">
     <div class="row g-3 align-items-end mb-2">
@@ -58,8 +77,9 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
             </div>
         </div>
         <div class="col-12 col-lg-3">
-            <?php if ((int) ($item->id ?? 0) > 0) : ?>
-                <div class="d-inline-flex align-items-center gap-2 ms-sm-4 ps-sm-2">
+            <div class="d-flex flex-wrap align-items-center gap-3 ms-sm-4 ps-sm-2">
+                <?php if ((int) ($item->id ?? 0) > 0) : ?>
+                <div class="d-inline-flex align-items-center gap-2">
                     <span class="fw-semibold editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_PUBLISH_TIP'); ?>">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'); ?> :
                     </span>
@@ -78,9 +98,56 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
                     ?>
                     <input type="checkbox" name="cid[]" id="cbformstate0" value="<?php echo (int) $item->id; ?>" style="display:none" />
                 </div>
-            <?php endif; ?>
+                <?php endif; ?>
+                <div class="d-inline-flex align-items-center gap-2">
+                    <span class="fw-semibold editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_MODE_TIP'); ?>">
+                        <?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_MODE'); ?> :
+                    </span>
+                    <input type="hidden" name="jform[debug_mode]" id="debug_mode" value="<?php echo !empty($item->debug_mode) ? 1 : 0; ?>" />
+                    <span id="cb-debug-mode-toggle">
+                        <?php echo $renderDebugToggle(!empty($item->debug_mode)); ?>
+                    </span>
+                    <template id="cb-debug-mode-enabled-template">
+                        <?php echo $renderDebugToggle(true); ?>
+                    </template>
+                    <template id="cb-debug-mode-disabled-template">
+                        <?php echo $renderDebugToggle(false); ?>
+                    </template>
+                    <span class="visually-hidden">
+                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_MODE_TIP'); ?>">
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_MODE'); ?>
+                        </span>
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
+    <script>
+        window.contentbuilderngToggleDebugMode = function (event) {
+            event.preventDefault();
+
+            const input = document.getElementById('debug_mode');
+            const host = document.getElementById('cb-debug-mode-toggle');
+
+            if (!input || !host) {
+                return false;
+            }
+
+            const enabled = input.value !== '1';
+            const template = document.getElementById(
+                enabled ? 'cb-debug-mode-enabled-template' : 'cb-debug-mode-disabled-template'
+            );
+
+            input.value = enabled ? '1' : '0';
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+
+            if (template) {
+                host.innerHTML = template.innerHTML;
+            }
+
+            return false;
+        };
+    </script>
 
     <?php if ((int) ($item->id ?? 0) < 1) : ?>
         <label for="cb_form_type_select">

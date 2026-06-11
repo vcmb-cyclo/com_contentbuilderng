@@ -39,6 +39,13 @@ final class FormDisplayColumnsHelper
             'show_back_button' => 'TINYINT(1) NOT NULL DEFAULT 1',
             'cb_filter_in_title' => 'TINYINT(1) NOT NULL DEFAULT 0',
             'cb_prefix_in_title' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_mode' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_show_bf_id' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_enable_logs' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_show_request_logs' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_show_permissions' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_show_filters' => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'debug_show_cb_id' => 'TINYINT(1) NOT NULL DEFAULT 0',
         ];
     }
 
