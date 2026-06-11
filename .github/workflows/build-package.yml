@@ -33,7 +33,7 @@ jobs:
         run: vendor/bin/phpunit --coverage-clover=coverage.xml --coverage-text
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: phpunit-coverage
           path: admin/coverage.xml
@@ -79,7 +79,7 @@ jobs:
         run: scripts/joomla-install-smoke.sh "${{ steps.package.outputs.archive }}"
 
       - name: Upload installation package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: com_contentbuilderng-${{ steps.version.outputs.version }}
           path: ${{ steps.package.outputs.archive }}
