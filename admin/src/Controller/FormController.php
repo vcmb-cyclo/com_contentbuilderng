@@ -27,6 +27,7 @@ use Joomla\CMS\MVC\Controller\FormController as BaseFormController;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Response\JsonResponse;
+use Joomla\Database\DatabaseInterface;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use CB\Component\Contentbuilderng\Administrator\Model\FormModel;
@@ -354,6 +355,80 @@ class FormController extends BaseFormController
         return $this->setFormPublishedState(0, 'COM_CONTENTBUILDERNG_UNPUBLISHED');
     }
 
+    public function debug_on(): bool
+    {
+        return $this->setFormFlag('debug_mode', 1);
+    }
+
+    public function debug_off(): bool
+    {
+        return $this->setFormFlag('debug_mode', 0);
+    }
+
+    public function form_flag(): bool
+    {
+        $this->checkToken();
+
+        $field = $this->input->getCmd('field');
+        $value = $this->input->getInt('value') !== 0 ? 1 : 0;
+
+        if (!in_array($field, ['debug_mode'], true)) {
+            throw new \InvalidArgumentException('Invalid form flag: ' . $field);
+        }
+
+        return $this->setFormFlag($field, $value);
+    }
+
+    private function setFormFlag(string $field, int $value): bool
+    {
+        try {
+            $this->checkToken();
+
+            $formId = (int) $this->input->getInt('id');
+            if ($formId <= 0) {
+                $cids = (array) $this->input->get('cid', [], 'array');
+                ArrayHelper::toInteger($cids);
+                $formId = (int) ($cids[0] ?? 0);
+            }
+
+            if ($formId <= 0) {
+                $this->setMessage(Text::_('JERROR_NO_ITEMS_SELECTED'), 'error');
+                if ($this->isAjaxCall()) {
+                    $this->respondAjax(false, Text::_('JERROR_NO_ITEMS_SELECTED'));
+                } else {
+                    $this->setRedirect($this->getEditRedirectUrl(0));
+                }
+                return false;
+            }
+
+            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__contentbuilderng_forms'))
+                ->set($db->quoteName($field) . ' = ' . (int) $value)
+                ->where($db->quoteName('id') . ' = ' . $formId);
+            $db->setQuery($query);
+            $db->execute();
+
+            if ($this->isAjaxCall()) {
+                $this->respondAjax(true, Text::_('JLIB_APPLICATION_SAVE_SUCCESS'));
+                return true;
+            }
+
+            $this->setRedirect(
+                $this->getEditRedirectUrl($formId),
+                Text::_('JLIB_APPLICATION_SAVE_SUCCESS')
+            );
+            return true;
+        } catch (\Throwable $e) {
+            $this->setMessage($e->getMessage(), 'warning');
+            if ($this->isAjaxCall()) {
+                $this->respondAjax(false, $e->getMessage());
+            } else {
+                $this->setRedirect($this->getEditRedirectUrl((int) ($formId ?? 0)));
+            }
+            return false;
+        }
+    }
 
     // Devrait migrer dans Element*Controller ?
     private function elementsUpdate(string $field, int $value): bool

@@ -25,24 +25,6 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
     return;
 }
 
-$renderDebugToggle = static function (bool $enabled): string {
-    $html = (string) HTMLHelper::_(
-        'jgrid.published',
-        $enabled ? 1 : 0,
-        0,
-        'form.form',
-        true,
-        'cbdebugstate'
-    );
-    $html = preg_replace('/\saria-labelledby="[^"]*"/', '', $html) ?? $html;
-    $html = preg_replace('#<div role="tooltip"[^>]*>.*?</div>#s', '', $html) ?? $html;
-
-    return preg_replace(
-        '/\sonclick="[^"]*"/',
-        ' onclick="return contentbuilderngToggleDebugMode(event);"',
-        $html
-    ) ?? $html;
-};
 ?>
 <fieldset id="cb-form-view-general" class="border rounded p-3 mb-3">
     <div class="row g-3 align-items-end mb-2">
@@ -103,51 +85,32 @@ $renderDebugToggle = static function (bool $enabled): string {
                     <span class="fw-semibold editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_MODE_TIP'); ?>">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_MODE'); ?> :
                     </span>
-                    <input type="hidden" name="jform[debug_mode]" id="debug_mode" value="<?php echo !empty($item->debug_mode) ? 1 : 0; ?>" />
-                    <span id="cb-debug-mode-toggle">
-                        <?php echo $renderDebugToggle(!empty($item->debug_mode)); ?>
-                    </span>
-                    <template id="cb-debug-mode-enabled-template">
-                        <?php echo $renderDebugToggle(true); ?>
-                    </template>
-                    <template id="cb-debug-mode-disabled-template">
-                        <?php echo $renderDebugToggle(false); ?>
-                    </template>
-                    <span class="visually-hidden">
-                        <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_MODE_TIP'); ?>">
-                            <?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_MODE'); ?>
-                        </span>
-                    </span>
+                    <?php if ((int) ($item->id ?? 0) > 0) : ?>
+                    <?php
+                    $debugEnabled = !empty($item->debug_mode);
+                    $debugStates = [
+                        1 => ['debug_off', 'COM_CONTENTBUILDERNG_DEBUG_MODE', '', '', false, 'publish', 'publish'],
+                        0 => ['debug_on',  'COM_CONTENTBUILDERNG_DEBUG_MODE', '', '', false, 'unpublish', 'unpublish'],
+                    ];
+                    $debugToggleHtml = HTMLHelper::_('jgrid.state', $debugStates, $debugEnabled ? 1 : 0, 0, 'form.', true, true, 'cbdebugstate');
+                    $debugToggleHtml = preg_replace('/\saria-labelledby="[^"]*"/', '', (string) $debugToggleHtml) ?? (string) $debugToggleHtml;
+                    $debugToggleHtml = preg_replace('#<div role="tooltip"[^>]*>.*?</div>#s', '', (string) $debugToggleHtml) ?? (string) $debugToggleHtml;
+                    echo $debugToggleHtml;
+                    ?>
+                    <input type="checkbox" name="cid[]" id="cbdebugstate0" value="<?php echo (int) $item->id; ?>" style="display:none" />
+                    <?php else : ?>
+                    <input type="hidden" name="jform[debug_mode]" id="debug_mode" value="0" />
+                    <a href="#"
+                       class="tbody-icon"
+                       title="<?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_MODE_TIP'); ?>"
+                       onclick="this.classList.toggle('active'); document.getElementById('debug_mode').value = this.classList.contains('active') ? '1' : '0'; return false;">
+                        <span class="icon-unpublish" aria-hidden="true"></span>
+                    </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        window.contentbuilderngToggleDebugMode = function (event) {
-            event.preventDefault();
-
-            const input = document.getElementById('debug_mode');
-            const host = document.getElementById('cb-debug-mode-toggle');
-
-            if (!input || !host) {
-                return false;
-            }
-
-            const enabled = input.value !== '1';
-            const template = document.getElementById(
-                enabled ? 'cb-debug-mode-enabled-template' : 'cb-debug-mode-disabled-template'
-            );
-
-            input.value = enabled ? '1' : '0';
-            input.dispatchEvent(new Event('change', { bubbles: true }));
-
-            if (template) {
-                host.innerHTML = template.innerHTML;
-            }
-
-            return false;
-        };
-    </script>
 
     <?php if ((int) ($item->id ?? 0) < 1) : ?>
         <label for="cb_form_type_select">

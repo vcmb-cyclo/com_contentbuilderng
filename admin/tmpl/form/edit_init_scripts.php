@@ -296,6 +296,14 @@ use Joomla\CMS\Language\Text;
             'form.listunpublish': {
                 nextTask: 'form.listpublish',
                 enabled: false
+            },
+            'form.debug_on': {
+                nextTask: 'form.debug_off',
+                enabled: true
+            },
+            'form.debug_off': {
+                nextTask: 'form.debug_on',
+                enabled: false
             }
         };
 
@@ -467,7 +475,9 @@ use Joomla\CMS\Language\Text;
             'form.editable',
             'form.not_editable',
             'form.listpublish',
-            'form.listunpublish'
+            'form.listunpublish',
+            'form.debug_on',
+            'form.debug_off'
         ].indexOf(task) !== -1;
     }
 
@@ -565,11 +575,21 @@ use Joomla\CMS\Language\Text;
         'form.unpublish':     '0'
     };
 
+    var cbFormFlagTaskMap = {
+        'form.debug_on':  { field: 'debug_mode', value: '1' },
+        'form.debug_off': { field: 'debug_mode', value: '0' }
+    };
+
     function cbResolveServerTask(task, formData) {
         if (cbFlagTaskMap[task]) {
             formData.set('field', cbFlagTaskMap[task].field);
             formData.set('value', cbFlagTaskMap[task].value);
             return 'form.element_flag';
+        }
+        if (cbFormFlagTaskMap[task]) {
+            formData.set('field', cbFormFlagTaskMap[task].field);
+            formData.set('value', cbFormFlagTaskMap[task].value);
+            return 'form.form_flag';
         }
         if (cbPublishTaskMap[task] !== undefined) {
             formData.set('value', cbPublishTaskMap[task]);
