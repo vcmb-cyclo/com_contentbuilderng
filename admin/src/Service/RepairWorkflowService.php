@@ -14,6 +14,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 \defined('_JEXEC') or die;
 
+use CB\Component\Contentbuilderng\Administrator\Helper\Audit\BfFieldSyncAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\ElementReferenceAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StaleLanguageFilesAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\EncodingAuditHelper;
@@ -141,7 +142,7 @@ class RepairWorkflowService
             'form_audit_columns'   => $this->buildFormAuditColumnsStepResult(FormDisplayColumnsHelper::repair($db)),
             'plugin_duplicates'    => $this->buildPluginDuplicateStepResult(PluginExtensionDedupHelper::repair($db)),
             'historical_menu_entries' => $this->buildHistoricalMenuStepResult(PackedDataMigrationHelper::repairLegacyMenuEntriesStep($db)),
-            'bf_field_sync'        => $this->buildBfFieldSyncStepResult(DatabaseAuditHelper::run()),
+            'bf_field_sync'        => $this->buildBfFieldSyncStepResult(BfFieldSyncAuditHelper::repair($db)),
             'generated_article_categories'   => $this->buildGeneratedArticleCategoryStepResult(GeneratedArticleCategoryAuditHelper::repair($db)),
             'element_reference_consistency'  => $this->buildElementReferenceConsistencyStepResult(ElementReferenceAuditHelper::repair($db)),
             'stale_language_files'           => $this->buildStaleLanguageFilesStepResult(StaleLanguageFilesAuditHelper::repair()),
@@ -466,7 +467,7 @@ class RepairWorkflowService
                 'count' => $bfFieldSyncViews,
                 'description' => match (true) {
                     $bfFieldSyncViews <= 0 => 'No BF-linked CB view synchronization issue was detected by the last audit.',
-                    default => $bfFieldSyncViews . ' BF-linked CB views need manual review (' . $bfMissingInCbTotal . ' source fields missing in CB, ' . $bfOrphanInCbTotal . ' extra fields in CB). This diagnostic step does not perform an automatic repair.',
+                    default => $bfFieldSyncViews . ' BF-linked CB views have synchronization issues (' . $bfMissingInCbTotal . ' source fields missing in CB, ' . $bfOrphanInCbTotal . ' extra fields in CB). Orphan CB elements (fields present in CB but not logged in BF) will be automatically deleted.',
                 },
                 'skip_summary' => 'No BF-linked CB view synchronization issue detected by the pre-check. Skipped automatically.',
                 'has_errors' => false,
@@ -983,35 +984,54 @@ class RepairWorkflowService
         ];
     }
 
-    private function buildBfFieldSyncStepResult(array $auditReport): array
+    private function buildBfFieldSyncStepResult(array $repairSummary): array
     {
-        $issues = (array) ($auditReport['bf_view_field_sync_issues'] ?? []);
-        $summary = (array) ($auditReport['summary'] ?? []);
-        $views = (int) ($summary['bf_view_field_sync_views'] ?? count($issues));
-        $missing = (int) ($summary['bf_view_field_sync_missing_in_cb'] ?? 0);
-        $orphan = (int) ($summary['bf_view_field_sync_orphan_in_cb'] ?? 0);
-        $lines = [
-            'Diagnostic only. No automatic repair is available for BF field synchronization.',
-            'Review the impacted CB views in index.php?option=com_contentbuilderng&view=forms',
-            'Review storage mappings in index.php?option=com_contentbuilderng&view=storages when the issue is storage-related.',
-        ];
+        $scanned        = (int) ($repairSummary['scanned'] ?? 0);
+        $withOrphans    = (int) ($repairSummary['forms_with_orphans'] ?? 0);
+        $deleted        = (int) ($repairSummary['orphans_deleted'] ?? 0);
+        $errors         = (int) ($repairSummary['errors'] ?? 0);
+        $forms          = (array) ($repairSummary['forms'] ?? []);
+        $warnings       = (array) ($repairSummary['warnings'] ?? []);
 
-        foreach ($issues as $issue) {
-            if (!is_array($issue)) {
+        $lines = [];
+
+        foreach ($forms as $form) {
+            if (!is_array($form)) {
                 continue;
             }
-            $lines[] = 'View #' . (int) ($issue['form_id'] ?? 0)
-                . ' "' . trim((string) ($issue['form_name'] ?? '')) . '"'
-                . ' missing=' . (int) ($issue['missing_count'] ?? 0)
-                . ' extra=' . (int) ($issue['orphan_count'] ?? 0);
+            $formId   = (int) ($form['form_id'] ?? 0);
+            $formName = trim((string) ($form['form_name'] ?? ''));
+            $status   = trim((string) ($form['status'] ?? ''));
+            $n        = (int) ($form['orphans_deleted'] ?? 0);
+            $line     = 'View #' . $formId . ($formName !== '' ? ' "' . $formName . '"' : '');
+            $line    .= $status === 'repaired'
+                ? ' — ' . $n . ' orphan element' . ($n !== 1 ? 's' : '') . ' deleted.'
+                : ' — error: ' . trim((string) ($form['error'] ?? 'unknown'));
+            $lines[]  = $line;
         }
 
+        foreach ($warnings as $warning) {
+            $warning = trim((string) $warning);
+            if ($warning !== '') {
+                $lines[] = 'Warning: ' . $warning;
+            }
+        }
+
+        if ($deleted === 0 && $errors === 0) {
+            $lines[] = 'No orphan BF elements found in CB views. Nothing to repair.';
+        }
+
+        $level = $errors > 0 ? 'warning' : 'message';
+        $summary = match (true) {
+            $errors > 0 => 'BF field sync repair completed with errors: ' . $deleted . ' orphan element' . ($deleted !== 1 ? 's' : '') . ' deleted across ' . $withOrphans . ' view' . ($withOrphans !== 1 ? 's' : '') . ' (' . $scanned . ' scanned, ' . $errors . ' error' . ($errors !== 1 ? 's' : '') . ').',
+            $deleted > 0 => 'BF field sync repair: ' . $deleted . ' orphan element' . ($deleted !== 1 ? 's' : '') . ' deleted across ' . $withOrphans . ' view' . ($withOrphans !== 1 ? 's' : '') . ' (' . $scanned . ' scanned).',
+            default      => 'BF field sync: no orphan elements found (' . $scanned . ' BF-linked view' . ($scanned !== 1 ? 's' : '') . ' scanned).',
+        };
+
         return [
-            'level' => $views > 0 ? 'warning' : 'message',
-            'summary' => $views > 0
-                ? 'BF field sync diagnostic: ' . $views . ' views require manual review (' . $missing . ' source fields missing in CB, ' . $orphan . ' extra fields in CB).'
-                : 'No BF field synchronization issue detected.',
-            'lines' => $lines,
+            'level'   => $level,
+            'summary' => $summary,
+            'lines'   => $lines,
         ];
     }
 

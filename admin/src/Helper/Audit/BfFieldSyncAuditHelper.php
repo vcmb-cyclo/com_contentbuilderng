@@ -38,6 +38,113 @@ final class BfFieldSyncAuditHelper
      *   1:array<int,string>
      * }
      */
+    /**
+     * @return array{scanned:int,forms_with_orphans:int,orphans_deleted:int,unchanged:int,forms:array<int,array{form_id:int,form_name:string,orphans_deleted:int,status:string,error?:string}>,errors:int,warnings:array<int,string>}
+     */
+    public static function repair(DatabaseInterface $db): array
+    {
+        $summary = [
+            'scanned'            => 0,
+            'forms_with_orphans' => 0,
+            'orphans_deleted'    => 0,
+            'unchanged'          => 0,
+            'forms'              => [],
+            'errors'             => 0,
+            'warnings'           => [],
+        ];
+
+        try {
+            $db->setQuery(
+                $db->getQuery(true)
+                    ->select($db->quoteName(['id', 'name', 'type', 'reference_id']))
+                    ->from($db->quoteName('#__contentbuilderng_forms'))
+                    ->where(
+                        $db->quoteName('type') . ' IN ('
+                        . $db->quote('com_breezingforms') . ','
+                        . $db->quote('com_breezingforms_ng') . ')'
+                    )
+                    ->where($db->quoteName('reference_id') . ' > 0')
+                    ->order($db->quoteName('id') . ' ASC')
+            );
+            $forms = $db->loadAssocList() ?: [];
+        } catch (\Throwable $e) {
+            $summary['warnings'][] = 'Could not load BF-linked forms: ' . $e->getMessage();
+            $summary['errors']++;
+            return $summary;
+        }
+
+        foreach ($forms as $form) {
+            $formId   = (int) ($form['id'] ?? 0);
+            $formName = trim((string) ($form['name'] ?? ''));
+            $type     = trim((string) ($form['type'] ?? ''));
+            $sourceRef = (string) ($form['reference_id'] ?? '');
+
+            $summary['scanned']++;
+
+            try {
+                $sourceForm = FormSourceFactory::getForm($type, $sourceRef);
+
+                if (!is_object($sourceForm) || empty($sourceForm->exists)) {
+                    $summary['unchanged']++;
+                    continue;
+                }
+
+                $validRefs = array_map('strval', array_keys((array) $sourceForm->getElementLabels()));
+
+                if ($validRefs === []) {
+                    $summary['unchanged']++;
+                    continue;
+                }
+
+                $quotedRefs = array_map([$db, 'quote'], $validRefs);
+                $db->setQuery(
+                    $db->getQuery(true)
+                        ->select('COUNT(*)')
+                        ->from($db->quoteName('#__contentbuilderng_elements'))
+                        ->where($db->quoteName('form_id') . ' = ' . $formId)
+                        ->where($db->quoteName('reference_id') . ' != ' . $db->quote(''))
+                        ->where($db->quoteName('reference_id') . ' NOT IN (' . implode(',', $quotedRefs) . ')')
+                );
+                $orphanCount = (int) $db->loadResult();
+
+                if ($orphanCount === 0) {
+                    $summary['unchanged']++;
+                    continue;
+                }
+
+                $db->setQuery(
+                    $db->getQuery(true)
+                        ->delete($db->quoteName('#__contentbuilderng_elements'))
+                        ->where($db->quoteName('form_id') . ' = ' . $formId)
+                        ->where($db->quoteName('reference_id') . ' != ' . $db->quote(''))
+                        ->where($db->quoteName('reference_id') . ' NOT IN (' . implode(',', $quotedRefs) . ')')
+                );
+                $db->execute();
+
+                $summary['forms_with_orphans']++;
+                $summary['orphans_deleted'] += $orphanCount;
+                $summary['forms'][] = [
+                    'form_id'         => $formId,
+                    'form_name'       => $formName,
+                    'orphans_deleted' => $orphanCount,
+                    'status'          => 'repaired',
+                ];
+            } catch (\Throwable $e) {
+                $summary['errors']++;
+                $summary['warnings'][] = 'View #' . $formId . ' (' . $formName . '): ' . $e->getMessage();
+                $summary['forms'][] = [
+                    'form_id'         => $formId,
+                    'form_name'       => $formName,
+                    'orphans_deleted' => 0,
+                    'status'          => 'error',
+                    'error'           => $e->getMessage(),
+                ];
+            }
+        }
+
+        return $summary;
+    }
+
     public static function inspect(DatabaseInterface $db): array
     {
         $issues = [];
