@@ -24,23 +24,23 @@
 
     <field name="debug_show_bf_id" type="checkbox"
            label="COM_CONTENTBUILDERNG_DEBUG_SHOW_BF_ID"
-           default="0" filter="intval" />
+           default="1" filter="intval" />
 
     <field name="debug_enable_logs" type="checkbox"
            label="COM_CONTENTBUILDERNG_DEBUG_ENABLE_LOGS"
-           default="0" filter="intval" />
+           default="1" filter="intval" />
 
     <field name="debug_show_request_logs" type="checkbox"
            label="COM_CONTENTBUILDERNG_DEBUG_SHOW_REQUEST_LOGS"
-           default="0" filter="intval" />
+           default="1" filter="intval" />
 
     <field name="debug_show_permissions" type="checkbox"
            label="COM_CONTENTBUILDERNG_DEBUG_SHOW_PERMISSIONS"
-           default="0" filter="intval" />
+           default="1" filter="intval" />
 
     <field name="debug_show_filters" type="checkbox"
            label="COM_CONTENTBUILDERNG_DEBUG_SHOW_FILTERS"
-           default="0" filter="intval" />
+           default="1" filter="intval" />
 
     <field name="debug_show_cb_id" type="checkbox"
            label="COM_CONTENTBUILDERNG_DEBUG_SHOW_CB_ID"
