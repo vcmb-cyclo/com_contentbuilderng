@@ -36,6 +36,12 @@ This project is maintained by volunteers and provided *as-is*.
 🚧 This project is developed on a **best-effort basis**.  
 Only **GitHub Releases** should be considered stable and suitable for production use.
 
+## Documentation
+
+- **[Documentation utilisateur en français](docs/fr/index.md)**
+- **[Administrator Migration Guide](MIGRATION_GUIDE.md)**
+- **[Testing Guide](TESTING.md)**
+
 ---
 
 ## Migration Notes
@@ -122,8 +128,11 @@ There is no backward compatibility for `task=ajax.display`.
 For stable versions:
 1. Go to the **Tags** or **Releases** section
 2. Select the latest version
-3. Download **Source code (zip)**
+3. Download the packaged release asset named `com_contentbuilderng-<version>.zip`
 4. Install via the Joomla Extension Manager
+
+The automatically generated GitHub **Source code (zip)** archive is a development
+source snapshot, not the assembled Joomla installation package.
 
 ---
 
