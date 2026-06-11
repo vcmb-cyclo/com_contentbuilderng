@@ -49,10 +49,9 @@ class ElementoptionsModel extends BaseDatabaseModel
         return $this->getApp()->getDispatcher();
     }
 
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory
+        array $config = [],
+        ?MVCFactoryInterface $factory = null
     ) {
         // IMPORTANT : on transmet factory/app/input à BaseController
         parent::__construct($config, $factory);

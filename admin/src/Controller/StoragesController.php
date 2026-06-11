@@ -38,12 +38,11 @@ final class StoragesController extends AdminController
     protected $view_list = 'storages';
     protected $view_item = 'storage';
 
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory,
-        CMSApplicationInterface $app,
-        Input $input
+        array $config = [], 
+        ?MVCFactoryInterface $factory = null, 
+        ?CMSWebApplicationInterface $app = null, 
+        ?Input $input = null
     ) {
         // IMPORTANT : on transmet factory/app/input à BaseController
         parent::__construct($config, $factory, $app, $input);

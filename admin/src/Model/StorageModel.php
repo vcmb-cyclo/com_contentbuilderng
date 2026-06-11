@@ -158,10 +158,9 @@ class StorageModel extends AdminModel
         return 'field' . mt_rand(0, mt_getrandmax());
     }
 
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory
+        array $config = [],
+        ?MVCFactoryInterface $factory = null
     ) {
         // IMPORTANT : on transmet factory/app/input à AdminModel
         parent::__construct($config, $factory);

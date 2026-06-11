@@ -29,10 +29,9 @@ use Joomla\Input\Input;
 
 class UsersModel extends ListModel
 {
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory
+        array $config = [],
+        ?MVCFactoryInterface $factory = null
     ) {
         
         if (empty($config['filter_fields'])) {

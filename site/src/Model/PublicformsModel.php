@@ -64,10 +64,9 @@ class PublicformsModel extends ListModel
     /** @var SiteApplication */
     private SiteApplication $app;
 
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory
+        array $config = [],
+        ?MVCFactoryInterface $factory = null
     ) {
         // IMPORTANT : on transmet factory/app/input à BaseController
         parent::__construct($config, $factory);

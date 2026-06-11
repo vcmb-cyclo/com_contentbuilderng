@@ -19,6 +19,7 @@ use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Response\JsonResponse;
 use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\Input\Input;
 use CB\Component\Contentbuilderng\Administrator\Model\UserModel;
 use CB\Component\Contentbuilderng\Administrator\Model\UsersModel;
@@ -73,12 +74,11 @@ class UsersController extends BaseController
         return $model;
     }
 
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory,
-        CMSApplicationInterface $app,
-        Input $input
+        array $config = [], 
+        ?MVCFactoryInterface $factory = null, 
+        ?CMSWebApplicationInterface $app = null, 
+        ?Input $input = null
     ) {
         // IMPORTANT : on transmet factory/app/input à BaseController
         parent::__construct($config, $factory, $app, $input);

@@ -43,10 +43,9 @@ class FormModel extends AdminModel
 
     private array $_default_list_states = [];
 
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory
+        array $config = [],
+        ?MVCFactoryInterface $factory = null
     ) {
         // IMPORTANT : on transmet factory/app/input à ListModel
         parent::__construct($config, $factory);
@@ -74,7 +73,7 @@ class FormModel extends AdminModel
         $items = $this->getInput()->post->get('cid', [], 'array');
         ArrayHelper::toInteger($items);
 
-        return array_values(array_filter($items, static fn (int $item): bool => $item > 0));
+        return array_values(array_filter($items, static fn(int $item): bool => $item > 0));
     }
 
     private function buildDefaultListStates(): array
@@ -874,7 +873,7 @@ class FormModel extends AdminModel
         $table->name  = trim((string) $table->name);
         $table->title = trim((string) $table->title);
         $table->tag   = trim((string) ($table->tag ?? ''));
-        
+
         // Si tes champs existent bien en JTable (c'est le cas)
         if (empty($table->id)) {
             // Création
@@ -1609,7 +1608,7 @@ class FormModel extends AdminModel
             // $obj->created_by = Factory::getApplication()->getIdentity()->id;
             $obj->modified = Factory::getDate()->toSql();
             $obj->modified_by = $this->getApp()->getIdentity()->id;
-            
+
             $db->insertObject('#__contentbuilderng_forms', $obj);
             $insertId = $db->insertid();
 

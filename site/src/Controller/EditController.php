@@ -18,12 +18,10 @@ namespace CB\Component\Contentbuilderng\Site\Controller;
 
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Access\Exception\NotAllowed;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Response\JsonResponse;
-use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\MVC\Controller\BaseController;
-use Joomla\CMS\Application\CMSApplicationInterface;
+use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
@@ -81,12 +79,11 @@ class EditController extends BaseController
         return true;
     }
 
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory,
-        CMSApplicationInterface $app,
-        Input $input
+        array $config = [], 
+        ?MVCFactoryInterface $factory = null, 
+        ?CMSWebApplicationInterface $app = null, 
+        ?Input $input = null
     ) {
         // IMPORTANT : on transmet factory/app/input à BaseController
         parent::__construct($config, $factory, $app, $input);

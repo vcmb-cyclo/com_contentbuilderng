@@ -36,10 +36,9 @@ use CB\Component\Contentbuilderng\Administrator\Model\FormModel;
 
 class FormsModel extends ListModel
 {
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory
+        array $config = [],
+        ?MVCFactoryInterface $factory = null
     ) {
         // IMPORTANT : on transmet factory/app/input à ListModel
         if (empty($config['filter_fields'])) {

@@ -59,10 +59,9 @@ class DetailsModel extends ListModel
     private SiteApplication $app;
     private int $directStorageId = 0;
 
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory) {
+        array $config = [],
+        ?MVCFactoryInterface $factory = null) {
         // IMPORTANT : on transmet factory/app/input à ListModel
         parent::__construct($config, $factory);
 

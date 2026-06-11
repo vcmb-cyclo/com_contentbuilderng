@@ -15,7 +15,7 @@ namespace CB\Component\Contentbuilderng\Site\Controller;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Application\CMSApplicationInterface;
+use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
@@ -45,12 +45,11 @@ class DetailsController extends BaseController
         return new PermissionService();
     }
 
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory,
-        CMSApplicationInterface $app,
-        Input $input) {
+        array $config = [], 
+        ?MVCFactoryInterface $factory = null, 
+        ?CMSWebApplicationInterface $app = null, 
+        ?Input $input = null) {
 
             // IMPORTANT : on transmet factory/app/input à BaseController
         parent::__construct($config, $factory, $app, $input);

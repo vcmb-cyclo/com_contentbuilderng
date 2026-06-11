@@ -82,10 +82,9 @@ class VerifyModel extends BaseDatabaseModel
         return $fallback;
     }
 
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory
+        array $config = [],
+        ?MVCFactoryInterface $factory = null
     ) {
         // IMPORTANT : on transmet factory/app/input à ListModel
         parent::__construct($config, $factory);

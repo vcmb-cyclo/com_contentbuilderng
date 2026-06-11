@@ -34,10 +34,9 @@ class StoragesModel extends ListModel
     // Optionnel mais recommandé : définir le nom de la table (sans postfix)
     protected $table = 'Storage';
 
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory
+        array $config = [],
+        ?MVCFactoryInterface $factory = null
     ) {
         if (empty($config['filter_fields'])) {
             $config['filter_fields'] = [

@@ -39,12 +39,11 @@ class ApiController extends BaseController
     private SiteApplication $siteApp;
     private bool $frontend;
 
-    #[\Override]
     public function __construct(
-        $config,
-        MVCFactoryInterface $factory,
-        CMSApplicationInterface $app,
-        Input $input
+        array $config = [], 
+        ?MVCFactoryInterface $factory = null, 
+        ?CMSWebApplicationInterface $app = null, 
+        ?Input $input = null
     ) {
         parent::__construct($config, $factory, $app, $input);
 

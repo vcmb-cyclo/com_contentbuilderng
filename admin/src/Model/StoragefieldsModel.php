@@ -34,7 +34,6 @@ class StoragefieldsModel extends ListModel
      */
     private int $storageId = 0;
 
-    #[\Override]
     public function __construct($config = [], ?MVCFactoryInterface $factory = null)
     {
         $this->filter_fields = [
