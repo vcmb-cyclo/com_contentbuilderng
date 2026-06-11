@@ -40,6 +40,51 @@ class plgContentContentbuilderng_download extends CMSPlugin implements Subscribe
      */
     protected $db;
 
+    private function getResourceHits(string $type, string $resourceId, int $elementId): ?int
+    {
+        $query = $this->db->getQuery(true)
+            ->select($this->db->quoteName('hits'))
+            ->from($this->db->quoteName('#__contentbuilderng_resource_access'))
+            ->where($this->db->quoteName('type') . ' = ' . $this->db->quote($type))
+            ->where($this->db->quoteName('resource_id') . ' = ' . $this->db->quote($resourceId))
+            ->where($this->db->quoteName('element_id') . ' = ' . $elementId);
+        $this->db->setQuery($query);
+        $hits = $this->db->loadResult();
+
+        return $hits === null ? null : (int) $hits;
+    }
+
+    private function incrementResourceHits(
+        string $type,
+        int $formId,
+        int $elementId,
+        string $resourceId
+    ): void {
+        if ($this->getResourceHits($type, $resourceId, $elementId) === null) {
+            $query = $this->db->getQuery(true)
+                ->insert($this->db->quoteName('#__contentbuilderng_resource_access'))
+                ->columns($this->db->quoteName(['type', 'form_id', 'element_id', 'resource_id', 'hits']))
+                ->values(implode(', ', [
+                    $this->db->quote($type),
+                    (string) $formId,
+                    (string) $elementId,
+                    $this->db->quote($resourceId),
+                    '1',
+                ]));
+        } else {
+            $query = $this->db->getQuery(true)
+                ->update($this->db->quoteName('#__contentbuilderng_resource_access'))
+                ->set($this->db->quoteName('form_id') . ' = ' . $formId)
+                ->set($this->db->quoteName('hits') . ' = ' . $this->db->quoteName('hits') . ' + 1')
+                ->where($this->db->quoteName('type') . ' = ' . $this->db->quote($type))
+                ->where($this->db->quoteName('resource_id') . ' = ' . $this->db->quote($resourceId))
+                ->where($this->db->quoteName('element_id') . ' = ' . $elementId);
+        }
+
+        $this->db->setQuery($query);
+        $this->db->execute();
+    }
+
     public static function getSubscribedEvents(): array
     {
         return ['onContentPrepare' => 'onContentPrepare'];
@@ -208,7 +253,26 @@ class plgContentContentbuilderng_download extends CMSPlugin implements Subscribe
                 if (isset($article->id) && $article->id && !isset($article->cbrecord)) {
 
                     // try to obtain the record id if if this is just an article
-                    $this->db->setQuery("Select form.`title_field`,form.`protect_upload_directory`,form.`reference_id`,article.`record_id`,article.`form_id`,form.`type`,form.`published_only`,form.`own_only`,form.`own_only_fe` From #__contentbuilderng_articles As article, #__contentbuilderng_forms As form Where form.`published` = 1 And form.id = article.`form_id` And article.`article_id` = " . $this->db->quote($article->id));
+                    $query = $this->db->getQuery(true)
+                        ->select([
+                            $this->db->quoteName('form.title_field'),
+                            $this->db->quoteName('form.protect_upload_directory'),
+                            $this->db->quoteName('form.reference_id'),
+                            $this->db->quoteName('article.record_id'),
+                            $this->db->quoteName('article.form_id'),
+                            $this->db->quoteName('form.type'),
+                            $this->db->quoteName('form.published_only'),
+                            $this->db->quoteName('form.own_only'),
+                            $this->db->quoteName('form.own_only_fe'),
+                        ])
+                        ->from($this->db->quoteName('#__contentbuilderng_articles', 'article'))
+                        ->innerJoin(
+                            $this->db->quoteName('#__contentbuilderng_forms', 'form')
+                            . ' ON ' . $this->db->quoteName('form.id') . ' = ' . $this->db->quoteName('article.form_id')
+                        )
+                        ->where($this->db->quoteName('form.published') . ' = 1')
+                        ->where($this->db->quoteName('article.article_id') . ' = ' . (int) $article->id);
+                    $this->db->setQuery($query);
                     $data = $this->db->loadAssoc();
                     if (!is_array($data) || empty($data['type']) || !array_key_exists('reference_id', $data)) {
                         return true;
@@ -381,13 +445,12 @@ class plgContentContentbuilderng_download extends CMSPlugin implements Subscribe
 
                                                 if (!$this->app->getSession()->get('downloaded' . $type . $item->recElementId . $file_id, false, 'com_contentbuilderng.plugin.download')) {
 
-                                                    $this->db->setQuery("Select hits From #__contentbuilderng_resource_access Where `type` = " . $this->db->Quote($type) . " And resource_id = '" . $file_id . "' And element_id = " . $this->db->Quote($item->recElementId));
-                                                    if ($this->db->loadResult() === null) {
-                                                        $this->db->setQuery("Insert Into #__contentbuilderng_resource_access (`type`, form_id, element_id, resource_id, hits) values (" . $this->db->Quote($type) . "," . intval($form_id) . ", " . $this->db->Quote($item->recElementId) . ", '" . $file_id . "',1)");
-                                                    } else {
-                                                        $this->db->setQuery("Update #__contentbuilderng_resource_access Set `type` = " . $this->db->Quote($type) . ", resource_id = '" . $file_id . "', form_id = " . intval($form_id) . ", element_id = " . $this->db->Quote($item->recElementId) . ", hits = hits + 1 Where `type` = " . $this->db->Quote($type) . " And resource_id = '" . $file_id . "' And element_id = " . $this->db->Quote($item->recElementId));
-                                                    }
-                                                    $this->db->execute();
+                                                    $this->incrementResourceHits(
+                                                        (string) $type,
+                                                        (int) $form_id,
+                                                        (int) $item->recElementId,
+                                                        $file_id
+                                                    );
                                                 }
 
                                                 $this->app->getSession()->set('downloaded' . $type . $item->recElementId . $file_id, true, 'com_contentbuilderng.plugin.download');
@@ -413,8 +476,11 @@ class plgContentContentbuilderng_download extends CMSPlugin implements Subscribe
                                             $download_name = basename(OutputFilter::stringURLSafe($default_title) . '_' . $the_value);
                                             $file_id = md5($type . $item->recElementId . $the_value);
 
-                                            $this->db->setQuery("Select hits From #__contentbuilderng_resource_access Where resource_id = '" . $file_id . "' And `type` = " . intval($type) . " And element_id = " . $this->db->Quote($item->recElementId));
-                                            $hits = $this->db->loadResult();
+                                            $hits = $this->getResourceHits(
+                                                (string) $type,
+                                                $file_id,
+                                                (int) $item->recElementId
+                                            );
 
                                             if (!$hits) {
                                                 $hits = 0;

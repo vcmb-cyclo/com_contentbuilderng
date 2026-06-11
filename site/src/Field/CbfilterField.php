@@ -49,7 +49,12 @@ class CbfilterField extends FormField
         $db = Factory::getContainer()->get(DatabaseInterface::class);
 
         if ($selectedFormId > 0) {
-            $db->setQuery("Select * From #__contentbuilderng_elements Where published = 1 And form_id = " . $selectedFormId);
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('published') . ' = 1')
+                ->where($db->quoteName('form_id') . ' = ' . (int) $selectedFormId);
+            $db->setQuery($query);
             $elements = $db->loadAssocList();
 
             foreach ($elements as $element) {

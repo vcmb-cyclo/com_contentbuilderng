@@ -28,7 +28,13 @@ class MultiformsField extends FormField
         $class = (string) ($this->element['class'] ?: '');
         $multiple = 'multiple="multiple" ';
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $db->setQuery("Select id,`name` From #__contentbuilderng_forms Where published = 1 Order By `name` ASC, `id` ASC");
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['id', 'name']))
+            ->from($db->quoteName('#__contentbuilderng_forms'))
+            ->where($db->quoteName('published') . ' = 1')
+            ->order($db->quoteName('name') . ' ASC')
+            ->order($db->quoteName('id') . ' ASC');
+        $db->setQuery($query);
         $status = $db->loadObjectList();
 
         $selectedValues = array_map('strval', (array) $this->value);

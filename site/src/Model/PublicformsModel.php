@@ -240,7 +240,13 @@ class PublicformsModel extends ListModel
 
     function getTags()
     {
-        $this->getDatabase()->setQuery("Select Distinct `tag` As `tag` From #__contentbuilderng_forms Where published = 1 Order by `tag` Asc");
+        $db = $this->getDatabase();
+        $query = $db->getQuery(true)
+            ->select('DISTINCT ' . $db->quoteName('tag'))
+            ->from($db->quoteName('#__contentbuilderng_forms'))
+            ->where($db->quoteName('published') . ' = 1')
+            ->order($db->quoteName('tag') . ' ASC');
+        $db->setQuery($query);
         return $this->getDatabase()->loadObjectList();
     }
 

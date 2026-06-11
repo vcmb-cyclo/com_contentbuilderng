@@ -342,7 +342,15 @@ class ExportModel extends BaseDatabaseModel
                         $ids[] = $this->getDatabase()->quote($reference_id);
                     }
                     if (count($ids)) {
-                        $this->getDatabase()->setQuery("Select Distinct `id`,`label`, reference_id, `order_type` From #__contentbuilderng_elements Where form_id = " . intval($this->_id) . " And reference_id In (" . implode(',', $ids) . ") And published = 1 Order By ordering");
+                        $db = $this->getDatabase();
+                        $query = $db->getQuery(true)
+                            ->select('DISTINCT ' . implode(', ', $db->quoteName(['id', 'label', 'reference_id', 'order_type'])))
+                            ->from($db->quoteName('#__contentbuilderng_elements'))
+                            ->where($db->quoteName('form_id') . ' = ' . (int) $this->_id)
+                            ->where($db->quoteName('reference_id') . ' IN (' . implode(',', $ids) . ')')
+                            ->where($db->quoteName('published') . ' = 1')
+                            ->order($db->quoteName('ordering'));
+                        $db->setQuery($query);
                         $rows = $this->getDatabase()->loadAssocList();
                         $ids = array();
                         foreach ($rows as $row) {

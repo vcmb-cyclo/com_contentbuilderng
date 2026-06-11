@@ -40,11 +40,19 @@ Only **GitHub Releases** should be considered stable and suitable for production
 
 ## Migration Notes
 
-To prepare for Joomla 6 compatibility:
-- Joomla alias classes have been removed
-- Deprecated APIs are progressively being cleaned up
+The component installer performs the supported database, extension, plugin and menu
+migrations automatically. Do not uninstall the legacy component before installing the
+ContentBuilder NG package.
 
-These changes may impact older custom integrations.
+For the complete operational procedure, including backups, validation, DB Repair,
+rollback and known pitfalls, see the
+**[Administrator Migration Guide](MIGRATION_GUIDE.md)**.
+
+Manual SQL is not required during a normal migration. It is reserved for diagnosed
+table collisions or recovery after a failed migration.
+
+Test execution, measured coverage, package validation and the Joomla installation
+smoke test are documented in the **[Testing Guide](TESTING.md)**.
 
 ### AJAX Endpoint Migration
 

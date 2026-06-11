@@ -927,7 +927,10 @@ class StorageModel extends AdminModel
             }
 
             try {
-                $db->setQuery("ALTER TABLE `#__{$dataTableName}` ADD `{$fieldname}` TEXT NULL");
+                $db->setQuery(
+                    'ALTER TABLE ' . $db->quoteName('#__' . $dataTableName)
+                    . ' ADD ' . $db->quoteName((string) $fieldname) . ' TEXT NULL'
+                );
                 $db->execute();
             } catch (\Throwable $e) {
                 Logger::exception($e);
@@ -969,7 +972,7 @@ class StorageModel extends AdminModel
 
             if ($storage && empty($storage->bytable) && !empty($storage->name)) {
                 try {
-                    $db->setQuery("DROP TABLE `#__" . $storage->name . "`");
+                    $db->setQuery('DROP TABLE ' . $db->quoteName('#__' . (string) $storage->name));
                     $db->execute();
                 } catch (\Throwable $e) {
                     Logger::exception($e);
@@ -1178,7 +1181,10 @@ class StorageModel extends AdminModel
             }
 
             if (!$columnExists) {
-                $db->setQuery("ALTER TABLE `#__" . $this->target_table . "` ADD `" . $newfieldname . "` TEXT NULL");
+                $db->setQuery(
+                    'ALTER TABLE ' . $db->quoteName('#__' . $this->target_table)
+                    . ' ADD ' . $db->quoteName($newfieldname) . ' TEXT NULL'
+                );
                 $db->execute();
             }
         }
@@ -1385,14 +1391,19 @@ class StorageModel extends AdminModel
             }
 
             if ($this->getInput()->getBool('csv_drop_records', false)) {
-                $this->getDatabase()->setQuery("Select Count(*) From #__" . $this->target_table);
+                $targetTable = $this->getDatabase()->quoteName('#__' . $this->target_table);
+                $this->getDatabase()->setQuery(
+                    $this->getDatabase()->getQuery(true)
+                        ->select('COUNT(*)')
+                        ->from($targetTable)
+                );
                 $droppedDataRecords = (int) $this->getDatabase()->loadResult();
                 $this->getDatabase()->setQuery("Select Count(*) From #__contentbuilderng_records Where `type` = 'com_contentbuilderng' And reference_id = " . $this->getDatabase()->quote($this->storageId));
                 $droppedMetaRecords = (int) $this->getDatabase()->loadResult();
                 $this->getDatabase()->setQuery("Select Count(*) From #__contentbuilderng_articles Where `type` = 'com_contentbuilderng' And reference_id = " . $this->getDatabase()->quote($this->storageId));
                 $droppedArticleLinks = (int) $this->getDatabase()->loadResult();
 
-                $this->getDatabase()->setQuery("Truncate Table #__" . $this->target_table);
+                $this->getDatabase()->setQuery('TRUNCATE TABLE ' . $targetTable);
                 $this->getDatabase()->execute();
                 $this->getDatabase()->setQuery("Delete From #__contentbuilderng_records Where `type` = 'com_contentbuilderng' And reference_id = " . $this->getDatabase()->quote($this->storageId));
                 $this->getDatabase()->execute();
@@ -1400,7 +1411,9 @@ class StorageModel extends AdminModel
                 $this->getDatabase()->execute();
             }
 
-            $insert_query_prefix = "INSERT INTO #__" . $this->target_table . " (" . join(",", $fieldnames) . ")\nVALUES";
+            $insert_query_prefix = 'INSERT INTO '
+                . $this->getDatabase()->quoteName('#__' . $this->target_table)
+                . ' (' . implode(',', $fieldnames) . ")\nVALUES";
 
             while (($data = fgetcsv($handle, $max_line_length, $this->getInput()->get('csv_delimiter', ',', 'string'), '"')) !== FALSE) {
                 $rowReadCount++;

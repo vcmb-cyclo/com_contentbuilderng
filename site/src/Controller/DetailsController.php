@@ -85,8 +85,19 @@ class DetailsController extends BaseController
         if ($this->siteApp->input->getWord('view', '') == 'latest') {
             $db = Factory::getContainer()->get(DatabaseInterface::class);
 
-            $db->setQuery('Select `type`, `reference_id` From #__contentbuilderng_forms Where id = ' . intval($this->siteApp->input->getInt('id', 0)) . ' And published = 1');
+            $formId = $this->siteApp->input->getInt('id', 0);
+            $query = $db->getQuery(true)
+                ->select($db->quoteName(['type', 'reference_id']))
+                ->from($db->quoteName('#__contentbuilderng_forms'))
+                ->where($db->quoteName('id') . ' = ' . $formId)
+                ->where($db->quoteName('published') . ' = 1');
+            $db->setQuery($query);
             $form = $db->loadAssoc();
+
+            if (!is_array($form)) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
+            }
+
             $form = FormSourceFactory::getForm($form['type'], $form['reference_id']);
 
             $labels = $form->getElementLabels();
@@ -96,7 +107,14 @@ class DetailsController extends BaseController
             }
 
             if (count($ids)) {
-                $db->setQuery("Select Distinct `label`, reference_id From #__contentbuilderng_elements Where form_id = " . intval($this->siteApp->input->getInt('id', 0)) . " And reference_id In (" . implode(',', $ids) . ") And published = 1 Order By ordering");
+                $query = $db->getQuery(true)
+                    ->select('DISTINCT ' . implode(', ', $db->quoteName(['label', 'reference_id'])))
+                    ->from($db->quoteName('#__contentbuilderng_elements'))
+                    ->where($db->quoteName('form_id') . ' = ' . $formId)
+                    ->where($db->quoteName('reference_id') . ' IN (' . implode(',', $ids) . ')')
+                    ->where($db->quoteName('published') . ' = 1')
+                    ->order($db->quoteName('ordering'));
+                $db->setQuery($query);
                 $rows = $db->loadAssocList();
                 $ids = array();
                 foreach ($rows as $row) {

@@ -1,13 +1,45 @@
-name: Build Package
+name: Test and Build Package
 
 on:
   workflow_dispatch:
+  pull_request:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
 
 jobs:
-  build:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup PHP with coverage
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: pcov
+
+      - name: Install test dependencies
+        working-directory: admin
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run unit tests and measure coverage
+        working-directory: admin
+        run: vendor/bin/phpunit --coverage-clover=coverage.xml --coverage-text
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpunit-coverage
+          path: admin/coverage.xml
+
+  package:
+    needs: unit-tests
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -21,10 +53,6 @@ jobs:
         with:
           php-version: '8.3'
           tools: composer:v2
-
-      - name: Install production dependencies
-        working-directory: admin
-        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
 
       - name: Resolve package version
         id: version
@@ -40,21 +68,21 @@ jobs:
           perl -0pi -e "s#\\n\\s*<buildType>.*?</buildType>##g; s#(<creationDate>.*?</creationDate>)#\$1\n    <buildType>production</buildType>#" com_contentbuilderng.xml
           perl -0pi -e "s#\\n\\s*<buildTimestamp>.*?</buildTimestamp>##g; s#(<buildType>.*?</buildType>)#\$1\n    <buildTimestamp>${build_timestamp}</buildTimestamp>#" com_contentbuilderng.xml
 
-      - name: Assemble distribution
-        run: |
-          mkdir -p build/package
-          cp -R admin build/package/
-          cp -R site build/package/
-          cp -R media build/package/
-          cp -R plugins build/package/
-          cp com_contentbuilderng.xml build/package/
-          cp script.php build/package/
-          rm -rf build/package/admin/vendor/bin
+      - name: Build production package
+        id: package
+        run: echo "archive=$(scripts/build-package.sh)" >> "$GITHUB_OUTPUT"
 
-      - name: Create archive
-        working-directory: build/package
-        run: |
-          zip -r "../com_contentbuilderng-${{ steps.version.outputs.version }}.zip" .
+      - name: Validate package contents
+        run: scripts/validate-package.sh "${{ steps.package.outputs.archive }}"
+
+      - name: Test installation, update and migration on Joomla
+        run: scripts/joomla-install-smoke.sh "${{ steps.package.outputs.archive }}"
+
+      - name: Upload installation package
+        uses: actions/upload-artifact@v4
+        with:
+          name: com_contentbuilderng-${{ steps.version.outputs.version }}
+          path: ${{ steps.package.outputs.archive }}
 
       - name: Create GitHub release
         if: startsWith(github.ref, 'refs/tags/v')
@@ -62,6 +90,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           gh release create "${GITHUB_REF_NAME}" \
-            "build/com_contentbuilderng-${{ steps.version.outputs.version }}.zip" \
+            "${{ steps.package.outputs.archive }}" \
             --title "ContentBuilder NG ${GITHUB_REF_NAME}" \
             --generate-notes

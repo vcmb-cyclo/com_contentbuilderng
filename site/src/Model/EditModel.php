@@ -1641,30 +1641,30 @@ var contentbuilderng = new function(){
                                     $session->remove($verificationSessionKey);
                                     $___now = $_now->toSql();
 
-                                    $this->getDatabase()->setQuery("
-                                            Insert Into #__contentbuilderng_verifications
-                                            (
-                                            `verification_hash`,
-                                            `start_date`,
-                                            `verification_data`,
-                                            `user_id`,
-                                            `plugin`,
-                                            `ip`,
-                                            `setup`,
-                                            `client`
-                                            )
-                                            Values
-                                            (
-                                            " . $this->getDatabase()->quote($verification_id) . ",
-                                            " . $this->getDatabase()->quote($___now) . ",
-                                            " . $this->getDatabase()->quote('type=registration&') . ",
-                                            " . $user_id . ",
-                                            " . $this->getDatabase()->quote($data->registration_bypass_plugin) . ",
-                                            " . $this->getDatabase()->quote($_SERVER['REMOTE_ADDR']) . ",
-                                            " . $this->getDatabase()->quote($setup) . ",
-                                            " . intval($this->app->isClient('administrator') ? 1 : 0) . "
-                                            )
-                                    ");
+                                    $db = $this->getDatabase();
+                                    $query = $db->getQuery(true)
+                                        ->insert($db->quoteName('#__contentbuilderng_verifications'))
+                                        ->columns($db->quoteName([
+                                            'verification_hash',
+                                            'start_date',
+                                            'verification_data',
+                                            'user_id',
+                                            'plugin',
+                                            'ip',
+                                            'setup',
+                                            'client',
+                                        ]))
+                                        ->values(implode(', ', [
+                                            $db->quote($verification_id),
+                                            $db->quote($___now),
+                                            $db->quote('type=registration&'),
+                                            (string) (int) $user_id,
+                                            $db->quote((string) $data->registration_bypass_plugin),
+                                            $db->quote((string) ($_SERVER['REMOTE_ADDR'] ?? '')),
+                                            $db->quote((string) $setup),
+                                            $this->app->isClient('administrator') ? '1' : '0',
+                                        ]));
+                                    $db->setQuery($query);
                                     $this->getDatabase()->execute();
                                 }
                             }
@@ -1728,8 +1728,36 @@ var contentbuilderng = new function(){
                                 $date = Factory::getDate(strtotime($created_up . ' +' . intval($data->default_publish_down_days) . ' days'));
                                 $created_down = $date->toSql();
                             }
-                            $publishDownValue = (!empty($created_down)) ? $this->getDatabase()->quote($created_down) : 'NULL';
-                            $this->getDatabase()->setQuery("Insert Into #__contentbuilderng_records (session_id,`type`,last_update,is_future,lang_code, sef, published, record_id, reference_id, publish_up, publish_down) Values ('" . $session->getId() . "'," . $this->getDatabase()->quote($data->type) . "," . $this->getDatabase()->quote($last_update) . ",$is_future," . $this->getDatabase()->quote($language) . "," . $this->getDatabase()->quote(trim($sef)) . "," . $this->getDatabase()->quote($data->auto_publish && !$is_future ? 1 : 0) . ", " . $this->getDatabase()->quote($record_return) . ", " . $this->getDatabase()->quote($data->form->getReferenceId()) . ", " . $this->getDatabase()->quote($created_up) . ", " . $publishDownValue . ")");
+                            $db = $this->getDatabase();
+                            $query = $db->getQuery(true)
+                                ->insert($db->quoteName('#__contentbuilderng_records'))
+                                ->columns($db->quoteName([
+                                    'session_id',
+                                    'type',
+                                    'last_update',
+                                    'is_future',
+                                    'lang_code',
+                                    'sef',
+                                    'published',
+                                    'record_id',
+                                    'reference_id',
+                                    'publish_up',
+                                    'publish_down',
+                                ]))
+                                ->values(implode(', ', [
+                                    $db->quote((string) $session->getId()),
+                                    $db->quote((string) $data->type),
+                                    $db->quote($last_update),
+                                    (string) $is_future,
+                                    $db->quote((string) $language),
+                                    $db->quote(trim((string) $sef)),
+                                    (string) (int) ($data->auto_publish && !$is_future),
+                                    $db->quote((string) $record_return),
+                                    $db->quote((string) $data->form->getReferenceId()),
+                                    $db->quote($created_up),
+                                    !empty($created_down) ? $db->quote($created_down) : 'NULL',
+                                ]));
+                            $db->setQuery($query);
                             $this->getDatabase()->execute();
                         } else {
                             $this->getDatabase()->setQuery("Update #__contentbuilderng_records Set last_update = " . $this->getDatabase()->quote($last_update) . ",lang_code = " . $this->getDatabase()->quote($language) . ", sef = " . $this->getDatabase()->quote(trim($sef ?? '')) . ", edited = edited + 1 Where `type` = " . $this->getDatabase()->quote($data->type) . " And  `reference_id` = " . $this->getDatabase()->quote($data->form->getReferenceId()) . " And record_id = " . $this->getDatabase()->quote($record_return));
@@ -2306,28 +2334,33 @@ var contentbuilderng = new function(){
 
             // Send a system message to administrators receiving system mails
             $db = Factory::getContainer()->get(DatabaseInterface::class);
-            $q = "SELECT id
-                        FROM #__users
-                        WHERE block = 0
-                        AND sendEmail = 1";
-            $db->setQuery($q);
+            $query = $db->getQuery(true)
+                ->select($db->quoteName('id'))
+                ->from($db->quoteName('#__users'))
+                ->where($db->quoteName('block') . ' = 0')
+                ->where($db->quoteName('sendEmail') . ' = 1');
+            $db->setQuery($query);
             $sendEmail = $db->loadColumn();
 
             if (count($sendEmail) > 0) {
                 $Date = new Date();
-                // Build the query to add the messages
-                $q = "INSERT INTO `#__messages` (`user_id_from`, `user_id_to`, `date_time`, `subject`, `message`)
-                                VALUES ";
-                $messages = array();
                 $___Date = $Date->toSql();
+                $query = $db->getQuery(true)
+                    ->insert($db->quoteName('#__messages'))
+                    ->columns($db->quoteName(['user_id_from', 'user_id_to', 'date_time', 'subject', 'message']));
 
                 foreach ($sendEmail as $userid) {
-                $subject   = $db->quote(Text::_('COM_USERS_MAIL_SEND_FAILURE_SUBJECT'));
-                $body      = $db->quote(Text::sprintf('COM_USERS_MAIL_SEND_FAILURE_BODY', $return, $data['username']));
-                $messages[] = "(" . $userid . ", " . $userid . ", '" . $___Date . "', " . $subject . ", " . $body . ")";
+                    $userId = (int) $userid;
+                    $query->values(implode(', ', [
+                        (string) $userId,
+                        (string) $userId,
+                        $db->quote($___Date),
+                        $db->quote(Text::_('COM_USERS_MAIL_SEND_FAILURE_SUBJECT')),
+                        $db->quote(Text::sprintf('COM_USERS_MAIL_SEND_FAILURE_BODY', $return, $data['username'])),
+                    ]));
                 }
-                $q .= implode(',', $messages);
-                $db->setQuery($q);
+
+                $db->setQuery($query);
                 $db->execute();
             }
             return $user->id;
@@ -2554,7 +2587,20 @@ var contentbuilderng = new function(){
                 $this->getDatabase()->execute();
             }
 
-            $this->getDatabase()->setQuery("Update #__contentbuilderng_articles As articles, #__content As content Set content.language = " . $this->getDatabase()->quote($this->app->getInput()->get('list_language', '*', 'string')) . " Where ( content.state = 1 Or content.state = 0 ) And content.id = articles.article_id And articles.`type` = " . intval($type) . " And articles.reference_id = " . $this->getDatabase()->quote($reference_id) . " And articles.record_id = " . $this->getDatabase()->quote($item));
+            $language = $this->app->getInput()->get('list_language', '*', 'string');
+            $db = $this->getDatabase();
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__content', 'content'))
+                ->innerJoin(
+                    $db->quoteName('#__contentbuilderng_articles', 'articles')
+                    . ' ON ' . $db->quoteName('content.id') . ' = ' . $db->quoteName('articles.article_id')
+                )
+                ->set($db->quoteName('content.language') . ' = ' . $db->quote($language))
+                ->where($db->quoteName('content.state') . ' IN (0, 1)')
+                ->where($db->quoteName('articles.type') . ' = ' . $db->quote((string) $type))
+                ->where($db->quoteName('articles.reference_id') . ' = ' . $db->quote((string) $reference_id))
+                ->where($db->quoteName('articles.record_id') . ' = ' . $db->quote((string) $item));
+            $db->setQuery($query);
             $this->getDatabase()->execute();
         }
 

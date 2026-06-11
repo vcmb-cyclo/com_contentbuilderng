@@ -1,19 +1,36 @@
 # SQL Migration Guide - Joomla 6 QueryBuilder Conversion
 
+> **Developer documentation:** this file tracks the modernization of SQL queries in
+> the source code. It is not the procedure for migrating an existing Joomla site.
+> Administrators should use [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md).
+
 ## Overview
-Migrate all raw SQL queries in the Joomla ContentBuilderNG extension from string concatenation to native Joomla QueryBuilder pattern for:
+
+This document records the SQL hardening rules applied to ContentBuilder NG:
+
 - SQL injection prevention (`quoteName()`, parameterization)
 - Code maintainability and consistency
 - Type safety
 
-## Scope
-- **Total Files:** 25+ PHP files with raw SQL
-- **Total Queries:** 106 identified in 4 primary files
+## Historical Inventory
+
+The initial audit identified 106 raw SQL statements in four primary files:
+
   - ArticleService.php: 29 queries
   - com_breezingforms.php: 42 queries
   - com_contentbuilderng.php: 28 queries
   - FormSupportService.php: 7 queries
-- **Query Types:** SELECT, UPDATE, INSERT, DELETE, ALTER
+
+This count is retained only as historical context. It is not the current number of
+unsafe or pending queries: the main files and additional production-facing paths have
+since been hardened.
+
+## Current Scope
+
+The review covers `SELECT`, `UPDATE`, `INSERT`, `DELETE` and schema operations. Raw SQL
+is not automatically considered unsafe. It remains acceptable for reviewed DDL,
+MySQL-specific statements and dynamic schema operations when all values are quoted or
+cast and all identifiers use `quoteName()`.
 
 ## Pattern Examples
 
@@ -115,21 +132,36 @@ $db->setQuery($query);
    - Run unit tests if available
    - Test with MySQL STRICT_TRANS_TABLES mode
 
-## Migration Priority
+## Production Security Status
 
-### High Priority (Security Critical - Core Features)
-1. **ArticleService.php** - 29 queries (handles article creation with user data)
-2. **UserModel.php** - ✅ ALREADY MIGRATED (6 UPDATE queries done)
-3. **FormSupportService.php** - 7 queries (form support operations)
+The initial inventory counted raw SQL syntax, not confirmed vulnerabilities. A raw
+query is acceptable when Joomla's query object cannot express the operation cleanly,
+provided every value is quoted or cast and every dynamic identifier uses
+`quoteName()`.
 
-### Medium Priority (Common Operations)
-4. **Models/*.php** - 12 queries (ElementoptionsModel, FormModel, StorageModel, etc.)
-5. **Services/*.php** - 10 queries (Helper services, utilities)
+The production-facing hardening pass now covers:
 
-### Lower Priority (Legacy/Maintenance)
-6. **types/*.php** - 42+ queries (legacy integration code)
-7. **Plugins/** - 8 queries (plugin operations, can be batched)
-8. **script.php** - 1 query (install/upgrade script)
+- article, user and form support services;
+- frontend record creation, verification and administrator notifications;
+- download counters and article lookup in content plugins;
+- frontend form, filter, public-form and export selectors;
+- internal storage unique-value lookups and upload-field cleanup;
+- storage and CSV table/column identifiers;
+- regression tests for the unsafe interpolation patterns removed by this pass.
+
+The remaining raw SQL is limited to reviewed categories:
+
+- schema DDL such as `ALTER`, `DROP`, `RENAME`, `TRUNCATE` and `SHOW INDEX`;
+- MySQL-specific statements such as `SQL_CALC_FOUND_ROWS`, `FOUND_ROWS()`,
+  session variables and `GROUP_CONCAT`;
+- dynamic storage-table queries whose identifiers come from stored schema metadata
+  and are passed through `quoteName()`;
+- legacy CRUD statements whose interpolated values are explicitly cast or quoted;
+- static queries with no external value interpolation.
+
+Do not mechanically convert these statements solely to reduce the raw-query count.
+Any new query must still use QueryBuilder for normal CRUD, cast integer lists, quote
+string values and quote dynamic identifiers.
 
 ## Automated Tooling
 
@@ -159,8 +191,13 @@ After migrating each file:
 - ✅ **administrator/src/types/com_contentbuilderng.php** - ~19 queries migrated (dynamic-column queries in getRecord/getListRecords/saveRecord kept as raw SQL — values already properly quoted, migration would require deep refactor)
 - ✅ **administrator/src/types/com_breezingforms.php** - ~35 queries migrated (SET SESSION, GROUP_CONCAT dynamic selectors, and SELECT FOUND_ROWS() kept as raw SQL — MySQL-specific or dynamic-column constructs)
 
-## Files Pending Migration
-- [ ] And 21+ other files with raw SQL (plugins, views, helpers)
+## Ongoing Review
+
+- [x] Remove known direct value interpolation in public request paths.
+- [x] Quote dynamic storage table and column identifiers.
+- [x] Add a regression test for removed unsafe patterns.
+- [ ] Re-review MySQL-specific queries whenever database portability becomes a project
+      requirement.
 
 ## References
 - [Joomla DatabaseDriver getQuery()](https://docs.joomla.org/Selecting_data_using_JDatabase)

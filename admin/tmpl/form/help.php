@@ -56,6 +56,38 @@ use Joomla\CMS\Language\Text;
                 </div>
             </div>
         </div>
+        <div class="col-12">
+            <div class="card h-100 border-danger shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5 mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_HELP_VIEW_SEC_DEBUG'); ?></h2>
+                    <p><?php echo Text::_('COM_CONTENTBUILDERNG_HELP_VIEW_SEC_DEBUG_TEXT'); ?></p>
+                    <p><?php echo Text::_('COM_CONTENTBUILDERNG_HELP_VIEW_SEC_DEBUG_ENABLE'); ?></p>
+
+                    <dl class="row mb-3">
+                        <?php
+                        $debugOptions = [
+                            'COM_CONTENTBUILDERNG_DEBUG_SHOW_BF_ID' => 'COM_CONTENTBUILDERNG_DEBUG_SHOW_BF_ID_TIP',
+                            'COM_CONTENTBUILDERNG_DEBUG_SHOW_CB_ID' => 'COM_CONTENTBUILDERNG_DEBUG_SHOW_CB_ID_TIP',
+                            'COM_CONTENTBUILDERNG_DEBUG_ENABLE_LOGS' => 'COM_CONTENTBUILDERNG_DEBUG_ENABLE_LOGS_TIP',
+                            'COM_CONTENTBUILDERNG_DEBUG_SHOW_REQUEST_LOGS' => 'COM_CONTENTBUILDERNG_DEBUG_SHOW_REQUEST_LOGS_TIP',
+                            'COM_CONTENTBUILDERNG_DEBUG_SHOW_PERMISSIONS' => 'COM_CONTENTBUILDERNG_DEBUG_SHOW_PERMISSIONS_TIP',
+                            'COM_CONTENTBUILDERNG_DEBUG_SHOW_FILTERS' => 'COM_CONTENTBUILDERNG_DEBUG_SHOW_FILTERS_TIP',
+                        ];
+                        ?>
+                        <?php foreach ($debugOptions as $labelKey => $descriptionKey) : ?>
+                            <dt class="col-12 col-lg-4"><?php echo Text::_($labelKey); ?></dt>
+                            <dd class="col-12 col-lg-8"><?php echo Text::_($descriptionKey); ?></dd>
+                        <?php endforeach; ?>
+                    </dl>
+
+                    <p><?php echo Text::_('COM_CONTENTBUILDERNG_HELP_VIEW_SEC_DEBUG_FRONTEND'); ?></p>
+                    <div class="alert alert-danger mb-0">
+                        <span class="fa-solid fa-triangle-exclamation me-1" aria-hidden="true"></span>
+                        <?php echo Text::_('COM_CONTENTBUILDERNG_HELP_VIEW_SEC_DEBUG_WARN'); ?>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="col-12 col-lg-6">
             <div class="card h-100 shadow-sm">
                 <div class="card-body">

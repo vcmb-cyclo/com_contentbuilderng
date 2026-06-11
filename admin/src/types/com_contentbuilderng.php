@@ -138,7 +138,7 @@ class contentbuilderng_com_contentbuilderng
             ->order($db->quoteName('ordering'));
         $db->setQuery($fieldQuery);
         $name = $db->loadResult();
-        $where_add = '';
+        $whereName = '';
         if ($where_field != '' && $where != '') {
             $whereFieldQuery = $db->getQuery(true)
                 ->select($db->quoteName('name'))
@@ -148,13 +148,22 @@ class contentbuilderng_com_contentbuilderng
                 ->where('COALESCE(' . $db->quoteName('published') . ', 1) = 1')
                 ->order($db->quoteName('ordering'));
             $db->setQuery($whereFieldQuery);
-            $where_name = $db->loadResult();
-            if ($where_name) {
-                $where_add = " And `" . $where_name . "` = " . $db->quote($where) . " ";
-            }
+            $whereName = (string) $db->loadResult();
         }
         if ($name) {
-            $db->setQuery("Select Distinct `" . $name . "` From " . $this->bytable . $this->properties->name . " Where `" . $name . "` <> '' " . $where_add . " Order By `" . $name . "`");
+            $tableName = $db->quoteName($this->bytable . $this->properties->name);
+            $fieldName = $db->quoteName((string) $name);
+            $query = $db->getQuery(true)
+                ->select('DISTINCT ' . $fieldName)
+                ->from($tableName)
+                ->where($fieldName . ' <> ' . $db->quote(''))
+                ->order($fieldName);
+
+            if ($whereName !== '') {
+                $query->where($db->quoteName($whereName) . ' = ' . $db->quote((string) $where));
+            }
+
+            $db->setQuery($query);
             return $db->loadColumn();
         }
         return array();
@@ -1116,13 +1125,16 @@ class contentbuilderng_com_contentbuilderng
                 $names = $db->loadColumn();
 
                 if (count($names)) {
-                    $_names = '';
-                    foreach ($names as $name) {
-                        $_names .= "`" . $name . "`,";
-                    }
-                    $_names = rtrim($_names, ',');
-                    if ($_names != '') {
-                        $db->setQuery("Select $_names From " . $tableName . " Where id In (" . implode(',', $items) . ")");
+                    $quotedNames = array_map(
+                        static fn(string $name): string => $db->quoteName($name),
+                        array_map('strval', $names)
+                    );
+                    if ($quotedNames !== []) {
+                        $query = $db->getQuery(true)
+                            ->select($quotedNames)
+                            ->from($db->quoteName($tableName))
+                            ->where($db->quoteName('id') . ' IN (' . implode(',', $items) . ')');
+                        $db->setQuery($query);
                         $upload_fields = $db->loadAssocList();
                         $length = count($upload_fields);
                         for ($i = 0; $i < $length; $i++) {

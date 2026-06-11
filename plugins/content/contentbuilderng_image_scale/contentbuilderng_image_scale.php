@@ -174,7 +174,26 @@ class plgContentContentbuilderng_image_scale extends CMSPlugin implements Subscr
 				if (isset ($article->id) && $article->id && !isset ($article->cbrecord)) {
 
 					// try to obtain the record id if if this is just an article
-					$this->db->setQuery("Select form.`title_field`,form.`protect_upload_directory`,form.`reference_id`,article.`record_id`,article.`form_id`,form.`type`,form.`published_only`,form.`own_only`,form.`own_only_fe` From #__contentbuilderng_articles As article, #__contentbuilderng_forms As form Where form.`published` = 1 And form.id = article.`form_id` And article.`article_id` = " . $this->db->quote($article->id));
+					$query = $this->db->getQuery(true)
+						->select([
+							$this->db->quoteName('form.title_field'),
+							$this->db->quoteName('form.protect_upload_directory'),
+							$this->db->quoteName('form.reference_id'),
+							$this->db->quoteName('article.record_id'),
+							$this->db->quoteName('article.form_id'),
+							$this->db->quoteName('form.type'),
+							$this->db->quoteName('form.published_only'),
+							$this->db->quoteName('form.own_only'),
+							$this->db->quoteName('form.own_only_fe'),
+						])
+						->from($this->db->quoteName('#__contentbuilderng_articles', 'article'))
+						->innerJoin(
+							$this->db->quoteName('#__contentbuilderng_forms', 'form')
+							. ' ON ' . $this->db->quoteName('form.id') . ' = ' . $this->db->quoteName('article.form_id')
+						)
+						->where($this->db->quoteName('form.published') . ' = 1')
+						->where($this->db->quoteName('article.article_id') . ' = ' . (int) $article->id);
+					$this->db->setQuery($query);
 					$data = $this->db->loadAssoc();
 					if (!is_array($data) || empty($data['type']) || !array_key_exists('reference_id', $data)) {
 						return true;
