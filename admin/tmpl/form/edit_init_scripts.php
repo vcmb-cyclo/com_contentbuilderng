@@ -72,6 +72,7 @@ use Joomla\CMS\Language\Text;
         order: true
     });
     const cbFormId = <?php echo (int) ($this->item->id ?? 0); ?>;
+    const cbDebugModeEnabled = <?php echo !empty($this->item->debug_mode) ? 'true' : 'false'; ?>;
     const cbSaveAnimationDurationMs = 500;
     const cbIsBreezingFormsType = <?php echo $isBreezingFormsType ? 'true' : 'false'; ?>;
     const cbBreezingFormsEditableToken = <?php echo json_encode($breezingFormsEditableToken, JSON_UNESCAPED_UNICODE); ?>;
@@ -575,6 +576,33 @@ use Joomla\CMS\Language\Text;
         'form.unpublish':     '0'
     };
 
+    function cbToggleDebugTab(show) {
+        var tabEl = document.getElementById('tab11');
+        var tabBtn = document.querySelector('[aria-controls="tab11"]');
+        if (tabEl) {
+            if (show) {
+                tabEl.removeAttribute('hidden');
+                tabEl.style.display = '';
+            } else {
+                tabEl.setAttribute('hidden', '');
+                tabEl.style.display = 'none';
+            }
+        }
+        if (tabBtn) {
+            if (show) {
+                tabBtn.removeAttribute('hidden');
+                tabBtn.style.display = '';
+            } else {
+                tabBtn.setAttribute('hidden', '');
+                tabBtn.style.display = 'none';
+            }
+        }
+    }
+
+    if (!cbDebugModeEnabled) {
+        cbToggleDebugTab(false);
+    }
+
     var cbFormFlagTaskMap = {
         'form.debug_on':  { field: 'debug_mode', value: '1' },
         'form.debug_off': { field: 'debug_mode', value: '0' }
@@ -725,6 +753,8 @@ use Joomla\CMS\Language\Text;
                 cbSubmitTaskAjax(task, rowId, function() {
                     cbApplyAjaxToggleState(actionElement, task);
                     cbUpdateEditableBadge(actionElement, task, rowId);
+                    if (task === 'form.debug_on') { cbToggleDebugTab(true); }
+                    if (task === 'form.debug_off') { cbToggleDebugTab(false); }
                 }, null, actionElement);
                 return false;
             }
@@ -1450,6 +1480,8 @@ use Joomla\CMS\Language\Text;
             cbSubmitTaskAjax(task, rowId, function() {
                 cbApplyAjaxToggleState(actionElement, task);
                 cbUpdateEditableBadge(actionElement, task, rowId);
+                if (task === 'form.debug_on') { cbToggleDebugTab(true); }
+                if (task === 'form.debug_off') { cbToggleDebugTab(false); }
             }, null, actionElement);
         }, true);
 
