@@ -3,3 +3,4 @@
 admin/.phpunit.cache/
 admin/.phpunit.result.cache
 admin/vendor/
+.claude/worktrees/
