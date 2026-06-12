@@ -613,9 +613,9 @@ use Joomla\CMS\Language\Text;
         }
     }
 
-    if (!cbDebugModeEnabled) {
-        cbToggleDebugTab(false);
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        cbToggleDebugTab(cbDebugModeEnabled);
+    });
 
     var cbFormFlagTaskMap = {
         'form.debug_on':  { field: 'debug_mode', value: '1' },

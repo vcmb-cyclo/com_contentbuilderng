@@ -69,6 +69,20 @@ final class FormsDebugActionsTest extends TestCase
         );
     }
 
+    public function testEditViewAppliesInitialDebugTabStateAfterDomIsReady(): void
+    {
+        $script = $this->read('admin/tmpl/form/edit_init_scripts.php');
+
+        self::assertStringContainsString(
+            "document.addEventListener('DOMContentLoaded', function() {\n        cbToggleDebugTab(cbDebugModeEnabled);\n    });",
+            $script
+        );
+        self::assertStringNotContainsString(
+            "if (!cbDebugModeEnabled) {\n        cbToggleDebugTab(false);\n    }",
+            $script
+        );
+    }
+
     public function testToolbarAndControllerExposeBulkDebugActions(): void
     {
         $view = $this->read('admin/src/View/Forms/HtmlView.php');
