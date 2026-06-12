@@ -22,7 +22,7 @@ All trademarks and original copyrights remain the property of their respective o
 
 ## Compatibility
 
-- ✅ Joomla 5.4.x (not tested, shoudl be OK **without** the Backward Compatibility plugin)
+- ✅ Joomla 5.4.x (not tested, should be OK **without** the Backward Compatibility plugin)
 - ✅ Joomla 6.x. (tested **with and witout** the Backward Compatibility plugin)
 - ✅ PHP 8.3 
 
