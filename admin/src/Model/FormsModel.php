@@ -46,6 +46,7 @@ class FormsModel extends ListModel
                 'a.tag',
                 'a.title',
                 'a.type',
+                'a.debug_mode',
                 'a.published',
                 'a.modified',
                 'a.ordering'
@@ -218,7 +219,7 @@ class FormsModel extends ListModel
         }
 
         // Optionnel : whitelist rapide des colonnes triables
-        $allowedOrdering = ['a.id', 'a.name', 'a.tag', 'a.title', 'a.type', 'a.published', 'a.created', 'a.modified', 'a.ordering'];
+        $allowedOrdering = ['a.id', 'a.name', 'a.tag', 'a.title', 'a.type', 'a.debug_mode', 'a.published', 'a.created', 'a.modified', 'a.ordering'];
         if (!in_array($ordering, $allowedOrdering, true)) {
             $ordering = 'a.ordering';
         }

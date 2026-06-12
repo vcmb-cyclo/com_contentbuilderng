@@ -198,46 +198,44 @@ updateClearButtonState();
         <table class="table table-striped" id="cb-storages-list" data-name="contentbuilderng-storages">
             <thead>
                 <tr>
-                    <th class="w-1 text-nowrap">
+                    <th class="w-1 text-nowrap hasTooltip" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGES_COLUMN_ID_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                         <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_ID', 'a.id', $listDirn, $listOrder); ?>
                     </th>
 
-                    <th class="w-1 text-center">
+                    <th class="w-1 text-center hasTooltip" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_COLUMN_SELECT_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                         <input class="form-check-input" type="checkbox" name="checkall-toggle" value="" onclick="Joomla.checkAll(this);" aria-label="<?php echo htmlspecialchars(Text::_('JGLOBAL_CHECK_ALL'), ENT_QUOTES, 'UTF-8'); ?>">
                     </th>
 
-                    <th width="60" class="text-center">
+                    <th width="60" class="text-center hasTooltip" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGES_COLUMN_PREVIEW_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                         <span
-                            class="cb-preview-head-icon hasTooltip"
-                            title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_PREVIEW'), ENT_QUOTES, 'UTF-8'); ?>"
-                            data-bs-placement="top"
+                            class="cb-preview-head-icon"
                         >
                             <span class="fa-solid fa-eye" aria-hidden="true"></span>
                             <span class="visually-hidden"><?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW'); ?></span>
                         </span>
                     </th>
 
-                    <th>
+                    <th class="hasTooltip" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGES_COLUMN_NAME_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                         <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_NAME', 'a.name', $listDirn, $listOrder); ?>
                     </th>
 
-                    <th>
+                    <th class="hasTooltip" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGES_COLUMN_TITLE_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                         <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_STORAGE_TITLE', 'a.title', $listDirn, $listOrder); ?>
                     </th>
 
-                    <th class="text-nowrap">
+                    <th class="text-nowrap hasTooltip" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGES_COLUMN_MODE_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                         <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_STORAGE_MODE', 'a.bytable', $listDirn, $listOrder); ?>
                     </th>
 
-                    <th class="w-10 text-nowrap">
+                    <th class="w-10 text-nowrap hasTooltip" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_COLUMN_ORDERING_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                         <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_ORDERBY', 'a.ordering', $listDirn, $listOrder); ?>
                     </th>
 
-                    <th class="w-10 text-nowrap">
+                    <th class="w-10 text-nowrap hasTooltip" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_COLUMN_MODIFIED_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                         <?php echo HTMLHelper::_('searchtools.sort', 'JGLOBAL_MODIFIED', 'a.modified', $listDirn, $listOrder); ?>
                     </th>
 
-                    <th class="w-1 text-center">
+                    <th class="w-1 text-center hasTooltip" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGES_COLUMN_PUBLISHED_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                         <?php echo HTMLHelper::_('searchtools.sort', 'COM_CONTENTBUILDERNG_PUBLISHED', 'a.published', $listDirn, $listOrder); ?>
                     </th>
                 </tr>

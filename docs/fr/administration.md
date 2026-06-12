@@ -16,6 +16,10 @@ Actions disponibles :
 - rechercher, filtrer et trier ;
 - ouvrir l'aide.
 
+Chaque titre de colonne affiche une infobulle descriptive au survol. Les colonnes
+triables conservent leur fonctionnement habituel : cliquez sur leur titre pour
+changer le tri.
+
 La suppression d'un stockage interne peut supprimer sa table de données. Une table
 externe n'est pas supprimée par la suppression de sa définition, selon le message de
 confirmation présent dans l'interface.
@@ -87,9 +91,15 @@ La liste des vues permet :
 - copier ;
 - éditer ;
 - publier ou dépublier ;
+- activer ou désactiver le mode Debug sur une ou plusieurs vues sélectionnées depuis
+  **Actions > Debug** ou **Actions > Non debug** ;
 - supprimer ;
 - filtrer par texte, état ou mot-clé ;
 - prévisualiser.
+
+La colonne **Debug**, placée juste avant **Publié**, permet aussi de basculer ce mode
+pour une seule vue. Une icône de bug verte indique que le Debug est actif. Chaque
+titre de colonne affiche une infobulle descriptive au survol.
 
 Une vue doit être publiée et associée à une source valide pour fonctionner hors
 prévisualisation administrateur.
@@ -121,6 +131,8 @@ Pour chaque champ, les colonnes principales sont :
 - ordre.
 
 Le mode Debug est propre à la vue. Il ne dépend pas du Debug global de Joomla.
+Lorsqu'il est actif, le contrôle Debug de cet écran utilise également une icône de
+bug verte. Un clic permet de le désactiver sans modifier l'état de publication.
 
 ### Onglet Options avancées
 

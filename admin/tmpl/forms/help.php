@@ -64,5 +64,13 @@ use Joomla\CMS\Language\Text;
                 </div>
             </div>
         </div>
+        <div class="col-12">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5 mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_HELP_VIEWS_SEC_LIST'); ?></h2>
+                    <p class="mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_HELP_VIEWS_SEC_LIST_TEXT'); ?></p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

@@ -7,6 +7,9 @@ The main interface is available from **Components > ContentBuilder NG**.
 This screen lists known data structures. Available actions include creating, editing,
 deleting, publishing, unpublishing, searching, filtering, sorting, and opening help.
 
+Each column heading displays a descriptive tooltip on hover. Sortable headings keep
+their normal behavior: click the heading to change the ordering.
+
 Deleting internal storage may delete its data table. According to the confirmation
 message in the interface, deleting an external-storage definition does not delete the
 external table.
@@ -64,7 +67,12 @@ Import checklist:
 ## Views screen
 
 The view list supports create, copy, edit, publish, unpublish, delete, text/state/tag
-filters, and preview.
+filters, preview, and enabling or disabling Debug for selected views through
+**Actions > Debug** and **Actions > No debug**.
+
+The **Debug** column, immediately before **Published**, also toggles Debug for one
+view. A green bug icon indicates that Debug is enabled. Each column heading displays
+a descriptive tooltip on hover.
 
 A view must be published and linked to a valid source to work outside administrator
 preview.
@@ -88,6 +96,8 @@ Main field-column options include:
 - ordering.
 
 View Debug mode is independent from Joomla global Debug mode.
+When enabled, the Debug control on this screen also uses a green bug icon. Clicking
+it disables Debug without changing the publication state.
 
 ### Advanced options tab
 

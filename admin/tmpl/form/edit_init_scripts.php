@@ -311,7 +311,7 @@ use Joomla\CMS\Language\Text;
         return map[String(task || '')] || null;
     }
 
-    function cbUpdateToggleIconClasses(container, enabled) {
+    function cbUpdateToggleIconClasses(container, enabled, useDebugIcon) {
         if (!container || !container.classList) {
             return;
         }
@@ -348,6 +348,8 @@ use Joomla\CMS\Language\Text;
                 'fa-circle-xmark',
                 'fa-xmark',
                 'fa-times',
+                'fa-bug',
+                'text-success',
                 'icon-publish',
                 'icon-unpublish',
                 'icon-check',
@@ -357,11 +359,22 @@ use Joomla\CMS\Language\Text;
             );
 
             if (isFontAwesomeIcon) {
-                icon.classList.add('fa-solid', enabled ? 'fa-check' : 'fa-circle-xmark');
+                icon.classList.add(
+                    'fa-solid',
+                    enabled && useDebugIcon ? 'fa-bug' : (enabled ? 'fa-check' : 'fa-circle-xmark')
+                );
+                if (enabled && useDebugIcon) {
+                    icon.classList.add('text-success');
+                }
             }
 
             if (isLegacyJoomlaIcon) {
-                icon.classList.add(enabled ? 'icon-publish' : 'icon-unpublish');
+                if (enabled && useDebugIcon) {
+                    icon.classList.remove('icon');
+                    icon.classList.add('fa', 'fa-solid', 'fa-bug', 'text-success');
+                } else {
+                    icon.classList.add(enabled ? 'icon-publish' : 'icon-unpublish');
+                }
             }
         });
     }
@@ -413,9 +426,10 @@ use Joomla\CMS\Language\Text;
             visualHost.classList.toggle('active', !!meta.enabled);
         }
 
-        cbUpdateToggleIconClasses(visualHost, !!meta.enabled);
+        var useDebugIcon = task === 'form.debug_on' || task === 'form.debug_off';
+        cbUpdateToggleIconClasses(visualHost, !!meta.enabled, useDebugIcon);
         if (visualHost !== actionElement) {
-            cbUpdateToggleIconClasses(actionElement, !!meta.enabled);
+            cbUpdateToggleIconClasses(actionElement, !!meta.enabled, useDebugIcon);
         }
     }
 

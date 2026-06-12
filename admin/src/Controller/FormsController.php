@@ -30,6 +30,9 @@ use Joomla\CMS\MVC\Controller\AdminController;
 use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
+use Joomla\Database\DatabaseInterface;
+use Joomla\Database\ParameterType;
+use Joomla\Utilities\ArrayHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Model\FormModel;
 
@@ -192,6 +195,58 @@ final class FormsController extends AdminController
         $this->setRedirect(
             Route::_('index.php?option=com_contentbuilderng&task=forms.display&limitstart=' . $this->input->getInt('limitstart'),
             false));
+    }
+
+    public function debug_on(): void
+    {
+        $this->setDebugMode(1);
+    }
+
+    public function debug_off(): void
+    {
+        $this->setDebugMode(0);
+    }
+
+    private function setDebugMode(int $state): void
+    {
+        $this->checkToken();
+
+        $cid = (array) $this->input->get('cid', [], 'array');
+        ArrayHelper::toInteger($cid);
+        $cid = array_values(array_filter($cid));
+
+        if ($cid === []) {
+            $this->setMessage(Text::_('JERROR_NO_ITEMS_SELECTED'), 'warning');
+        } else {
+            try {
+                $db = Factory::getContainer()->get(DatabaseInterface::class);
+                $query = $db->getQuery(true)
+                    ->update($db->quoteName('#__contentbuilderng_forms'))
+                    ->set($db->quoteName('debug_mode') . ' = ' . $state)
+                    ->whereIn($db->quoteName('id'), $cid, ParameterType::INTEGER);
+
+                $db->setQuery($query);
+                $db->execute();
+
+                $this->setMessage(
+                    Text::plural(
+                        $state === 1
+                            ? 'COM_CONTENTBUILDERNG_N_ITEMS_DEBUG_ON'
+                            : 'COM_CONTENTBUILDERNG_N_ITEMS_DEBUG_OFF',
+                        count($cid)
+                    )
+                );
+            } catch (\Throwable $e) {
+                $this->setMessage($e->getMessage(), 'warning');
+            }
+        }
+
+        $this->setRedirect(
+            Route::_(
+                'index.php?option=com_contentbuilderng&view=forms&limitstart=' . $this->input->getInt('limitstart'),
+                false
+            )
+        );
     }
 
 

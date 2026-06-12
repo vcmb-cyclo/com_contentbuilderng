@@ -68,4 +68,11 @@ use Joomla\CMS\Language\Text;
         </div>
     </div>
 
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="h5 mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_HELP_STORAGES_SEC_LIST'); ?></h2>
+            <p class="mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_HELP_STORAGES_SEC_LIST_TEXT'); ?></p>
+        </div>
+    </div>
+
 </div>

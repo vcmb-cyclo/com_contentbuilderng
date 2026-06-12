@@ -67,6 +67,16 @@ class HtmlView extends BaseHtmlView
         $statusChildToolbar = $statusDropdown->getChildToolbar();
         $statusChildToolbar->publish('forms.publish')->icon('fa-solid fa-check text-success')->listCheck(true);
         $statusChildToolbar->unpublish('forms.unpublish')->icon('fa-solid fa-circle-xmark text-danger')->listCheck(true);
+        $statusChildToolbar->standardButton('debug_on')
+            ->task('forms.debug_on')
+            ->text('COM_CONTENTBUILDERNG_DEBUG_ON')
+            ->icon('fa fa-bug text-success')
+            ->listCheck(true);
+        $statusChildToolbar->standardButton('debug_off')
+            ->task('forms.debug_off')
+            ->text('COM_CONTENTBUILDERNG_DEBUG_OFF')
+            ->icon('fa fa-bug text-danger')
+            ->listCheck(true);
         ToolbarHelper::deleteList('JGLOBAL_CONFIRM_DELETE', 'forms.delete');
         ToolbarHelper::preferences('com_contentbuilderng');
         ToolbarHelper::help(

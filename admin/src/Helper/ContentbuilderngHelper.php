@@ -638,6 +638,26 @@ class ContentbuilderngHelper
         );
     }
 
+    public static function listDebug($domain, $row, $i, $prefix = '')
+    {
+        $enabled = !empty($row->debug_mode);
+        $toggle = self::renderBooleanStateToggle(
+            $enabled,
+            (int) $i,
+            (string) $prefix . (string) $domain . '.',
+            'debug_on',
+            'debug_off',
+            'COM_CONTENTBUILDERNG_DEBUG_ON',
+            'COM_CONTENTBUILDERNG_DEBUG_OFF'
+        );
+
+        if ($enabled) {
+            $toggle = str_replace('icon-publish', 'fa fa-bug text-success', $toggle);
+        }
+
+        return $toggle;
+    }
+
     public static function publishButton($published, $url_publish, $url_unpublish, $imgY = 'tick.png', $imgX = 'publish_x.png', $allowed = true)
     {
         $isPublished = (bool) $published;

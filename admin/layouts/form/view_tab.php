@@ -95,6 +95,9 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
                     $debugToggleHtml = HTMLHelper::_('jgrid.state', $debugStates, $debugEnabled ? 1 : 0, 0, 'form.', true, true, 'cbdebugstate');
                     $debugToggleHtml = preg_replace('/\saria-labelledby="[^"]*"/', '', (string) $debugToggleHtml) ?? (string) $debugToggleHtml;
                     $debugToggleHtml = preg_replace('#<div role="tooltip"[^>]*>.*?</div>#s', '', (string) $debugToggleHtml) ?? (string) $debugToggleHtml;
+                    if ($debugEnabled) {
+                        $debugToggleHtml = str_replace('icon-publish', 'fa fa-bug text-success', $debugToggleHtml);
+                    }
                     echo $debugToggleHtml;
                     ?>
                     <input type="checkbox" name="cid[]" id="cbdebugstate0" value="<?php echo (int) $item->id; ?>" style="display:none" />
