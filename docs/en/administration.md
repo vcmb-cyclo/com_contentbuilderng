@@ -163,6 +163,8 @@ replaces the native ContentBuilder NG editable template.
 
 This tab is visible when Debug is enabled for the view. Options include:
 
+- the panel always identifies the current Joomla account and the view or form ID,
+  even when none of the optional diagnostics below is selected;
 - show the BreezingForms ID column;
 - show the internal CBNG record ID;
 - enable CBNG logs;

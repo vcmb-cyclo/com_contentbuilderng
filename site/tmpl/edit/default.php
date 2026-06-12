@@ -791,6 +791,7 @@ CSS
             ]);
         }
         echo LayoutHelper::render('contentbuilderng.debug_panel', [
+            'formId' => (int) $id,
             'showCbRecordId' => !empty($this->debug_show_cb_id),
             'cbRecordId' => (int) ($this->cb_record_id ?? 0),
             'showPermissions' => !empty($this->debug_show_permissions),

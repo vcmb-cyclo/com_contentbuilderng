@@ -12,20 +12,35 @@
 
 \defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 
 $permissions = is_array($displayData['permissions'] ?? null) ? $displayData['permissions'] : [];
 $filters = is_array($displayData['filters'] ?? null) ? $displayData['filters'] : [];
 $logs = is_array($displayData['logs'] ?? null) ? $displayData['logs'] : [];
+$formId = (int) ($displayData['formId'] ?? 0);
 $cbRecordId = (int) ($displayData['cbRecordId'] ?? 0);
 $showPermissions = !empty($displayData['showPermissions']);
 $showFilters = !empty($displayData['showFilters']);
 $showLogs = !empty($displayData['showLogs']);
 $showCbRecordId = !empty($displayData['showCbRecordId']);
 
-if (!$showPermissions && !$showFilters && !$showLogs && !$showCbRecordId) {
-    return;
+$identity = Factory::getApplication()->getIdentity();
+$accountId = (int) ($identity->id ?? 0);
+$accountName = trim((string) ($identity->name ?? ''));
+$accountUsername = trim((string) ($identity->username ?? ''));
+
+if ($accountName === '') {
+    $accountName = $accountUsername !== ''
+        ? $accountUsername
+        : Text::_('COM_CONTENTBUILDERNG_DEBUG_GUEST_ACCOUNT');
 }
+
+$accountLabel = $accountName;
+if ($accountUsername !== '' && $accountUsername !== $accountName) {
+    $accountLabel .= ' (' . $accountUsername . ')';
+}
+$accountLabel .= ' (#' . $accountId . ')';
 
 $formatValue = static function ($value): string {
     if (is_bool($value)) {
@@ -101,6 +116,14 @@ $formatValue = static function ($value): string {
         <?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_DETAILS'); ?>
     </summary>
     <div class="cb-debug-details-body">
+
+        <h3 class="h6 mt-3"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_CONTEXT'); ?></h3>
+        <dl class="row mb-0">
+            <dt class="col-sm-4"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_CURRENT_ACCOUNT'); ?></dt>
+            <dd class="col-sm-8"><code><?php echo htmlspecialchars($accountLabel, ENT_QUOTES, 'UTF-8'); ?></code></dd>
+            <dt class="col-sm-4"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_FORM_ID'); ?></dt>
+            <dd class="col-sm-8"><code><?php echo $formId > 0 ? $formId : Text::_('COM_CONTENTBUILDERNG_DEBUG_EMPTY_VALUE'); ?></code></dd>
+        </dl>
 
     <?php if ($showCbRecordId) : ?>
         <h3 class="h6 mt-3"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_CB_RECORD_ID'); ?></h3>

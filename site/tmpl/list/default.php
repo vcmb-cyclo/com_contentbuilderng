@@ -1773,6 +1773,7 @@ CSS
 			]);
 		}
 		echo LayoutHelper::render('contentbuilderng.debug_panel', [
+			'formId' => (int) ($this->form_id ?? 0),
 			'showPermissions' => !empty($this->debug_show_permissions),
 			'permissions' => $debugPermissions,
 			'showFilters' => !empty($this->debug_show_filters),

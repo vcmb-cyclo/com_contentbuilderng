@@ -217,6 +217,8 @@ BreezingForms et remplace le template éditable natif.
 
 Visible lorsque le mode Debug de la vue est activé. Options :
 
+- le panneau rappelle toujours le compte Joomla courant et l'ID de la vue ou du
+  formulaire, même si aucune option facultative ci-dessous n'est cochée ;
 - afficher la colonne ID BreezingForms ;
 - afficher l'ID interne CBNG ;
 - activer les logs CBNG ;
