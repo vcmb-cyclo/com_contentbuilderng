@@ -32,7 +32,7 @@
  </uninstall>
  
  <updateservers>
-    <server type="extension" name="ContentBuilder NG" priority="1">https://github.com/vcmb-cyclo/com_contentbuilderng/blob/main/com_contentbuilderng.xml</server>
+    <server type="extension" name="ContentBuilder NG" priority="1">https://raw.githubusercontent.com/vcmb-cyclo/com_contentbuilderng/main/com_contentbuilderng_update.xml</server>
  </updateservers>
 
  <files folder="site">
