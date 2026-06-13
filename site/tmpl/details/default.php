@@ -199,11 +199,11 @@ $wa->addInlineStyle(
     top:var(--cb-details-sticky-top, .5rem);
     z-index:9;
     margin:.25rem 0 .9rem !important;
-    padding:.42rem .5rem;
-    border:1px solid rgba(36,61,86,.2);
-    border-radius:.72rem;
-    background:rgba(255,255,255,.96);
-    box-shadow:0 .38rem .95rem rgba(16,32,56,.15);
+    padding:.65rem .75rem;
+    border:1px solid var(--bs-border-color, #dee2e6);
+    border-radius:.9rem;
+    background:rgba(var(--bs-body-bg-rgb, 255,255,255), .96);
+    box-shadow:0 .35rem .9rem rgba(0,0,0,.06);
     backdrop-filter:blur(6px);
 }
 .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn{

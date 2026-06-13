@@ -16,4 +16,6 @@ namespace CB\Component\Contentbuilderng\Site\Publicforms\List\Tmpl;
 // No direct access
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
+$cbListTemplateVariant = 'cassiopeia';
+
 require_once __DIR__ . '/default.php';

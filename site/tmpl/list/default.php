@@ -693,6 +693,115 @@ $wa->addInlineStyle(
 	padding-top:.22rem;
 	padding-bottom:.22rem;
 }
+.cb-list-template-cassiopeia{
+	--cb-cassiopeia-primary:var(--cassiopeia-color-primary, var(--bs-primary, #112855));
+	--cb-cassiopeia-link:var(--link-color, var(--bs-link-color, #224faa));
+	--cb-cassiopeia-border:var(--bs-border-color, #dfe3e7);
+	--cb-cassiopeia-surface:var(--bs-body-bg, #fff);
+	--cb-cassiopeia-muted:var(--bs-tertiary-bg, #f8f9fa);
+	color:var(--bs-body-color, #22262a);
+}
+.cb-list-template-cassiopeia .cb-list-titlebar{
+	margin-bottom:1rem;
+	padding-bottom:.65rem;
+	border-bottom:2px solid var(--cb-cassiopeia-primary);
+}
+.cb-list-template-cassiopeia .cb-list-title{
+	font-family:var(--cassiopeia-font-family-headings, inherit);
+	font-weight:500;
+}
+.cb-list-template-cassiopeia .cb-list-panel{
+	padding:.75rem;
+	border:1px solid var(--cb-cassiopeia-border);
+	border-radius:.25rem;
+	background:var(--cb-cassiopeia-surface);
+	box-shadow:none;
+}
+.cb-list-template-cassiopeia .cb-list-sticky-panel{
+	background:var(--cb-cassiopeia-muted);
+}
+.cb-list-template-cassiopeia .cb-list-filters{
+	margin:0;
+}
+.cb-list-template-cassiopeia .cb-list-filters td{
+	padding:.25rem;
+}
+.cb-list-template-cassiopeia .cb-list-data-panel{
+	padding:0;
+	overflow:hidden;
+}
+.cb-list-template-cassiopeia .cb-list-table{
+	margin:0!important;
+	--bs-table-bg:var(--cb-cassiopeia-surface);
+	--bs-table-striped-bg:rgba(var(--bs-primary-rgb, 17, 40, 85), .035);
+	--bs-table-hover-bg:rgba(var(--bs-primary-rgb, 17, 40, 85), .075);
+	border-color:var(--cb-cassiopeia-border);
+}
+.cb-list-template-cassiopeia .cb-list-table > :not(caption) > * > *{
+	padding:.7rem .65rem;
+	border-bottom-color:var(--cb-cassiopeia-border);
+}
+.cb-list-template-cassiopeia .cb-list-table thead th,
+.cb-list-template-cassiopeia .cb-list-table thead th.table-light{
+	color:var(--bs-body-color, #22262a);
+	background:var(--cb-cassiopeia-muted)!important;
+	border-bottom:2px solid var(--cb-cassiopeia-primary);
+	font-weight:600;
+	white-space:nowrap;
+}
+.cb-list-template-cassiopeia .cb-list-table thead th a{
+	color:inherit;
+	text-decoration:none;
+}
+.cb-list-template-cassiopeia a:not(.btn):not(.page-link){
+	color:var(--cb-cassiopeia-link);
+}
+.cb-list-template-cassiopeia .btn,
+.cb-list-template-cassiopeia .form-control,
+.cb-list-template-cassiopeia .form-select,
+.cb-list-template-cassiopeia .input-group-text{
+	border-radius:.25rem!important;
+}
+.cb-list-template-cassiopeia .btn{
+	box-shadow:none;
+}
+.cb-list-template-cassiopeia .btn-primary{
+	border-color:var(--cb-cassiopeia-primary);
+	background:var(--cb-cassiopeia-primary);
+}
+.cb-list-template-cassiopeia .form-control:focus,
+.cb-list-template-cassiopeia .form-select:focus{
+	border-color:var(--cb-cassiopeia-primary);
+	box-shadow:0 0 0 .2rem rgba(var(--bs-primary-rgb, 17, 40, 85), .2);
+}
+.cb-list-template-cassiopeia .pagination__wrapper{
+	margin:0!important;
+	padding:.75rem;
+	border-top:1px solid var(--cb-cassiopeia-border);
+	background:var(--cb-cassiopeia-surface);
+}
+.cb-list-template-cassiopeia .pagination .page-link{
+	color:var(--cb-cassiopeia-link);
+	border-color:var(--cb-cassiopeia-border);
+	border-radius:0!important;
+}
+.cb-list-template-cassiopeia .pagination .page-item:first-child .page-link{
+	border-top-left-radius:.25rem!important;
+	border-bottom-left-radius:.25rem!important;
+}
+.cb-list-template-cassiopeia .pagination .page-item:last-child .page-link{
+	border-top-right-radius:.25rem!important;
+	border-bottom-right-radius:.25rem!important;
+}
+.cb-list-template-cassiopeia .pagination .active .page-link{
+	color:#fff;
+	border-color:var(--cb-cassiopeia-primary);
+	background:var(--cb-cassiopeia-primary);
+}
+.cb-list-template-cassiopeia .cb-scroll-x{
+	padding-bottom:0;
+	box-shadow:none;
+}
 .cb-list-template-tiles .cb-list-cards{
 	display:grid;
 	grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));
@@ -1073,6 +1182,19 @@ $wa->addInlineStyle(
 	}
 }
 @media (max-width:767.98px){
+	.cb-list-template-cassiopeia .cb-list-panel{
+		padding:.5rem;
+	}
+	.cb-list-template-cassiopeia .cb-list-data-panel{
+		padding:0;
+	}
+	.cb-list-template-cassiopeia .cb-list-filters .d-flex{
+		align-items:stretch!important;
+	}
+	.cb-list-template-cassiopeia .cb-list-filters .input-group{
+		max-width:none!important;
+		width:100%;
+	}
 	.cb-list-template-cards .cb-list-cards{
 		grid-template-columns:1fr;
 	}

@@ -665,6 +665,129 @@ class plgContentbuilderng_themesJoomla6 extends CMSPlugin implements SubscriberI
     box-shadow: 0 0.2rem 0.6rem rgba(16, 32, 56, 0.08);
 }
 
+/* Keep Details and Edit visually aligned with the standard list view. */
+.cbEditableWrapper,
+.cbDetailsWrapper {
+    max-width: 100%;
+    margin: 0.7rem 0 1.4rem;
+    padding: 0;
+    color: var(--bs-body-color, #212529);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.cbEditableWrapper > h1.display-6,
+.cbDetailsWrapper > h1.display-6 {
+    margin: 0 0 0.9rem !important;
+    padding: 0 0 0.55rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    color: var(--bs-body-color, #212529);
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+.cbEditableWrapper > h1.display-6::after,
+.cbDetailsWrapper > h1.display-6::after {
+    display: none;
+}
+
+.cbEditableWrapper .cbToolBar,
+.cbDetailsWrapper .cbToolBar {
+    padding: 0.65rem 0.75rem;
+    border-color: var(--bs-border-color, #dee2e6);
+    border-radius: 0.9rem;
+    background: var(--bs-body-bg, #ffffff);
+    box-shadow: 0 0.35rem 0.9rem rgba(0, 0, 0, 0.06);
+}
+
+.cbEditableWrapper .cbEditableBody,
+.cbDetailsWrapper .cbDetailsBody {
+    padding: 0.65rem 0.75rem;
+    border-color: var(--bs-border-color, #dee2e6);
+    border-radius: 0.9rem;
+    background: var(--bs-body-bg, #ffffff);
+    box-shadow: 0 0.35rem 0.9rem rgba(0, 0, 0, 0.06);
+    color: var(--bs-body-color, #212529);
+}
+
+.cbEditableWrapper .btn,
+.cbDetailsWrapper .btn {
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.cbEditableWrapper .cbColumnHeader,
+.cbEditableWrapper .created-by,
+.cbDetailsWrapper .created-by {
+    border-color: var(--bs-border-color, #dee2e6);
+    background: var(--bs-tertiary-bg, #f8f9fa);
+    color: var(--bs-body-color, #212529);
+}
+
+.cbEditableWrapper #cbArticleOptions,
+.cbEditableWrapper fieldset,
+.cbEditableWrapper .cbEditableBody > .mb-3,
+.cbDetailsWrapper .cbDetailsBody ul.category.list-striped.list-condensed > li,
+.cbDetailsWrapper .cbDetailsBody .list-group.list-group-flush > .list-group-item {
+    border-color: var(--bs-border-color, #dee2e6) !important;
+    background: var(--bs-body-bg, #ffffff);
+    color: var(--bs-body-color, #212529);
+    box-shadow: none;
+}
+
+.cbEditableWrapper .cbEditableBody > .mb-3:nth-child(odd),
+.cbDetailsWrapper .cbDetailsBody ul.category.list-striped.list-condensed > li:nth-child(odd),
+.cbDetailsWrapper .cbDetailsBody .list-group.list-group-flush > .list-group-item:nth-child(odd) {
+    background: rgba(var(--bs-primary-rgb, 13, 110, 253), 0.035);
+}
+
+.cbEditableWrapper .form-label,
+.cbEditableWrapper label,
+.cbEditableWrapper .cbEditableBody > .mb-3 > .form-label,
+.cbEditableWrapper .cbEditableBody > .mb-3 > label.form-label,
+.cbDetailsWrapper .cbDetailsBody ul.category.list-striped.list-condensed > li strong.list-title,
+.cbDetailsWrapper .cbDetailsBody .list-group.list-group-flush > .list-group-item .form-label,
+.cbDetailsWrapper .cbDetailsBody ul.category.list-striped.list-condensed > li > div,
+.cbDetailsWrapper .cbDetailsBody .list-group.list-group-flush > .list-group-item .form-control-plaintext {
+    color: var(--bs-body-color, #212529);
+}
+
+.cbEditableWrapper :is(
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="time"],
+    input[type="url"],
+    input[type="password"],
+    textarea,
+    select
+) {
+    color: var(--bs-body-color, #212529);
+    border-color: var(--bs-border-color, #dee2e6);
+    border-radius: 0.5rem;
+    background-color: var(--bs-body-bg, #ffffff);
+}
+
+.cbEditableWrapper :is(
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="time"],
+    input[type="url"],
+    input[type="password"],
+    textarea,
+    select
+):focus {
+    border-color: rgba(var(--bs-primary-rgb, 13, 110, 253), 0.65);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb, 13, 110, 253), 0.15);
+}
+
 @media (prefers-color-scheme: dark) {
     .cbEditableWrapper,
     .cbDetailsWrapper {
@@ -873,6 +996,30 @@ class plgContentbuilderng_themesJoomla6 extends CMSPlugin implements SubscriberI
         padding: 0 !important;
     }
 }
+
+@media (prefers-color-scheme: dark) {
+    .cbEditableWrapper,
+    .cbDetailsWrapper {
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .cbEditableWrapper > h1.display-6,
+    .cbDetailsWrapper > h1.display-6 {
+        border-bottom-color: rgba(255, 255, 255, 0.16);
+        color: #e7edf6;
+    }
+
+    .cbEditableWrapper .cbToolBar,
+    .cbDetailsWrapper .cbToolBar,
+    .cbEditableWrapper .cbEditableBody,
+    .cbDetailsWrapper .cbDetailsBody {
+        border-color: rgba(173, 193, 216, 0.24);
+        background: #1a2431;
+        box-shadow: 0 0.45rem 1rem rgba(0, 0, 0, 0.32);
+    }
+}
 CSS;
 
         if ($event instanceof Event) {
@@ -940,6 +1087,22 @@ CSS;
 .cb-list-titlebar{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin:0 0 .9rem;padding:.65rem .9rem;border:1px solid rgba(13,110,253,.24);border-left:.35rem solid #0d6efd;border-radius:.85rem;background:linear-gradient(90deg,rgba(13,110,253,.11),rgba(13,110,253,.03));box-shadow:0 .35rem .9rem rgba(13,110,253,.12)}
 .cb-list-title{margin:0!important;font-weight:700;letter-spacing:.01em;color:#12395f}
 .cb-list-title::after{content:"";display:block;width:3.75rem;height:.2rem;margin-top:.45rem;border-radius:999px;background:linear-gradient(90deg,#0d6efd,#3f8cff)}
+.cb-list-table{color:var(--bs-body-color,#212529)}
+.cb-list-table th{color:var(--bs-body-color,#212529)}
+.cb-list-table .form-control,
+.cb-list-table .form-select{
+    color:var(--bs-body-color,#212529);
+    background-color:var(--bs-body-bg,#fff);
+    border-color:var(--bs-border-color,#dee2e6);
+    border-radius:.5rem
+}
+.cb-list-table .form-control:focus,
+.cb-list-table .form-select:focus,
+.cb-list-filters .form-control:focus,
+.cb-list-filters .form-select:focus{
+    border-color:rgba(var(--bs-primary-rgb,13,110,253),.65);
+    box-shadow:0 0 0 .25rem rgba(var(--bs-primary-rgb,13,110,253),.15)
+}
 @media (prefers-color-scheme: dark){
     body{
         background-color:#0f1722;
