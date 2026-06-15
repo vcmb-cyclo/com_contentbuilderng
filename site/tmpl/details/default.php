@@ -95,6 +95,18 @@ $previewActorLabel = trim($previewActorName);
 if ($previewActorLabel === '' && $previewActorId > 0) {
     $previewActorLabel = '#' . $previewActorId;
 }
+$ownerUserId = $isAdminPreview && $previewActorId > 0
+    ? $previewActorId
+    : (int) ($currentUser->id ?? 0);
+$ownerPermissionMatrix = (array) $runtimeApp->getSession()->get('com_contentbuilderng.permissions_fe', []);
+$ownerRuleSet = (array) ($ownerPermissionMatrix['own_fe'] ?? []);
+$formInstance = $this->form ?? null;
+$ownerEditAllowed = $ownerUserId > 0
+    && !empty($ownerRuleSet['edit'])
+    && is_object($formInstance)
+    && method_exists($formInstance, 'isOwner')
+    && $formInstance->isOwner($ownerUserId, $recordId);
+$canEditRecord = $edit_allowed || $ownerEditAllowed;
 $showPreviewSessionBadge = $isAdminPreview && $currentSessionLabel !== '' && $currentSessionLabel !== $previewActorLabel;
 $showTopBar = $detailsTopBarToggle === 1;
 $directStorageUnpublished = !empty($this->direct_storage_unpublished);
@@ -294,7 +306,7 @@ CSS
         <?php
         $debugPermissions = [
             'view' => $view_allowed,
-            'edit' => $edit_allowed,
+            'edit' => $canEditRecord,
             'delete' => $delete_allowed,
             'rating' => $rating_allowed,
         ];
@@ -443,7 +455,7 @@ CSS
     $showActionToolbar = (
         ($detailsBackButtonToggle === 1 && $this->show_back_button)
         || $delete_allowed
-        || $edit_allowed
+        || $canEditRecord
         || ($showTopBar && ($this->print_button || $prevRecordId > 0 || $nextRecordId > 0 || $showCloseButton))
     );
     $showAuditTrail = $showAuthorToggle === 1;
@@ -496,7 +508,7 @@ CSS
         </a>
     <?php endif; ?>
 
-    <?php if ($edit_allowed) : ?>
+    <?php if ($canEditRecord) : ?>
         <a class="btn btn-sm btn-primary cbButton cbEditButton"
             href="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display&id=' . Factory::getApplication()->getInput()->getInt('id', 0) . '&record_id=' . Factory::getApplication()->getInput()->getCmd('record_id', 0) . (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . Factory::getApplication()->getInput()->getInt('Itemid', 0) . (Factory::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->getInput()->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . $previewQuery); ?>"
             title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DETAILS_EDIT_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>">
