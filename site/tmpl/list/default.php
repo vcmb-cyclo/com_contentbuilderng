@@ -91,19 +91,22 @@ if ($currentSessionLabel === '') {
     $currentSessionLabel = Text::_('COM_CONTENTBUILDERNG_GUEST');
 }
 $currentUserId = (int) ($currentUser->id ?? 0);
+$ownerUserId = $isAdminPreview && $previewActorId > 0
+    ? $previewActorId
+    : $currentUserId;
 $formInstance = $this->form ?? null;
 $ownerPermissionMatrix = (array) $app->getSession()->get('com_contentbuilderng.permissions_fe', []);
 $ownerRuleSet = (array) ($ownerPermissionMatrix['own_fe'] ?? []);
 $hasOwnerViewRule = !empty($ownerRuleSet['view']);
 $hasOwnerEditRule = !empty($ownerRuleSet['edit']);
 $ownerPermissionCache = [];
-$canAccessOwnedRecord = static function (string $action, $recordId) use (&$ownerPermissionCache, $currentUserId, $formInstance, $ownerRuleSet): bool {
+$canAccessOwnedRecord = static function (string $action, $recordId) use (&$ownerPermissionCache, $ownerUserId, $formInstance, $ownerRuleSet): bool {
     $recordId = (string) $recordId;
 
     if (
         $recordId === ''
         || $recordId === '0'
-        || $currentUserId <= 0
+        || $ownerUserId <= 0
         || empty($ownerRuleSet[$action])
         || !is_object($formInstance)
         || !method_exists($formInstance, 'isOwner')
@@ -117,10 +120,19 @@ $canAccessOwnedRecord = static function (string $action, $recordId) use (&$owner
         return $ownerPermissionCache[$cacheKey];
     }
 
-    $ownerPermissionCache[$cacheKey] = (bool) $formInstance->isOwner($currentUserId, $recordId);
+    $ownerPermissionCache[$cacheKey] = (bool) $formInstance->isOwner($ownerUserId, $recordId);
 
     return $ownerPermissionCache[$cacheKey];
 };
+$showEditAction = !empty($this->edit_button) && $edit_allowed;
+if (!$showEditAction && !empty($this->edit_button) && $hasOwnerEditRule) {
+    foreach ((array) $this->items as $item) {
+        if ($canAccessOwnedRecord('edit', $item->colRecord ?? 0)) {
+            $showEditAction = true;
+            break;
+        }
+    }
+}
 $previewActorLabel = trim($previewActorName);
 if ($previewActorLabel === '' && $previewActorId > 0) {
     $previewActorLabel = '#' . $previewActorId;
@@ -2411,17 +2423,11 @@ by this block. -->
 										</span>
 									<?php endif; ?>
 								<?php endif; ?>
-								<?php if ($this->edit_button && ($edit_allowed || $hasOwnerEditRule)) : ?>
-									<?php if ($rowCanEdit) : ?>
-									<a class="btn btn-sm btn-outline-secondary" href="<?php echo $edit_link; ?>" title="<?php echo Text::_('COM_CONTENTBUILDERNG_EDIT'); ?>">
-										<span class="fa-solid fa-pen" aria-hidden="true"></span>
-									</a>
-									<?php else : ?>
-										<span class="btn btn-sm btn-outline-secondary invisible" aria-hidden="true">
+									<?php if (!empty($this->edit_button) && $rowCanEdit) : ?>
+										<a class="btn btn-sm btn-outline-secondary" href="<?php echo $edit_link; ?>" title="<?php echo Text::_('COM_CONTENTBUILDERNG_EDIT'); ?>">
 											<span class="fa-solid fa-pen" aria-hidden="true"></span>
-										</span>
+										</a>
 									<?php endif; ?>
-								<?php endif; ?>
 								<?php if (($this->list_publish || $directStorageMode) && $publish_allowed) : ?>
 									<a
 										class="btn btn-sm btn-outline-secondary"
@@ -2641,7 +2647,7 @@ by this block. -->
 					<?php
 					}
 
-					if ($this->edit_button && $edit_allowed) {
+					if ($showEditAction) {
 					?>
 						<th class="table-light" width="20">
 							<?php echo Text::_('COM_CONTENTBUILDERNG_EDIT'); ?>
@@ -2811,7 +2817,7 @@ by this block. -->
 					}
 					?>
 					<?php
-					if ($this->edit_button && ($edit_allowed || $hasOwnerEditRule)) {
+					if ($showEditAction) {
 					?>
 						<td>
 							<?php if ($rowCanEdit) : ?>
