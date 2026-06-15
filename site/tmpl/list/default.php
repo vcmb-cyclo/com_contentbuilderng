@@ -28,6 +28,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\RatingHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
+use CB\Component\Contentbuilderng\Site\Helper\PreviewColorModeHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 
 /** @var SiteApplication $app */
@@ -259,6 +260,8 @@ if ($previewEnabled && $previewUntil > 0 && $previewSig !== '') {
         (string) $adminReturnContext
     );
 }
+$previewColorMode = PreviewColorModeHelper::resolve($input, $isAdminPreview || $directStorageMode);
+$previewQuery = PreviewColorModeHelper::appendQuery($previewQuery, $previewColorMode);
 
 if ($isAdminPreview) {
     $view_allowed = true;
@@ -272,6 +275,7 @@ $ratingCsrfToken = Session::getFormToken();
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 
 $wa->useScript('com_contentbuilderng.contentbuilderng');
+PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
 
 $___getpost = 'post';
 $___tableOrdering = "Joomla.tableOrdering = function";
@@ -1939,6 +1943,7 @@ CSS
 							</select>
 						</span>
 					<?php endif; ?>
+					<?php echo LayoutHelper::render('contentbuilderng.preview_color_mode', ['mode' => $previewColorMode]); ?>
 					<?php echo ' - ' . Text::sprintf($directStorageMode ? 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_STORAGE' : 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName); ?>
 	                <?php if ($previewActorLabel !== ''): ?>
 	                    <span class="badge text-bg-secondary ms-2">Preview actor: <?php echo htmlspecialchars($previewActorLabel, ENT_QUOTES, 'UTF-8'); ?><?php echo $previewActorId > 0 ? ' (#' . (int) $previewActorId . ')' : ''; ?></span>

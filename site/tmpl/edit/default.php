@@ -26,6 +26,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
+use CB\Component\Contentbuilderng\Site\Helper\PreviewColorModeHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 
 /** @var SiteApplication $app */
@@ -160,6 +161,9 @@ if ($previewEnabled && $previewUntil > 0 && $previewSig !== '') {
         (string) $adminReturnContext
     );
 }
+$previewColorMode = PreviewColorModeHelper::resolve($input, $isAdminPreview);
+$previewQuery = PreviewColorModeHelper::appendQuery($previewQuery, $previewColorMode);
+$previewHiddenFields = PreviewColorModeHelper::appendHiddenField($previewHiddenFields, $previewColorMode);
 
 $detailsHref = Route::_(
     'index.php?option=com_contentbuilderng&task=details.display'
@@ -377,6 +381,7 @@ if (!empty($this->theme_css) || !empty($this->theme_js)) {
     }
 }
 $wa = $app->getDocument()->getWebAssetManager();
+PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
 $wa->addInlineStyle(
     <<<'CSS'
 .cb-preview-config-help{
@@ -807,6 +812,7 @@ CSS
         <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <span>
                 <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE') . ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName); ?>
+                <?php echo LayoutHelper::render('contentbuilderng.preview_color_mode', ['mode' => $previewColorMode]); ?>
                 <?php if ($previewActorLabel !== ''): ?>
                     <span class="badge text-bg-secondary ms-2">Preview actor: <?php echo htmlspecialchars($previewActorLabel, ENT_QUOTES, 'UTF-8'); ?><?php echo $previewActorId > 0 ? ' (#' . (int) $previewActorId . ')' : ''; ?></span>
                 <?php endif; ?>
@@ -858,7 +864,7 @@ CSS
     }
     if (($edit_allowed || $new_allowed) && !$this->edit_by_type) {
     ?>
-        <button class="btn btn-sm btn-primary cbButton cbSaveButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_SAVE_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="document.getElementById('contentbuilderng_task').value='edit.apply';contentbuilderng.onSubmit();">
+        <button class="btn btn-sm btn-primary cbButton cbSaveButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_SAVE_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="document.getElementById('contentbuilderng_task').value='edit.save';contentbuilderng.onSubmit();">
             <span class="fa-solid fa-floppy-disk me-1" aria-hidden="true"></span>
             <?php echo trim($this->save_button_title) != '' ? htmlspecialchars($this->save_button_title, ENT_QUOTES, 'UTF-8') : Text::_('COM_CONTENTBUILDERNG_SAVE'); ?>
         </button>
@@ -891,7 +897,7 @@ CSS
             'deleteTitle' => Text::_('COM_CONTENTBUILDERNG_DELETE'),
             'deleteTooltip' => Text::_('COM_CONTENTBUILDERNG_EDIT_DELETE_TOOLTIP'),
             'showClose' => $showBack,
-            'closeTitle' => Text::_('COM_CONTENTBUILDERNG_BACK'),
+            'closeTitle' => Text::_('COM_CONTENTBUILDERNG_CANCEL'),
             'closeTooltip' => Text::_('COM_CONTENTBUILDERNG_EDIT_BACK_TOOLTIP'),
             'closeHref' => $jsBack ? '' : $backHref,
             'closeOnclick' => $jsBack ? 'history.back(-1);void(0);' : '',

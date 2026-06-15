@@ -28,6 +28,7 @@ use Joomla\Input\Input;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
+use CB\Component\Contentbuilderng\Site\Helper\PreviewColorModeHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Site\Model\EditModel;
 
@@ -184,11 +185,6 @@ class EditController extends BaseController
             $type = 'error';
         }
 
-        if ($isAdminPreview) {
-            // In admin preview we keep users on the form page.
-            $apply = true;
-        }
-
         $previewQuery = $this->buildPreviewQuery();
         $listQuery = $this->buildListQuery();
 
@@ -197,7 +193,7 @@ class EditController extends BaseController
         } else if ($apply) {
             $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->input->get('title', '', 'string') . ($this->siteApp->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->input->get('tmpl', '', 'string') : '') . ($this->siteApp->input->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->input->get('layout', '', 'string') : '') . '&task=edit.display&return=' . NavigationLinkHelper::encodeInternalReturn((string) $this->siteApp->input->get('return', '', 'string')) . '&backtolist=' . $this->siteApp->input->getInt('backtolist', 0) . '&id=' . $this->siteApp->input->getInt('id', 0) . '&record_id=' . $id . '&Itemid=' . $this->siteApp->input->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '') . $previewQuery, false);
         } else {
-            $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->input->get('title', '', 'string') . ($this->siteApp->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->input->get('tmpl', '', 'string') : '') . ($this->siteApp->input->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->input->get('layout', '', 'string') : '') . '&task=list.display&id=' . $this->siteApp->input->getInt('id', 0) . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . $this->siteApp->input->getInt('Itemid', 0), false);
+            $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->input->get('title', '', 'string') . ($this->siteApp->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->input->get('tmpl', '', 'string') : '') . ($this->siteApp->input->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->input->get('layout', '', 'string') : '') . '&task=list.display&id=' . $this->siteApp->input->getInt('id', 0) . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . $this->siteApp->input->getInt('Itemid', 0) . $previewQuery, false);
         }
         $this->setRedirect($link, $msg, $type);
     }
@@ -489,7 +485,10 @@ class EditController extends BaseController
             return '';
         }
 
-        return PreviewLinkHelper::buildQuery($until, $actorId, $actorName, $userId, $sig, $adminReturn);
+        $query = PreviewLinkHelper::buildQuery($until, $actorId, $actorName, $userId, $sig, $adminReturn);
+        $colorMode = PreviewColorModeHelper::resolve($this->input, true);
+
+        return PreviewColorModeHelper::appendQuery($query, $colorMode);
     }
 
     private function isAjaxCall(): bool

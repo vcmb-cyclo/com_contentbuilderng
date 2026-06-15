@@ -35,17 +35,5 @@ final class DetailsStateRatingLayoutTest extends TestCase
             '.cbDetailsMetaAside .cbDetailRating{',
             $template
         );
-        self::assertStringContainsString(
-            '.cbDetailsWrapper .form-check-input:disabled{',
-            $template
-        );
-        self::assertStringContainsString(
-            'border-color:#b8b8b8;',
-            $template
-        );
-        self::assertStringContainsString(
-            'color:#909090;',
-            $template
-        );
     }
 }

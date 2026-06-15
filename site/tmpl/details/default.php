@@ -26,6 +26,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
+use CB\Component\Contentbuilderng\Site\Helper\PreviewColorModeHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 
 $frontend = Factory::getApplication()->isClient('site');
@@ -141,6 +142,8 @@ if ($previewEnabled && $previewUntil > 0 && $previewSig !== '') {
         (string) $adminReturnContext
     );
 }
+$previewColorMode = PreviewColorModeHelper::resolve($input, $isAdminPreview || $directStorageMode);
+$previewQuery = PreviewColorModeHelper::appendQuery($previewQuery, $previewColorMode);
 
 $printLink = Route::_('index.php?option=com_contentbuilderng&title=' . $input->get('title', '', 'string')
     . ($input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $input->get('tmpl', '', 'string') : '')
@@ -160,6 +163,7 @@ $wa = $document->getWebAssetManager();
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 
 $wa->useScript('com_contentbuilderng.contentbuilderng');
+PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
 ?>
 
 <?php if ($this->author)
@@ -228,19 +232,6 @@ $wa->addInlineStyle(
 .cbDetailsMetaAside .cbDetailState,
 .cbDetailsMetaAside .cbDetailRating{
     margin:0;
-}
-.cbDetailsWrapper .form-check-input:disabled{
-    opacity:1;
-    border-color:#b8b8b8;
-    background-color:#f4f4f4;
-}
-.cbDetailsWrapper .form-check-input:disabled:checked{
-    border-color:#b0b0b0;
-    background-color:#b8b8b8;
-}
-.cbDetailsWrapper .form-check-input:disabled ~ .form-check-label{
-    color:#909090;
-    opacity:1;
 }
 .cb-preview-config-help{
     display:inline-flex;
@@ -368,6 +359,7 @@ CSS
         <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <span>
                 <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE') . ' - ' . Text::sprintf($directStorageMode ? 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_STORAGE' : 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName); ?>
+                <?php echo LayoutHelper::render('contentbuilderng.preview_color_mode', ['mode' => $previewColorMode]); ?>
                 <?php if ($previewActorLabel !== ''): ?>
                     <span class="badge text-bg-secondary ms-2">Preview actor: <?php echo htmlspecialchars($previewActorLabel, ENT_QUOTES, 'UTF-8'); ?><?php echo $previewActorId > 0 ? ' (#' . (int) $previewActorId . ')' : ''; ?></span>
                 <?php endif; ?>
