@@ -213,26 +213,6 @@ $wa->addInlineStyle(
 .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn{
     white-space:nowrap;
 }
-.cbDetailsContentLayout{
-    display:grid;
-    grid-template-columns:minmax(0, 1fr) auto;
-    align-items:start;
-    gap:1rem;
-}
-.cbDetailsContentMain{
-    min-width:0;
-}
-.cbDetailsMetaAside{
-    display:grid;
-    gap:1rem;
-    min-width:170px;
-    padding-left:1rem;
-    border-left:1px solid var(--bs-border-color, #dee2e6);
-}
-.cbDetailsMetaAside .cbDetailState,
-.cbDetailsMetaAside .cbDetailRating{
-    margin:0;
-}
 .cb-preview-config-help{
     display:inline-flex;
     align-items:center;
@@ -280,17 +260,6 @@ $wa->addInlineStyle(
     }
 }
 @media (max-width:767.98px){
-    .cbDetailsContentLayout{
-        grid-template-columns:1fr;
-    }
-    .cbDetailsMetaAside{
-        grid-template-columns:repeat(2, minmax(0, 1fr));
-        min-width:0;
-        padding-top:1rem;
-        padding-left:0;
-        border-top:1px solid var(--bs-border-color, #dee2e6);
-        border-left:0;
-    }
     .cbDetailsWrapper .cbToolBar.cbToolBar--top{
         top:0;
         padding:.38rem;
@@ -575,35 +544,31 @@ CSS
     ?>
 
     <div class="cbDetailsBody">
-        <div class="cbDetailsContentLayout">
-            <div class="cbDetailsContentMain">
-                <?php echo $this->event->beforeDisplayContent; ?>
-                <?php echo $this->toc ?>
-                <?php echo $this->tpl ?>
+        <?php echo $this->event->beforeDisplayContent; ?>
+        <?php echo $this->toc ?>
+        <?php if ($showStateDisplay || $showRatingDisplay) : ?>
+            <div class="cbDetailsMeta d-flex flex-wrap align-items-start gap-4 mb-3">
+                <?php if ($showStateDisplay) : ?>
+                    <div class="cbDetailState">
+                        <div class="form-label fw-semibold mb-1"><?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?></div>
+                        <?php if ($currentStateTitle !== '') : ?>
+                            <span class="badge rounded-pill" style="<?php echo htmlspecialchars($currentStateBadgeStyle, ENT_QUOTES, 'UTF-8'); ?>">
+                                <?php echo htmlspecialchars($currentStateTitle, ENT_QUOTES, 'UTF-8'); ?>
+                            </span>
+                        <?php else : ?>
+                            <span class="text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'); ?></span>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+                <?php if ($showRatingDisplay) : ?>
+                    <div class="cbDetailRating">
+                        <div class="form-label fw-semibold mb-1"><?php echo Text::_('COM_CONTENTBUILDERNG_PERM_RATING'); ?></div>
+                        <?php echo RatingHelper::getRating((int) $input->getInt('id', 0), (int) $recordId, (float) ($this->rating ?? 0), (int) ($this->rating_slots ?? 0), $input->getCmd('lang', ''), $rating_allowed, (int) ($this->rating_count ?? 0), (int) ($this->rating_sum ?? 0)); ?>
+                    </div>
+                <?php endif; ?>
             </div>
-            <?php if ($showStateDisplay || $showRatingDisplay) : ?>
-                <aside class="cbDetailsMetaAside">
-                    <?php if ($showStateDisplay) : ?>
-                        <div class="cbDetailState">
-                            <div class="form-label fw-semibold mb-1"><?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?></div>
-                            <?php if ($currentStateTitle !== '') : ?>
-                                <span class="badge rounded-pill" style="<?php echo htmlspecialchars($currentStateBadgeStyle, ENT_QUOTES, 'UTF-8'); ?>">
-                                    <?php echo htmlspecialchars($currentStateTitle, ENT_QUOTES, 'UTF-8'); ?>
-                                </span>
-                            <?php else : ?>
-                                <span class="text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'); ?></span>
-                            <?php endif; ?>
-                        </div>
-                    <?php endif; ?>
-                    <?php if ($showRatingDisplay) : ?>
-                        <div class="cbDetailRating">
-                            <div class="form-label fw-semibold mb-1"><?php echo Text::_('COM_CONTENTBUILDERNG_PERM_RATING'); ?></div>
-                            <?php echo RatingHelper::getRating((int) $input->getInt('id', 0), (int) $recordId, (float) ($this->rating ?? 0), (int) ($this->rating_slots ?? 0), $input->getCmd('lang', ''), $rating_allowed, (int) ($this->rating_count ?? 0), (int) ($this->rating_sum ?? 0)); ?>
-                        </div>
-                    <?php endif; ?>
-                </aside>
-            <?php endif; ?>
-        </div>
+        <?php endif; ?>
+        <?php echo $this->tpl ?>
         <?php echo $this->event->afterDisplayContent; ?>
     </div>
 

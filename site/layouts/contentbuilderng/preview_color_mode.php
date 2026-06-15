@@ -23,7 +23,6 @@ $modes = [
 ];
 ?>
 <span class="d-inline-flex align-items-center gap-2 ms-2">
-    <span><?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_COLOR_MODE'); ?></span>
     <span class="btn-group btn-group-sm" role="group" aria-label="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_PREVIEW_COLOR_MODE'), ENT_QUOTES, 'UTF-8'); ?>">
         <?php foreach ($modes as $mode => $config) : ?>
             <?php

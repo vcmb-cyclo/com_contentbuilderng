@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DetailsStateRatingLayoutTest extends TestCase
 {
-    public function testStateAndRatingUseDetailsRightSidePanel(): void
+    public function testStateAndRatingShareOneDetailsRow(): void
     {
         $template = \file_get_contents(
             \dirname(__DIR__, 4) . '/site/tmpl/details/default.php'
@@ -16,24 +16,17 @@ final class DetailsStateRatingLayoutTest extends TestCase
 
         self::assertIsString($template);
         self::assertStringContainsString(
-            'grid-template-columns:minmax(0, 1fr) auto;',
-            $template
-        );
-        self::assertStringContainsString(
-            '<aside class="cbDetailsMetaAside">',
-            $template
-        );
-        self::assertStringContainsString(
             'if ($showStateDisplay || $showRatingDisplay)',
             $template
         );
         self::assertStringContainsString(
-            '.cbDetailsMetaAside .cbDetailState,',
+            '<div class="cbDetailsMeta d-flex flex-wrap align-items-start gap-4 mb-3">',
             $template
         );
-        self::assertStringContainsString(
-            '.cbDetailsMetaAside .cbDetailRating{',
-            $template
+        self::assertStringNotContainsString('<aside class="cbDetailsMetaAside">', $template);
+        self::assertLessThan(
+            strpos($template, '<?php echo $this->tpl ?>'),
+            strpos($template, '<div class="cbDetailsMeta d-flex flex-wrap align-items-start gap-4 mb-3">')
         );
     }
 }
