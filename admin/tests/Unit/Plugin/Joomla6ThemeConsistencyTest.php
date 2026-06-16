@@ -112,7 +112,7 @@ final class Joomla6ThemeConsistencyTest extends TestCase
                 . "    min-height: 2rem;\n"
                 . "    padding-top: 0.24rem;\n"
                 . "    padding-bottom: 0.24rem;\n"
-                . "    padding-right: 2.65rem;",
+                . "    padding-right: 3.25rem;",
             $this->source
         );
         self::assertStringContainsString(
@@ -130,7 +130,7 @@ final class Joomla6ThemeConsistencyTest extends TestCase
                 . "    font-size: 0.83rem;\n"
                 . "    padding-top: 0.2rem;\n"
                 . "    padding-bottom: 0.2rem;\n"
-                . "    padding-right: 2.45rem;",
+                . "    padding-right: 3.25rem;",
             $this->source
         );
     }

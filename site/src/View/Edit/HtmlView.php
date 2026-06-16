@@ -598,7 +598,7 @@ class HtmlView extends BaseHtmlView
 .cbEditableWrapper :is(input[type="text"],input[type="email"],input[type="number"],input[type="date"],input[type="datetime-local"],input[type="time"],input[type="url"],input[type="password"],textarea,select){min-height:1.82rem;padding:.24rem .42rem}
 .cbEditableWrapper .form-select.form-select-sm,.cbEditableWrapper .form-select-sm,.cbEditableWrapper .form-control.form-control-sm{min-height:1.72rem;font-size:.84rem;padding-top:.16rem;padding-bottom:.16rem}
 .cbEditableWrapper select,.cbEditableWrapper .form-select,.cbEditableWrapper .form-select-sm{line-height:1.35;vertical-align:middle}
-.cbEditableWrapper select:not([multiple]):not([size]),.cbEditableWrapper .form-select:not([multiple]):not([size]),.cbEditableWrapper .form-select-sm:not([multiple]):not([size]){min-height:1.94rem;padding-top:.2rem;padding-bottom:.2rem;padding-right:1.9rem}
+.cbEditableWrapper select:not([multiple]):not([size]),.cbEditableWrapper .form-select:not([multiple]):not([size]),.cbEditableWrapper .form-select-sm:not([multiple]):not([size]){min-height:1.94rem;padding-top:.2rem;padding-bottom:.2rem;padding-right:3.25rem}
 .cbEditableWrapper .form-select:not([multiple]):not([size]),.cbEditableWrapper .form-select-sm:not([multiple]):not([size]){background-position:right .62rem center;background-repeat:no-repeat}
 @media (max-width:767.98px){
     .cbEditableWrapper{margin-top:.4rem;padding:.58rem .5rem .6rem;border-radius:.68rem}
