@@ -7,7 +7,7 @@
     <copyright>This Joomla! plugin is released under the GNU/GPL license</copyright>
     <authorEmail>noreply@vcmb.fr</authorEmail>
     <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-    <version>6.1.7-RC49</version>
+    <version>6.1.7-RC50</version>
     <description>PLG_CONTENT_CONTENTBUILDERNG_STATS_XML_DESCRIPTION</description>
     <files>
         <filename plugin="contentbuilderng_stats">contentbuilderng_stats.php</filename>
