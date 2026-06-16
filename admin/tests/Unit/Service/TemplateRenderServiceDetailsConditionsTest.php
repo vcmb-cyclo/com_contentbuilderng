@@ -100,4 +100,20 @@ final class TemplateRenderServiceDetailsConditionsTest extends TestCase
             $this->source
         );
     }
+
+    public function testUnclosedHideIfEmptyBlocksAreReportedInDebugMode(): void
+    {
+        self::assertStringContainsString(
+            'private function addUnclosedHideIfEmptyWarnings(int $formId, string $template): void',
+            $this->source
+        );
+        self::assertStringContainsString(
+            'COM_CONTENTBUILDERNG_DEBUG_WARNING_TEMPLATE_UNCLOSED_HIDE_IF_EMPTY',
+            $this->source
+        );
+        self::assertStringContainsString(
+            '$this->addUnclosedHideIfEmptyWarnings((int) $contentbuilderngFormId, $template);',
+            $this->source
+        );
+    }
 }

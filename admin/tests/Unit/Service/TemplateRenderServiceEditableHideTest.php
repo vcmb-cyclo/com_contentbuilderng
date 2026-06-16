@@ -62,7 +62,19 @@ final class TemplateRenderServiceEditableHideTest extends TestCase
             $this->source
         );
         self::assertStringContainsString(
-            'str_replace(\'{\' . $key . \':value}\', nl2br(htmlspecialchars((string) $hideIfEmptyValue, ENT_QUOTES, \'UTF-8\')), $template)',
+            'private function replaceEditableReadonlyPair(string $template, string $name, string $labelHtml, string $valueHtml): string',
+            $this->source
+        );
+        self::assertStringContainsString(
+            '\'<div class="mb-3">\' . $labelHtml . \'<div class="form-control-plaintext py-0">\' . $valueHtml . \'</div></div>\'',
+            $this->source
+        );
+        self::assertStringContainsString(
+            '$template = $this->replaceEditableReadonlyPair($template, (string) $key, $labelHtml, $valueHtml);',
+            $this->source
+        );
+        self::assertStringContainsString(
+            'str_replace(\'{\' . $key . \':value}\', \'<div class="form-control-plaintext py-0">\' . $valueHtml . \'</div>\', $template)',
             $this->source
         );
     }

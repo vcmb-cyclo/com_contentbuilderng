@@ -161,6 +161,17 @@ class TemplateRenderService
         );
     }
 
+    private function replaceEditableReadonlyPair(string $template, string $name, string $labelHtml, string $valueHtml): string
+    {
+        $replacement = '<div class="mb-3">' . $labelHtml . '<div class="form-control-plaintext py-0">' . $valueHtml . '</div></div>';
+
+        return (string) preg_replace(
+            '/\\{' . preg_quote($name, '/') . ':label\\}\\s*\\{' . preg_quote($name, '/') . ':value\\}/i',
+            str_replace(['\\', '$'], ['\\\\', '\\$'], $replacement),
+            $template
+        );
+    }
+
     private function applyTemplateHideIfEmpty(string $template, string $name, string $rawValue, bool $preserveEditableItem): string
     {
         $quotedName = preg_quote($name, '/');
@@ -262,6 +273,40 @@ class TemplateRenderService
                     );
                 }
             }
+        }
+    }
+
+    private function addUnclosedHideIfEmptyWarnings(int $formId, string $template): void
+    {
+        if (!preg_match_all('/\\{hide-if-empty\\s+([^}]+)\\}|\\{\\/hide\\}/i', $template, $matches, PREG_SET_ORDER)) {
+            return;
+        }
+
+        $openFieldName = null;
+
+        foreach ($matches as $match) {
+            $token = (string) ($match[0] ?? '');
+
+            if (stripos($token, '{hide-if-empty') === 0) {
+                if ($openFieldName !== null) {
+                    $this->addDebugTemplateWarning(
+                        $formId,
+                        Text::sprintf('COM_CONTENTBUILDERNG_DEBUG_WARNING_TEMPLATE_UNCLOSED_HIDE_IF_EMPTY', $openFieldName)
+                    );
+                }
+
+                $openFieldName = trim((string) ($match[1] ?? ''));
+                continue;
+            }
+
+            $openFieldName = null;
+        }
+
+        if ($openFieldName !== null) {
+            $this->addDebugTemplateWarning(
+                $formId,
+                Text::sprintf('COM_CONTENTBUILDERNG_DEBUG_WARNING_TEMPLATE_UNCLOSED_HIDE_IF_EMPTY', $openFieldName)
+            );
         }
     }
 
@@ -721,6 +766,7 @@ class TemplateRenderService
             }
 
             $template = $this->removeUnknownTemplateMarkers((int) $contentbuilderngFormId, $template, array_keys($items));
+            $this->addUnclosedHideIfEmptyWarnings((int) $contentbuilderngFormId, $template);
 
             foreach ($items as $key => $item) {
                 $rawValue = (string) ($item['raw_value'] ?? '');
@@ -979,6 +1025,7 @@ class TemplateRenderService
         }
 
         $template = $this->removeUnknownTemplateMarkers((int) $contentbuilderngFormId, $template, array_keys($items));
+        $this->addUnclosedHideIfEmptyWarnings((int) $contentbuilderngFormId, $template);
 
         $sourceEditableTypes = method_exists($form, 'getEditableElementTypes') ? (array) $form->getEditableElementTypes() : [];
         $item = null;
@@ -1027,8 +1074,11 @@ class TemplateRenderService
 
                 $fallbackLabel = htmlspecialchars((string) ($item['label'] ?? ''), ENT_QUOTES, 'UTF-8');
                 $fallbackValue = htmlspecialchars((string) $rawValue, ENT_QUOTES, 'UTF-8');
+                $fallbackLabelHtml = '<label>' . $fallbackLabel . '</label>';
 
-                $template = str_replace('{' . $key . ':label}', '<label>' . $fallbackLabel . '</label>', $template);
+                $template = $this->replaceEditableReadonlyPair($template, (string) $key, $fallbackLabelHtml, $fallbackValue);
+                $template = str_replace('{' . $key . ':label}', $fallbackLabelHtml, $template);
+                $template = str_replace('{' . $key . ':value}', '<div class="form-control-plaintext py-0">' . $fallbackValue . '</div>', $template);
                 $template = str_replace('{' . $key . ':item}', $fallbackValue, $template);
                 continue;
             }
@@ -1272,8 +1322,11 @@ class TemplateRenderService
             if ($theItem !== '' || $replaceTokens) {
                 $tip = 'hasTip';
                 $tipPrefix = htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') . '::';
-                $template = str_replace('{' . $key . ':label}', '<label ' . ($elementHint ? 'class="editlinktip ' . $tip . '" title="' . $tipPrefix . $elementHint . '" ' : '') . 'for="cb_' . $item['id'] . '">' . $item['label'] . $asterisk . ($elementHint ? ' <img style="cursor: pointer;" src="' . Uri::root(true) . '/media/com_contentbuilderng/images/icon_info.png" border="0"/>' : '') . '</label>', $template);
-                $template = str_replace('{' . $key . ':value}', nl2br(htmlspecialchars((string) $hideIfEmptyValue, ENT_QUOTES, 'UTF-8')), $template);
+                $labelHtml = '<label ' . ($elementHint ? 'class="editlinktip ' . $tip . '" title="' . $tipPrefix . $elementHint . '" ' : '') . 'for="cb_' . $item['id'] . '">' . $item['label'] . $asterisk . ($elementHint ? ' <img style="cursor: pointer;" src="' . Uri::root(true) . '/media/com_contentbuilderng/images/icon_info.png" border="0"/>' : '') . '</label>';
+                $valueHtml = nl2br(htmlspecialchars((string) $hideIfEmptyValue, ENT_QUOTES, 'UTF-8'));
+                $template = $this->replaceEditableReadonlyPair($template, (string) $key, $labelHtml, $valueHtml);
+                $template = str_replace('{' . $key . ':label}', $labelHtml, $template);
+                $template = str_replace('{' . $key . ':value}', '<div class="form-control-plaintext py-0">' . $valueHtml . '</div>', $template);
                 $template = str_replace('{' . $key . ':item}', $theItem, $template);
             }
         }
