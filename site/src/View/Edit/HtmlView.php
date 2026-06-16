@@ -30,7 +30,6 @@ use Joomla\Database\DatabaseInterface;
 use Joomla\Registry\Registry;
 use CB\Component\Contentbuilderng\Site\Model\EditModel;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
-use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 
 class HtmlView extends BaseHtmlView
 {
@@ -97,10 +96,29 @@ class HtmlView extends BaseHtmlView
     private function isFrontendEditAllowedForNavigation(): bool
     {
         if ($this->frontendEditAllowedForNavigation === null) {
-            $this->frontendEditAllowedForNavigation = (new PermissionService())->authorizeFe('edit');
+            $permissions = (array) Factory::getApplication()->getSession()->get('com_contentbuilderng.permissions_fe', []);
+            $user = Factory::getApplication()->getIdentity();
+            $groups = method_exists($user, 'getAuthorisedGroups') ? (array) $user->getAuthorisedGroups() : [];
+
+            $this->frontendEditAllowedForNavigation = false;
+            if ($this->canUseEditPermissionBase($permissions)) {
+                foreach ($groups as $groupId) {
+                    if (!empty($permissions[(int) $groupId]['edit'])) {
+                        $this->frontendEditAllowedForNavigation = true;
+                        break;
+                    }
+                }
+            }
         }
 
         return $this->frontendEditAllowedForNavigation;
+    }
+
+    private function canUseEditPermissionBase(array $permissions): bool
+    {
+        return ($permissions['published'] ?? false) === true
+            && ($permissions['limit_edit'] ?? false) === true
+            && ($permissions['verify_edit'] ?? false) === true;
     }
 
     private function getOwnerEditNavigationUserId(): int
@@ -134,7 +152,8 @@ class HtmlView extends BaseHtmlView
         $ownerPermissionMatrix = (array) Factory::getApplication()->getSession()->get('com_contentbuilderng.permissions_fe', []);
         $ownerRuleSet = (array) ($ownerPermissionMatrix['own_fe'] ?? []);
 
-        $this->ownerEditNavigationEnabled = $this->getOwnerEditNavigationUserId() > 0
+        $this->ownerEditNavigationEnabled = $this->canUseEditPermissionBase($ownerPermissionMatrix)
+            && $this->getOwnerEditNavigationUserId() > 0
             && !empty($ownerRuleSet['edit'])
             && is_object($this->form)
             && method_exists($this->form, 'isOwner');

@@ -23,7 +23,7 @@ final class EditOwnerNavigationTest extends TestCase
     public function testEditPreviousNextSkipsRecordsNotEditableByOwner(): void
     {
         self::assertStringContainsString(
-            'use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;',
+            'private function isFrontendEditAllowedForNavigation(): bool',
             $this->source
         );
         self::assertStringContainsString(
@@ -31,7 +31,15 @@ final class EditOwnerNavigationTest extends TestCase
             $this->source
         );
         self::assertStringContainsString(
-            "(new PermissionService())->authorizeFe('edit')",
+            "\$permissions = (array) Factory::getApplication()->getSession()->get('com_contentbuilderng.permissions_fe', []);",
+            $this->source
+        );
+        self::assertStringContainsString(
+            "if (!empty(\$permissions[(int) \$groupId]['edit']))",
+            $this->source
+        );
+        self::assertStringContainsString(
+            'private function canUseEditPermissionBase(array $permissions): bool',
             $this->source
         );
         self::assertStringContainsString(
