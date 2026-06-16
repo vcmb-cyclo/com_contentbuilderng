@@ -179,6 +179,7 @@ final class PluginInstallerService
     public function activatePlugins(): void
     {
         $db = $this->db();
+        $alreadyEnabledPlugins = [];
 
         foreach ($this->getPlugins() as $folder => $elements) {
             foreach ($elements as $element) {
@@ -202,11 +203,19 @@ final class PluginInstallerService
 
                     $db->setQuery($query);
                     $db->execute();
-                    $this->log($wasEnabled ? "[OK] Plugin already enabled: {$folder}/{$element}" : "[OK] Plugin enabled: {$folder}/{$element}");
+                    if ($wasEnabled) {
+                        $alreadyEnabledPlugins[] = "{$folder}/{$element}";
+                    } else {
+                        $this->log("[OK] Plugin enabled: {$folder}/{$element}");
+                    }
                 } catch (\Throwable $e) {
                     $this->log("[ERROR] Failed enabling {$folder}/{$element}: " . $e->getMessage(), Log::ERROR);
                 }
             }
+        }
+
+        if ($alreadyEnabledPlugins !== []) {
+            $this->log('[OK] Plugins already enabled: ' . implode(', ', $alreadyEnabledPlugins));
         }
     }
 

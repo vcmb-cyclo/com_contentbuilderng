@@ -122,9 +122,6 @@ class com_contentbuilderngInstallerScript
         $this->writeInstallLogEntry('[INFO] ---------------------------------------------------------', Log::INFO);
         $this->log('[OK] <strong>ContentBuilder NG</strong> installer script booted.', Log::INFO);
 
-        $this->log('[INFO] Joomla version: <strong>' . htmlspecialchars(defined('JVERSION') ? JVERSION : 'unknown', ENT_QUOTES, 'UTF-8') . '</strong>.', Log::INFO);
-        $this->log('[INFO] PHP version: ' . PHP_VERSION . '.', Log::INFO);
-
         $detected = 'unknown';
         try {
             $detected = $this->getCurrentInstalledVersion();
@@ -132,6 +129,8 @@ class com_contentbuilderngInstallerScript
             $detected = 'unknown';
         }
         $this->log('[INFO] Detected installed version: <strong>' . htmlspecialchars((string) $detected, ENT_QUOTES, 'UTF-8') . '</strong>.', Log::INFO);
+        $this->log('[INFO] Joomla version: <strong>' . htmlspecialchars(defined('JVERSION') ? JVERSION : 'unknown', ENT_QUOTES, 'UTF-8') . '</strong>.', Log::INFO);
+        $this->log('[INFO] PHP version: ' . PHP_VERSION . '.', Log::INFO);
 
         $this->logDatabaseRuntimeInfo();
         $this->log('[INFO] User agent: ' . ($_SERVER['HTTP_USER_AGENT'] ?? 'CLI') . '.', Log::INFO);
@@ -1217,9 +1216,6 @@ class com_contentbuilderngInstallerScript
 
         if ($this->updateHighlights !== []) {
             $this->log('[INFO] Visible update summary: shipped plugins/scripts modified during this update.', Log::INFO);
-            foreach ($this->updateHighlights as $highlight) {
-                $this->log('[UPDATED] ' . $highlight, Log::INFO);
-            }
         }
 
         if ($this->libraryUpdateHighlights !== []) {
