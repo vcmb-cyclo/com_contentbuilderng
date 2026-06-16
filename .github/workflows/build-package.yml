@@ -72,6 +72,12 @@ jobs:
         id: package
         run: echo "archive=$(scripts/build-package.sh)" >> "$GITHUB_OUTPUT"
 
+      - name: Calculate package checksum
+        id: checksum
+        run: |
+          sha256="$(sha256sum "${{ steps.package.outputs.archive }}" | awk '{print $1}')"
+          echo "sha256=${sha256}" >> "$GITHUB_OUTPUT"
+
       - name: Validate package contents
         run: scripts/validate-package.sh "${{ steps.package.outputs.archive }}"
 
@@ -93,3 +99,26 @@ jobs:
             "${{ steps.package.outputs.archive }}" \
             --title "ContentBuilder NG ${GITHUB_REF_NAME}" \
             --generate-notes
+
+      - name: Publish update checksum to main
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main:refs/heads/main
+          git switch main
+          current_version="$(grep -oPm1 '(?<=<version>)[^<]+' com_contentbuilderng_update.xml)"
+          if [ "${current_version}" != "${{ steps.version.outputs.version }}" ]; then
+            echo "Update manifest version ${current_version} does not match package version ${{ steps.version.outputs.version }}." >&2
+            exit 1
+          fi
+          perl -0pi -e 's#\n\s*<sha256>.*?</sha256>##g; s#(\n\s*</downloads>)#\n\t\t<sha256>${{ steps.checksum.outputs.sha256 }}</sha256>$1#' com_contentbuilderng_update.xml
+          if git diff --quiet -- com_contentbuilderng_update.xml; then
+            echo "Update checksum already current."
+            exit 0
+          fi
+          git add com_contentbuilderng_update.xml
+          git commit -m "Update package checksum for ${{ steps.version.outputs.version }}"
+          git push origin main
