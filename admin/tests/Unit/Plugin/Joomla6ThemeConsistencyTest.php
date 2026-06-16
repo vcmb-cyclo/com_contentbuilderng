@@ -102,4 +102,36 @@ final class Joomla6ThemeConsistencyTest extends TestCase
             $this->source
         );
     }
+
+    public function testFrontendEditSelectsKeepTextAwayFromBootstrapArrow(): void
+    {
+        self::assertStringContainsString(
+            ".cbEditableWrapper select:not([multiple]):not([size]),\n"
+                . ".cbEditableWrapper .form-select:not([multiple]):not([size]),\n"
+                . ".cbEditableWrapper .form-select-sm:not([multiple]):not([size]) {\n"
+                . "    min-height: 2rem;\n"
+                . "    padding-top: 0.24rem;\n"
+                . "    padding-bottom: 0.24rem;\n"
+                . "    padding-right: 2.65rem;",
+            $this->source
+        );
+        self::assertStringContainsString(
+            ".cbEditableWrapper .form-select:not([multiple]):not([size]),\n"
+                . ".cbEditableWrapper .form-select-sm:not([multiple]):not([size]) {\n"
+                . "    background-position: right 0.72rem center;\n"
+                . "    background-repeat: no-repeat;",
+            $this->source
+        );
+        self::assertStringContainsString(
+            ".cbEditableWrapper .cbEditableBody > .mb-3 select:not([multiple]):not([size]),\n"
+                . ".cbEditableWrapper .cbEditableBody > .mb-3 .form-select:not([multiple]):not([size]),\n"
+                . ".cbEditableWrapper .cbEditableBody > .mb-3 .form-select-sm:not([multiple]):not([size]) {\n"
+                . "    min-height: 1.86rem;\n"
+                . "    font-size: 0.83rem;\n"
+                . "    padding-top: 0.2rem;\n"
+                . "    padding-bottom: 0.2rem;\n"
+                . "    padding-right: 2.45rem;",
+            $this->source
+        );
+    }
 }

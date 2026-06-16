@@ -344,12 +344,12 @@ class plgContentbuilderng_themesJoomla6 extends CMSPlugin implements SubscriberI
     min-height: 2rem;
     padding-top: 0.24rem;
     padding-bottom: 0.24rem;
-    padding-right: 2rem;
+    padding-right: 2.65rem;
 }
 
 .cbEditableWrapper .form-select:not([multiple]):not([size]),
 .cbEditableWrapper .form-select-sm:not([multiple]):not([size]) {
-    background-position: right 0.62rem center;
+    background-position: right 0.72rem center;
     background-repeat: no-repeat;
 }
 
@@ -376,7 +376,7 @@ class plgContentbuilderng_themesJoomla6 extends CMSPlugin implements SubscriberI
     font-size: 0.83rem;
     padding-top: 0.2rem;
     padding-bottom: 0.2rem;
-    padding-right: 1.85rem;
+    padding-right: 2.45rem;
 }
 
 .cbEditableWrapper .cbEditableBody > .mb-3 textarea {

@@ -30,6 +30,64 @@ class contentbuilderng_com_breezingforms
     private ?array $sortableElements = null;
     public $exists = false;
 
+    private static function normalizeGroupValueForMatch(string $value): string
+    {
+        $value = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $value = str_replace(
+            ["\u{00A0}", "\u{2018}", "\u{2019}", "\u{201B}", "\u{2032}", "\u{0060}", "\u{00B4}"],
+            [' ', "'", "'", "'", "'", "'", "'"],
+            $value
+        );
+        $value = strtr($value, [
+            "A\u{0300}" => 'À',
+            "A\u{0301}" => 'Á',
+            "A\u{0302}" => 'Â',
+            "A\u{0308}" => 'Ä',
+            "C\u{0327}" => 'Ç',
+            "E\u{0300}" => 'È',
+            "E\u{0301}" => 'É',
+            "E\u{0302}" => 'Ê',
+            "E\u{0308}" => 'Ë',
+            "I\u{0300}" => 'Ì',
+            "I\u{0301}" => 'Í',
+            "I\u{0302}" => 'Î',
+            "I\u{0308}" => 'Ï',
+            "O\u{0300}" => 'Ò',
+            "O\u{0301}" => 'Ó',
+            "O\u{0302}" => 'Ô',
+            "O\u{0308}" => 'Ö',
+            "U\u{0300}" => 'Ù',
+            "U\u{0301}" => 'Ú',
+            "U\u{0302}" => 'Û',
+            "U\u{0308}" => 'Ü',
+            "Y\u{0308}" => 'Ÿ',
+            "a\u{0300}" => 'à',
+            "a\u{0301}" => 'á',
+            "a\u{0302}" => 'â',
+            "a\u{0308}" => 'ä',
+            "c\u{0327}" => 'ç',
+            "e\u{0300}" => 'è',
+            "e\u{0301}" => 'é',
+            "e\u{0302}" => 'ê',
+            "e\u{0308}" => 'ë',
+            "i\u{0300}" => 'ì',
+            "i\u{0301}" => 'í',
+            "i\u{0302}" => 'î',
+            "i\u{0308}" => 'ï',
+            "o\u{0300}" => 'ò',
+            "o\u{0301}" => 'ó',
+            "o\u{0302}" => 'ô',
+            "o\u{0308}" => 'ö',
+            "u\u{0300}" => 'ù',
+            "u\u{0301}" => 'ú',
+            "u\u{0302}" => 'û',
+            "u\u{0308}" => 'ü',
+            "y\u{0308}" => 'ÿ',
+        ]);
+
+        return trim((string) preg_replace('/\s+/u', ' ', $value));
+    }
+
     private function getEffectiveActor(): array
     {
         $app = Factory::getApplication();
@@ -1269,6 +1327,14 @@ class contentbuilderng_com_breezingforms
                         $value[] = trim($content);
                     }
                 }
+                $value = array_values(array_filter(
+                    array_map(static fn($item): string => trim((string) $item), (array) $value),
+                    static fn(string $item): bool => $item !== '' && $item !== 'cbGroupMark'
+                ));
+                $selectedGroupValues = [];
+                foreach ($value as $selectedValue) {
+                    $selectedGroupValues[self::normalizeGroupValueForMatch($selectedValue)] = true;
+                }
                 $del = array();
                 $groupdef = $this->getGroupDefinition($id);
                 $elemInfoQuery2 = $db->getQuery(true)
@@ -1279,7 +1345,7 @@ class contentbuilderng_com_breezingforms
                 $the_element = $db->loadAssoc();
 
                 foreach ($groupdef as $groupval => $grouplabel) {
-                    if (!in_array($groupval, $value)) {
+                    if (!isset($selectedGroupValues[self::normalizeGroupValueForMatch((string) $groupval)])) {
                         $del[] = $db->quote($groupval);
                     } else {
                         $existsQuery = $db->getQuery(true)
