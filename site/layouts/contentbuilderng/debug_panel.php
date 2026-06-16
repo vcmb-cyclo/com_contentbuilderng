@@ -18,6 +18,7 @@ use Joomla\CMS\Language\Text;
 $permissions = is_array($displayData['permissions'] ?? null) ? $displayData['permissions'] : [];
 $filters = is_array($displayData['filters'] ?? null) ? $displayData['filters'] : [];
 $logs = is_array($displayData['logs'] ?? null) ? $displayData['logs'] : [];
+$warnings = is_array($displayData['warnings'] ?? null) ? $displayData['warnings'] : [];
 $formId = (int) ($displayData['formId'] ?? 0);
 $cbRecordId = (int) ($displayData['cbRecordId'] ?? 0);
 $showPermissions = !empty($displayData['showPermissions']);
@@ -155,6 +156,17 @@ $formatValue = static function ($value): string {
                 <dd class="col-sm-8"><code><?php echo htmlspecialchars($formatValue($value), ENT_QUOTES, 'UTF-8'); ?></code></dd>
             <?php endforeach; ?>
         </dl>
+    <?php endif; ?>
+
+    <?php if ($warnings !== []) : ?>
+        <h3 class="h6 mt-3"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_WARNINGS'); ?></h3>
+        <ul class="list-group list-group-flush">
+            <?php foreach ($warnings as $warning) : ?>
+                <li class="list-group-item bg-warning-subtle border-warning-subtle">
+                    <?php echo htmlspecialchars((string) $warning, ENT_QUOTES, 'UTF-8'); ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
     <?php endif; ?>
 
     <?php if ($showLogs) : ?>

@@ -152,6 +152,146 @@ class TemplateRenderService
         return preg_replace(array_keys($replacements), array_values($replacements), $template);
     }
 
+    private function replaceTemplateFieldToken(string $template, string $name, string $token, string $replacement): string
+    {
+        return (string) preg_replace(
+            '/\\{' . preg_quote($name, '/') . ':' . preg_quote($token, '/') . '\\}/i',
+            str_replace(['\\', '$'], ['\\\\', '\\$'], $replacement),
+            $template
+        );
+    }
+
+    private function applyDetailsHideIfEmpty(string $template, string $name, string $rawValue): string
+    {
+        return (string) preg_replace_callback(
+            "/\\{hide-if-empty\\s+" . preg_quote($name, '/') . "\\}(.*?)\\{\\/hide\\}/is",
+            static fn(array $matches): string => trim($rawValue) === '' ? '' : (string) ($matches[1] ?? ''),
+            $template
+        );
+    }
+
+    private function applyDetailsHideIfMatches(string $template, string $name, string $rawValue): string
+    {
+        return (string) preg_replace_callback(
+            "/\\{hide-if-matches\\s+" . preg_quote($name, '/') . "\\s+([^}]*)\\}(.*?)\\{\\/hide-if-matches\\}/is",
+            static function (array $matches) use ($rawValue): string {
+                $expectedValue = trim((string) ($matches[1] ?? ''));
+
+                return trim($rawValue) === $expectedValue ? '' : (string) ($matches[2] ?? '');
+            },
+            $template
+        );
+    }
+
+    private function addDebugTemplateWarning(int $formId, string $message): void
+    {
+        if ($formId < 1 || !$this->isFormDebugEnabled($formId)) {
+            return;
+        }
+
+        $session = $this->getApp()->getSession();
+        $warnings = $session->get('com_contentbuilderng.debug.template_warnings', []);
+        if (!is_array($warnings)) {
+            $warnings = [];
+        }
+        if (!in_array($message, $warnings, true)) {
+            $warnings[] = $message;
+        }
+        $session->set('com_contentbuilderng.debug.template_warnings', $warnings);
+    }
+
+    private function isFormDebugEnabled(int $formId): bool
+    {
+        $db = $this->db;
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('debug_mode'))
+            ->from($db->quoteName('#__contentbuilderng_forms'))
+            ->where($db->quoteName('id') . ' = ' . (int) $formId);
+        $db->setQuery($query);
+
+        return (int) $db->loadResult() === 1;
+    }
+
+    private function addCaseMismatchWarnings(int $formId, string $template, string $fieldName): void
+    {
+        $patterns = [
+            '/\\{([^}:]+):(label|value|item)\\}/i',
+            '/\\{webpath\\s+([^}]+)\\}/i',
+            '/\\{hide-if-empty\\s+([^}]+)\\}/i',
+            '/\\{hide-if-matches\\s+([^}\\s]+)\\s+[^}]*\\}/i',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (!preg_match_all($pattern, $template, $matches)) {
+                continue;
+            }
+
+            foreach ($matches[1] as $markerName) {
+                $markerName = trim((string) $markerName);
+                if (strcasecmp($markerName, $fieldName) === 0 && $markerName !== $fieldName) {
+                    $this->addDebugTemplateWarning(
+                        $formId,
+                        Text::sprintf('COM_CONTENTBUILDERNG_DEBUG_WARNING_TEMPLATE_CASE_MISMATCH', $markerName, $fieldName)
+                    );
+                }
+            }
+        }
+    }
+
+    private function removeUnknownTemplateMarkers(int $formId, string $template, array $knownFieldNames): string
+    {
+        $known = [];
+        foreach ($knownFieldNames as $knownFieldName) {
+            $known[strtolower((string) $knownFieldName)] = true;
+        }
+
+        foreach ($this->extractTemplateMarkerNames($template) as $markerName) {
+            $lookup = strtolower($markerName);
+            if (isset($known[$lookup])) {
+                continue;
+            }
+
+            $this->addDebugTemplateWarning(
+                $formId,
+                Text::sprintf('COM_CONTENTBUILDERNG_DEBUG_WARNING_TEMPLATE_UNKNOWN_FIELD', $markerName)
+            );
+
+            $quotedName = preg_quote($markerName, '/');
+            $template = (string) preg_replace("/\\{hide-if-empty\\s+" . $quotedName . "\\}.*?\\{\\/hide\\}/is", '', $template);
+            $template = (string) preg_replace("/\\{hide-if-matches\\s+" . $quotedName . "\\s+[^}]*\\}.*?\\{\\/hide-if-matches\\}/is", '', $template);
+            $template = (string) preg_replace('/\\{' . $quotedName . ':(label|value|item)\\}/i', '', $template);
+            $template = (string) preg_replace('/\\{webpath\\s+' . $quotedName . '\\}/i', '', $template);
+        }
+
+        return $template;
+    }
+
+    private function extractTemplateMarkerNames(string $template): array
+    {
+        $names = [];
+        $patterns = [
+            '/\\{([^}:]+):(label|value|item)\\}/i',
+            '/\\{webpath\\s+([^}]+)\\}/i',
+            '/\\{hide-if-empty\\s+([^}]+)\\}/i',
+            '/\\{hide-if-matches\\s+([^}\\s]+)\\s+[^}]*\\}/i',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (!preg_match_all($pattern, $template, $matches)) {
+                continue;
+            }
+
+            foreach ($matches[1] as $name) {
+                $name = trim((string) $name);
+                if ($name !== '') {
+                    $names[$name] = true;
+                }
+            }
+        }
+
+        return array_keys($names);
+    }
+
     private function applyEditableHideIfEmpty(string $template, string $name, string $rawValue): string
     {
         $quotedName = preg_quote($name, '/');
@@ -518,12 +658,15 @@ class TemplateRenderService
             $template = $this->normalizeTemplateMarkers($result['details_template']);
             $items = array();
             $hasLabels = count($labels);
+            $seenElementIds = array();
 
             foreach ($record as $item) {
                 if (!in_array($item->recElementId, $elementsAllowed)) {
                     continue;
                 }
 
+                $this->addCaseMismatchWarnings((int) $contentbuilderngFormId, $template, (string) $item->recName);
+                $seenElementIds[(string) $item->recElementId] = true;
                 $items[$item->recName] = array();
                 $items[$item->recName]['label'] = $hasLabels ? $labels[$item->recElementId] : $item->recTitle;
 
@@ -541,6 +684,7 @@ class TemplateRenderService
 
                 $items[$item->recName]['id'] = $item->recElementId;
                 $itemValue = ($item->recValue != '' ? $item->recValue : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'));
+                $items[$item->recName]['raw_value'] = (string) $item->recValue;
                 $elementType = (string) ($sourceEditableTypes[(string) $item->recElementId] ?? '');
 
                 if (
@@ -557,25 +701,36 @@ class TemplateRenderService
                 }
 
                 $items[$item->recName]['value'] = $itemValue;
-                $regex = "/([\{]hide-if-empty " . $item->recName . "[\}])(.*)([\{][\/]hide[\}])/isU";
-                $regex2 = "/([\{]hide-if-matches " . $item->recName . " (.*)[\}])(.*)([\{][\/]hide-if-matches[\}])/isU";
-                $matches = array();
-                preg_match_all($regex2, $template, $matches);
+            }
 
-                if (isset($matches[2]) && in_array($item->recValue, $matches[2])) {
-                    $regex3 = "/([\{]hide-if-matches " . $item->recName . " " . trim($item->recValue) . "[\}])(.*)([\{][\/]hide-if-matches[\}])/isU";
-                    $template = preg_replace($regex3, "", $template);
-                }
+            if (is_object($form) && method_exists($form, 'getElementNames')) {
+                $elementNames = (array) $form->getElementNames();
+                $elementLabels = method_exists($form, 'getElementLabels') ? (array) $form->getElementLabels() : [];
 
-                if ($item->recValue == '') {
-                    $template = preg_replace($regex, "", $template);
-                } else {
-                    $template = preg_replace($regex, '$2', $template);
+                foreach ($elementNames as $elementId => $name) {
+                    if (!in_array($elementId, $elementsAllowed) || isset($seenElementIds[(string) $elementId])) {
+                        continue;
+                    }
+
+                    $this->addCaseMismatchWarnings((int) $contentbuilderngFormId, $template, (string) $name);
+                    $items[$name] = [
+                        'id' => $elementId,
+                        'label' => $hasLabels ? ($labels[$elementId] ?? ($elementLabels[$elementId] ?? $name)) : ($elementLabels[$elementId] ?? $name),
+                        'raw_value' => '',
+                        'value' => '',
+                    ];
                 }
             }
 
-            $regex3 = "/([\{]hide-if-matches (.*) (.*)[\}])(.*)([\{][\/]hide-if-matches[\}])/isU";
-            $template = preg_replace($regex3, '$4', $template);
+            $template = $this->removeUnknownTemplateMarkers((int) $contentbuilderngFormId, $template, array_keys($items));
+
+            foreach ($items as $key => $item) {
+                $rawValue = (string) ($item['raw_value'] ?? '');
+                $template = $this->applyDetailsHideIfEmpty($template, (string) $key, $rawValue);
+                $template = $this->applyDetailsHideIfMatches($template, (string) $key, $rawValue);
+            }
+
+            $template = (string) preg_replace("/\\{hide-if-matches\\s+([^}]*)\\}(.*?)\\{\\/hide-if-matches\\}/is", '$2', $template);
 
             $item = null;
             $rawItems = $items;
@@ -605,9 +760,13 @@ class TemplateRenderService
                 if (!isset($item['label']) || !isset($item['id'])) {
                     continue;
                 }
-                $template = str_replace('{' . $key . ':label}', $item['label'], $template);
-                $template = str_replace('{' . $key . ':value}', $item['value'], $template);
-                $template = str_replace('{webpath ' . $key . '}', str_replace(array('{CBSite}', '{cbsite}', JPATH_SITE), Uri::getInstance()->getScheme() . '://' . Uri::getInstance()->getHost() . (Uri::getInstance()->getPort() == 80 ? '' : ':' . Uri::getInstance()->getPort()) . Uri::root(true), $rawItems[$key]['value']), $template);
+                $template = $this->replaceTemplateFieldToken($template, (string) $key, 'label', (string) $item['label']);
+                $template = $this->replaceTemplateFieldToken($template, (string) $key, 'value', (string) $item['value']);
+                $template = (string) preg_replace(
+                    '/\\{webpath\\s+' . preg_quote((string) $key, '/') . '\\}/i',
+                    str_replace(['\\', '$'], ['\\\\', '\\$'], str_replace(array('{CBSite}', '{cbsite}', JPATH_SITE), Uri::getInstance()->getScheme() . '://' . Uri::getInstance()->getHost() . (Uri::getInstance()->getPort() == 80 ? '' : ':' . Uri::getInstance()->getPort()) . Uri::root(true), $rawItems[$key]['value'] ?? '')),
+                    $template
+                );
             }
 
             $_template[$hash] = $template;
@@ -820,6 +979,8 @@ class TemplateRenderService
                 $items[$name]['value'] = '';
             }
         }
+
+        $template = $this->removeUnknownTemplateMarkers((int) $contentbuilderngFormId, $template, array_keys($items));
 
         $sourceEditableTypes = method_exists($form, 'getEditableElementTypes') ? (array) $form->getEditableElementTypes() : [];
         $item = null;

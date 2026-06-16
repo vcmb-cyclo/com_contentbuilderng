@@ -38,16 +38,30 @@ notamment :
 ```text
 {nom:label}     le libellé du champ
 {nom:value}     la valeur du champ
+{nom:item}      le contrôle de saisie du champ dans un template d'édition
 {value}         la valeur brute dans un wrapper de colonne
 {value_inline}  la valeur brute dans un wrapper d'article
 {webpath nom}   le chemin web absolu d'un fichier envoyé
 {CBSite} / {cbsite}   l'URL racine du site
 {hide-if-empty nom} ... {/hide}   masque un bloc si le champ est vide
+{hide-if-matches nom valeur} ... {/hide-if-matches}   masque un bloc si le champ vaut exactement cette valeur
 ```
 
 Ces remplacements sont effectués par le service de rendu (`TemplateRenderService`).
 Utilisez les exemples générés pour votre vue comme référence prioritaire, car les
 champs disponibles dépendent de la source.
+
+## Conditions d'affichage
+
+`{hide-if-empty nom} ... {/hide}` masque le bloc lorsque la valeur du champ est vide.
+`{hide-if-matches nom valeur} ... {/hide-if-matches}` masque le bloc lorsque la
+valeur courante du champ correspond exactement à `valeur`.
+
+Dans les templates Détail, ces conditions s'appliquent aux valeurs affichées.
+Dans les templates Édition, elles s'appliquent aussi aux blocs en lecture seule
+utilisant `{nom:value}`. En revanche, un bloc contenant `{nom:item}` reste affiché
+même si la valeur est vide ou correspond à `hide-if-matches`, afin de permettre la
+saisie ou la correction du champ.
 
 ## Exemple simple d'e-mail
 
@@ -168,4 +182,3 @@ Une mise à jour peut remplacer ces fichiers.
 - désactivez le Debug après validation.
 
 > 📷 *Capture à ajouter : génération d'un template exemple et éditeur de préparation PHP — `docs/fr/img/templates-preparation.png`*
-

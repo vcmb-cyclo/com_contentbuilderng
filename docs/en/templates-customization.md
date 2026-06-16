@@ -24,14 +24,27 @@ service (`TemplateRenderService`) replaces the following placeholders:
 ```text
 {fieldname:label}     the field label
 {fieldname:value}     the field value
+{fieldname:item}      the editable field control inside an edit template
 {value}               the raw value inside a column wrapper
 {value_inline}        the raw value inside an article wrapper
 {webpath fieldname}   absolute web path of an uploaded file
 {CBSite} / {cbsite}   the site root URL
 {hide-if-empty fieldname} ... {/hide}   hides a block when the field is empty
+{hide-if-matches fieldname value} ... {/hide-if-matches}   hides a block when the field exactly matches that value
 ```
 
 Use technical field names that remain stable when labels are translated.
+
+## Display Conditions
+
+`{hide-if-empty fieldname} ... {/hide}` hides the block when the field value is
+empty. `{hide-if-matches fieldname value} ... {/hide-if-matches}` hides the block
+when the current field value exactly matches `value`.
+
+In details templates, these conditions apply to displayed values. In edit templates,
+they also apply to read-only blocks using `{fieldname:value}`. A block containing
+`{fieldname:item}` stays visible even when the value is empty or matches
+`hide-if-matches`, so the user can enter or correct the field.
 
 ## Simple email example
 

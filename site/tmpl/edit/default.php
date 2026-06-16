@@ -805,7 +805,9 @@ CSS
             'filters' => $debugFilters,
             'showLogs' => !empty($this->debug_enable_logs) && !empty($this->debug_show_request_logs),
             'logs' => Logger::getRequestEntries(),
+            'warnings' => $app->getSession()->get('com_contentbuilderng.debug.template_warnings', []),
         ]);
+        $app->getSession()->remove('com_contentbuilderng.debug.template_warnings');
         ?>
     <?php endif; ?>
     <?php if ($isAdminPreview): ?>
