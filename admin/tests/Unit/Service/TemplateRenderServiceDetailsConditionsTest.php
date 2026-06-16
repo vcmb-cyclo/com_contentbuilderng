@@ -30,7 +30,11 @@ final class TemplateRenderServiceDetailsConditionsTest extends TestCase
             $this->source
         );
         self::assertStringContainsString(
-            '$template = $this->applyDetailsHideIfEmpty($template, (string) $key, $rawValue);',
+            'private function applyTemplateHideIfEmpty(string $template, string $name, string $rawValue, bool $preserveEditableItem): string',
+            $this->source
+        );
+        self::assertStringContainsString(
+            'return $this->applyTemplateHideIfEmpty($template, $name, $rawValue, false);',
             $this->source
         );
     }

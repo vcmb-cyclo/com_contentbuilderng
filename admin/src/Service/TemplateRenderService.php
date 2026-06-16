@@ -161,26 +161,53 @@ class TemplateRenderService
         );
     }
 
-    private function applyDetailsHideIfEmpty(string $template, string $name, string $rawValue): string
+    private function applyTemplateHideIfEmpty(string $template, string $name, string $rawValue, bool $preserveEditableItem): string
     {
+        $quotedName = preg_quote($name, '/');
+
         return (string) preg_replace_callback(
-            "/\\{hide-if-empty\\s+" . preg_quote($name, '/') . "\\}(.*?)\\{\\/hide\\}/is",
-            static fn(array $matches): string => trim($rawValue) === '' ? '' : (string) ($matches[1] ?? ''),
+            "/\\{hide-if-empty\\s+" . $quotedName . "\\}(.*?)\\{\\/hide\\}/is",
+            static function (array $matches) use ($quotedName, $rawValue, $preserveEditableItem): string {
+                $body = (string) ($matches[1] ?? '');
+
+                if ($preserveEditableItem && preg_match('/\\{' . $quotedName . ':item\\}/i', $body)) {
+                    return $body;
+                }
+
+                return trim($rawValue) === '' ? '' : $body;
+            },
             $template
         );
     }
 
-    private function applyDetailsHideIfMatches(string $template, string $name, string $rawValue): string
+    private function applyTemplateHideIfMatches(string $template, string $name, string $rawValue, bool $preserveEditableItem): string
     {
-        return (string) preg_replace_callback(
-            "/\\{hide-if-matches\\s+" . preg_quote($name, '/') . "\\s+([^}]*)\\}(.*?)\\{\\/hide-if-matches\\}/is",
-            static function (array $matches) use ($rawValue): string {
-                $expectedValue = trim((string) ($matches[1] ?? ''));
+        $quotedName = preg_quote($name, '/');
 
-                return trim($rawValue) === $expectedValue ? '' : (string) ($matches[2] ?? '');
+        return (string) preg_replace_callback(
+            "/\\{hide-if-matches\\s+" . $quotedName . "\\s+([^}]*)\\}(.*?)\\{\\/hide-if-matches\\}/is",
+            static function (array $matches) use ($quotedName, $rawValue, $preserveEditableItem): string {
+                $expectedValue = trim((string) ($matches[1] ?? ''));
+                $body = (string) ($matches[2] ?? '');
+
+                if ($preserveEditableItem && preg_match('/\\{' . $quotedName . ':item\\}/i', $body)) {
+                    return $body;
+                }
+
+                return trim($rawValue) === $expectedValue ? '' : $body;
             },
             $template
         );
+    }
+
+    private function applyDetailsHideIfEmpty(string $template, string $name, string $rawValue): string
+    {
+        return $this->applyTemplateHideIfEmpty($template, $name, $rawValue, false);
+    }
+
+    private function applyDetailsHideIfMatches(string $template, string $name, string $rawValue): string
+    {
+        return $this->applyTemplateHideIfMatches($template, $name, $rawValue, false);
     }
 
     private function addDebugTemplateWarning(int $formId, string $message): void
@@ -294,41 +321,12 @@ class TemplateRenderService
 
     private function applyEditableHideIfEmpty(string $template, string $name, string $rawValue): string
     {
-        $quotedName = preg_quote($name, '/');
-
-        return (string) preg_replace_callback(
-            "/\\{hide-if-empty\\s+" . $quotedName . "\\}(.*?)\\{\\/hide\\}/is",
-            static function (array $matches) use ($name, $rawValue): string {
-                $body = (string) ($matches[1] ?? '');
-
-                if (str_contains($body, '{' . $name . ':item}')) {
-                    return $body;
-                }
-
-                return trim($rawValue) === '' ? '' : $body;
-            },
-            $template
-        );
+        return $this->applyTemplateHideIfEmpty($template, $name, $rawValue, true);
     }
 
     private function applyEditableHideIfMatches(string $template, string $name, string $rawValue): string
     {
-        $quotedName = preg_quote($name, '/');
-
-        return (string) preg_replace_callback(
-            "/\\{hide-if-matches\\s+" . $quotedName . "\\s+([^}]*)\\}(.*?)\\{\\/hide-if-matches\\}/is",
-            static function (array $matches) use ($name, $rawValue): string {
-                $expectedValue = trim((string) ($matches[1] ?? ''));
-                $body = (string) ($matches[2] ?? '');
-
-                if (str_contains($body, '{' . $name . ':item}')) {
-                    return $body;
-                }
-
-                return trim($rawValue) === $expectedValue ? '' : $body;
-            },
-            $template
-        );
+        return $this->applyTemplateHideIfMatches($template, $name, $rawValue, true);
     }
 
     /**

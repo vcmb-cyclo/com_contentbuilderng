@@ -22,11 +22,11 @@ final class TemplateRenderServiceEditableHideTest extends TestCase
     public function testEditableHideIfEmptyKeepsEmptyEditableItemsVisible(): void
     {
         self::assertStringContainsString(
-            'private function applyEditableHideIfEmpty(string $template, string $name, string $rawValue): string',
+            'private function applyTemplateHideIfEmpty(string $template, string $name, string $rawValue, bool $preserveEditableItem): string',
             $this->source
         );
         self::assertStringContainsString(
-            "if (str_contains(\$body, '{' . \$name . ':item}')) {\n"
+            "if (\$preserveEditableItem && preg_match('/\\\\{' . \$quotedName . ':item\\\\}/i', \$body)) {\n"
                 . "                    return \$body;\n"
                 . '                }',
             $this->source
@@ -36,7 +36,7 @@ final class TemplateRenderServiceEditableHideTest extends TestCase
             $this->source
         );
         self::assertStringContainsString(
-            '$template = $this->applyEditableHideIfEmpty($template, (string) $key, (string) $hideIfEmptyValue);',
+            'return $this->applyTemplateHideIfEmpty($template, $name, $rawValue, true);',
             $this->source
         );
     }
@@ -44,11 +44,11 @@ final class TemplateRenderServiceEditableHideTest extends TestCase
     public function testEditableTemplateSupportsReadonlyValuesAndHideIfMatches(): void
     {
         self::assertStringContainsString(
-            'private function applyEditableHideIfMatches(string $template, string $name, string $rawValue): string',
+            'private function applyTemplateHideIfMatches(string $template, string $name, string $rawValue, bool $preserveEditableItem): string',
             $this->source
         );
         self::assertStringContainsString(
-            "if (str_contains(\$body, '{' . \$name . ':item}')) {\n"
+            "if (\$preserveEditableItem && preg_match('/\\\\{' . \$quotedName . ':item\\\\}/i', \$body)) {\n"
                 . "                    return \$body;\n"
                 . '                }',
             $this->source
@@ -58,7 +58,7 @@ final class TemplateRenderServiceEditableHideTest extends TestCase
             $this->source
         );
         self::assertStringContainsString(
-            '$template = $this->applyEditableHideIfMatches($template, (string) $key, (string) $hideIfEmptyValue);',
+            'return $this->applyTemplateHideIfMatches($template, $name, $rawValue, true);',
             $this->source
         );
         self::assertStringContainsString(
