@@ -30,6 +30,7 @@ use Joomla\Database\DatabaseInterface;
 use Joomla\Registry\Registry;
 use CB\Component\Contentbuilderng\Site\Model\EditModel;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
+use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 
 class HtmlView extends BaseHtmlView
 {
@@ -89,6 +90,84 @@ class HtmlView extends BaseHtmlView
     protected $item;
     protected $form;
     private array $breezingFormsRenderCache = [];
+    private ?bool $frontendEditAllowedForNavigation = null;
+    private ?bool $ownerEditNavigationEnabled = null;
+    private ?int $ownerEditNavigationUserId = null;
+
+    private function isFrontendEditAllowedForNavigation(): bool
+    {
+        if ($this->frontendEditAllowedForNavigation === null) {
+            $this->frontendEditAllowedForNavigation = (new PermissionService())->authorizeFe('edit');
+        }
+
+        return $this->frontendEditAllowedForNavigation;
+    }
+
+    private function getOwnerEditNavigationUserId(): int
+    {
+        if ($this->ownerEditNavigationUserId !== null) {
+            return $this->ownerEditNavigationUserId;
+        }
+
+        $app = Factory::getApplication();
+        $previewActorId = $app->getInput()->getBool('cb_preview_ok', false)
+            ? (int) $app->getInput()->getInt('cb_preview_actor_id', 0)
+            : 0;
+
+        if ($previewActorId > 0) {
+            $this->ownerEditNavigationUserId = $previewActorId;
+            return $this->ownerEditNavigationUserId;
+        }
+
+        $user = $app->getIdentity();
+        $this->ownerEditNavigationUserId = (int) ($user->id ?? 0);
+
+        return $this->ownerEditNavigationUserId;
+    }
+
+    private function isOwnerEditNavigationEnabled(): bool
+    {
+        if ($this->ownerEditNavigationEnabled !== null) {
+            return $this->ownerEditNavigationEnabled;
+        }
+
+        $ownerPermissionMatrix = (array) Factory::getApplication()->getSession()->get('com_contentbuilderng.permissions_fe', []);
+        $ownerRuleSet = (array) ($ownerPermissionMatrix['own_fe'] ?? []);
+
+        $this->ownerEditNavigationEnabled = $this->getOwnerEditNavigationUserId() > 0
+            && !empty($ownerRuleSet['edit'])
+            && is_object($this->form)
+            && method_exists($this->form, 'isOwner');
+
+        return $this->ownerEditNavigationEnabled;
+    }
+
+    private function canNavigateToEditableRecord(int $recordId): bool
+    {
+        if ($recordId < 1) {
+            return false;
+        }
+
+        if ($this->isFrontendEditAllowedForNavigation()) {
+            return true;
+        }
+
+        return $this->isOwnerEditNavigationEnabled()
+            && (bool) $this->form->isOwner($this->getOwnerEditNavigationUserId(), $recordId);
+    }
+
+    private function findEditableRecordId(array $recordIds): int
+    {
+        foreach ($recordIds as $recordId) {
+            $recordId = (int) $recordId;
+
+            if ($this->canNavigateToEditableRecord($recordId)) {
+                return $recordId;
+            }
+        }
+
+        return 0;
+    }
 
     private function resolveSiblingRecordIdsByRecordId(object $subject, int $currentRecordId): array
     {
@@ -125,8 +204,8 @@ class HtmlView extends BaseHtmlView
                 ->where($db->quoteName('record_id') . ' < ' . (int) $currentRecordId)
                 ->order($db->quoteName('record_id') . ' DESC');
 
-            $db->setQuery($prevQuery, 0, 1);
-            $previous = (int) $db->loadResult();
+            $db->setQuery($prevQuery);
+            $previous = $this->findEditableRecordId((array) $db->loadColumn());
 
             $nextQuery = $db->getQuery(true)
                 ->select($db->quoteName('record_id'))
@@ -135,8 +214,8 @@ class HtmlView extends BaseHtmlView
                 ->where($db->quoteName('record_id') . ' > ' . (int) $currentRecordId)
                 ->order($db->quoteName('record_id') . ' ASC');
 
-            $db->setQuery($nextQuery, 0, 1);
-            $next = (int) $db->loadResult();
+            $db->setQuery($nextQuery);
+            $next = $this->findEditableRecordId((array) $db->loadColumn());
         } catch (\Throwable $e) {
             return ['previous' => 0, 'next' => 0, 'previous_start' => $currentListStart, 'next_start' => $currentListStart];
         }
@@ -222,11 +301,29 @@ class HtmlView extends BaseHtmlView
                 return $fallback;
             }
 
+            $previousPosition = null;
+            for ($i = $position - 1; $i >= 0; $i--) {
+                if ($this->canNavigateToEditableRecord((int) $recordIds[$i])) {
+                    $previousPosition = $i;
+                    break;
+                }
+            }
+
+            $nextPosition = null;
+            for ($i = $position + 1, $count = count($recordIds); $i < $count; $i++) {
+                if ($this->canNavigateToEditableRecord((int) $recordIds[$i])) {
+                    $nextPosition = $i;
+                    break;
+                }
+            }
+
+            $listLimit = max(1, $listLimit);
+
             return [
-                'previous' => $position > 0 ? (int) $recordIds[$position - 1] : 0,
-                'next' => ($position + 1) < count($recordIds) ? (int) $recordIds[$position + 1] : 0,
-                'previous_start' => $position > 0 ? (int) (floor(($position - 1) / $listLimit) * $listLimit) : 0,
-                'next_start' => ($position + 1) < count($recordIds) ? (int) (floor(($position + 1) / $listLimit) * $listLimit) : 0,
+                'previous' => $previousPosition !== null ? (int) $recordIds[$previousPosition] : 0,
+                'next' => $nextPosition !== null ? (int) $recordIds[$nextPosition] : 0,
+                'previous_start' => $previousPosition !== null ? (int) (floor($previousPosition / $listLimit) * $listLimit) : 0,
+                'next_start' => $nextPosition !== null ? (int) (floor($nextPosition / $listLimit) * $listLimit) : 0,
             ];
         } catch (\Throwable $e) {
             return $fallback;

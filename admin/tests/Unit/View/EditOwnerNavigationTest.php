@@ -1,0 +1,58 @@
+<?php
+
+declare(strict_types=1);
+
+namespace CB\Component\Contentbuilderng\Tests\Unit\View;
+
+use PHPUnit\Framework\TestCase;
+
+final class EditOwnerNavigationTest extends TestCase
+{
+    private string $source;
+
+    protected function setUp(): void
+    {
+        $source = \file_get_contents(
+            \dirname(__DIR__, 4) . '/site/src/View/Edit/HtmlView.php'
+        );
+
+        self::assertIsString($source);
+        $this->source = $source;
+    }
+
+    public function testEditPreviousNextSkipsRecordsNotEditableByOwner(): void
+    {
+        self::assertStringContainsString(
+            'use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;',
+            $this->source
+        );
+        self::assertStringContainsString(
+            'private function canNavigateToEditableRecord(int $recordId): bool',
+            $this->source
+        );
+        self::assertStringContainsString(
+            "(new PermissionService())->authorizeFe('edit')",
+            $this->source
+        );
+        self::assertStringContainsString(
+            "\$ownerRuleSet = (array) (\$ownerPermissionMatrix['own_fe'] ?? []);",
+            $this->source
+        );
+        self::assertStringContainsString(
+            "\$this->form->isOwner(\$this->getOwnerEditNavigationUserId(), \$recordId)",
+            $this->source
+        );
+        self::assertStringContainsString(
+            'for ($i = $position - 1; $i >= 0; $i--)',
+            $this->source
+        );
+        self::assertStringContainsString(
+            'for ($i = $position + 1, $count = count($recordIds); $i < $count; $i++)',
+            $this->source
+        );
+        self::assertStringNotContainsString(
+            "'next' => (\$position + 1) < count(\$recordIds) ? (int) \$recordIds[\$position + 1] : 0",
+            $this->source
+        );
+    }
+}
