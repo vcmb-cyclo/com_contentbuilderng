@@ -152,6 +152,45 @@ class TemplateRenderService
         return preg_replace(array_keys($replacements), array_values($replacements), $template);
     }
 
+    private function applyEditableHideIfEmpty(string $template, string $name, string $rawValue): string
+    {
+        $quotedName = preg_quote($name, '/');
+
+        return (string) preg_replace_callback(
+            "/\\{hide-if-empty\\s+" . $quotedName . "\\}(.*?)\\{\\/hide\\}/is",
+            static function (array $matches) use ($name, $rawValue): string {
+                $body = (string) ($matches[1] ?? '');
+
+                if (str_contains($body, '{' . $name . ':item}')) {
+                    return $body;
+                }
+
+                return trim($rawValue) === '' ? '' : $body;
+            },
+            $template
+        );
+    }
+
+    private function applyEditableHideIfMatches(string $template, string $name, string $rawValue): string
+    {
+        $quotedName = preg_quote($name, '/');
+
+        return (string) preg_replace_callback(
+            "/\\{hide-if-matches\\s+" . $quotedName . "\\s+([^}]*)\\}(.*?)\\{\\/hide-if-matches\\}/is",
+            static function (array $matches) use ($name, $rawValue): string {
+                $expectedValue = trim((string) ($matches[1] ?? ''));
+                $body = (string) ($matches[2] ?? '');
+
+                if (str_contains($body, '{' . $name . ':item}')) {
+                    return $body;
+                }
+
+                return trim($rawValue) === $expectedValue ? '' : $body;
+            },
+            $template
+        );
+    }
+
     /**
      * Convert simple HTML emphasis produced by editable_prepare snippets into
      * plain text plus field styling for non-HTML form controls.
@@ -798,6 +837,16 @@ class TemplateRenderService
         $theInitScripts = "\n" . '<script type="text/javascript">' . "\n" . '<!--' . "\n";
 
         foreach ($items as $key => $item) {
+            $hideIfEmptyValue = $failedValues !== null && isset($failedValues[$item['id']])
+                ? $failedValues[$item['id']]
+                : ($hasRecords ? ($item['value'] ?? '') : '');
+            if (is_array($hideIfEmptyValue)) {
+                $hideIfEmptyValue = array_values(array_filter($hideIfEmptyValue, static fn($v) => $v !== null && $v !== '' && $v !== 'cbGroupMark'));
+                $hideIfEmptyValue = implode(', ', $hideIfEmptyValue);
+            }
+            $template = $this->applyEditableHideIfEmpty($template, (string) $key, (string) $hideIfEmptyValue);
+            $template = $this->applyEditableHideIfMatches($template, (string) $key, (string) $hideIfEmptyValue);
+
             $db->setQuery(
                 "Select * From #__contentbuilderng_elements"
                 . " Where published = 1"
@@ -1065,6 +1114,7 @@ class TemplateRenderService
                 $tip = 'hasTip';
                 $tipPrefix = htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') . '::';
                 $template = str_replace('{' . $key . ':label}', '<label ' . ($elementHint ? 'class="editlinktip ' . $tip . '" title="' . $tipPrefix . $elementHint . '" ' : '') . 'for="cb_' . $item['id'] . '">' . $item['label'] . $asterisk . ($elementHint ? ' <img style="cursor: pointer;" src="' . Uri::root(true) . '/media/com_contentbuilderng/images/icon_info.png" border="0"/>' : '') . '</label>', $template);
+                $template = str_replace('{' . $key . ':value}', nl2br(htmlspecialchars((string) $hideIfEmptyValue, ENT_QUOTES, 'UTF-8')), $template);
                 $template = str_replace('{' . $key . ':item}', $theItem, $template);
             }
         }

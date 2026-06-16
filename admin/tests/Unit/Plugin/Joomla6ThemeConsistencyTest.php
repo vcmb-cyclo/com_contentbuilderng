@@ -134,4 +134,32 @@ final class Joomla6ThemeConsistencyTest extends TestCase
             $this->source
         );
     }
+
+    public function testEditableSampleKeepsPublishedNonEditableFieldsVisible(): void
+    {
+        self::assertStringContainsString(
+            'private function fetchElementDefinitions(DatabaseInterface $db, int $contentbuilderng_form_id): array',
+            $this->source
+        );
+        self::assertStringContainsString(
+            'SELECT reference_id, `type`, editable',
+            $this->source
+        );
+        self::assertStringContainsString(
+            'if (!$editable) {',
+            $this->source
+        );
+        self::assertStringContainsString(
+            '<div class="mb-3"><label class="form-label">{\' . $name . \':label}</label><div class="form-control-plaintext py-0">{\' . $name . \':value}</div></div>',
+            $this->source
+        );
+        self::assertStringContainsString(
+            'if ($type === \'hidden\') {',
+            $this->source
+        );
+        self::assertStringContainsString(
+            'if ($editable) {',
+            $this->source
+        );
+    }
 }

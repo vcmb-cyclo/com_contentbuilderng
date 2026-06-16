@@ -1315,12 +1315,19 @@ CSS;
         }
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $elementTypes = $this->fetchElementTypes($db, $contentbuilderng_form_id, true);
-        if ($elementTypes === []) {
+        $elements = $this->fetchElementDefinitions($db, $contentbuilderng_form_id);
+        $hasEditableElements = false;
+        foreach ($elements as $element) {
+            if ((bool) ($element['editable'] ?? false)) {
+                $hasEditableElements = true;
+                break;
+            }
+        }
+
+        if (!$hasEditableElements) {
             $msg = 'No editable elements configured; generated editable sample uses all elements.';
             Factory::getApplication()->enqueueMessage($msg, 'warning');
             Log::add($msg, Log::WARNING, 'com_contentbuilderng');
-            $elementTypes = $this->fetchElementTypes($db, $contentbuilderng_form_id, false);
         }
 
         $out = "\n";
@@ -1328,22 +1335,33 @@ CSS;
         $hidden = [];
 
         foreach ($names as $reference_id => $name) {
-            $type = $elementTypes[$reference_id] ?? null;
+            $element = $elements[$reference_id] ?? null;
 
-            if ($type === null) {
+            if ($element === null) {
                 continue;
             }
 
-            if ($type !== 'hidden') {
-                if ($type === 'checkboxgroup') {
-                    $out .= '<div class="mb-3"><div class="form-label">{' . $name . ':label}</div><div>{' . $name . ':item}</div></div>';
-                } elseif ($type === 'radiogroup') {
-                    $out .= '<div class="mb-3"><div class="form-label">{' . $name . ':label}</div><div>{' . $name . ':item}</div></div>';
-                } else {
-                    $out .= '<div class="mb-3"><label class="form-label">{' . $name . ':label}</label><div>{' . $name . ':item}</div></div>' . "\n";
+            $type = (string) ($element['type'] ?? '');
+            $editable = (bool) ($element['editable'] ?? false);
+
+            if ($type === 'hidden') {
+                if ($editable) {
+                    $hidden[] = '{' . $name . ':item}' . "\n";
                 }
+                continue;
+            }
+
+            if (!$editable) {
+                $out .= '<div class="mb-3"><label class="form-label">{' . $name . ':label}</label><div class="form-control-plaintext py-0">{' . $name . ':value}</div></div>' . "\n";
+                continue;
+            }
+
+            if ($type === 'checkboxgroup') {
+                $out .= '<div class="mb-3"><div class="form-label">{' . $name . ':label}</div><div>{' . $name . ':item}</div></div>';
+            } elseif ($type === 'radiogroup') {
+                $out .= '<div class="mb-3"><div class="form-label">{' . $name . ':label}</div><div>{' . $name . ':item}</div></div>';
             } else {
-                $hidden[] = '{' . $name . ':item}' . "\n";
+                $out .= '<div class="mb-3"><label class="form-label">{' . $name . ':label}</label><div>{' . $name . ':item}</div></div>' . "\n";
             }
         }
 
@@ -1352,6 +1370,33 @@ CSS;
         }
 
         return $out;
+    }
+
+    private function fetchElementDefinitions(DatabaseInterface $db, int $contentbuilderng_form_id): array
+    {
+        $db->setQuery(
+            "SELECT reference_id, `type`, editable
+             FROM #__contentbuilderng_elements
+             WHERE published = 1 AND form_id = " . (int) $contentbuilderng_form_id
+        );
+
+        $rows = $db->loadAssocList();
+        if (!is_array($rows) || $rows === []) {
+            return [];
+        }
+
+        $elements = [];
+        foreach ($rows as $row) {
+            if (!isset($row['reference_id'])) {
+                continue;
+            }
+            $elements[(string) $row['reference_id']] = [
+                'type' => (string) ($row['type'] ?? ''),
+                'editable' => (int) ($row['editable'] ?? 0) === 1,
+            ];
+        }
+
+        return $elements;
     }
 
     private function fetchElementTypes(DatabaseInterface $db, int $contentbuilderng_form_id, bool $editableOnly): array
