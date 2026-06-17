@@ -10,7 +10,7 @@ The project is a community modernization of the former Crosstec ContentBuilder
 extension. It is independent from the historical product and is provided without
 warranty.
 
-> ℹ️ **Note:** this documentation describes component version `6.1.7-RC51` (the
+> ℹ️ **Note:** this documentation describes component version `6.1.7-RC52` (the
 > `<version>` field in `com_contentbuilderng.xml`). Screens and options may change
 > between versions.
 
