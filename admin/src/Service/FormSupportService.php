@@ -88,6 +88,8 @@ class FormSupportService
         }
 
         foreach ($elements as $referenceId => $title) {
+            $isReservedReference = method_exists($form, 'isSystemFieldReferenceId')
+                && $form::isSystemFieldReferenceId($referenceId);
             $options = new \stdClass();
             $options->length = '';
             $options->maxlength = '';
@@ -95,6 +97,11 @@ class FormSupportService
             $options->readonly = 0;
             $options->seperator = ',';
             $ids[] = $db->quote($referenceId);
+
+            if ($isReservedReference) {
+                unset($existingByReference[(string) $referenceId]);
+                continue;
+            }
 
             $query = $db->getQuery(true)
                 ->select([$db->quoteName('id'), $db->quoteName('type'), $db->quoteName('options')])

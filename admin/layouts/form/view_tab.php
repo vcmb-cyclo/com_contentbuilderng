@@ -20,6 +20,8 @@ $item = $displayData['item'] ?? null;
 $themePlugins = is_array($displayData['themePlugins'] ?? null) ? $displayData['themePlugins'] : [];
 $formatTypeDisplay = $displayData['formatTypeDisplay'] ?? null;
 $elementsTableHtml = (string) ($displayData['elementsTableHtml'] ?? '');
+$availableBfSystemFields = is_array($displayData['availableBfSystemFields'] ?? null) ? $displayData['availableBfSystemFields'] : [];
+$isBreezingFormsType = (bool) ($displayData['isBreezingFormsType'] ?? false);
 
 if (!is_object($item) || !is_callable($formatTypeDisplay)) {
     return;
@@ -134,55 +136,80 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
         </select>
     <?php else : ?>
         <div></div>
-        <div class="alert">
-            <label<?php echo !$item->reference_id ? ' for="cb_form_reference_select"' : ''; ?>>
-                <b><?php echo Text::_('COM_CONTENTBUILDERNG_FORM_SOURCE'); ?>:</b>
-            </label>
-            <?php if (!$item->reference_id) : ?>
-                <select class="form-select-sm" name="jform[reference_id]" id="cb_form_reference_select" style="max-width: 200px;">
-                    <option value="0" selected="selected"><?php echo Text::_('COM_CONTENTBUILDERNG_CHOOSE'); ?></option>
-                    <?php foreach ((array) ($item->forms ?? []) as $referenceId => $title) : ?>
-                        <option value="<?php echo $referenceId; ?>"><?php echo htmlspecialchars($title ?? '', ENT_QUOTES, 'UTF-8'); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            <?php else : ?>
-                <?php
-                $sourceTitle = (string) ($item->form->getTitle() ?? '');
-                $sourceReferenceId = (int) $item->form->getReferenceId();
-                $sourceType = (string) ($item->type ?? '');
-                $sourceTypeName = trim((string) ($item->type_name ?? ''));
-                $sourceEditLink = '';
-
-                if (in_array($sourceType, ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true) && $sourceReferenceId > 0 && $sourceTypeName !== '') {
-                    $bfOption = null;
-                    foreach (['com_breezingformsng', 'com_breezingforms_ng', 'com_breezingforms'] as $_opt) {
-                        if (is_dir(JPATH_ADMINISTRATOR . '/components/' . $_opt)) {
-                            $bfOption = $_opt;
-                            break;
-                        }
-                    }
-                    $sourceEditLink = $bfOption !== null ? Route::_('index.php?option=' . $bfOption . '&act=quickmode&formName=' . rawurlencode($sourceTypeName) . '&form=' . $sourceReferenceId, false) : '';
-                } elseif ($sourceType === 'com_contentbuilderng' && $sourceReferenceId > 0) {
-                    $sourceEditLink = Route::_('index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . $sourceReferenceId, false);
-                }
-                ?>
-                <?php if ($sourceEditLink !== '') : ?>
-                    <a href="<?php echo htmlspecialchars($sourceEditLink, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($sourceTitle, ENT_QUOTES, 'UTF-8'); ?></a>
+        <div class="alert d-flex flex-wrap align-items-end gap-3">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <label<?php echo !$item->reference_id ? ' for="cb_form_reference_select"' : ''; ?>>
+                    <b><?php echo Text::_('COM_CONTENTBUILDERNG_FORM_SOURCE'); ?>:</b>
+                </label>
+                <?php if (!$item->reference_id) : ?>
+                    <select class="form-select-sm" name="jform[reference_id]" id="cb_form_reference_select" style="max-width: 200px;">
+                        <option value="0" selected="selected"><?php echo Text::_('COM_CONTENTBUILDERNG_CHOOSE'); ?></option>
+                        <?php foreach ((array) ($item->forms ?? []) as $referenceId => $title) : ?>
+                            <option value="<?php echo $referenceId; ?>"><?php echo htmlspecialchars($title ?? '', ENT_QUOTES, 'UTF-8'); ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 <?php else : ?>
-                    <?php echo htmlspecialchars($sourceTitle, ENT_QUOTES, 'UTF-8'); ?>
-                <?php endif; ?>
-                <input type="hidden" name="jform[reference_id]" value="<?php echo $sourceReferenceId; ?>" />
-            <?php endif; ?>
+                    <?php
+                    $sourceTitle = (string) ($item->form->getTitle() ?? '');
+                    $sourceReferenceId = (int) $item->form->getReferenceId();
+                    $sourceType = (string) ($item->type ?? '');
+                    $sourceTypeName = trim((string) ($item->type_name ?? ''));
+                    $sourceEditLink = '';
 
-            <label>
-                <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_TYPE_TIP'); ?>"><b><?php echo Text::_('COM_CONTENTBUILDERNG_TYPE'); ?>:</b></span>
-            </label>
-            <?php $typeDisplay = $formatTypeDisplay((string) ($item->type ?? '')); ?>
-            <span class="editlinktip hasTip" title="<?php echo htmlspecialchars((string) ($typeDisplay['full'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                <?php echo htmlspecialchars((string) ($typeDisplay['short'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
-            </span>
-            <input type="hidden" name="jform[type]" value="<?php echo $item->type; ?>" />
-            <input type="hidden" name="jform[type_name]" value="<?php echo isset($item->type_name) ? $item->type_name : ''; ?>" />
+                    if (in_array($sourceType, ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true) && $sourceReferenceId > 0 && $sourceTypeName !== '') {
+                        $bfOption = null;
+                        foreach (['com_breezingformsng', 'com_breezingforms_ng', 'com_breezingforms'] as $_opt) {
+                            if (is_dir(JPATH_ADMINISTRATOR . '/components/' . $_opt)) {
+                                $bfOption = $_opt;
+                                break;
+                            }
+                        }
+                        $sourceEditLink = $bfOption !== null ? Route::_('index.php?option=' . $bfOption . '&act=quickmode&formName=' . rawurlencode($sourceTypeName) . '&form=' . $sourceReferenceId, false) : '';
+                    } elseif ($sourceType === 'com_contentbuilderng' && $sourceReferenceId > 0) {
+                        $sourceEditLink = Route::_('index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . $sourceReferenceId, false);
+                    }
+                    ?>
+                    <?php if ($sourceEditLink !== '') : ?>
+                        <a href="<?php echo htmlspecialchars($sourceEditLink, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($sourceTitle, ENT_QUOTES, 'UTF-8'); ?></a>
+                    <?php else : ?>
+                        <?php echo htmlspecialchars($sourceTitle, ENT_QUOTES, 'UTF-8'); ?>
+                    <?php endif; ?>
+                    <input type="hidden" name="jform[reference_id]" value="<?php echo $sourceReferenceId; ?>" />
+                <?php endif; ?>
+
+                <label>
+                    <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_TYPE_TIP'); ?>"><b><?php echo Text::_('COM_CONTENTBUILDERNG_TYPE'); ?>:</b></span>
+                </label>
+                <?php $typeDisplay = $formatTypeDisplay((string) ($item->type ?? '')); ?>
+                <span class="editlinktip hasTip" title="<?php echo htmlspecialchars((string) ($typeDisplay['full'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                    <?php echo htmlspecialchars((string) ($typeDisplay['short'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
+                </span>
+                <input type="hidden" name="jform[type]" value="<?php echo $item->type; ?>" />
+                <input type="hidden" name="jform[type_name]" value="<?php echo isset($item->type_name) ? $item->type_name : ''; ?>" />
+            </div>
+            <?php if ($isBreezingFormsType && (int) ($item->id ?? 0) > 0 && $availableBfSystemFields !== []) : ?>
+                <div id="cb-bf-system-field-add" class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+                    <div class="d-flex flex-nowrap align-items-center gap-2">
+                        <label class="mb-0 text-nowrap" for="cb_bf_system_reference_id">
+                            <b><?php echo Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_ADD_LABEL'); ?>:</b>
+                        </label>
+                        <select class="form-select form-select-sm w-auto" name="bf_system_reference_id" id="cb_bf_system_reference_id">
+                            <?php foreach ($availableBfSystemFields as $systemReferenceId => $systemLabel) : ?>
+                                <option value="<?php echo (int) $systemReferenceId; ?>">
+                                    <?php echo htmlspecialchars((string) $systemLabel, ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <button type="button"
+                        id="cb_bf_system_field_add_button"
+                        class="btn btn-sm btn-primary"
+                        onclick="Joomla.submitbutton('form.add_bf_system_field');">
+                        <span class="icon-plus" aria-hidden="true"></span>
+                        <?php echo Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_ADD_BUTTON'); ?>
+                    </button>
+                </div>
+            <?php endif; ?>
         </div>
         <div></div>
     <?php endif; ?>

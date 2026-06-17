@@ -33,6 +33,8 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use CB\Component\Contentbuilderng\Administrator\Model\FormModel;
 use CB\Component\Contentbuilderng\Administrator\Model\ElementsModel;
 use CB\Component\Contentbuilderng\Administrator\Model\ElementoptionsModel;
+use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
+use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 
 class FormController extends BaseFormController
 {
@@ -452,6 +454,20 @@ class FormController extends BaseFormController
                 return false;
             }
 
+            if ($value === 1 && in_array($field, ['editable', 'search_include'], true)) {
+                $cids = $this->filterEditableSystemFieldIds($cids, $formId);
+
+                if (empty($cids)) {
+                    $this->setMessage(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_RESTRICTED_ACTION'), 'warning');
+                    if ($this->isAjaxCall()) {
+                        $this->respondAjax(false, Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_RESTRICTED_ACTION'));
+                    } else {
+                        $this->setRedirect($this->getEditRedirectUrl($formId));
+                    }
+                    return false;
+                }
+            }
+
             if (!$this->persistInlineElementSettings($formId)) {
                 if ($this->isAjaxCall()) {
                     $this->respondAjax(false, Text::_('COM_CONTENTBUILDERNG_SAVE_FAILED'));
@@ -488,6 +504,159 @@ class FormController extends BaseFormController
             } else {
                 $this->setRedirect($this->getEditRedirectUrl((int) $formId));
             }
+            return false;
+        }
+    }
+
+    public function add_bf_system_field(): bool
+    {
+        $this->checkToken();
+
+        $formId = (int) $this->input->getInt('id');
+        $referenceId = (int) $this->input->getInt('bf_system_reference_id', 0);
+
+        try {
+            if ($formId <= 0 || $referenceId >= 0) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_SELECT_REQUIRED'));
+            }
+
+            if (!$this->persistInlineElementSettings($formId)) {
+                return false;
+            }
+
+            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $formQuery = $db->getQuery(true)
+                ->select($db->quoteName(['type', 'reference_id']))
+                ->from($db->quoteName('#__contentbuilderng_forms'))
+                ->where($db->quoteName('id') . ' = ' . $formId);
+            $db->setQuery($formQuery);
+            $formRow = $db->loadAssoc();
+
+            if (!is_array($formRow) || empty($formRow['type']) || empty($formRow['reference_id'])) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'));
+            }
+
+            if (!in_array((string) $formRow['type'], ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true)) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_BF_ONLY'));
+            }
+
+            $sourceForm = FormSourceFactory::getForm((string) $formRow['type'], (string) $formRow['reference_id']);
+
+            if (
+                !is_object($sourceForm)
+                || empty($sourceForm->exists)
+                || !method_exists($sourceForm, 'getSystemFieldDefinitions')
+                || !$sourceForm::isSystemFieldReferenceId($referenceId)
+            ) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_SELECT_REQUIRED'));
+            }
+
+            $definitions = $sourceForm::getSystemFieldDefinitions();
+            $definition = $definitions[$referenceId];
+
+            $existsQuery = $db->getQuery(true)
+                ->select($db->quoteName('id'))
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('form_id') . ' = ' . $formId)
+                ->where($db->quoteName('reference_id') . ' = ' . $referenceId);
+            $db->setQuery($existsQuery);
+
+            if ((int) $db->loadResult() > 0) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_ALREADY_ADDED'));
+            }
+
+            $orderingQuery = $db->getQuery(true)
+                ->select('MAX(' . $db->quoteName('ordering') . ') + 1')
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('form_id') . ' = ' . $formId);
+            $db->setQuery($orderingQuery);
+            $ordering = (int) $db->loadResult();
+
+            $options = new \stdClass();
+            $options->readonly = 1;
+            $options->length = '';
+            $options->maxlength = '';
+            $options->password = 0;
+            $options->seperator = ',';
+
+            $insertQuery = $db->getQuery(true)
+                ->insert($db->quoteName('#__contentbuilderng_elements'))
+                ->columns($db->quoteName([
+                    'label',
+                    'form_id',
+                    'reference_id',
+                    'type',
+                    'options',
+                    'list_include',
+                    'search_include',
+                    'linkable',
+                    'editable',
+                    'api_allowed',
+                    'published',
+                    'order_type',
+                    'ordering',
+                ]))
+                ->values(implode(',', [
+                    $db->quote((string) $definition['label']),
+                    $formId,
+                    $referenceId,
+                    $db->quote('text'),
+                    $db->quote(PackedDataHelper::encodePackedData($options)),
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    $db->quote((string) ($definition['type'] ?? '')),
+                    $ordering > 0 ? $ordering : 1,
+                ]));
+            $db->setQuery($insertQuery);
+            $db->execute();
+
+            $this->setRedirect(
+                $this->getEditRedirectUrl($formId),
+                Text::sprintf('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_ADDED', (string) $definition['label'])
+            );
+            return true;
+        } catch (\Throwable $e) {
+            $this->setRedirect($this->getEditRedirectUrl($formId), $e->getMessage(), 'warning');
+            return false;
+        }
+    }
+
+    public function remove_bf_system_field(): bool
+    {
+        $this->checkToken();
+
+        $formId = (int) $this->input->getInt('id');
+        $elementId = (int) $this->input->getInt('bf_system_element_id', 0);
+
+        try {
+            if ($formId <= 0 || $elementId <= 0) {
+                throw new \RuntimeException(Text::_('JERROR_NO_ITEMS_SELECTED'));
+            }
+
+            if (!$this->persistInlineElementSettings($formId)) {
+                return false;
+            }
+
+            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $deleteQuery = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('id') . ' = ' . $elementId)
+                ->where($db->quoteName('form_id') . ' = ' . $formId)
+                ->where($db->quoteName('reference_id') . ' < 0');
+            $db->setQuery($deleteQuery);
+            $db->execute();
+
+            $table = $this->getElementsModelForListActions(true)->getTable('Elementoptions');
+            $table->reorder('form_id = ' . $formId);
+
+            $this->setRedirect($this->getEditRedirectUrl($formId), Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_DELETED'));
+            return true;
+        } catch (\Throwable $e) {
+            $this->setRedirect($this->getEditRedirectUrl($formId), $e->getMessage(), 'warning');
             return false;
         }
     }
@@ -615,6 +784,27 @@ class FormController extends BaseFormController
             }
             return false;
         }
+    }
+
+    private function filterEditableSystemFieldIds(array $cids, int $formId): array
+    {
+        ArrayHelper::toInteger($cids);
+        $cids = array_values(array_filter($cids));
+
+        if ($cids === [] || $formId <= 0) {
+            return [];
+        }
+
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('id'))
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('form_id') . ' = ' . $formId)
+            ->where($db->quoteName('id') . ' IN (' . implode(',', array_map('intval', $cids)) . ')')
+            ->where($db->quoteName('reference_id') . ' >= 0');
+        $db->setQuery($query);
+
+        return array_map('intval', (array) $db->loadColumn());
     }
 
     private function getEditRedirectUrl(int $formId): string

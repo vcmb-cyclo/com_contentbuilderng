@@ -15,6 +15,7 @@ namespace CB\Component\Contentbuilderng\Administrator\types;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\Filesystem\File;
@@ -23,12 +24,284 @@ use CB\Component\Contentbuilderng\Administrator\Helper\PhpTemplateHelper;
 
 class contentbuilderng_com_breezingforms
 {
+    private const SYSTEM_FIELD_RECORD_ID = -1001;
+    private const SYSTEM_FIELD_VIEWED = -1002;
+    private const SYSTEM_FIELD_EXPORTED = -1003;
+    private const SYSTEM_FIELD_ARCHIVED = -1004;
+    private const SYSTEM_FIELD_DOUBLE_OPT_IN = -1005;
+    private const SYSTEM_FIELD_CREATED = -1006;
+    private const SYSTEM_FIELD_CREATED_BY = -1007;
+    private const SYSTEM_FIELD_MODIFIED_USER_ID = -1008;
+    private const SYSTEM_FIELD_MODIFIED = -1009;
+    private const SYSTEM_FIELD_MODIFIED_BY = -1010;
+    private const SYSTEM_FIELD_PAYMENT_TRANSACTION_ID = -1011;
+    private const SYSTEM_FIELD_PAYMENT_TRANSACTION_DATE = -1012;
+    private const SYSTEM_FIELD_PAYMENT_TEST_ACCOUNT = -1013;
+    private const SYSTEM_FIELD_PAYMENT_DOWNLOAD_TRIES = -1014;
+    private const SYSTEM_FIELD_BROWSER = -1015;
+    private const SYSTEM_FIELD_SUBMITTED = -1016;
+    private const SYSTEM_FIELD_OPSYS = -1017;
+    private const SYSTEM_FIELD_USER_ID = -1018;
+    private const SYSTEM_FIELD_USERNAME = -1019;
+    private const SYSTEM_FIELD_USER_FULL_NAME = -1020;
+    private const SYSTEM_FIELD_FORM_ID = -1021;
+    private const SYSTEM_FIELD_FORM_TITLE = -1022;
+    private const SYSTEM_FIELD_FORM_NAME = -1023;
+
     public $properties = null;
     public $elements = null;
     private $total = 0;
     private ?array $recordColumns = null;
     private ?array $sortableElements = null;
     public $exists = false;
+
+    public static function getSystemFieldDefinitions(): array
+    {
+        return [
+            self::SYSTEM_FIELD_RECORD_ID => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_RECORD_ID'),
+                'name' => 'bf_record_id',
+                'type' => 'UNSIGNED',
+            ],
+            self::SYSTEM_FIELD_VIEWED => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_VIEWED'),
+                'name' => 'bf_viewed',
+                'type' => 'UNSIGNED',
+            ],
+            self::SYSTEM_FIELD_EXPORTED => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_EXPORTED'),
+                'name' => 'bf_exported',
+                'type' => 'UNSIGNED',
+            ],
+            self::SYSTEM_FIELD_ARCHIVED => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_ARCHIVED'),
+                'name' => 'bf_archived',
+                'type' => 'UNSIGNED',
+            ],
+            self::SYSTEM_FIELD_DOUBLE_OPT_IN => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_DOUBLE_OPT_IN'),
+                'name' => 'bf_double_opt_in',
+                'type' => 'UNSIGNED',
+            ],
+            self::SYSTEM_FIELD_BROWSER => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_BROWSER'),
+                'name' => 'bf_browser',
+                'type' => 'CHAR',
+            ],
+            self::SYSTEM_FIELD_SUBMITTED => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_SUBMITTED'),
+                'name' => 'bf_submitted',
+                'type' => 'DATETIME',
+            ],
+            self::SYSTEM_FIELD_OPSYS => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_OPSYS'),
+                'name' => 'bf_opsys',
+                'type' => 'CHAR',
+            ],
+            self::SYSTEM_FIELD_USER_ID => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_USER_ID'),
+                'name' => 'bf_user_id',
+                'type' => 'UNSIGNED',
+            ],
+            self::SYSTEM_FIELD_USERNAME => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_USERNAME'),
+                'name' => 'bf_username',
+                'type' => 'CHAR',
+            ],
+            self::SYSTEM_FIELD_USER_FULL_NAME => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_USER_FULL_NAME'),
+                'name' => 'bf_user_full_name',
+                'type' => 'CHAR',
+            ],
+            self::SYSTEM_FIELD_CREATED => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_CREATED'),
+                'name' => 'bf_created',
+                'type' => 'DATETIME',
+            ],
+            self::SYSTEM_FIELD_CREATED_BY => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_CREATED_BY'),
+                'name' => 'bf_created_by',
+                'type' => 'CHAR',
+            ],
+            self::SYSTEM_FIELD_MODIFIED_USER_ID => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_MODIFIED_USER_ID'),
+                'name' => 'bf_modified_user_id',
+                'type' => 'UNSIGNED',
+            ],
+            self::SYSTEM_FIELD_MODIFIED => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_MODIFIED'),
+                'name' => 'bf_modified',
+                'type' => 'DATETIME',
+            ],
+            self::SYSTEM_FIELD_MODIFIED_BY => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_MODIFIED_BY'),
+                'name' => 'bf_modified_by',
+                'type' => 'CHAR',
+            ],
+            self::SYSTEM_FIELD_PAYMENT_TRANSACTION_ID => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_PAYMENT_TRANSACTION_ID'),
+                'name' => 'bf_payment_transaction_id',
+                'type' => 'CHAR',
+            ],
+            self::SYSTEM_FIELD_PAYMENT_TRANSACTION_DATE => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_PAYMENT_TRANSACTION_DATE'),
+                'name' => 'bf_payment_transaction_date',
+                'type' => 'DATETIME',
+            ],
+            self::SYSTEM_FIELD_PAYMENT_TEST_ACCOUNT => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_PAYMENT_TEST_ACCOUNT'),
+                'name' => 'bf_payment_test_account',
+                'type' => 'UNSIGNED',
+            ],
+            self::SYSTEM_FIELD_PAYMENT_DOWNLOAD_TRIES => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_PAYMENT_DOWNLOAD_TRIES'),
+                'name' => 'bf_payment_download_tries',
+                'type' => 'UNSIGNED',
+            ],
+            self::SYSTEM_FIELD_FORM_ID => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_FORM_ID'),
+                'name' => 'bf_form_id',
+                'type' => 'UNSIGNED',
+            ],
+            self::SYSTEM_FIELD_FORM_TITLE => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_FORM_TITLE'),
+                'name' => 'bf_form_title',
+                'type' => 'CHAR',
+            ],
+            self::SYSTEM_FIELD_FORM_NAME => [
+                'label' => Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_FORM_NAME'),
+                'name' => 'bf_form_name',
+                'type' => 'CHAR',
+            ],
+        ];
+    }
+
+    public static function getSystemFieldLabels(): array
+    {
+        $labels = [];
+
+        foreach (self::getSystemFieldDefinitions() as $referenceId => $definition) {
+            $labels[(string) $referenceId] = (string) $definition['label'];
+        }
+
+        return $labels;
+    }
+
+    public static function isSystemFieldReferenceId($referenceId): bool
+    {
+        return isset(self::getSystemFieldDefinitions()[(int) $referenceId]);
+    }
+
+    private function getFirstRecordColumnSelect(array $columnNames, string $fallbackSql): string
+    {
+        foreach ($columnNames as $columnName) {
+            if ($this->hasRecordColumn($columnName)) {
+                return 'r.' . $columnName;
+            }
+        }
+
+        return $fallbackSql;
+    }
+
+    private function getSystemFieldSelectExpression(int $referenceId): string
+    {
+        return match ($referenceId) {
+            self::SYSTEM_FIELD_RECORD_ID => 'r.id',
+            self::SYSTEM_FIELD_VIEWED => $this->buildRecordColumnSelect('viewed', '0'),
+            self::SYSTEM_FIELD_EXPORTED => $this->buildRecordColumnSelect('exported', '0'),
+            self::SYSTEM_FIELD_ARCHIVED => $this->buildRecordColumnSelect('archived', '0'),
+            self::SYSTEM_FIELD_DOUBLE_OPT_IN => $this->getFirstRecordColumnSelect(['double_opt_in', 'double_optin', 'double_opted_in', 'opt_in', 'opted_in', 'opted', 'verified'], '0'),
+            self::SYSTEM_FIELD_BROWSER => $this->buildRecordColumnSelect('browser', "''"),
+            self::SYSTEM_FIELD_SUBMITTED => $this->buildRecordColumnSelect('submitted', "''"),
+            self::SYSTEM_FIELD_OPSYS => $this->buildRecordColumnSelect('opsys', "''"),
+            self::SYSTEM_FIELD_USER_ID => $this->buildRecordColumnSelect('user_id', '0'),
+            self::SYSTEM_FIELD_USERNAME => $this->buildRecordColumnSelect('username', "''"),
+            self::SYSTEM_FIELD_USER_FULL_NAME => $this->buildRecordColumnSelect('user_full_name', "''"),
+            self::SYSTEM_FIELD_CREATED => $this->buildRecordColumnSelect('created', "''"),
+            self::SYSTEM_FIELD_CREATED_BY => $this->buildRecordColumnSelect('created_by', "''"),
+            self::SYSTEM_FIELD_MODIFIED_USER_ID => $this->buildRecordColumnSelect('modified_user_id', '0'),
+            self::SYSTEM_FIELD_MODIFIED => $this->buildRecordColumnSelect('modified', 'NULL'),
+            self::SYSTEM_FIELD_MODIFIED_BY => $this->buildRecordColumnSelect('modified_by', "''"),
+            self::SYSTEM_FIELD_PAYMENT_TRANSACTION_ID => $this->getFirstRecordColumnSelect(['paypal_tx_id', 'paypal_transaction_id', 'transaction_id', 'payment_transaction_id'], "''"),
+            self::SYSTEM_FIELD_PAYMENT_TRANSACTION_DATE => $this->getFirstRecordColumnSelect(['paypal_payment_date', 'paypal_transaction_date', 'transaction_date', 'payment_transaction_date'], "''"),
+            self::SYSTEM_FIELD_PAYMENT_TEST_ACCOUNT => $this->getFirstRecordColumnSelect(['paypal_testaccount', 'paypal_test_account', 'testaccount', 'test_account', 'payment_testaccount'], '0'),
+            self::SYSTEM_FIELD_PAYMENT_DOWNLOAD_TRIES => $this->getFirstRecordColumnSelect(['paypal_download_tries', 'paypal_download_attempts', 'download_tries', 'download_attempts', 'payment_download_tries'], '0'),
+            self::SYSTEM_FIELD_FORM_ID => (string) (int) ($this->properties->id ?? 0),
+            self::SYSTEM_FIELD_FORM_TITLE => Factory::getContainer()->get(DatabaseInterface::class)->quote((string) ($this->properties->title ?? '')),
+            self::SYSTEM_FIELD_FORM_NAME => Factory::getContainer()->get(DatabaseInterface::class)->quote((string) ($this->properties->name ?? '')),
+            default => "''",
+        };
+    }
+
+    private function getSystemFieldValue(int $referenceId, object $record): string
+    {
+        $fieldValue = static function (object $row, array $names, string $default = ''): string {
+            foreach ($names as $name) {
+                if (property_exists($row, $name)) {
+                    return (string) ($row->$name ?? $default);
+                }
+            }
+
+            return $default;
+        };
+
+        return match ($referenceId) {
+            self::SYSTEM_FIELD_RECORD_ID => (string) ($record->id ?? ''),
+            self::SYSTEM_FIELD_VIEWED => $fieldValue($record, ['viewed'], '0'),
+            self::SYSTEM_FIELD_EXPORTED => $fieldValue($record, ['exported'], '0'),
+            self::SYSTEM_FIELD_ARCHIVED => $fieldValue($record, ['archived'], '0'),
+            self::SYSTEM_FIELD_DOUBLE_OPT_IN => $fieldValue($record, ['double_opt_in', 'double_optin', 'double_opted_in', 'opt_in', 'opted_in', 'opted', 'verified'], '0'),
+            self::SYSTEM_FIELD_BROWSER => $fieldValue($record, ['browser']),
+            self::SYSTEM_FIELD_SUBMITTED => $fieldValue($record, ['submitted']),
+            self::SYSTEM_FIELD_OPSYS => $fieldValue($record, ['opsys']),
+            self::SYSTEM_FIELD_USER_ID => $fieldValue($record, ['user_id'], '0'),
+            self::SYSTEM_FIELD_USERNAME => $fieldValue($record, ['username']),
+            self::SYSTEM_FIELD_USER_FULL_NAME => $fieldValue($record, ['user_full_name']),
+            self::SYSTEM_FIELD_CREATED => $fieldValue($record, ['created']),
+            self::SYSTEM_FIELD_CREATED_BY => $fieldValue($record, ['created_by']),
+            self::SYSTEM_FIELD_MODIFIED_USER_ID => $fieldValue($record, ['modified_user_id'], '0'),
+            self::SYSTEM_FIELD_MODIFIED => $fieldValue($record, ['modified']),
+            self::SYSTEM_FIELD_MODIFIED_BY => $fieldValue($record, ['modified_by']),
+            self::SYSTEM_FIELD_PAYMENT_TRANSACTION_ID => $fieldValue($record, ['paypal_tx_id', 'paypal_transaction_id', 'transaction_id', 'payment_transaction_id']),
+            self::SYSTEM_FIELD_PAYMENT_TRANSACTION_DATE => $fieldValue($record, ['paypal_payment_date', 'paypal_transaction_date', 'transaction_date', 'payment_transaction_date']),
+            self::SYSTEM_FIELD_PAYMENT_TEST_ACCOUNT => $fieldValue($record, ['paypal_testaccount', 'paypal_test_account', 'testaccount', 'test_account', 'payment_testaccount'], '0'),
+            self::SYSTEM_FIELD_PAYMENT_DOWNLOAD_TRIES => $fieldValue($record, ['paypal_download_tries', 'paypal_download_attempts', 'download_tries', 'download_attempts', 'payment_download_tries'], '0'),
+            self::SYSTEM_FIELD_FORM_ID => (string) (int) ($this->properties->id ?? 0),
+            self::SYSTEM_FIELD_FORM_TITLE => (string) ($this->properties->title ?? ''),
+            self::SYSTEM_FIELD_FORM_NAME => (string) ($this->properties->name ?? ''),
+            default => '',
+        };
+    }
+
+    private function getConfiguredSystemFieldDefinitions(): array
+    {
+        $contentbuilderFormId = (int) Factory::getApplication()->getInput()->getInt('id', 0);
+
+        if ($contentbuilderFormId <= 0) {
+            return [];
+        }
+
+        $definitions = self::getSystemFieldDefinitions();
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('reference_id'))
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('form_id') . ' = ' . $contentbuilderFormId)
+            ->where($db->quoteName('reference_id') . ' < 0')
+            ->where($db->quoteName('published') . ' = 1')
+            ->order($db->quoteName('ordering'));
+        $db->setQuery($query);
+        $configuredReferenceIds = array_map('intval', (array) $db->loadColumn());
+
+        $configured = [];
+        foreach ($configuredReferenceIds as $referenceId) {
+            if (isset($definitions[$referenceId])) {
+                $configured[$referenceId] = $definitions[$referenceId];
+            }
+        }
+
+        return $configured;
+    }
 
     private static function normalizeGroupValueForMatch(string $value): string
     {
@@ -528,6 +801,29 @@ class contentbuilderng_com_breezingforms
                 }
                 $i++;
             }
+
+            $recordQuery = $db->getQuery(true)
+                ->select('*')
+                ->from($db->quoteName('#__facileforms_records'))
+                ->where($db->quoteName('id') . ' = ' . (int) $record_id)
+                ->where($db->quoteName('form') . ' = ' . (int) $this->properties->id);
+            $db->setQuery($recordQuery);
+            $recordRow = $db->loadObject();
+
+            if (is_object($recordRow)) {
+                foreach ($this->getConfiguredSystemFieldDefinitions() as $referenceId => $definition) {
+                    $out[$i] = new \stdClass();
+                    $out[$i]->recElementId = (int) $referenceId;
+                    $out[$i]->recTitle = (string) $definition['label'];
+                    $out[$i]->recName = (string) $definition['name'];
+                    $out[$i]->recType = 'System';
+                    $out[$i]->recRating = $colValues['colRating'];
+                    $out[$i]->recRatingCount = $colValues['colRatingCount'];
+                    $out[$i]->recRatingSum = $colValues['colRatingSum'];
+                    $out[$i]->recValue = $this->getSystemFieldValue((int) $referenceId, $recordRow);
+                    $i++;
+                }
+            }
         }
         return $out;
     }
@@ -644,8 +940,15 @@ class contentbuilderng_com_breezingforms
 
         // We want the visible ids on top, so they will be shown as supposed, as the list view will filter out the hidden ones
         foreach ($ids as $id) {
+            $id = (int) $id;
 
             if (!isset($act_as_registration[$id])) {
+                if (self::isSystemFieldReferenceId($id)) {
+                    $systemExpression = $this->getSystemFieldSelectExpression($id);
+                    $selectors .= $systemExpression . " As `col$id`,";
+                    $orderExpressions['col' . $id] = $systemExpression;
+                    continue;
+                }
 
                 /// CASTING FOR BEING ABLE TO SORT THE WAY DEDIRED
                 // In BreezingForms, we have to cast on selection level, since casting in order by is not allowed
@@ -832,7 +1135,7 @@ class contentbuilderng_com_breezingforms
         $isValidInitialOrder = static function ($value) use ($validOrderKeys): bool {
             return $value === -1
                 || $value === '-1'
-                || (is_string($value) && preg_match('/^col\d+$/', $value))
+                || (is_string($value) && preg_match('/^col-?\d+$/', $value))
                 || in_array($value, $validOrderKeys, true);
         };
         if (!$isValidInitialOrder($init_order_by)) {
@@ -1031,6 +1334,11 @@ class contentbuilderng_com_breezingforms
                 }
             }
         }
+
+        foreach (self::getSystemFieldDefinitions() as $referenceId => $definition) {
+            $elements[(string) $referenceId] = (string) $definition['name'];
+        }
+
         return $elements;
     }
 
@@ -1051,6 +1359,11 @@ class contentbuilderng_com_breezingforms
                 }
             }
         }
+
+        foreach (self::getSystemFieldDefinitions() as $referenceId => $definition) {
+            $elements[(string) $referenceId] = (string) $definition['label'];
+        }
+
         return $elements;
     }
 

@@ -239,6 +239,14 @@ final class BfFieldSyncAuditHelper
                     continue;
                 }
 
+                if (
+                    method_exists($sourceForm, 'isSystemFieldReferenceId')
+                    && $sourceForm::isSystemFieldReferenceId($refId)
+                    && !array_key_exists($refId, $cbByReference)
+                ) {
+                    continue;
+                }
+
                 $sourceLabel = trim((string) $label);
                 $sourceByReference[$refId] = $sourceLabel !== '' ? $sourceLabel : $refId;
             }

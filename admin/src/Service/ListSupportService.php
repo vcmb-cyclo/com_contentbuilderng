@@ -97,7 +97,7 @@ class ListSupportService
         $db = $this->db;
         $db->setQuery(
             'Select reference_id From #__contentbuilderng_elements'
-            . ' Where search_include = 1 And published = 1 And form_id = ' . (int) $formId
+            . ' Where search_include = 1 And published = 1 And reference_id >= 0 And form_id = ' . (int) $formId
         );
 
         return (array) $db->loadColumn();
@@ -119,7 +119,7 @@ class ListSupportService
         $db = $this->db;
         $db->setQuery(
             'Select reference_id From #__contentbuilderng_elements'
-            . ' Where editable = 1 And published = 1 And form_id = ' . (int) $formId
+            . ' Where editable = 1 And published = 1 And reference_id >= 0 And form_id = ' . (int) $formId
         );
 
         return (array) $db->loadColumn();

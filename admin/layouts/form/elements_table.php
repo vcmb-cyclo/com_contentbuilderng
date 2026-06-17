@@ -24,6 +24,13 @@ $item = $displayData['item'] ?? null;
 $sortLink = $displayData['sortLink'] ?? null;
 $textUtilityService = $displayData['textUtilityService'] ?? null;
 $isModifiedElementSettings = $displayData['isModifiedElementSettings'] ?? null;
+$hasBfSystemFields = false;
+foreach ($elements as $element) {
+    if ((int) ($element->reference_id ?? 0) < 0) {
+        $hasBfSystemFields = true;
+        break;
+    }
+}
 $columnOptions = [
     'id' => Text::_('COM_CONTENTBUILDERNG_ID'),
     'label' => Text::_('COM_CONTENTBUILDERNG_LABEL'),
@@ -36,9 +43,16 @@ $columnOptions = [
     'publish' => Text::_('COM_CONTENTBUILDERNG_ELEMENT_HEADING_PUBLISH'),
     'order' => Text::_('COM_CONTENTBUILDERNG_ORDERBY'),
 ];
+if ($hasBfSystemFields) {
+    $columnOptions = array_slice($columnOptions, 0, 2, true)
+        + ['actions' => Text::_('COM_CONTENTBUILDERNG_TOOLBAR_ACTIONS')]
+        + array_slice($columnOptions, 2, null, true);
+}
 $defaultHiddenColumns = ['wordwrap'];
 $visibleColumnCount = count($columnOptions);
+$tableColumnCount = $hasBfSystemFields ? 12 : 11;
 ?>
+<input type="hidden" name="bf_system_element_id" id="cb_bf_system_element_id" value="" />
 <div class="d-flex justify-content-end mb-2 cb-elements-columns-pending">
     <div class="dropdown cb-elements-columns-dropdown">
         <button type="button"
@@ -84,6 +98,13 @@ $visibleColumnCount = count($columnOptions);
                     <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_LABEL'), 'label') : Text::_('COM_CONTENTBUILDERNG_LABEL'); ?>
                 </span>
             </th>
+            <?php if ($hasBfSystemFields) : ?>
+                <th id="cb-form-view-elements-heading-actions" width="40" data-cb-col="actions">
+                    <span class="cb-elements-heading-label">
+                        <?php echo Text::_('COM_CONTENTBUILDERNG_TOOLBAR_ACTIONS'); ?>
+                    </span>
+                </th>
+            <?php endif; ?>
             <th id="cb-form-view-elements-heading-list-include" data-cb-col="list">
                 <span class="editlinktip hasTip cb-elements-heading-label"
                     title="<?php echo Text::_('COM_CONTENTBUILDERNG_LIST_INCLUDE_TIP'); ?>">
@@ -146,6 +167,11 @@ $visibleColumnCount = count($columnOptions);
             $linkable = ContentbuilderngHelper::listLinkable('form', $row, $i);
             $apiAllowed = ContentbuilderngHelper::listApiAllowed('form', $row, $i);
             $editable = ContentbuilderngHelper::listEditable('form', $row, $i);
+            $isBfSystemField = (int) ($row->reference_id ?? 0) < 0;
+            if ($isBfSystemField) {
+                $searchInclude = '<span class="text-muted" title="' . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_SEARCH_DISABLED'), ENT_QUOTES, 'UTF-8') . '"><span class="icon-unpublish" aria-hidden="true"></span></span>';
+                $editable = '<span class="text-muted" title="' . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_EDIT_DISABLED'), ENT_QUOTES, 'UTF-8') . '"><span class="icon-unpublish" aria-hidden="true"></span></span>';
+            }
             $isModifiedElement = is_callable($isModifiedElementSettings) ? (bool) $isModifiedElementSettings($row) : false;
         ?>
             <tr id="cb-row-<?php echo (int) $row->id; ?>" class="<?php echo 'row' . $k; ?>" data-cb-row-id="<?php echo (int) $row->id; ?>">
@@ -162,6 +188,11 @@ $visibleColumnCount = count($columnOptions);
                             onclick="document.getElementById('itemLabels<?php echo $row->id ?>').style.display='block';this.style.display='none';document.getElementById('itemLabels<?php echo $row->id ?>').focus();">
                             <b>
                                 <?php echo htmlspecialchars($row->label ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                <?php if ($isBfSystemField) : ?>
+                                    <span class="icon-cog text-muted ms-1"
+                                        aria-hidden="true"
+                                        title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD'), ENT_QUOTES, 'UTF-8'); ?>"></span>
+                                <?php endif; ?>
                             </b>
                         </div>
                         <input class="form-control form-control-sm"
@@ -198,6 +229,21 @@ $visibleColumnCount = count($columnOptions);
                         </select>
                     </div>
                 </td>
+                <?php if ($hasBfSystemFields) : ?>
+                    <td class="align-top text-center" data-cb-col="actions">
+                        <?php if ($isBfSystemField) : ?>
+                            <a href="#"
+                                id="cb_bf_system_field_delete_<?php echo (int) $row->id; ?>"
+                                class="tbody-icon jgrid"
+                                title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_DELETE'), ENT_QUOTES, 'UTF-8'); ?>"
+                                onclick="document.getElementById('cb_bf_system_element_id').value='<?php echo (int) $row->id; ?>'; Joomla.submitbutton('form.remove_bf_system_field'); return false;">
+                                <span class="icon-trash"
+                                    style="--border: #dc3545; color: #dc3545; border-color: #dc3545;"
+                                    aria-hidden="true"></span>
+                            </a>
+                        <?php endif; ?>
+                    </td>
+                <?php endif; ?>
                 <td class="align-top" data-cb-col="list">
                     <?php echo $listInclude; ?>
                 </td>
@@ -213,7 +259,7 @@ $visibleColumnCount = count($columnOptions);
                 <td class="align-top" data-cb-col="edit">
                     <?php echo $editable; ?>
                     <?php
-                    if (!($item->edit_by_type ?? false) && (($row->editable ?? null) || $isModifiedElement)) {
+                    if (!($item->edit_by_type ?? false) && (int) ($row->editable ?? 0) === 1) {
                         $typeBadgeClass = $isModifiedElement ? 'is-modified' : 'is-default';
                         $typeBadgeTitle = $isModifiedElement ? ' title="' . htmlspecialchars('Element settings changed from default', ENT_QUOTES, 'UTF-8') . '"' : '';
                         echo '<div class="mt-1"><a class="cb-item-type-badge ' . $typeBadgeClass . '" href="index.php?option=com_contentbuilderng&amp;view=elementoptions&amp;tmpl=component&amp;element_id=' . $row->id . '&amp;id=' . (int) ($item->id ?? 0) . '" data-bs-toggle="modal" data-bs-target="#text-type-modal"' . $typeBadgeTitle . '>' . ($isModifiedElement ? 'Modified' : 'Default') . '</a></div>';
@@ -260,7 +306,7 @@ $visibleColumnCount = count($columnOptions);
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="11">
+            <td colspan="<?php echo (int) $tableColumnCount; ?>">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div class="d-flex flex-wrap align-items-center gap-2">
                         <?php echo $pagination ? $pagination->getPagesCounter() : ''; ?>

@@ -522,6 +522,26 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                             ],
                             $componentLayoutBase
                         );
+
+                        $availableBfSystemFields = [];
+                        if (
+                            $isBreezingFormsType
+                            && is_object($this->item->form ?? null)
+                            && method_exists($this->item->form, 'getSystemFieldDefinitions')
+                        ) {
+                            $existingReferenceIds = [];
+                            foreach ((array) ($this->all_elements ?? []) as $elementRow) {
+                                $existingReferenceIds[(string) ($elementRow->reference_id ?? '')] = true;
+                            }
+
+                            foreach ($this->item->form::getSystemFieldDefinitions() as $systemReferenceId => $systemDefinition) {
+                                if (!isset($existingReferenceIds[(string) $systemReferenceId])) {
+                                    $availableBfSystemFields[(int) $systemReferenceId] = (string) ($systemDefinition['label'] ?? $systemReferenceId);
+                                }
+                            }
+
+                            uasort($availableBfSystemFields, static fn (string $left, string $right): int => strnatcasecmp($left, $right));
+                        }
                         ?>
         <?php
         echo LayoutHelper::render(
@@ -531,6 +551,8 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                 'themePlugins' => $this->theme_plugins,
                 'formatTypeDisplay' => $formatTypeDisplay,
                 'elementsTableHtml' => $elementsTableHtml,
+                'availableBfSystemFields' => $availableBfSystemFields,
+                'isBreezingFormsType' => $isBreezingFormsType,
             ],
             $componentLayoutBase
         );

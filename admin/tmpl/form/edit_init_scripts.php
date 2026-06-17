@@ -814,6 +814,8 @@ use Joomla\CMS\Language\Text;
             case 'form.saveorder':
             case 'form.listremove':
             case 'form.save_labels':
+            case 'form.add_bf_system_field':
+            case 'form.remove_bf_system_field':
                 Joomla.submitform(task, form);
                 break;
             case 'form.publish':
@@ -1757,6 +1759,10 @@ use Joomla\CMS\Language\Text;
         }
 
         var name = String(field.name || '');
+
+        if (name === 'bf_system_reference_id') {
+            return true;
+        }
 
         if (/^jform\[order\]\[\d+\]$/.test(name)) {
             return true;
