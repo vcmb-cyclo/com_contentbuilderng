@@ -59,7 +59,6 @@ $tooltipAudit = Text::_('COM_CONTENTBUILDERNG_ABOUT_TOOLTIP_AUDIT');
 $tooltipDbRepair = Text::_('COM_CONTENTBUILDERNG_ABOUT_TOOLTIP_DB_REPAIR');
 $tooltipShowLog = Text::_('COM_CONTENTBUILDERNG_ABOUT_TOOLTIP_SHOW_LOG');
 $tooltipLinkVcmb = Text::_('COM_CONTENTBUILDERNG_ABOUT_TOOLTIP_LINK_VCMB');
-$tooltipLinkGithub = Text::_('COM_CONTENTBUILDERNG_ABOUT_TOOLTIP_LINK_GITHUB');
 $tooltipLinkLicense = Text::_('COM_CONTENTBUILDERNG_ABOUT_TOOLTIP_LINK_LICENSE');
 $labelAuditButton = Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT');
 $labelDbRepairButton = Text::_('COM_CONTENTBUILDERNG_ABOUT_MIGRATE_PACKED_DATA');
@@ -474,7 +473,7 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
         letter-spacing: .01em;
         text-decoration: none;
         border-radius: 999px;
-        padding: .45rem .8rem;
+        padding: .55rem .8rem;
         transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
     }
     .cb-about-intro-link:hover,
@@ -487,12 +486,6 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
         color: var(--bs-primary-text-emphasis);
         background: var(--bs-primary-bg-subtle);
         border: 1px solid var(--bs-primary-border-subtle);
-    }
-    .cb-about-intro-link--github {
-        color: var(--bs-secondary-text-emphasis);
-        background: var(--bs-secondary-bg-subtle);
-        border: 1px solid var(--bs-secondary-border-subtle);
-        box-shadow: 0 .35rem .9rem rgba(15, 23, 42, .16);
     }
     .cb-about-intro-link--license {
         color: var(--bs-warning-text-emphasis);
@@ -901,22 +894,14 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
                 title="<?php echo htmlspecialchars($tooltipLinkVcmb, ENT_QUOTES, 'UTF-8'); ?>"
                 aria-label="<?php echo htmlspecialchars($tooltipLinkVcmb, ENT_QUOTES, 'UTF-8'); ?>"
             >VCMB migration</a>
-            <a
-                class="cb-about-intro-link cb-about-intro-link--github"
-                href="https://github.com/vcmb-cyclo/com_contentbuilderng"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="<?php echo htmlspecialchars($tooltipLinkGithub, ENT_QUOTES, 'UTF-8'); ?>"
-                aria-label="<?php echo htmlspecialchars($tooltipLinkGithub, ENT_QUOTES, 'UTF-8'); ?>"
-            >GitHub repository</a>
             <iframe
-                src="https://ghbtns.com/github-btn.html?user=vcmb-cyclo&amp;repo=com_contentbuilderng&amp;type=star&amp;count=true"
+                src="https://ghbtns.com/github-btn.html?user=vcmb-cyclo&amp;repo=com_contentbuilderng&amp;type=star&amp;count=true&amp;size=large"
                 frameborder="0"
                 scrolling="0"
-                width="150"
-                height="20"
+                width="170"
+                height="30"
                 title="GitHub Stars"
-                style="vertical-align:middle;"
+                style="display:block;align-self:center;"
             ></iframe>
             <a
                 class="cb-about-intro-link cb-about-intro-link--license"
