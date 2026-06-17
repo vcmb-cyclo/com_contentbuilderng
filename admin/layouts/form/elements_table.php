@@ -83,7 +83,7 @@ $tableColumnCount = $hasBfSystemFields ? 12 : 11;
     </div>
 </div>
 <div class="table-responsive mb-3 cb-elements-columns-pending">
-<table class="table table-striped cb-elements-table">
+<table class="table table-striped cb-elements-table" data-cb-elements-ordering="<?php echo $ordering ? '1' : '0'; ?>">
     <thead>
         <tr>
             <th id="cb-form-view-elements-heading-id" width="5" data-cb-col="id">
@@ -290,6 +290,13 @@ $tableColumnCount = $hasBfSystemFields ? 12 : 11;
                         <?php echo $orderDown !== '' ? $orderDown : '<span class="cb-order-placeholder">•</span>'; ?>
                     </span>
                     <?php $disabled = $ordering ? '' : 'disabled="disabled"'; ?>
+                    <button type="button"
+                        class="btn btn-sm btn-link p-0 me-1 cb-elements-drag-handle<?php echo $ordering ? '' : ' disabled'; ?>"
+                        title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DRAG_TO_REORDER'), ENT_QUOTES, 'UTF-8'); ?>"
+                        aria-label="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DRAG_TO_REORDER'), ENT_QUOTES, 'UTF-8'); ?>"
+                        <?php echo $ordering ? '' : 'disabled="disabled"'; ?>>
+                        <span class="fa-solid fa-grip-lines" aria-hidden="true"></span>
+                    </button>
                     <input
                         type="text"
                         name="jform[order][<?php echo (int) $row->id; ?>]"

@@ -125,6 +125,126 @@ if (clearButton) {
 }
 
 updateClearButtonState();
+
+const storagesTable = document.querySelector('#cb-storages-list[data-cb-storages-ordering="1"]');
+if (storagesTable && storagesTable.tBodies.length) {
+    const storagesTableBody = storagesTable.tBodies[0];
+    let draggedRow = null;
+
+    const getOrderRows = () => Array.prototype.slice.call(storagesTableBody.querySelectorAll('tr[data-cb-row-id]'));
+    const getRowOrderInput = (row) => row ? row.querySelector('input[name="order[]"]') : null;
+
+    const refreshStorageOrderValues = () => {
+        const rows = getOrderRows();
+        const values = rows.map((row, index) => {
+            const input = getRowOrderInput(row);
+            const value = input ? parseInt(input.value, 10) : 0;
+
+            return Number.isFinite(value) && value > 0 ? value : index + 1;
+        }).sort((left, right) => left - right);
+
+        rows.forEach((row, index) => {
+            const input = getRowOrderInput(row);
+            if (input) {
+                input.value = String(values[index] || index + 1);
+            }
+        });
+    };
+
+    const prepareOrderSubmitIds = () => {
+        form.querySelectorAll('input[data-cb-storages-order-cid="1"]').forEach((input) => {
+            input.remove();
+        });
+
+        getOrderRows().forEach((row) => {
+            const rowId = String(row.getAttribute('data-cb-row-id') || '');
+            if (rowId === '') {
+                return;
+            }
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'cid[]';
+            input.value = rowId;
+            input.setAttribute('data-cb-storages-order-cid', '1');
+            form.appendChild(input);
+        });
+    };
+
+    const getDropTargetRow = (clientY) => {
+        const rows = getOrderRows().filter((row) => row !== draggedRow);
+
+        return rows.reduce((closest, row) => {
+            const box = row.getBoundingClientRect();
+            const offset = clientY - box.top - (box.height / 2);
+
+            if (offset < 0 && offset > closest.offset) {
+                return {
+                    offset,
+                    row
+                };
+            }
+
+            return closest;
+        }, {
+            offset: Number.NEGATIVE_INFINITY,
+            row: null
+        }).row;
+    };
+
+    storagesTableBody.querySelectorAll('.cb-storages-drag-handle:not([disabled])').forEach((handle) => {
+        const row = handle.closest('tr[data-cb-row-id]');
+        if (!row) {
+            return;
+        }
+
+        handle.setAttribute('draggable', 'true');
+
+        handle.addEventListener('dragstart', (event) => {
+            draggedRow = row;
+            row.classList.add('cb-elements-row-dragging');
+
+            if (event.dataTransfer) {
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setData('text/plain', String(row.getAttribute('data-cb-row-id') || ''));
+            }
+        });
+
+        handle.addEventListener('dragend', () => {
+            row.classList.remove('cb-elements-row-dragging');
+            draggedRow = null;
+        });
+    });
+
+    storagesTableBody.addEventListener('dragover', (event) => {
+        if (!draggedRow) {
+            return;
+        }
+
+        event.preventDefault();
+        const targetRow = getDropTargetRow(event.clientY);
+
+        if (targetRow) {
+            storagesTableBody.insertBefore(draggedRow, targetRow);
+        } else {
+            storagesTableBody.appendChild(draggedRow);
+        }
+    });
+
+    storagesTableBody.addEventListener('drop', (event) => {
+        if (!draggedRow) {
+            return;
+        }
+
+        event.preventDefault();
+        refreshStorageOrderValues();
+        prepareOrderSubmitIds();
+
+        if (typeof Joomla !== 'undefined' && typeof Joomla.submitbutton === 'function') {
+            Joomla.submitbutton('storages.saveorder');
+        }
+    });
+}
 });
 </script>
 <style>
@@ -139,6 +259,11 @@ updateClearButtonState();
         align-items:center;
         justify-content:center;
     }
+
+    .cb-storages-drag-handle{cursor:grab;color:var(--bs-secondary-color);vertical-align:middle}
+    .cb-storages-drag-handle:active{cursor:grabbing}
+    .cb-storages-drag-handle.disabled,.cb-storages-drag-handle:disabled{cursor:not-allowed;opacity:.45}
+    .cb-elements-row-dragging{opacity:.55}
 </style>
 
 <form action="<?php echo Route::_('index.php?option=com_contentbuilderng&view=storages'); ?>"
@@ -195,7 +320,7 @@ updateClearButtonState();
     </div>
 
     <div class="table-responsive">
-        <table class="table table-striped" id="cb-storages-list" data-name="contentbuilderng-storages">
+        <table class="table table-striped" id="cb-storages-list" data-name="contentbuilderng-storages" data-cb-storages-ordering="<?php echo $saveOrder ? '1' : '0'; ?>">
             <thead>
                 <tr>
                     <th class="w-1 text-nowrap hasTooltip" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGES_COLUMN_ID_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
@@ -270,7 +395,7 @@ updateClearButtonState();
                         $previewUrl = (string) ($previewLinks[$id] ?? '');
 
                     ?>
-                    <tr>
+                    <tr data-cb-row-id="<?php echo $id; ?>">
                         <td class="text-nowrap"><?php echo $id; ?></td>
                         <td class="text-center"><?php echo $checked; ?></td>
                         <td class="text-center">
@@ -300,6 +425,16 @@ updateClearButtonState();
                                 <span>
                                     <?php echo $this->pagination->orderDownIcon($i, $n, $saveOrder, 'storages.orderdown', 'JLIB_HTML_MOVE_DOWN', $saveOrder); ?>
                                 </span>
+                                <button type="button"
+                                    class="btn btn-sm btn-link p-0 me-1 cb-storages-drag-handle"
+                                    title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DRAG_TO_REORDER'), ENT_QUOTES, 'UTF-8'); ?>"
+                                    aria-label="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DRAG_TO_REORDER'), ENT_QUOTES, 'UTF-8'); ?>">
+                                    <span class="fa-solid fa-grip-lines" aria-hidden="true"></span>
+                                </button>
+                                <input type="hidden"
+                                    name="order[]"
+                                    value="<?php echo (int) ($row->ordering ?? 0); ?>"
+                                    class="cb-storages-order-input" />
                             <?php endif; ?>
                         </td>
 

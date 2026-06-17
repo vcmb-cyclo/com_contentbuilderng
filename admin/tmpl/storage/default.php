@@ -105,9 +105,13 @@ $wa->addInlineStyle(
     . '.cb-storage-columns-menu{min-width:14rem;max-width:min(22rem,90vw)}'
     . '.cb-storage-columns-menu .dropdown-item{padding:.35rem .5rem;white-space:normal}'
     . '.cb-storage-col-hidden{display:none!important}'
-    . '.cb-storage-fields-table .cb-order-col{width:84px;min-width:84px;text-align:right;white-space:nowrap}'
-    . '.cb-storage-fields-table .cb-order-icons{display:inline-flex;justify-content:flex-end;gap:.5rem;width:100%}'
+    . '.cb-storage-fields-table .cb-order-col{width:112px;min-width:112px;text-align:right;white-space:nowrap}'
+    . '.cb-storage-fields-table .cb-order-icons{display:inline-flex;justify-content:flex-end;align-items:center;gap:.5rem;width:100%}'
     . '.cb-storage-fields-table .cb-order-icons>span{display:inline-flex}'
+    . '.cb-storage-fields-drag-handle{cursor:grab;color:var(--bs-secondary-color);vertical-align:middle}'
+    . '.cb-storage-fields-drag-handle:active{cursor:grabbing}'
+    . '.cb-storage-fields-drag-handle.disabled,.cb-storage-fields-drag-handle:disabled{cursor:not-allowed;opacity:.45}'
+    . '.cb-elements-row-dragging{opacity:.55}'
     . '.cb-storage-pagination{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem}'
     . '.cb-storage-pagination .cb-storage-pages{margin-left:auto}'
     . '.cb-storage-pagination .cb-storage-pages .pagination{margin:0!important;text-align:right!important}'
@@ -163,6 +167,125 @@ document.addEventListener('DOMContentLoaded', function() {
             form.submit();
         });
     });
+
+    var storageFieldsTable = document.querySelector('.cb-storage-fields-table[data-cb-storage-fields-ordering="1"]');
+    if (storageFieldsTable && storageFieldsTable.tBodies.length) {
+        var storageFieldsBody = storageFieldsTable.tBodies[0];
+        var draggedRow = null;
+
+        var getOrderRows = function() {
+            return Array.prototype.slice.call(storageFieldsBody.querySelectorAll('tr[data-cb-row-id]'));
+        };
+
+        var getRowOrderInput = function(row) {
+            return row ? row.querySelector('input[name="order[]"]') : null;
+        };
+
+        var refreshStorageFieldOrderValues = function() {
+            var rows = getOrderRows();
+            var values = rows.map(function(row, index) {
+                var input = getRowOrderInput(row);
+                var value = input ? parseInt(input.value, 10) : 0;
+
+                return Number.isFinite(value) && value > 0 ? value : index + 1;
+            }).sort(function(left, right) { return left - right; });
+
+            rows.forEach(function(row, index) {
+                var input = getRowOrderInput(row);
+                if (input) {
+                    input.value = String(values[index] || index + 1);
+                }
+            });
+        };
+
+        var prepareOrderSubmitIds = function() {
+            form.querySelectorAll('input[data-cb-storage-fields-order-cid="1"]').forEach(function(input) {
+                input.remove();
+            });
+
+            getOrderRows().forEach(function(row) {
+                var rowId = String(row.getAttribute('data-cb-row-id') || '');
+                if (rowId === '') {
+                    return;
+                }
+
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'cid[]';
+                input.value = rowId;
+                input.setAttribute('data-cb-storage-fields-order-cid', '1');
+                form.appendChild(input);
+            });
+        };
+
+        var getDropTargetRow = function(clientY) {
+            var rows = getOrderRows().filter(function(row) { return row !== draggedRow; });
+
+            return rows.reduce(function(closest, row) {
+                var box = row.getBoundingClientRect();
+                var offset = clientY - box.top - (box.height / 2);
+
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, row: row };
+                }
+
+                return closest;
+            }, { offset: Number.NEGATIVE_INFINITY, row: null }).row;
+        };
+
+        storageFieldsBody.querySelectorAll('.cb-storage-fields-drag-handle:not([disabled])').forEach(function(handle) {
+            var row = handle.closest('tr[data-cb-row-id]');
+            if (!row) {
+                return;
+            }
+
+            handle.setAttribute('draggable', 'true');
+
+            handle.addEventListener('dragstart', function(event) {
+                draggedRow = row;
+                row.classList.add('cb-elements-row-dragging');
+
+                if (event.dataTransfer) {
+                    event.dataTransfer.effectAllowed = 'move';
+                    event.dataTransfer.setData('text/plain', String(row.getAttribute('data-cb-row-id') || ''));
+                }
+            });
+
+            handle.addEventListener('dragend', function() {
+                row.classList.remove('cb-elements-row-dragging');
+                draggedRow = null;
+            });
+        });
+
+        storageFieldsBody.addEventListener('dragover', function(event) {
+            if (!draggedRow) {
+                return;
+            }
+
+            event.preventDefault();
+            var targetRow = getDropTargetRow(event.clientY);
+
+            if (targetRow) {
+                storageFieldsBody.insertBefore(draggedRow, targetRow);
+            } else {
+                storageFieldsBody.appendChild(draggedRow);
+            }
+        });
+
+        storageFieldsBody.addEventListener('drop', function(event) {
+            if (!draggedRow) {
+                return;
+            }
+
+            event.preventDefault();
+            refreshStorageFieldOrderValues();
+            prepareOrderSubmitIds();
+
+            if (typeof Joomla !== 'undefined' && typeof Joomla.submitbutton === 'function') {
+                Joomla.submitbutton('storage.saveorder');
+            }
+        });
+    }
 });
 
 const cbSaveAnimationDurationMs = 500;

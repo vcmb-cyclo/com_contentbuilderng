@@ -141,6 +141,126 @@ if (clearButton) {
 }
 
 updateClearButtonState();
+
+const formsTable = document.querySelector('#cb-forms-list[data-cb-forms-ordering="1"]');
+if (formsTable && formsTable.tBodies.length) {
+    const formsTableBody = formsTable.tBodies[0];
+    let draggedRow = null;
+
+    const getOrderRows = () => Array.prototype.slice.call(formsTableBody.querySelectorAll('tr[data-cb-row-id]'));
+    const getRowOrderInput = (row) => row ? row.querySelector('input[name="order[]"]') : null;
+
+    const refreshFormOrderValues = () => {
+        const rows = getOrderRows();
+        const values = rows.map((row, index) => {
+            const input = getRowOrderInput(row);
+            const value = input ? parseInt(input.value, 10) : 0;
+
+            return Number.isFinite(value) && value > 0 ? value : index + 1;
+        }).sort((left, right) => left - right);
+
+        rows.forEach((row, index) => {
+            const input = getRowOrderInput(row);
+            if (input) {
+                input.value = String(values[index] || index + 1);
+            }
+        });
+    };
+
+    const prepareOrderSubmitIds = () => {
+        form.querySelectorAll('input[data-cb-forms-order-cid="1"]').forEach((input) => {
+            input.remove();
+        });
+
+        getOrderRows().forEach((row) => {
+            const rowId = String(row.getAttribute('data-cb-row-id') || '');
+            if (rowId === '') {
+                return;
+            }
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'cid[]';
+            input.value = rowId;
+            input.setAttribute('data-cb-forms-order-cid', '1');
+            form.appendChild(input);
+        });
+    };
+
+    const getDropTargetRow = (clientY) => {
+        const rows = getOrderRows().filter((row) => row !== draggedRow);
+
+        return rows.reduce((closest, row) => {
+            const box = row.getBoundingClientRect();
+            const offset = clientY - box.top - (box.height / 2);
+
+            if (offset < 0 && offset > closest.offset) {
+                return {
+                    offset,
+                    row
+                };
+            }
+
+            return closest;
+        }, {
+            offset: Number.NEGATIVE_INFINITY,
+            row: null
+        }).row;
+    };
+
+    formsTableBody.querySelectorAll('.cb-forms-drag-handle:not([disabled])').forEach((handle) => {
+        const row = handle.closest('tr[data-cb-row-id]');
+        if (!row) {
+            return;
+        }
+
+        handle.setAttribute('draggable', 'true');
+
+        handle.addEventListener('dragstart', (event) => {
+            draggedRow = row;
+            row.classList.add('cb-elements-row-dragging');
+
+            if (event.dataTransfer) {
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setData('text/plain', String(row.getAttribute('data-cb-row-id') || ''));
+            }
+        });
+
+        handle.addEventListener('dragend', () => {
+            row.classList.remove('cb-elements-row-dragging');
+            draggedRow = null;
+        });
+    });
+
+    formsTableBody.addEventListener('dragover', (event) => {
+        if (!draggedRow) {
+            return;
+        }
+
+        event.preventDefault();
+        const targetRow = getDropTargetRow(event.clientY);
+
+        if (targetRow) {
+            formsTableBody.insertBefore(draggedRow, targetRow);
+        } else {
+            formsTableBody.appendChild(draggedRow);
+        }
+    });
+
+    formsTableBody.addEventListener('drop', (event) => {
+        if (!draggedRow) {
+            return;
+        }
+
+        event.preventDefault();
+        refreshFormOrderValues();
+        prepareOrderSubmitIds();
+
+        if (typeof Joomla !== 'undefined' && typeof Joomla.submitbutton === 'function') {
+            Joomla.submitbutton('forms.saveorder');
+        }
+    });
+}
 });
 </script>
 <style>
@@ -229,7 +349,7 @@ updateClearButtonState();
             </div>
         </div>
 
-        <table class="table table-striped" id="cb-forms-list" data-name="contentbuilderng-forms">
+        <table class="table table-striped" id="cb-forms-list" data-name="contentbuilderng-forms" data-cb-forms-ordering="<?php echo $this->ordering ? '1' : '0'; ?>">
             <thead>
                 <tr>
                     <th width="5" class="hasTooltip" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_FORMS_COLUMN_ID_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
@@ -283,7 +403,7 @@ updateClearButtonState();
                     $debug = ContentbuilderngHelper::listDebug('forms', $row, $i);
                     $published = ContentbuilderngHelper::listPublish('forms', $row, $i);
                 ?>
-                    <tr class="<?php echo "row$k"; ?>">
+                    <tr class="<?php echo "row$k"; ?>" data-cb-row-id="<?php echo (int) $row->id; ?>">
                         <td>
                             <?php echo $row->id; ?>
                         </td>
@@ -348,6 +468,17 @@ updateClearButtonState();
                                 ?>
                             </span>
                             <?php $disabled = $this->ordering ? '' : 'disabled="disabled"'; ?>
+                            <button type="button"
+                                class="btn btn-sm btn-link p-0 me-1 cb-forms-drag-handle<?php echo $this->ordering ? '' : ' disabled'; ?>"
+                                title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DRAG_TO_REORDER'), ENT_QUOTES, 'UTF-8'); ?>"
+                                aria-label="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DRAG_TO_REORDER'), ENT_QUOTES, 'UTF-8'); ?>"
+                                <?php echo $this->ordering ? '' : 'disabled="disabled"'; ?>>
+                                <span class="fa-solid fa-grip-lines" aria-hidden="true"></span>
+                            </button>
+                            <input type="hidden"
+                                name="order[]"
+                                value="<?php echo (int) $row->ordering; ?>"
+                                class="cb-forms-order-input" />
                         </td>
                         <td class="text-nowrap">
                             <?php

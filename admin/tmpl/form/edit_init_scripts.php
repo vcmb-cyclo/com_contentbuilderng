@@ -52,6 +52,113 @@ use Joomla\CMS\Language\Text;
                 window.setTimeout(sanitize, 0);
             });
         });
+
+        var elementsTable = document.querySelector('.cb-elements-table[data-cb-elements-ordering="1"]');
+        if (!elementsTable || !elementsTable.tBodies.length) {
+            return;
+        }
+
+        var elementsTableBody = elementsTable.tBodies[0];
+        var draggedRow = null;
+
+        var getOrderRows = function() {
+            return Array.prototype.slice.call(elementsTableBody.querySelectorAll('tr[data-cb-row-id]'));
+        };
+
+        var getRowOrderInput = function(row) {
+            return row ? row.querySelector('input[name^="jform[order]["]') : null;
+        };
+
+        var refreshElementOrderValues = function() {
+            var rows = getOrderRows();
+            var values = rows.map(function(row, index) {
+                var input = getRowOrderInput(row);
+                var value = input ? parseInt(input.value, 10) : 0;
+
+                return Number.isFinite(value) && value > 0 ? value : index + 1;
+            }).sort(function(left, right) {
+                return left - right;
+            });
+
+            rows.forEach(function(row, index) {
+                var input = getRowOrderInput(row);
+                if (input) {
+                    input.value = String(values[index] || index + 1);
+                }
+            });
+        };
+
+        var getDropTargetRow = function(clientY) {
+            var rows = getOrderRows().filter(function(row) {
+                return row !== draggedRow;
+            });
+
+            return rows.reduce(function(closest, row) {
+                var box = row.getBoundingClientRect();
+                var offset = clientY - box.top - (box.height / 2);
+
+                if (offset < 0 && offset > closest.offset) {
+                    return {
+                        offset: offset,
+                        row: row
+                    };
+                }
+
+                return closest;
+            }, {
+                offset: Number.NEGATIVE_INFINITY,
+                row: null
+            }).row;
+        };
+
+        elementsTableBody.querySelectorAll('.cb-elements-drag-handle:not([disabled])').forEach(function(handle) {
+            var row = handle.closest('tr[data-cb-row-id]');
+            if (!row) {
+                return;
+            }
+
+            handle.setAttribute('draggable', 'true');
+
+            handle.addEventListener('dragstart', function(event) {
+                draggedRow = row;
+                row.classList.add('cb-elements-row-dragging');
+
+                if (event.dataTransfer) {
+                    event.dataTransfer.effectAllowed = 'move';
+                    event.dataTransfer.setData('text/plain', String(row.getAttribute('data-cb-row-id') || ''));
+                }
+            });
+
+            handle.addEventListener('dragend', function() {
+                row.classList.remove('cb-elements-row-dragging');
+                draggedRow = null;
+            });
+        });
+
+        elementsTableBody.addEventListener('dragover', function(event) {
+            if (!draggedRow) {
+                return;
+            }
+
+            event.preventDefault();
+            var targetRow = getDropTargetRow(event.clientY);
+
+            if (targetRow) {
+                elementsTableBody.insertBefore(draggedRow, targetRow);
+            } else {
+                elementsTableBody.appendChild(draggedRow);
+            }
+        });
+
+        elementsTableBody.addEventListener('drop', function(event) {
+            if (!draggedRow) {
+                return;
+            }
+
+            event.preventDefault();
+            refreshElementOrderValues();
+            submitbutton('form.saveorder');
+        });
     });
 </script>
 

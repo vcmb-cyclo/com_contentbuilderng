@@ -372,7 +372,7 @@ Label 3;value3</textarea>
                     </div>
                 </div>
             </div>
-            <table class="table table-striped m-3 cb-storage-fields-table">
+            <table class="table table-striped m-3 cb-storage-fields-table" data-cb-storage-fields-ordering="<?php echo $ordering ? '1' : '0'; ?>">
                 <thead>
                     <tr>
                         <th width="20" data-cb-storage-col="check">
@@ -452,7 +452,19 @@ Label 3;value3</textarea>
                                     <span>
                                         <?php echo $pagination ? $pagination->orderDownIcon($i, $n, true, 'storage.orderdown', 'JLIB_HTML_MOVE_DOWN', $ordering) : ''; ?>
                                     </span>
+                                    <span>
+                                        <button type="button"
+                                            class="btn btn-sm btn-link p-0 cb-storage-fields-drag-handle"
+                                            title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DRAG_TO_REORDER'), ENT_QUOTES, 'UTF-8'); ?>"
+                                            aria-label="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DRAG_TO_REORDER'), ENT_QUOTES, 'UTF-8'); ?>">
+                                            <span class="fa-solid fa-grip-lines" aria-hidden="true"></span>
+                                        </button>
+                                    </span>
                                 </span>
+                                <input type="hidden"
+                                    name="order[]"
+                                    value="<?php echo (int) ($row->ordering ?? 0); ?>"
+                                    class="cb-storage-fields-order-input" />
                             <?php endif; ?>
                         </td>
                         <td class="text-center" data-cb-storage-col="publish"><?php echo $published; ?></td>

@@ -565,6 +565,76 @@ class StorageController extends BaseFormController
         return $this->moveStorageField(1);
     }
 
+    public function saveorder(): bool
+    {
+        $this->checkToken();
+
+        $storageId = (int) $this->input->getInt('id', 0);
+        if ($storageId <= 0) {
+            $jform = $this->input->post->get('jform', [], 'array');
+            $storageId = (int) ($jform['id'] ?? 0);
+        }
+
+        $tabStartOffset = trim((string) $this->input->getString('tabStartOffset', 'tab0'));
+        if ($tabStartOffset === '') {
+            $tabStartOffset = 'tab0';
+        }
+
+        try {
+            if ($storageId <= 0) {
+                throw new \RuntimeException(Text::_('JERROR_NO_ITEMS_SELECTED'));
+            }
+
+            $pks   = (array) $this->input->get('cid', [], 'array');
+            $order = (array) $this->input->get('order', [], 'array');
+            ArrayHelper::toInteger($pks);
+            ArrayHelper::toInteger($order);
+
+            if (empty($pks)) {
+                throw new \RuntimeException(Text::_('JGLOBAL_NO_MATCHING_RESULTS'));
+            }
+
+            /** @var StorageModel|null $storageModel */
+            $storageModel = $this->getModel('Storage', 'Administrator', ['ignore_request' => true]);
+            if ($storageModel && method_exists($storageModel, 'syncEditedFieldsFromRequest')) {
+                $storageModel->syncEditedFieldsFromRequest($storageId);
+            }
+
+            /** @var StoragefieldsModel|null $model */
+            $model = $this->getModel('Storagefields', 'Administrator', ['ignore_request' => true]);
+            if (!$model) {
+                throw new \RuntimeException('StoragefieldsModel introuvable');
+            }
+
+            $model->setStorageId($storageId);
+
+            if (!$model->saveorder($pks, $order)) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_FIELD_REORDER_FAILED'));
+            }
+
+            $this->setMessage(Text::_('JLIB_APPLICATION_SAVE_SUCCESS'));
+            $this->setRedirect(
+                Route::_(
+                    'index.php?option=com_contentbuilderng&task=storage.display&layout=edit&id='
+                    . $storageId
+                    . '&tabStartOffset=' . rawurlencode($tabStartOffset)
+                    . '#' . rawurlencode($tabStartOffset),
+                    false
+                )
+            );
+
+            return true;
+        } catch (\Throwable $e) {
+            $this->setRedirect(
+                Route::_('index.php?option=com_contentbuilderng&task=storage.display&layout=edit&id=' . max(0, $storageId), false),
+                $e->getMessage(),
+                'error'
+            );
+
+            return false;
+        }
+    }
+
     public function publish(): bool
     {
         return $this->storagesPublish(1, 'COM_CONTENTBUILDERNG_PUBLISHED');
