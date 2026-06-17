@@ -303,7 +303,7 @@ if ($showStateControl) {
     ob_start();
     ?>
     <div class="cbEditStateControl mb-3">
-        <label class="form-label fw-semibold" for="cb-edit-state-select-<?php echo (int) $this->id; ?>">
+        <label class="form-label fw-semibold<?php echo $state_allowed ? '' : ' me-2 mb-0'; ?>" for="cb-edit-state-select-<?php echo (int) $this->id; ?>">
             <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?>
         </label>
         <?php if ($state_allowed) : ?>
@@ -334,15 +334,13 @@ if ($showStateControl) {
                 </span>
             </div>
         <?php else : ?>
-            <div class="pt-1">
-                <?php if ($currentStateTitle !== '') : ?>
-                    <span class="badge rounded-pill" style="<?php echo htmlspecialchars($currentStateBadgeStyle, ENT_QUOTES, 'UTF-8'); ?>">
-                        <?php echo htmlspecialchars($currentStateTitle, ENT_QUOTES, 'UTF-8'); ?>
-                    </span>
-                <?php else : ?>
-                    <span class="text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'); ?></span>
-                <?php endif; ?>
-            </div>
+            <?php if ($currentStateTitle !== '') : ?>
+                <span class="badge rounded-pill" style="<?php echo htmlspecialchars($currentStateBadgeStyle, ENT_QUOTES, 'UTF-8'); ?>">
+                    <?php echo htmlspecialchars($currentStateTitle, ENT_QUOTES, 'UTF-8'); ?>
+                </span>
+            <?php else : ?>
+                <span class="text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'); ?></span>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
     <?php

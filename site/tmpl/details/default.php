@@ -563,8 +563,8 @@ CSS
         <?php if ($showStateDisplay || $showRatingDisplay) : ?>
             <div class="cbDetailsMeta d-flex flex-wrap align-items-start gap-4 mb-3">
                 <?php if ($showStateDisplay) : ?>
-                    <div class="cbDetailState">
-                        <div class="form-label fw-semibold mb-1"><?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?></div>
+                    <div class="cbDetailState d-flex align-items-center gap-2">
+                        <div class="form-label fw-semibold mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?></div>
                         <?php if ($currentStateTitle !== '') : ?>
                             <span class="badge rounded-pill" style="<?php echo htmlspecialchars($currentStateBadgeStyle, ENT_QUOTES, 'UTF-8'); ?>">
                                 <?php echo htmlspecialchars($currentStateTitle, ENT_QUOTES, 'UTF-8'); ?>
@@ -575,8 +575,8 @@ CSS
                     </div>
                 <?php endif; ?>
                 <?php if ($showRatingDisplay) : ?>
-                    <div class="cbDetailRating">
-                        <div class="form-label fw-semibold mb-1"><?php echo Text::_('COM_CONTENTBUILDERNG_PERM_RATING'); ?></div>
+                    <div class="cbDetailRating d-flex align-items-center gap-2">
+                        <div class="form-label fw-semibold mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_PERM_RATING'); ?></div>
                         <?php echo RatingHelper::getRating((int) $input->getInt('id', 0), (int) $recordId, (float) ($this->rating ?? 0), (int) ($this->rating_slots ?? 0), $input->getCmd('lang', ''), $rating_allowed, (int) ($this->rating_count ?? 0), (int) ($this->rating_sum ?? 0)); ?>
                     </div>
                 <?php endif; ?>
