@@ -625,6 +625,138 @@ class FormController extends BaseFormController
         }
     }
 
+    public function ajax_add_bf_system_field(): void
+    {
+        $this->checkToken();
+
+        $formId      = (int) $this->input->getInt('id');
+        $referenceId = (int) $this->input->getInt('reference_id', 0);
+
+        try {
+            if ($formId <= 0 || $referenceId >= 0) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_SELECT_REQUIRED'));
+            }
+
+            $db        = Factory::getContainer()->get(DatabaseInterface::class);
+            $formQuery = $db->getQuery(true)
+                ->select($db->quoteName(['type', 'reference_id']))
+                ->from($db->quoteName('#__contentbuilderng_forms'))
+                ->where($db->quoteName('id') . ' = ' . $formId);
+            $db->setQuery($formQuery);
+            $formRow = $db->loadAssoc();
+
+            if (!is_array($formRow) || empty($formRow['type']) || empty($formRow['reference_id'])) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'));
+            }
+
+            if (!in_array((string) $formRow['type'], ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true)) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_BF_ONLY'));
+            }
+
+            $sourceForm = FormSourceFactory::getForm((string) $formRow['type'], (string) $formRow['reference_id']);
+
+            if (
+                !is_object($sourceForm)
+                || empty($sourceForm->exists)
+                || !method_exists($sourceForm, 'getSystemFieldDefinitions')
+                || !$sourceForm::isSystemFieldReferenceId($referenceId)
+            ) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_SELECT_REQUIRED'));
+            }
+
+            $existsQuery = $db->getQuery(true)
+                ->select($db->quoteName('id'))
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('form_id') . ' = ' . $formId)
+                ->where($db->quoteName('reference_id') . ' = ' . $referenceId);
+            $db->setQuery($existsQuery);
+
+            if ((int) $db->loadResult() > 0) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_ALREADY_ADDED'));
+            }
+
+            $definitions = $sourceForm::getSystemFieldDefinitions();
+            $definition  = $definitions[$referenceId];
+
+            $orderingQuery = $db->getQuery(true)
+                ->select('MAX(' . $db->quoteName('ordering') . ') + 1')
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('form_id') . ' = ' . $formId);
+            $db->setQuery($orderingQuery);
+            $ordering = (int) $db->loadResult();
+
+            $options            = new \stdClass();
+            $options->readonly  = 1;
+            $options->length    = '';
+            $options->maxlength = '';
+            $options->password  = 0;
+            $options->seperator = ',';
+
+            $insertQuery = $db->getQuery(true)
+                ->insert($db->quoteName('#__contentbuilderng_elements'))
+                ->columns($db->quoteName([
+                    'label', 'form_id', 'reference_id', 'type', 'options',
+                    'list_include', 'search_include', 'linkable', 'editable',
+                    'api_allowed', 'published', 'order_type', 'ordering',
+                ]))
+                ->values(implode(',', [
+                    $db->quote((string) $definition['label']),
+                    $formId,
+                    $referenceId,
+                    $db->quote('text'),
+                    $db->quote(PackedDataHelper::encodePackedData($options)),
+                    0, 0, 0, 0, 0, 1,
+                    $db->quote((string) ($definition['type'] ?? '')),
+                    $ordering > 0 ? $ordering : 1,
+                ]));
+            $db->setQuery($insertQuery);
+            $db->execute();
+            $newElementId = (int) $db->insertid();
+
+            $this->respondAjaxData(
+                true,
+                Text::sprintf('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_ADDED', (string) $definition['label']),
+                ['element_id' => $newElementId]
+            );
+        } catch (\Throwable $e) {
+            $this->respondAjax(false, $e->getMessage());
+        }
+    }
+
+    public function ajax_remove_bf_system_field(): void
+    {
+        $this->checkToken();
+
+        $formId    = (int) $this->input->getInt('id');
+        $elementId = (int) $this->input->getInt('element_id', 0);
+
+        try {
+            if ($formId <= 0 || $elementId <= 0) {
+                throw new \RuntimeException(Text::_('JERROR_NO_ITEMS_SELECTED'));
+            }
+
+            $db          = Factory::getContainer()->get(DatabaseInterface::class);
+            $deleteQuery = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('id') . ' = ' . $elementId)
+                ->where($db->quoteName('form_id') . ' = ' . $formId)
+                ->where($db->quoteName('reference_id') . ' < 0');
+            $db->setQuery($deleteQuery);
+            $db->execute();
+
+            if ((int) $db->getAffectedRows() === 0) {
+                throw new \RuntimeException(Text::_('JERROR_NO_ITEMS_SELECTED'));
+            }
+
+            $table = $this->getElementsModelForListActions(true)->getTable('Elementoptions');
+            $table->reorder('form_id = ' . $formId);
+
+            $this->respondAjax(true, Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_DELETED'));
+        } catch (\Throwable $e) {
+            $this->respondAjax(false, $e->getMessage());
+        }
+    }
+
     public function remove_bf_system_field(): bool
     {
         $this->checkToken();
@@ -857,6 +989,12 @@ class FormController extends BaseFormController
     private function respondAjax(bool $success, string $message = ''): void
     {
         echo new JsonResponse(['ok' => $success], $message, !$success);
+        Factory::getApplication()->close();
+    }
+
+    private function respondAjaxData(bool $success, string $message, array $data): void
+    {
+        echo new JsonResponse(array_merge(['ok' => $success], $data), $message, !$success);
         Factory::getApplication()->close();
     }
 

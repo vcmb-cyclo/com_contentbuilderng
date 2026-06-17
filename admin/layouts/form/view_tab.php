@@ -14,13 +14,14 @@
 
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Router\Route;
 
 $item = $displayData['item'] ?? null;
 $themePlugins = is_array($displayData['themePlugins'] ?? null) ? $displayData['themePlugins'] : [];
 $formatTypeDisplay = $displayData['formatTypeDisplay'] ?? null;
 $elementsTableHtml = (string) ($displayData['elementsTableHtml'] ?? '');
-$availableBfSystemFields = is_array($displayData['availableBfSystemFields'] ?? null) ? $displayData['availableBfSystemFields'] : [];
+$allBfSystemFields = is_array($displayData['allBfSystemFields'] ?? null) ? $displayData['allBfSystemFields'] : [];
 $isBreezingFormsType = (bool) ($displayData['isBreezingFormsType'] ?? false);
 
 if (!is_object($item) || !is_callable($formatTypeDisplay)) {
@@ -187,28 +188,12 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
                 <input type="hidden" name="jform[type]" value="<?php echo $item->type; ?>" />
                 <input type="hidden" name="jform[type_name]" value="<?php echo isset($item->type_name) ? $item->type_name : ''; ?>" />
             </div>
-            <?php if ($isBreezingFormsType && (int) ($item->id ?? 0) > 0 && $availableBfSystemFields !== []) : ?>
-                <div id="cb-bf-system-field-add" class="d-flex flex-wrap align-items-center gap-2 ms-auto">
-                    <div class="d-flex flex-nowrap align-items-center gap-2">
-                        <label class="mb-0 text-nowrap" for="cb_bf_system_reference_id">
-                            <b><?php echo Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_ADD_LABEL'); ?>:</b>
-                        </label>
-                        <select class="form-select form-select-sm w-auto" name="bf_system_reference_id" id="cb_bf_system_reference_id">
-                            <?php foreach ($availableBfSystemFields as $systemReferenceId => $systemLabel) : ?>
-                                <option value="<?php echo (int) $systemReferenceId; ?>">
-                                    <?php echo htmlspecialchars((string) $systemLabel, ENT_QUOTES, 'UTF-8'); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <button type="button"
-                        id="cb_bf_system_field_add_button"
-                        class="btn btn-sm btn-primary"
-                        onclick="Joomla.submitbutton('form.add_bf_system_field');">
-                        <span class="icon-plus" aria-hidden="true"></span>
-                        <?php echo Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_ADD_BUTTON'); ?>
-                    </button>
-                </div>
+            <?php if ($isBreezingFormsType && (int) ($item->id ?? 0) > 0 && $allBfSystemFields !== []) : ?>
+                <?php echo LayoutHelper::render(
+                    'form.bf_system_fields_modal',
+                    ['item' => $item, 'allBfSystemFields' => $allBfSystemFields],
+                    dirname(__DIR__)
+                ); ?>
             <?php endif; ?>
         </div>
         <div></div>

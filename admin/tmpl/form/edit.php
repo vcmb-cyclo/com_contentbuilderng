@@ -523,35 +523,45 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                             $componentLayoutBase
                         );
 
-                        $availableBfSystemFields = [];
+                        $allBfSystemFields = [];
                         if (
                             $isBreezingFormsType
                             && is_object($this->item->form ?? null)
                             && method_exists($this->item->form, 'getSystemFieldDefinitions')
                         ) {
-                            $existingReferenceIds = [];
+                            // Build map: reference_id => element_id (for already-added system fields)
+                            $addedByRef = [];
                             foreach ((array) ($this->all_elements ?? []) as $elementRow) {
-                                $existingReferenceIds[(string) ($elementRow->reference_id ?? '')] = true;
-                            }
-
-                            foreach ($this->item->form::getSystemFieldDefinitions() as $systemReferenceId => $systemDefinition) {
-                                if (!isset($existingReferenceIds[(string) $systemReferenceId])) {
-                                    $availableBfSystemFields[(int) $systemReferenceId] = (string) ($systemDefinition['label'] ?? $systemReferenceId);
+                                $refId = (int) ($elementRow->reference_id ?? 0);
+                                if ($refId < 0) {
+                                    $addedByRef[$refId] = (int) ($elementRow->id ?? 0);
                                 }
                             }
 
-                            uasort($availableBfSystemFields, static fn (string $left, string $right): int => strnatcasecmp($left, $right));
+                            foreach ($this->item->form::getSystemFieldDefinitions() as $systemReferenceId => $systemDefinition) {
+                                $refId = (int) $systemReferenceId;
+                                $allBfSystemFields[$refId] = [
+                                    'label'       => (string) ($systemDefinition['label'] ?? $systemReferenceId),
+                                    'name'        => (string) ($systemDefinition['name'] ?? ''),
+                                    'type'        => (string) ($systemDefinition['type'] ?? ''),
+                                    'description' => (string) ($systemDefinition['description'] ?? ''),
+                                    'added'       => isset($addedByRef[$refId]),
+                                    'element_id'  => $addedByRef[$refId] ?? 0,
+                                ];
+                            }
+
+                            uasort($allBfSystemFields, static fn (array $a, array $b): int => strnatcasecmp($a['label'], $b['label']));
                         }
                         ?>
         <?php
         echo LayoutHelper::render(
             'form.view_tab',
             [
-                'item' => $this->item,
-                'themePlugins' => $this->theme_plugins,
+                'item'              => $this->item,
+                'themePlugins'      => $this->theme_plugins,
                 'formatTypeDisplay' => $formatTypeDisplay,
                 'elementsTableHtml' => $elementsTableHtml,
-                'availableBfSystemFields' => $availableBfSystemFields,
+                'allBfSystemFields' => $allBfSystemFields,
                 'isBreezingFormsType' => $isBreezingFormsType,
             ],
             $componentLayoutBase

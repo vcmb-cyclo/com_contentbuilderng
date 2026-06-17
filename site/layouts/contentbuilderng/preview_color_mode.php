@@ -17,9 +17,9 @@ use Joomla\CMS\Uri\Uri;
 
 $currentMode = (string) ($displayData['mode'] ?? 'default');
 $modes = [
+    'light'   => ['icon' => 'fa-solid fa-sun',                'label' => Text::_('COM_CONTENTBUILDERNG_PREVIEW_COLOR_MODE_LIGHT')],
     'default' => ['icon' => 'fa-solid fa-circle-half-stroke', 'label' => Text::_('COM_CONTENTBUILDERNG_PREVIEW_COLOR_MODE_DEFAULT')],
-    'light' => ['icon' => 'fa-solid fa-sun', 'label' => Text::_('COM_CONTENTBUILDERNG_PREVIEW_COLOR_MODE_LIGHT')],
-    'dark' => ['icon' => 'fa-solid fa-moon', 'label' => Text::_('COM_CONTENTBUILDERNG_PREVIEW_COLOR_MODE_DARK')],
+    'dark'    => ['icon' => 'fa-solid fa-moon',               'label' => Text::_('COM_CONTENTBUILDERNG_PREVIEW_COLOR_MODE_DARK')],
 ];
 ?>
 <span class="d-inline-flex align-items-center gap-2 ms-2">

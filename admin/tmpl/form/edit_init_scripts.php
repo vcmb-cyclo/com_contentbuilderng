@@ -1867,10 +1867,6 @@ use Joomla\CMS\Language\Text;
 
         var name = String(field.name || '');
 
-        if (name === 'bf_system_reference_id') {
-            return true;
-        }
-
         if (/^jform\[order\]\[\d+\]$/.test(name)) {
             return true;
         }
@@ -2670,3 +2666,6 @@ use Joomla\CMS\Language\Text;
         cbRefreshInheritedPermissionMatrix();
     }, true);
 </script>
+<?php if ($isBreezingFormsType && (int) ($this->item->id ?? 0) > 0) : ?>
+<?php require __DIR__ . '/bf_system_fields_modal_scripts.php'; ?>
+<?php endif; ?>
