@@ -903,12 +903,21 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
             >VCMB migration</a>
             <a
                 class="cb-about-intro-link cb-about-intro-link--github"
-                href="https://github.com/vcmb-cyclo/com_contentbuilder-ng"
+                href="https://github.com/vcmb-cyclo/com_contentbuilderng"
                 target="_blank"
                 rel="noopener noreferrer"
                 title="<?php echo htmlspecialchars($tooltipLinkGithub, ENT_QUOTES, 'UTF-8'); ?>"
                 aria-label="<?php echo htmlspecialchars($tooltipLinkGithub, ENT_QUOTES, 'UTF-8'); ?>"
             >GitHub repository</a>
+            <iframe
+                src="https://ghbtns.com/github-btn.html?user=vcmb-cyclo&amp;repo=com_contentbuilderng&amp;type=star&amp;count=true"
+                frameborder="0"
+                scrolling="0"
+                width="150"
+                height="20"
+                title="GitHub Stars"
+                style="vertical-align:middle;"
+            ></iframe>
             <a
                 class="cb-about-intro-link cb-about-intro-link--license"
                 href="<?php echo htmlspecialchars($licenseUrl, ENT_QUOTES, 'UTF-8'); ?>"
