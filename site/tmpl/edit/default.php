@@ -137,6 +137,13 @@ $editableTemplateMissing = $isAdminPreview && trim((string) ($this->tpl ?? '')) 
 $previewFrontendPermissionKey = in_array((string) $recordId, ['', '0'], true)
     ? 'COM_CONTENTBUILDERNG_PERM_NEW'
     : 'COM_CONTENTBUILDERNG_PERM_EDIT';
+$previewRequiredFrontendPermissionGranted = $previewFrontendPermissionKey === 'COM_CONTENTBUILDERNG_PERM_NEW'
+    ? $new_allowed
+    : $edit_allowed;
+$previewFrontendPermissionWarning = Text::sprintf(
+    'COM_CONTENTBUILDERNG_PREVIEW_FRONTEND_PERMISSION_MISSING',
+    Text::_($previewFrontendPermissionKey)
+);
 $previewFrontendPermissionHint = Text::sprintf(
     'COM_CONTENTBUILDERNG_PREVIEW_FRONTEND_PERMISSION_HINT',
     Text::_($previewFrontendPermissionKey),
@@ -838,6 +845,10 @@ CSS
                 <small class="d-inline-block mt-1">
                     <?php echo htmlspecialchars($previewFrontendPermissionHint, ENT_QUOTES, 'UTF-8'); ?>
                 </small>
+                <?php if (!$previewRequiredFrontendPermissionGranted): ?>
+                    <br />
+                    <strong><?php echo htmlspecialchars($previewFrontendPermissionWarning, ENT_QUOTES, 'UTF-8'); ?></strong>
+                <?php endif; ?>
                 <?php if ($editableTemplateMissing): ?>
                     <br />
                     <strong><?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_EDITABLE_TEMPLATE_MISSING'); ?></strong>
