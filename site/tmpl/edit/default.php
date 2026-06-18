@@ -793,6 +793,17 @@ CSS
                 'recordId' => (string) $recordId,
             ]);
         }
+        $debugFields = [];
+        if ($id > 0) {
+            $debugDb = \Joomla\CMS\Factory::getContainer()->get(\Joomla\Database\DatabaseInterface::class);
+            $debugFieldsQuery = $debugDb->getQuery(true)
+                ->select([$debugDb->quoteName('label'), $debugDb->quoteName('reference_id'), $debugDb->quoteName('type'), $debugDb->quoteName('editable'), $debugDb->quoteName('published')])
+                ->from($debugDb->quoteName('#__contentbuilderng_elements'))
+                ->where($debugDb->quoteName('form_id') . ' = ' . (int) $id)
+                ->order($debugDb->quoteName('ordering'));
+            $debugDb->setQuery($debugFieldsQuery);
+            $debugFields = $debugDb->loadAssocList() ?: [];
+        }
         echo LayoutHelper::render('contentbuilderng.debug_panel', [
             'formId' => (int) $id,
             'showCbRecordId' => !empty($this->debug_show_cb_id),
@@ -804,6 +815,7 @@ CSS
             'showLogs' => !empty($this->debug_enable_logs) && !empty($this->debug_show_request_logs),
             'logs' => Logger::getRequestEntries(),
             'warnings' => $app->getSession()->get('com_contentbuilderng.debug.template_warnings', []),
+            'fields' => $debugFields,
         ]);
         $app->getSession()->remove('com_contentbuilderng.debug.template_warnings');
         ?>

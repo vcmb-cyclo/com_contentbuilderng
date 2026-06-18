@@ -57,6 +57,10 @@ if (!is_object($item) || $allBfSystemFields === []) {
                                 <?php echo Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_MODAL_COL_NAME'); ?>
                                 <span class="cb-bf-sort-icon ms-1" aria-hidden="true"></span>
                             </th>
+                            <th class="cb-bf-sortable-col" data-sort-col="type" style="cursor:pointer">
+                                <?php echo Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_MODAL_COL_TYPE'); ?>
+                                <span class="cb-bf-sort-icon ms-1" aria-hidden="true"></span>
+                            </th>
                             <th class="cb-bf-sortable-col" data-sort-col="description" style="cursor:pointer">
                                 <?php echo Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_MODAL_COL_DESC'); ?>
                                 <span class="cb-bf-sort-icon ms-1" aria-hidden="true"></span>
@@ -76,6 +80,9 @@ if (!is_object($item) || $allBfSystemFields === []) {
                             </td>
                             <td data-sort-col="name" data-sort="<?php echo htmlspecialchars($systemField['name'], ENT_QUOTES, 'UTF-8'); ?>">
                                 <code><?php echo htmlspecialchars($systemField['name'], ENT_QUOTES, 'UTF-8'); ?></code>
+                            </td>
+                            <td data-sort-col="type" data-sort="<?php echo htmlspecialchars($systemField['type'], ENT_QUOTES, 'UTF-8'); ?>">
+                                <?php echo htmlspecialchars($systemField['type'], ENT_QUOTES, 'UTF-8'); ?>
                             </td>
                             <td class="text-muted small" data-sort-col="description" data-sort="<?php echo htmlspecialchars(mb_strtolower($systemField['description']), ENT_QUOTES, 'UTF-8'); ?>">
                                 <?php echo htmlspecialchars($systemField['description'], ENT_QUOTES, 'UTF-8'); ?>

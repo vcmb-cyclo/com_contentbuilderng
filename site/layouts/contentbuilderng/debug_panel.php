@@ -19,6 +19,7 @@ $permissions = is_array($displayData['permissions'] ?? null) ? $displayData['per
 $filters = is_array($displayData['filters'] ?? null) ? $displayData['filters'] : [];
 $logs = is_array($displayData['logs'] ?? null) ? $displayData['logs'] : [];
 $warnings = is_array($displayData['warnings'] ?? null) ? $displayData['warnings'] : [];
+$fields = is_array($displayData['fields'] ?? null) ? $displayData['fields'] : [];
 $formId = (int) ($displayData['formId'] ?? 0);
 $cbRecordId = (int) ($displayData['cbRecordId'] ?? 0);
 $showPermissions = !empty($displayData['showPermissions']);
@@ -167,6 +168,41 @@ $formatValue = static function ($value): string {
                 </li>
             <?php endforeach; ?>
         </ul>
+    <?php endif; ?>
+
+    <?php if ($fields !== []) : ?>
+        <h3 class="h6 mt-3"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_FIELDS'); ?></h3>
+        <div class="table-responsive">
+            <table class="table table-sm table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-end text-muted pe-2" style="width:2.5rem">#</th>
+                        <th><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_FIELD_LABEL'); ?></th>
+                        <th><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_FIELD_REFERENCE'); ?></th>
+                        <th><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_FIELD_TYPE'); ?></th>
+                        <th class="text-center"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_FIELD_EDITABLE'); ?></th>
+                        <th class="text-center"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_FIELD_PUBLISHED'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($fields as $i => $field) : ?>
+                        <?php $rowEditable = !empty($field['editable']); $rowPublished = !empty($field['published']); ?>
+                        <tr class="<?php echo (!$rowEditable || !$rowPublished) ? 'table-warning' : ''; ?>">
+                            <td class="text-end text-muted pe-2"><?php echo $i + 1; ?></td>
+                            <td><?php echo htmlspecialchars((string) ($field['label'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><code><?php echo htmlspecialchars((string) ($field['reference_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></code></td>
+                            <td><code><?php echo htmlspecialchars((string) ($field['type'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></code></td>
+                            <td class="text-center">
+                                <input class="form-check-input" type="checkbox" <?php echo $rowEditable ? 'checked' : ''; ?> disabled aria-label="<?php echo htmlspecialchars((string) ($field['label'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" />
+                            </td>
+                            <td class="text-center">
+                                <input class="form-check-input" type="checkbox" <?php echo $rowPublished ? 'checked' : ''; ?> disabled aria-label="<?php echo htmlspecialchars((string) ($field['label'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" />
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     <?php endif; ?>
 
     <?php if ($showLogs) : ?>
