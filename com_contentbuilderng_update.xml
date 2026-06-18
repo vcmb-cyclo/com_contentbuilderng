@@ -10,7 +10,7 @@
 		<infourl title="ContentBuilder NG">https://breezingforms-ng.vcmb.fr/</infourl>
 		<downloads>
 			<downloadurl type="full" format="zip">https://github.com/vcmb-cyclo/com_contentbuilderng/releases/download/v6.1.7-RC53/com_contentbuilderng-6.1.7-RC53.zip</downloadurl>
-		<sha256>9a20b6194616b5d176f5e75e1f688118ce7ff01b59be4e65e912083951dcff40</sha256>
+		<sha256>419145189e1520f09469b8a5d1b8d592766f35383b2ef5a876d91e35bfed8acf</sha256>
 		</downloads>
 		<tags>
 			<tag>stable</tag>
