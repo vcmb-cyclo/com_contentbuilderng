@@ -533,6 +533,28 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
         background-color: var(--bs-warning-bg-subtle, #fff6d6);
         color: var(--bs-warning-text-emphasis, #a87400);
     }
+    .cb-about-platform-badges {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: .4rem;
+    }
+    .cb-about-platform-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        border: 1px solid var(--bs-success-border-subtle, #badbcc);
+        border-radius: .35rem;
+        background-color: var(--bs-success-bg-subtle, #d1e7dd);
+        color: var(--bs-success-text-emphasis, #0f5132);
+        font-size: .78rem;
+        font-weight: 700;
+        line-height: 1;
+        padding: .45rem .65rem;
+        white-space: nowrap;
+    }
+    .cb-about-platform-badge::before {
+        content: "\2713";
+    }
     .cb-about-version-tile {
         position: relative;
         display: flex;
@@ -2403,6 +2425,10 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
             <span class="d-flex flex-wrap gap-2">
                 <span class="cb-about-version-badge">ContentBuilder NG</span>
                 <span class="cb-about-version-badge <?php echo $isProductionBuild ? 'cb-about-version-badge--production' : 'cb-about-version-badge--dev'; ?>"><?php echo $buildTypeDisplay; ?></span>
+                <span class="cb-about-platform-badges" aria-label="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ABOUT_PLATFORM_BADGES_LABEL'), ENT_QUOTES, 'UTF-8'); ?>">
+                    <span class="cb-about-platform-badge"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_PLATFORM_JOOMLA_6'); ?></span>
+                    <span class="cb-about-platform-badge"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_PLATFORM_PHP_81'); ?></span>
+                </span>
             </span>
         </div>
 
