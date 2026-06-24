@@ -328,7 +328,7 @@ class PermissionService
                             && (
                                 ((string) $userReturn['record_id'] === '0' || $userReturn['record_id'] == false)
                                     ? in_array($action, ['new', 'listaccess'], true)
-                                    : ($sessionId == $currentSessionId || $form->isOwner($this->getCurrentUserId(), $userReturn['record_id']))
+                                    : ($sessionId == $currentSessionId || ($this->getCurrentUserId() > 0 && $form->isOwner($this->getCurrentUserId(), $userReturn['record_id'])))
                             )
                         ) {
                             $allowed = true;

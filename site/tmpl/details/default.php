@@ -101,6 +101,7 @@ $ownerUserId = $isAdminPreview && $previewActorId > 0
 $ownerPermissionMatrix = (array) $runtimeApp->getSession()->get('com_contentbuilderng.permissions_fe', []);
 $ownerRuleSet = (array) ($ownerPermissionMatrix['own_fe'] ?? []);
 $formInstance = $this->form ?? null;
+$recordId = (string) $input->getCmd('record_id', 0);
 $ownerEditAllowed = $ownerUserId > 0
     && !empty($ownerRuleSet['edit'])
     && is_object($formInstance)
@@ -110,7 +111,6 @@ $canEditRecord = $edit_allowed || $ownerEditAllowed;
 $showPreviewSessionBadge = $isAdminPreview && $currentSessionLabel !== '' && $currentSessionLabel !== $previewActorLabel;
 $showTopBar = $detailsTopBarToggle === 1;
 $directStorageUnpublished = !empty($this->direct_storage_unpublished);
-$recordId = (string) $input->getCmd('record_id', 0);
 $showStateDisplay = (int) ($this->list_state ?? 0) === 1 && $recordId !== '' && $recordId !== '0';
 $showRatingDisplay = (int) ($this->list_rating ?? 0) === 1 && (int) ($this->rating_slots ?? 0) > 0 && $recordId !== '' && $recordId !== '0';
 $currentStateTitle = trim((string) (($this->state_titles ?? [])[$recordId] ?? ''));
@@ -306,7 +306,7 @@ CSS
         <?php
         $debugPermissions = [
             'view' => $view_allowed,
-            'edit' => $canEditRecord,
+            'edit' => $edit_allowed,
             'delete' => $delete_allowed,
             'rating' => $rating_allowed,
         ];
