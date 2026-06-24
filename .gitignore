@@ -4,3 +4,7 @@ admin/.phpunit.cache/
 admin/.phpunit.result.cache
 admin/vendor/
 .claude/worktrees/
+.claude/settings.local.json
+.playwright-cli/
+qa-artifacts/
+qa-report.html
