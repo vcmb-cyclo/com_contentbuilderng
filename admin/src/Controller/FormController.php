@@ -210,7 +210,7 @@ class FormController extends BaseFormController
     // Elles doivent utiliser Elements
     public function listorderup(): void
     {
-        $formId = (int) $this->input->getInt('id');
+        $formId = $this->resolveFormId();
         if (!$this->persistInlineElementSettings($formId)) {
             return;
         }
@@ -222,7 +222,7 @@ class FormController extends BaseFormController
 
     public function listorderdown(): void
     {
-        $formId = (int) $this->input->getInt('id');
+        $formId = $this->resolveFormId();
         if (!$this->persistInlineElementSettings($formId)) {
             return;
         }
@@ -236,7 +236,7 @@ class FormController extends BaseFormController
     {
         $this->checkToken();
 
-        $formId = (int) $this->input->getInt('id');
+        $formId = $this->resolveFormId();
         $orderMap = (array) $this->input->post->get('order', [], 'array');
 
         if (empty($orderMap)) {
@@ -937,6 +937,18 @@ class FormController extends BaseFormController
         $db->setQuery($query);
 
         return array_map('intval', (array) $db->loadColumn());
+    }
+
+    private function resolveFormId(): int
+    {
+        $formId = (int) $this->input->getInt('id');
+
+        if ($formId <= 0) {
+            $jform = (array) $this->input->post->get('jform', [], 'array');
+            $formId = (int) ($jform['id'] ?? 0);
+        }
+
+        return $formId;
     }
 
     private function getEditRedirectUrl(int $formId): string
