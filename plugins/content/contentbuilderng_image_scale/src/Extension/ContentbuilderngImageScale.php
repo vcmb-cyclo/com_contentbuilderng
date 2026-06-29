@@ -27,8 +27,8 @@ use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 
-set_error_handler('myErrorHandler');
-register_shutdown_function('fatalErrorShutdownHandler');
+set_error_handler(__NAMESPACE__ . '\\myErrorHandler');
+register_shutdown_function(__NAMESPACE__ . '\\fatalErrorShutdownHandler');
 function myErrorHandler($code, $message, $file, $line)
 {
 	// nothing
