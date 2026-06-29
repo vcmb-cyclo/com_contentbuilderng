@@ -12,7 +12,7 @@ final class SqlHardeningTest extends TestCase
     {
         $root = \dirname(__DIR__, 4);
         $files = [
-            'plugins/content/contentbuilderng_download/contentbuilderng_download.php',
+            'plugins/content/contentbuilderng_download/src/Extension/ContentbuilderngDownload.php',
             'site/src/Model/EditModel.php',
             'admin/src/Model/StorageModel.php',
             'admin/src/types/com_contentbuilderng.php',
