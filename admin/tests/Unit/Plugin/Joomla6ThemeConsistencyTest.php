@@ -13,7 +13,7 @@ final class Joomla6ThemeConsistencyTest extends TestCase
     protected function setUp(): void
     {
         $path = \dirname(__DIR__, 4)
-            . '/plugins/contentbuilderng_themes/joomla6/joomla6.php';
+            . '/plugins/contentbuilderng_themes/joomla6/src/Extension/Joomla6.php';
         $source = \file_get_contents($path);
         self::assertIsString($source);
         $this->source = $source;

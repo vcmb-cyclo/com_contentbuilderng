@@ -7,13 +7,13 @@
   <license>GNU/GPL v2 or later</license>
   <authorEmail>noreply@vcmb.fr</authorEmail>
   <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-  <version>6.1.7-RC56</version>
+  <version>6.1.7-RC57</version>
   <description><![CDATA[A dark mode theme based on Joomla 6]]></description>
+    <namespace path="src">CB\Plugin\ContentbuilderngThemes\Dark</namespace>
 
-  <files>
-    <filename plugin="dark">dark.php</filename>
-    <filename>dark.xml</filename>
-    <filename>index.html</filename>
-    <folder>language</folder>
-  </files>
+          <files>
+        <filename plugin="dark">services/provider.php</filename>
+        <folder>src</folder>
+        <folder>language</folder>
+    </files>
 </extension>

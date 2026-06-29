@@ -7,15 +7,17 @@
 	<copyright>This Joomla! component is released under the GNU/GPL license</copyright>
 	<authorEmail>noreply@vcmb.fr</authorEmail>
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-	<version>6.1.7-RC56</version>
+	<version>6.1.7-RC57</version>
 
 	<description>
 	<![CDATA[
         Checks if the given date is a valid date. Note that it depends on your "transfer date" definition in the calendar's setup, if this check is successfull.
         ]]>
     </description>
-    <files>
-        <filename plugin="date_is_valid">date_is_valid.php</filename>
+    <namespace path="src">CB\Plugin\ContentbuilderngValidation\DateIsValid</namespace>
+            <files>
+        <filename plugin="date_is_valid">services/provider.php</filename>
+        <folder>src</folder>
         <folder>language</folder>
     </files>
 

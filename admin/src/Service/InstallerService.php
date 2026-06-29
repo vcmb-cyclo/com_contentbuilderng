@@ -134,6 +134,28 @@ final class InstallerService
             JPATH_SITE . '/components/com_contentbuilderng/controller.php',
             JPATH_SITE . '/components/com_contentbuilderng/router.php',
             JPATH_SITE . '/components/com_contentbuilderng/src/Table/list.php',
+            // Legacy plugin root files replaced by src/Extension/ + services/provider.php
+            JPATH_PLUGINS . '/contentbuilderng_themes/blank/blank.php',
+            JPATH_PLUGINS . '/contentbuilderng_themes/dark/dark.php',
+            JPATH_PLUGINS . '/contentbuilderng_themes/joomla6/joomla6.php',
+            JPATH_PLUGINS . '/contentbuilderng_themes/khepri/khepri.php',
+            JPATH_PLUGINS . '/contentbuilderng_validation/email/email.php',
+            JPATH_PLUGINS . '/contentbuilderng_validation/notempty/notempty.php',
+            JPATH_PLUGINS . '/contentbuilderng_validation/equal/equal.php',
+            JPATH_PLUGINS . '/contentbuilderng_validation/date_is_valid/date_is_valid.php',
+            JPATH_PLUGINS . '/contentbuilderng_validation/date_not_before/date_not_before.php',
+            JPATH_PLUGINS . '/contentbuilderng_listaction/trash/trash.php',
+            JPATH_PLUGINS . '/contentbuilderng_listaction/untrash/untrash.php',
+            JPATH_PLUGINS . '/contentbuilderng_submit/submit_sample/submit_sample.php',
+            JPATH_PLUGINS . '/contentbuilderng_verify/passthrough/passthrough.php',
+            JPATH_PLUGINS . '/contentbuilderng_verify/paypal/paypal.php',
+            JPATH_PLUGINS . '/content/contentbuilderng_download/contentbuilderng_download.php',
+            JPATH_PLUGINS . '/content/contentbuilderng_image_scale/contentbuilderng_image_scale.php',
+            JPATH_PLUGINS . '/content/contentbuilderng_permission_observer/contentbuilderng_permission_observer.php',
+            JPATH_PLUGINS . '/content/contentbuilderng_rating/contentbuilderng_rating.php',
+            JPATH_PLUGINS . '/content/contentbuilderng_stats/contentbuilderng_stats.php',
+            JPATH_PLUGINS . '/content/contentbuilderng_verify/contentbuilderng_verify.php',
+            JPATH_PLUGINS . '/system/contentbuilderng_system/contentbuilderng_system.php',
         ];
 
         foreach ($paths as $path) {

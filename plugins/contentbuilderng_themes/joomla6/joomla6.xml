@@ -7,13 +7,13 @@
   <license>GNU/GPL v2 or later</license>
   <authorEmail>noreply@vcmb.fr</authorEmail>
   <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-  <version>6.1.7-RC56</version>
+  <version>6.1.7-RC57</version>
   <description><![CDATA[A Joomla 6 compatible theme]]></description>
+    <namespace path="src">CB\Plugin\ContentbuilderngThemes\Joomla6</namespace>
 
-  <files>
-    <filename plugin="joomla6">joomla6.php</filename>
-    <filename>joomla6.xml</filename>
-    <filename>index.html</filename>
-    <folder>language</folder>
-  </files>
+          <files>
+        <filename plugin="joomla6">services/provider.php</filename>
+        <folder>src</folder>
+        <folder>language</folder>
+    </files>
 </extension>
