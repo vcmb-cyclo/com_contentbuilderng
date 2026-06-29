@@ -149,6 +149,23 @@ final class InstallerService
                 $this->log("[WARNING] Failed removing obsolete file {$path}: " . $e->getMessage(), Log::WARNING);
             }
         }
+
+        // Remove the legacy `languages/` (plural) folder — an old naming convention that shadows
+        // the current `language/` (singular) folder. Done in postflight so the new language/
+        // folder is already in place before the old one is deleted.
+        $staleDir = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/languages';
+
+        if (is_dir($staleDir)) {
+            try {
+                if (Folder::delete($staleDir)) {
+                    $this->log('[OK] Removed stale component language directory (languages/ → language/).');
+                } else {
+                    $this->log('[WARNING] Could not remove stale component language directory: ' . $staleDir, Log::WARNING);
+                }
+            } catch (\Throwable $e) {
+                $this->log('[WARNING] Error removing stale component language directory: ' . $e->getMessage(), Log::WARNING);
+            }
+        }
     }
 
     /**
@@ -199,6 +216,7 @@ final class InstallerService
         } else {
             $this->log("[OK] Purged {$totalRemoved} stale ContentBuilder language file(s) before installation.");
         }
+
     }
 
     public function removeObsoleteLanguageFiles(): void
