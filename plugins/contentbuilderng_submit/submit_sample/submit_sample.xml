@@ -7,15 +7,17 @@
 	<copyright>This Joomla! component is released under the GNU/GPL license</copyright>
 	<authorEmail>noreply@vcmb.fr</authorEmail>
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-	<version>6.1.7-RC56</version>
+	<version>6.1.7-RC57</version>
 
 	<description>
 	<![CDATA[
         Sample on how to use submit plugins
         ]]>
     </description>
-    <files>
-        <filename plugin="submit_sample">submit_sample.php</filename>
+    <namespace path="src">CB\Plugin\ContentbuilderngSubmit\SubmitSample</namespace>
+            <files>
+        <filename plugin="submit_sample">services/provider.php</filename>
+        <folder>src</folder>
         <folder>language</folder>
     </files>
     <config>

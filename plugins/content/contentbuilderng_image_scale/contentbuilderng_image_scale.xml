@@ -7,15 +7,17 @@
 	<copyright>This Joomla! component is released under the GNU/GPL license</copyright>
 	<authorEmail>noreply@vcmb.fr</authorEmail>
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-	<version>6.1.7-RC56</version>
+	<version>6.1.7-RC57</version>
 
 	<description>
 	<![CDATA[
         Displays images out of uploads
         ]]>
     </description>
-    <files>
-        <filename plugin="contentbuilderng_image_scale">contentbuilderng_image_scale.php</filename>
+    <namespace path="src">CB\Plugin\Content\ContentbuilderngImageScale</namespace>
+            <files>
+        <filename plugin="contentbuilderng_image_scale">services/provider.php</filename>
+        <folder>src</folder>
         <folder>language</folder>
     </files>
     <config>

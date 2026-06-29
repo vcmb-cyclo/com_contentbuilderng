@@ -7,15 +7,17 @@
 	<copyright>This Joomla! component is released under the GNU/GPL license</copyright>
 	<authorEmail>noreply@vcmb.fr</authorEmail>
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-	<version>6.1.7-RC56</version>
+	<version>6.1.7-RC57</version>
 
 	<description>
 	<![CDATA[
         Empty verification plugin that helps if you need to force a required view or disabled the Joomla! registration and using the ContenBuilder registration
         ]]>
     </description>
-    <files>
-        <filename plugin="passthrough">passthrough.php</filename>
+    <namespace path="src">CB\Plugin\ContentbuilderngVerify\Passthrough</namespace>
+            <files>
+        <filename plugin="passthrough">services/provider.php</filename>
+        <folder>src</folder>
         <folder>language</folder>
     </files>
     <config>

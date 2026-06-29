@@ -7,15 +7,17 @@
 	<copyright>This Joomla! component is released under the GNU/GPL license</copyright>
 	<authorEmail>noreply@vcmb.fr</authorEmail>
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-	<version>6.1.7-RC56</version>
+	<version>6.1.7-RC57</version>
 
 	<description>
 	<![CDATA[
         Manages important system related aspects
         ]]>
     </description>
-    <files>
-        <filename plugin="contentbuilderng_system">contentbuilderng_system.php</filename>
+    <namespace path="src">CB\Plugin\System\ContentbuilderngSystem</namespace>
+            <files>
+        <filename plugin="contentbuilderng_system">services/provider.php</filename>
+        <folder>src</folder>
         <folder>language</folder>
     </files>
     <config>

@@ -7,15 +7,17 @@
 	<copyright>This Joomla! component is released under the GNU/GPL license</copyright>
 	<authorEmail>noreply@vcmb.fr</authorEmail>
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-	<version>6.1.7-RC56</version>
+	<version>6.1.7-RC57</version>
 
 	<description>
 	<![CDATA[
         Trashes articles bound to selected records
         ]]>
     </description>
-    <files>
-        <filename plugin="trash">trash.php</filename>
+    <namespace path="src">CB\Plugin\ContentbuilderngListaction\Trash</namespace>
+            <files>
+        <filename plugin="trash">services/provider.php</filename>
+        <folder>src</folder>
         <folder>language</folder>
     </files>
 
