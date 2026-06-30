@@ -2621,15 +2621,15 @@ by this block. -->
 			<thead>
 				<tr>
 					<?php if ($isBfLinked): ?>
-						<th class="table-light text-muted" title="BreezingForms Record ID">BF</th>
+						<th scope="col" class="table-light text-muted" title="BreezingForms Record ID">BF</th>
 					<?php endif; ?>
 					<?php if (!empty($this->debug_show_cb_id)): ?>
-						<th class="table-light text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_CB_ID_COLUMN'); ?></th>
+						<th scope="col" class="table-light text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_CB_ID_COLUMN'); ?></th>
 					<?php endif; ?>
 					<?php
 						if ($showPreviewLink && ($view_allowed || $this->own_only)) {
 						?>
-							<th class="table-light">
+							<th scope="col" class="table-light">
 								<span class="visually-hidden"><?php echo Text::_('COM_CONTENTBUILDERNG_DETAILS'); ?></span>
 							</th>
 						<?php
@@ -2637,7 +2637,7 @@ by this block. -->
 
 					if ($this->show_id_column) {
 					?>
-						<th class="table-light d-none d-sm-table-cell">
+						<th scope="col" class="table-light d-none d-sm-table-cell">
 							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_ID', ENT_QUOTES, 'UTF-8'), 'colRecord', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
@@ -2645,7 +2645,7 @@ by this block. -->
 
 					if ($this->select_column && ($delete_allowed || $state_allowed || $publish_allowed)) {
 					?>
-						<th class="table-light d-none d-sm-table-cell">
+						<th scope="col" class="table-light d-none d-sm-table-cell">
 							<input class="contentbuilderng_select_all form-check-input" type="checkbox"
 								onclick="contentbuilderng_selectAll(this);" />
 						</th>
@@ -2654,7 +2654,7 @@ by this block. -->
 
 					if ($showEditAction) {
 					?>
-						<th class="table-light">
+						<th scope="col" class="table-light">
 							<?php echo Text::_('COM_CONTENTBUILDERNG_EDIT'); ?>
 						</th>
 					<?php
@@ -2662,7 +2662,7 @@ by this block. -->
 
 						if ($this->list_state) {
 						?>
-							<th class="table-light d-none d-sm-table-cell">
+							<th scope="col" class="table-light d-none d-sm-table-cell">
 								<?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'), 'colState', $this->lists['order_Dir'], $this->lists['order']); ?>
 							</th>
 						<?php
@@ -2670,7 +2670,7 @@ by this block. -->
 
 						if ($this->list_publish || $directStorageMode) {
 						?>
-							<th class="table-light">
+							<th scope="col" class="table-light">
 								<?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'), 'colPublished', $this->lists['order_Dir'], $this->lists['order']); ?>
 							</th>
 						<?php
@@ -2678,7 +2678,7 @@ by this block. -->
 
 						if ($this->list_language) {
 						?>
-							<th class="table-light d-none d-sm-table-cell">
+							<th scope="col" class="table-light d-none d-sm-table-cell">
 								<?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_LANGUAGE'), 'colLanguage', $this->lists['order_Dir'], $this->lists['order']); ?>
 							</th>
 						<?php
@@ -2686,7 +2686,7 @@ by this block. -->
 
 					if ($this->list_article) {
 					?>
-						<th class="table-light d-none d-sm-table-cell">
+						<th scope="col" class="table-light d-none d-sm-table-cell">
 							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_ARTICLE', ENT_QUOTES, 'UTF-8'), 'colArticleId', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
@@ -2694,14 +2694,14 @@ by this block. -->
 
 					if ($this->list_author) {
 					?>
-						<th class="table-light d-none d-sm-table-cell">
+						<th scope="col" class="table-light d-none d-sm-table-cell">
 							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_AUTHOR', ENT_QUOTES, 'UTF-8'), 'colAuthor', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
 					}
 					if ($this->list_last_modification) {
 					?>
-						<th class="table-light d-none d-sm-table-cell">
+						<th scope="col" class="table-light d-none d-sm-table-cell">
 							<?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_LAST_MODIFICATION'), 'colLastModification', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
@@ -2709,7 +2709,7 @@ by this block. -->
 
 					if ($this->list_rating) {
 					?>
-						<th class="table-light d-none d-sm-table-cell">
+						<th scope="col" class="table-light d-none d-sm-table-cell">
 							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_RATING', ENT_QUOTES, 'UTF-8'), 'colRating', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 						<?php
@@ -2725,7 +2725,7 @@ by this block. -->
 								$hidden = ' d-none d-sm-table-cell';
 							}
 							?>
-								<th class="table-light<?php echo $hidden; ?>">
+								<th scope="col" class="table-light<?php echo $hidden; ?>">
 									<?php echo HTMLHelper::_('grid.sort', nl2br(htmlspecialchars($wordwrapLabel((string) $label), ENT_QUOTES, 'UTF-8')), "col$reference_id", $this->lists['order_Dir'], $this->lists['order']); ?>
 								</th>
 						<?php
