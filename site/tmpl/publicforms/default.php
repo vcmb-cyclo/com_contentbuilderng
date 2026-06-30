@@ -18,10 +18,13 @@
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Application\CMSApplication;
+
+$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+$wa->useStyle('com_contentbuilderng.frontend');
 
 $toUnicodeSlug = static function (string $string): string {
     $str = preg_replace('/\xE3\x80\x80/', ' ', $string) ?? $string;
@@ -48,26 +51,34 @@ if ($this->page_heading) {
     <?php
     if ($this->show_tags) {
         ?>
-        <?php echo Text::_('COM_CONTENTBUILDERNG_FILTER_TAG'); ?>:
-        <select name="filter_tag" onchange="document.adminForm.submit();">
-            <option value=""> -
-                <?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_FILTER_TAG_ALL'), ENT_QUOTES, 'UTF-8') ?> -
-            </option>
-            <?php
-            foreach ($this->tags as $tag) {
-                ?>
-                <option value="<?php echo htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8') ?>" <?php echo strtolower($this->lists['filter_tag']) == strtolower($tag->tag) ? ' selected="selected"' : ''; ?>>
-                    <?php echo htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8') ?>
+        <div class="cb-pubforms-tag-filter">
+            <label for="filter_tag"><?php echo Text::_('COM_CONTENTBUILDERNG_FILTER_TAG'); ?> :</label>
+            <select id="filter_tag" name="filter_tag" class="form-select form-select-sm w-auto"
+                onchange="document.adminForm.submit();">
+                <option value=""> -
+                    <?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_FILTER_TAG_ALL'), ENT_QUOTES, 'UTF-8') ?> -
                 </option>
                 <?php
-            }
-            ?>
-        </select>
-        <br />
+                foreach ($this->tags as $tag) {
+                    ?>
+                    <option value="<?php echo htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8') ?>" <?php echo strtolower($this->lists['filter_tag']) == strtolower($tag->tag) ? ' selected="selected"' : ''; ?>>
+                        <?php echo htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8') ?>
+                    </option>
+                    <?php
+                }
+                ?>
+            </select>
+            <noscript>
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    <?php echo Text::_('JSEARCH_FILTER_SUBMIT'); ?>
+                </button>
+            </noscript>
+        </div>
         <?php
     }
     ?>
-    <table class="category" width="100%" border="0" cellspacing="0" cellpadding="2">
+    <div class="table-responsive">
+    <table class="table table-hover table-sm">
         <thead>
             <tr>
 
@@ -75,7 +86,7 @@ if ($this->page_heading) {
                 if ($this->show_id) {
                     ?>
 
-                    <<?php echo $th; ?> width="5" class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_ID'); ?>
                         <?php //echo HTMLHelper::_('grid.sort', Text::_( 'COM_CONTENTBUILDERNG_ID' ), 'id', $this->lists['order_Dir'], $this->lists['order'] );     ?>
                     </<?php echo $th; ?>>
@@ -84,7 +95,7 @@ if ($this->page_heading) {
                 }
                 ?>
 
-                <<?php echo $th; ?> style="width: 200px !important;" class="align-middle text-nowrap small text-uppercase">
+                <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase cb-pubforms-th-name">
                     <?php echo Text::_('COM_CONTENTBUILDERNG_FORM'); ?>
                     <?php // echo HTMLHelper::_('grid.sort', Text::_( 'COM_CONTENTBUILDERNG_VIEW_NAME' ), 'name', $this->lists['order_Dir'], $this->lists['order'] );     ?>
                 </<?php echo $th; ?>>
@@ -93,7 +104,7 @@ if ($this->page_heading) {
                 if ($this->show_tags) {
                     ?>
 
-                    <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase">
                         <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_TAG'), 'tag', $this->lists['order_Dir'], $this->lists['order']); ?>
                     </<?php echo $th; ?>>
 
@@ -105,7 +116,7 @@ if ($this->page_heading) {
                 if ($this->introtext) {
                     ?>
 
-                    <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_API_DESCRIPTION'); ?>
                     </<?php echo $th; ?>>
 
@@ -117,7 +128,7 @@ if ($this->page_heading) {
                 if ($this->show_permissions) {
                     ?>
 
-                    <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_ACCESS_VIEW'); ?>
                     </<?php echo $th; ?>>
 
@@ -129,7 +140,7 @@ if ($this->page_heading) {
                 if ($this->show_permissions_new) {
                     ?>
 
-                    <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_ACCESS_NEW'); ?>
                     </<?php echo $th; ?>>
 
@@ -141,7 +152,7 @@ if ($this->page_heading) {
                 if ($this->show_permissions_edit) {
                     ?>
 
-                    <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_ACCESS_EDIT'); ?>
                     </<?php echo $th; ?>>
 
@@ -151,9 +162,17 @@ if ($this->page_heading) {
 
             </tr>
         </thead>
+        <tbody>
         <?php
         $k = 0;
         $n = count($this->items);
+        $colspan = 1 // form name always
+            + (int) $this->show_id
+            + (int) $this->show_tags
+            + (int) $this->introtext
+            + (int) $this->show_permissions
+            + (int) $this->show_permissions_new
+            + (int) $this->show_permissions_edit;
         for ($i = 0; $i < $n; $i++) {
             $row = $this->items[$i];
             $link_ = htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8');
@@ -216,8 +235,11 @@ if ($this->page_heading) {
                     ?>
 
                     <td class="align-top">
-                        <img width="16" height="16" alt=""
-                            src="<?php echo $this->perms[$row->id]['view'] ? Uri::root(true) . '/media/com_contentbuilderng/images/tick.png' : Uri::root(true) . '/media/com_contentbuilderng/images/untick.png'; ?>" />
+                        <?php if ($this->perms[$row->id]['view']): ?>
+                        <span class="fa-solid fa-check cb-pubforms-perm-icon is-allowed" role="img" aria-label="<?php echo htmlspecialchars(Text::_('JYES'), ENT_QUOTES, 'UTF-8'); ?>"></span>
+                    <?php else: ?>
+                        <span class="fa-solid fa-xmark cb-pubforms-perm-icon is-denied" role="img" aria-label="<?php echo htmlspecialchars(Text::_('JNO'), ENT_QUOTES, 'UTF-8'); ?>"></span>
+                    <?php endif; ?>
                     </td>
 
                     <?php
@@ -229,8 +251,11 @@ if ($this->page_heading) {
                     ?>
 
                     <td class="align-top">
-                        <img width="16" height="16" alt=""
-                            src="<?php echo $this->perms[$row->id]['new'] ? Uri::root(true) . '/media/com_contentbuilderng/images/tick.png' : Uri::root(true) . '/media/com_contentbuilderng/images/untick.png'; ?>" />
+                        <?php if ($this->perms[$row->id]['new']): ?>
+                        <span class="fa-solid fa-check cb-pubforms-perm-icon is-allowed" role="img" aria-label="<?php echo htmlspecialchars(Text::_('JYES'), ENT_QUOTES, 'UTF-8'); ?>"></span>
+                    <?php else: ?>
+                        <span class="fa-solid fa-xmark cb-pubforms-perm-icon is-denied" role="img" aria-label="<?php echo htmlspecialchars(Text::_('JNO'), ENT_QUOTES, 'UTF-8'); ?>"></span>
+                    <?php endif; ?>
                     </td>
 
                     <?php
@@ -242,8 +267,11 @@ if ($this->page_heading) {
                     ?>
 
                     <td class="align-top">
-                        <img width="16" height="16" alt=""
-                            src="<?php echo $this->perms[$row->id]['edit'] ? Uri::root(true) . '/media/com_contentbuilderng/images/tick.png' : Uri::root(true) . '/media/com_contentbuilderng/images/untick.png'; ?>" />
+                        <?php if ($this->perms[$row->id]['edit']): ?>
+                        <span class="fa-solid fa-check cb-pubforms-perm-icon is-allowed" role="img" aria-label="<?php echo htmlspecialchars(Text::_('JYES'), ENT_QUOTES, 'UTF-8'); ?>"></span>
+                    <?php else: ?>
+                        <span class="fa-solid fa-xmark cb-pubforms-perm-icon is-denied" role="img" aria-label="<?php echo htmlspecialchars(Text::_('JNO'), ENT_QUOTES, 'UTF-8'); ?>"></span>
+                    <?php endif; ?>
                     </td>
 
                     <?php
@@ -254,12 +282,22 @@ if ($this->page_heading) {
             $k = 1 - $k;
         }
 
+        <?php if ($n === 0): ?>
+            <tr>
+                <td colspan="<?php echo $colspan; ?>" class="text-center py-4 text-muted">
+                    <span class="fa-solid fa-folder-open me-2" aria-hidden="true"></span>
+                    <?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
+                </td>
+            </tr>
+        <?php endif; ?>
+        </tbody>
+        <?php
         $pages_links = $this->pagination->getPagesLinks();
         if ($pages_links) {
             ?>
             <tfoot>
                 <tr>
-                    <td colspan="9">
+                    <td colspan="<?php echo $colspan; ?>">
                         <?php echo $pages_links; ?>
                     </td>
                 </tr>
@@ -269,6 +307,7 @@ if ($this->page_heading) {
         ?>
 
     </table>
+    </div><?php /* .table-responsive */ ?>
 
 
     <input type="hidden" name="option" value="com_contentbuilderng" />

@@ -1,0 +1,54 @@
+.cb-list-titlebar{
+    margin:0 0 .55rem;
+    padding:.42rem .55rem;
+    border:1px solid #b7c4d0;
+    border-radius:.22rem;
+    background:linear-gradient(180deg,#f7f9fb 0,#e5ecf4 100%);
+}
+.cb-list-title{
+    margin:0!important;
+    color:#1f3d5b;
+    font:700 1.06rem/1.2 "Trebuchet MS",Tahoma,Arial,sans-serif;
+}
+.cb-list-title::after{
+    content:"";
+    display:block;
+    width:3rem;
+    height:2px;
+    margin-top:.32rem;
+    background:#7b98b6;
+}
+.cb-list-actions .btn{
+    border-radius:.2rem;
+    font-weight:600;
+}
+.cb-list-panel{
+    border:1px solid #bec9d4;
+    border-radius:.22rem;
+    padding:.48rem .54rem;
+    background:#f8fbfd;
+}
+.cb-list-table{
+    border:1px solid #c6d1dc;
+    background:#fff;
+}
+.cb-list-table thead th{
+    background:linear-gradient(180deg,#e7edf3 0,#d5dee8 100%);
+    border-color:#bfcbd7;
+    color:#1f3d5b;
+}
+.cb-list-table tbody td{
+    border-color:#d4dde6;
+}
+.cb-list-filters .form-control,
+.cb-list-filters .form-select{
+    border-color:#bfcbd7;
+    border-radius:.2rem;
+}
+.cb-list-filters .form-select:disabled,
+.cb-list-filters .form-control:disabled{
+    color:var(--bs-secondary-color,#6c757d);
+    background-color:var(--bs-secondary-bg,#e9ecef);
+    border-color:var(--bs-border-color,#dee2e6);
+    opacity:1;
+}

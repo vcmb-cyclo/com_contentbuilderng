@@ -5,6 +5,11 @@
     "description": "Assets pour le composant ContentBuilderng",
     "assets": [
         {
+            "name": "com_contentbuilderng.frontend",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/frontend.css"
+        },
+        {
             "name": "com_contentbuilderng.admin-toolbar",
             "type": "style",
             "uri": "com_contentbuilderng/css/admin-toolbar.css"

@@ -1,0 +1,126 @@
+.cbEditableWrapper,
+.cbDetailsWrapper{
+    color:#dbe6ff;
+}
+.cbEditableWrapper :is(
+    p,
+    span,
+    div,
+    small,
+    strong,
+    em,
+    li,
+    dt,
+    dd,
+    legend,
+    label,
+    td,
+    th
+),
+.cbDetailsWrapper :is(
+    p,
+    span,
+    div,
+    small,
+    strong,
+    em,
+    li,
+    dt,
+    dd,
+    legend,
+    label,
+    td,
+    th
+){
+    color:inherit!important;
+}
+.cbEditableWrapper a,
+.cbEditableWrapper a:visited,
+.cbDetailsWrapper a,
+.cbDetailsWrapper a:visited{
+    color:#9fc2ff!important;
+}
+.cbEditableWrapper a:hover,
+.cbDetailsWrapper a:hover{
+    color:#d3e4ff!important;
+}
+.cbEditableWrapper{
+    border-color:rgba(115,141,181,.28)!important;
+    background:
+        radial-gradient(circle at top right,rgba(123,179,255,.15),transparent 36%),
+        linear-gradient(180deg,#111825 0%,#0f1521 100%)!important;
+    box-shadow:0 .7rem 1.4rem rgba(1,6,16,.42)!important;
+}
+.cbEditableWrapper .cbToolBar,
+.cbDetailsWrapper .cbToolBar{
+    border-color:rgba(112,139,184,.32)!important;
+    background:linear-gradient(180deg,#1b2536 0%,#141e2d 100%)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 .2rem .6rem rgba(0,0,0,.4)!important;
+}
+.cbEditableWrapper .cbEditableBody,
+.cbDetailsWrapper .cbDetailsBody{
+    border-color:rgba(106,132,174,.26)!important;
+    background:linear-gradient(180deg,#111a29 0%,#0d1522 100%)!important;
+    box-shadow:0 .3rem .8rem rgba(2,7,18,.38)!important;
+}
+.cbEditableWrapper .cbColumnHeader{
+    border-color:rgba(109,138,186,.32)!important;
+    background:#182438!important;
+    color:#9fc2ff!important;
+}
+.cbEditableWrapper :is(.form-control,.form-select,textarea,input[type="text"],input[type="email"],input[type="number"],input[type="date"],input[type="datetime-local"],input[type="time"],input[type="url"],input[type="password"]),
+.cbDetailsWrapper :is(.form-control,.form-select,textarea,input[type="text"],input[type="email"],input[type="number"],input[type="date"],input[type="datetime-local"],input[type="time"],input[type="url"],input[type="password"]){
+    background:#0d1522!important;
+    border-color:#2c3b54!important;
+    color:#dbe6ff!important;
+}
+.cbEditableWrapper :is(.form-control,.form-select,textarea)::placeholder{
+    color:#8fa6cc!important;
+}
+.cbEditableWrapper .created-by,
+.cbDetailsWrapper .created-by{
+    border-color:rgba(116,142,187,.3)!important;
+    background:#172338!important;
+    color:#bcd3fb!important;
+}
+.cbEditableWrapper .alert.alert-warning,
+.cbDetailsWrapper .alert.alert-warning{
+    border-color:rgba(200,146,47,.46)!important;
+    border-left-color:#cc8a1d!important;
+    background:linear-gradient(90deg,rgba(90,58,8,.72) 0%,rgba(58,39,7,.66) 100%)!important;
+    color:#ffe2a6!important;
+}
+.cbEditableWrapper :is(h1,h2,h3,h4,.form-label,label),
+.cbDetailsWrapper :is(h1,h2,h3,h4,.list-title){
+    color:#d3e2ff!important;
+}
+.cbEditableWrapper .cbToolBar .btn-outline-secondary,
+.cbDetailsWrapper .cbToolBar .btn-outline-secondary{
+    border-color:#5a7196!important;
+    color:#d5e3ff!important;
+}
+.cbEditableWrapper .cbToolBar .btn-outline-secondary:hover,
+.cbDetailsWrapper .cbToolBar .btn-outline-secondary:hover{
+    background:#23324a!important;
+}
+.cbEditableWrapper .cbToolBar .btn-primary,
+.cbDetailsWrapper .cbToolBar .btn-primary{
+    border-color:#456cb2!important;
+    background:linear-gradient(135deg,#1d4b91 0%,#274b85 100%)!important;
+    color:#f2f7ff!important;
+}
+.cbDetailsWrapper .cbDetailsBody ul.category.list-striped.list-condensed>li,
+.cbDetailsWrapper .cbDetailsBody .list-group.list-group-flush>.list-group-item{
+    border-color:rgba(106,132,174,.28)!important;
+    background:linear-gradient(180deg,#141f31 0%,#101a2a 100%)!important;
+}
+.cbDetailsWrapper .cbDetailsBody table,
+.cbDetailsWrapper .cbDetailsBody table :is(td,th,label),
+.cbEditableWrapper .cbEditableBody table,
+.cbEditableWrapper .cbEditableBody table :is(td,th,label){
+    color:#dbe6ff!important;
+    border-color:#2b3f5f!important;
+}
+.cbDetailsWrapper .cbDetailsBody .form-control-plaintext{
+    color:#d9e7ff!important;
+}

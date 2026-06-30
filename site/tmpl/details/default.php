@@ -502,10 +502,12 @@ CSS
     ?>
     <?php if ($showTopBar && $this->print_button): ?>
         <a
-            class="hidden-phone btn btn-sm btn-outline-secondary cbButton cbPrintButton"
-            href="javascript:window.open('<?php echo $printLink; ?>','win2','status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=640,height=480,directories=no,location=no');void(0);"
+            class="d-none d-sm-inline-flex align-items-center gap-1 btn btn-sm btn-outline-secondary cbButton cbPrintButton"
+            href="<?php echo $printLink; ?>"
+            target="_blank"
+            rel="noopener"
             title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DETAILS_PRINT_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>">
-            <i class="fa fa-print" aria-hidden="true"></i>
+            <span class="fa-solid fa-print" aria-hidden="true"></span>
             <?php echo Text::_('JGLOBAL_PRINT'); ?>
         </a>
     <?php endif; ?>
@@ -549,7 +551,7 @@ CSS
 
     if ($showTopBar) {
     ?>
-        <div style="clear:right;"></div>
+        <div class="cb-clear-right"></div>
     <?php
         if ($buttons !== '') {
             echo str_replace('class="cbToolBar ', 'class="cbToolBar cbToolBar--top ', $buttons);
@@ -606,7 +608,7 @@ CSS
             echo str_replace('class="cbToolBar ', 'class="cbToolBar cbToolBar--bottom ', $buttons);
         }
     ?>
-        <div style="clear:right;"></div>
+        <div class="cb-clear-right"></div>
     <?php
     }
     ?>

@@ -12,10 +12,18 @@ final class Joomla6ThemeConsistencyTest extends TestCase
 
     protected function setUp(): void
     {
-        $path = \dirname(__DIR__, 4)
-            . '/plugins/contentbuilderng_themes/joomla6/src/Extension/Joomla6.php';
-        $source = \file_get_contents($path);
-        self::assertIsString($source);
+        $root = \dirname(__DIR__, 4) . '/plugins/contentbuilderng_themes/joomla6';
+        $parts = [
+            $root . '/src/Extension/Joomla6.php',
+            $root . '/css/content.css',
+            $root . '/css/list.css',
+        ];
+        $source = '';
+        foreach ($parts as $path) {
+            $content = \file_get_contents($path);
+            self::assertIsString($content, "Cannot read {$path}");
+            $source .= $content;
+        }
         $this->source = $source;
     }
 

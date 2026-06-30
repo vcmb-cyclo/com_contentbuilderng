@@ -1,0 +1,96 @@
+/* ContentBuilderNG — styles frontend partagés
+   Préfixe .cb- (classes existantes).
+   Pas de sélecteurs globaux agressifs.
+   ---------------------------------------------------------------- */
+
+/* ── Filtres : contraintes de largeur des selects ─────────────────
+   Remplacent les style="max-width: Xpx" inline dans les templates  */
+.cb-filter-select-lang  { max-width: 100px; }
+.cb-filter-select-state { max-width: 140px; }
+.cb-filter-select-pub   { max-width: 160px; }
+.cb-filter-select-md    { max-width: 190px; }
+.cb-filter-select-rpp   { max-width: 120px; }
+.cb-filter-search-group { max-width: 360px; }
+
+/* ── Utilitaires ─────────────────────────────────────────────────*/
+.cb-clear-right { clear: right; }
+
+/* ── publicforms : liste de formulaires publics ───────────────────*/
+.cb-pubforms-tag-filter {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: .75rem;
+}
+.cb-pubforms-tag-filter label {
+    margin: 0;
+    white-space: nowrap;
+    font-weight: 500;
+}
+.cb-pubforms-th-name {
+    width: 200px;
+    min-width: 120px;
+}
+.cb-pubforms-perm-icon {
+    font-size: .9rem;
+}
+.cb-pubforms-perm-icon.is-allowed { color: var(--bs-success, #198754); }
+.cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger,  #dc3545); }
+
+/* ── Impression (vue details/print) ──────────────────────────────*/
+.cb-print-wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: .5rem 1rem;
+}
+.cb-print-actions {
+    display: flex;
+    gap: .5rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+.cb-print-meta {
+    margin-bottom: 1rem;
+    color: var(--bs-secondary-color, #6c757d);
+    font-size: .9rem;
+}
+
+@media print {
+    /* Masque la navigation et l'interface Joomla */
+    header, footer, nav,
+    #sp-top-bar, #sp-menu, #sp-bottom,
+    .mod-menu, .navbar, .main-nav,
+    .system-message, .alert,
+    .cb-print-actions {
+        display: none !important;
+    }
+
+    /* Réinitialise les marges du template */
+    body, html {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        color: #000 !important;
+        font-size: 11pt !important;
+    }
+
+    /* Le contenu CB prend toute la largeur */
+    .cb-print-wrapper {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Évite les coupures de page à l'intérieur des champs */
+    .mb-3, .cb-print-meta {
+        break-inside: avoid;
+    }
+
+    /* Liens externes : affiche l'URL entre parenthèses (URLs absolues uniquement) */
+    a[href^="http"]::after {
+        content: " (" attr(href) ")";
+        font-size: .8em;
+        color: #555;
+    }
+}

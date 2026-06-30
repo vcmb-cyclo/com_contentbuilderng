@@ -26,6 +26,8 @@ $app = Factory::getApplication();
 $showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_author', (int) ($this->cb_show_author ?? 1));
 
 $wa = $app->getDocument()->getWebAssetManager();
+$wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+$wa->useStyle('com_contentbuilderng.frontend');
 
 $themeCss = trim((string) ($this->theme_css ?? ''));
 if ($themeCss !== '') {
@@ -40,9 +42,11 @@ if (trim($themeJs) !== '') {
 
 ?>
 
-<div class="text-center mb-3">
+<div class="cb-print-wrapper">
+
+<div class="cb-print-actions">
     <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
-        <?php echo Text::_('COM_CONTENTBUILDERNG_PRINT') ?>
+        <span class="fa-solid fa-print me-1" aria-hidden="true"></span><?php echo Text::_('COM_CONTENTBUILDERNG_PRINT') ?>
     </button>
     <button class="btn btn-sm btn-outline-secondary" onclick="self.close()">
         <?php echo Text::_('COM_CONTENTBUILDERNG_CLOSE') ?>
@@ -55,7 +59,7 @@ if (trim($themeJs) !== '') {
 <?php
 if ($showAuthorToggle === 1) {
     ?>
-
+    <div class="cb-print-meta">
     <?php if ($this->created): ?>
         <span class="small created-by">
             <?php echo Text::_('COM_CONTENTBUILDERNG_CREATED_ON'); ?>
@@ -67,29 +71,26 @@ if ($showAuthorToggle === 1) {
         <span class="small created-by">
             <?php echo Text::_('COM_CONTENTBUILDERNG_BY'); ?>
             <?php echo $this->created_by; ?>
-        </span><br />
+        </span>
     <?php endif; ?>
-
+    </div>
     <?php
 }
 ?>
 
-<br />
-<br />
-
+<div class="mt-3">
 <?php echo $this->event->beforeDisplayContent; ?>
 <?php echo $this->toc ?>
 <?php echo $this->tpl ?>
 <?php echo $this->event->afterDisplayContent; ?>
-
+</div>
 
 <?php
 if ($showAuthorToggle === 1) {
     ?>
 
     <?php if ($this->modified_by): ?>
-        <br />
-
+        <div class="cb-print-meta mt-3">
         <?php if ($this->modified): ?>
             <span class="small created-by">
                 <?php echo Text::_('COM_CONTENTBUILDERNG_LAST_UPDATED_ON'); ?>
@@ -101,9 +102,11 @@ if ($showAuthorToggle === 1) {
             <?php echo Text::_('COM_CONTENTBUILDERNG_BY'); ?>
             <?php echo $this->modified_by; ?>
         </span>
-
+        </div>
     <?php endif; ?>
 
     <?php
 }
 ?>
+
+</div><?php /* .cb-print-wrapper */ ?>
