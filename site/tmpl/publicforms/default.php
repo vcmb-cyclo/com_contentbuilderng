@@ -166,6 +166,13 @@ if ($this->page_heading) {
         <?php
         $k = 0;
         $n = count($this->items);
+        $colspan = 1 // form name always
+            + (int) $this->show_id
+            + (int) $this->show_tags
+            + (int) $this->introtext
+            + (int) $this->show_permissions
+            + (int) $this->show_permissions_new
+            + (int) $this->show_permissions_edit;
         for ($i = 0; $i < $n; $i++) {
             $row = $this->items[$i];
             $link_ = htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8');
@@ -229,9 +236,9 @@ if ($this->page_heading) {
 
                     <td class="align-top">
                         <?php if ($this->perms[$row->id]['view']): ?>
-                        <span class="fa-solid fa-check cb-pubforms-perm-icon is-allowed" role="img" aria-label="<?php echo Text::_('JYES'); ?>"></span>
+                        <span class="fa-solid fa-check cb-pubforms-perm-icon is-allowed" role="img" aria-label="<?php echo htmlspecialchars(Text::_('JYES'), ENT_QUOTES, 'UTF-8'); ?>"></span>
                     <?php else: ?>
-                        <span class="fa-solid fa-xmark cb-pubforms-perm-icon is-denied" role="img" aria-label="<?php echo Text::_('JNO'); ?>"></span>
+                        <span class="fa-solid fa-xmark cb-pubforms-perm-icon is-denied" role="img" aria-label="<?php echo htmlspecialchars(Text::_('JNO'), ENT_QUOTES, 'UTF-8'); ?>"></span>
                     <?php endif; ?>
                     </td>
 
@@ -245,9 +252,9 @@ if ($this->page_heading) {
 
                     <td class="align-top">
                         <?php if ($this->perms[$row->id]['new']): ?>
-                        <span class="fa-solid fa-check cb-pubforms-perm-icon is-allowed" role="img" aria-label="<?php echo Text::_('JYES'); ?>"></span>
+                        <span class="fa-solid fa-check cb-pubforms-perm-icon is-allowed" role="img" aria-label="<?php echo htmlspecialchars(Text::_('JYES'), ENT_QUOTES, 'UTF-8'); ?>"></span>
                     <?php else: ?>
-                        <span class="fa-solid fa-xmark cb-pubforms-perm-icon is-denied" role="img" aria-label="<?php echo Text::_('JNO'); ?>"></span>
+                        <span class="fa-solid fa-xmark cb-pubforms-perm-icon is-denied" role="img" aria-label="<?php echo htmlspecialchars(Text::_('JNO'), ENT_QUOTES, 'UTF-8'); ?>"></span>
                     <?php endif; ?>
                     </td>
 
@@ -261,9 +268,9 @@ if ($this->page_heading) {
 
                     <td class="align-top">
                         <?php if ($this->perms[$row->id]['edit']): ?>
-                        <span class="fa-solid fa-check cb-pubforms-perm-icon is-allowed" role="img" aria-label="<?php echo Text::_('JYES'); ?>"></span>
+                        <span class="fa-solid fa-check cb-pubforms-perm-icon is-allowed" role="img" aria-label="<?php echo htmlspecialchars(Text::_('JYES'), ENT_QUOTES, 'UTF-8'); ?>"></span>
                     <?php else: ?>
-                        <span class="fa-solid fa-xmark cb-pubforms-perm-icon is-denied" role="img" aria-label="<?php echo Text::_('JNO'); ?>"></span>
+                        <span class="fa-solid fa-xmark cb-pubforms-perm-icon is-denied" role="img" aria-label="<?php echo htmlspecialchars(Text::_('JNO'), ENT_QUOTES, 'UTF-8'); ?>"></span>
                     <?php endif; ?>
                     </td>
 
@@ -275,26 +282,22 @@ if ($this->page_heading) {
             $k = 1 - $k;
         }
 
-        </tbody>
-        </tbody>
         <?php if ($n === 0): ?>
-        <tbody>
             <tr>
-                <td colspan="9" class="text-center py-4 text-muted">
+                <td colspan="<?php echo $colspan; ?>" class="text-center py-4 text-muted">
                     <span class="fa-solid fa-folder-open me-2" aria-hidden="true"></span>
                     <?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
                 </td>
             </tr>
-        </tbody>
         <?php endif; ?>
-
-
+        </tbody>
+        <?php
         $pages_links = $this->pagination->getPagesLinks();
         if ($pages_links) {
             ?>
             <tfoot>
                 <tr>
-                    <td colspan="9">
+                    <td colspan="<?php echo $colspan; ?>">
                         <?php echo $pages_links; ?>
                     </td>
                 </tr>

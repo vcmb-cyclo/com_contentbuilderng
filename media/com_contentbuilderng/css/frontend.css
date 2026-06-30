@@ -87,14 +87,10 @@
         break-inside: avoid;
     }
 
-    /* Liens : affiche l'URL entre parenthèses */
-    a[href]::after {
+    /* Liens externes : affiche l'URL entre parenthèses (URLs absolues uniquement) */
+    a[href^="http"]::after {
         content: " (" attr(href) ")";
         font-size: .8em;
         color: #555;
-    }
-    a[href^="#"]::after,
-    a[href^="javascript"]::after {
-        content: "";
     }
 }
