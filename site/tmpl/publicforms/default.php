@@ -86,7 +86,7 @@ if ($this->page_heading) {
                 if ($this->show_id) {
                     ?>
 
-                    <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_ID'); ?>
                         <?php //echo HTMLHelper::_('grid.sort', Text::_( 'COM_CONTENTBUILDERNG_ID' ), 'id', $this->lists['order_Dir'], $this->lists['order'] );     ?>
                     </<?php echo $th; ?>>
@@ -95,7 +95,7 @@ if ($this->page_heading) {
                 }
                 ?>
 
-                <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase cb-pubforms-th-name">
+                <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase cb-pubforms-th-name">
                     <?php echo Text::_('COM_CONTENTBUILDERNG_FORM'); ?>
                     <?php // echo HTMLHelper::_('grid.sort', Text::_( 'COM_CONTENTBUILDERNG_VIEW_NAME' ), 'name', $this->lists['order_Dir'], $this->lists['order'] );     ?>
                 </<?php echo $th; ?>>
@@ -104,7 +104,7 @@ if ($this->page_heading) {
                 if ($this->show_tags) {
                     ?>
 
-                    <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase">
                         <?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_TAG'), 'tag', $this->lists['order_Dir'], $this->lists['order']); ?>
                     </<?php echo $th; ?>>
 
@@ -116,7 +116,7 @@ if ($this->page_heading) {
                 if ($this->introtext) {
                     ?>
 
-                    <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_API_DESCRIPTION'); ?>
                     </<?php echo $th; ?>>
 
@@ -128,7 +128,7 @@ if ($this->page_heading) {
                 if ($this->show_permissions) {
                     ?>
 
-                    <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_ACCESS_VIEW'); ?>
                     </<?php echo $th; ?>>
 
@@ -140,7 +140,7 @@ if ($this->page_heading) {
                 if ($this->show_permissions_new) {
                     ?>
 
-                    <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_ACCESS_NEW'); ?>
                     </<?php echo $th; ?>>
 
@@ -152,7 +152,7 @@ if ($this->page_heading) {
                 if ($this->show_permissions_edit) {
                     ?>
 
-                    <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> scope="col" class="align-middle text-nowrap small text-uppercase">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_ACCESS_EDIT'); ?>
                     </<?php echo $th; ?>>
 
@@ -162,6 +162,7 @@ if ($this->page_heading) {
 
             </tr>
         </thead>
+        <tbody>
         <?php
         $k = 0;
         $n = count($this->items);
@@ -274,18 +275,19 @@ if ($this->page_heading) {
             $k = 1 - $k;
         }
 
-        if ($n === 0) {
-            ?>
-            <tbody>
-                <tr>
-                    <td colspan="9" class="text-center py-4 text-muted">
-                        <span class="fa-solid fa-folder-open me-2" aria-hidden="true"></span>
-                        <?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
-                    </td>
-                </tr>
-            </tbody>
-            <?php
-        }
+        </tbody>
+        </tbody>
+        <?php if ($n === 0): ?>
+        <tbody>
+            <tr>
+                <td colspan="9" class="text-center py-4 text-muted">
+                    <span class="fa-solid fa-folder-open me-2" aria-hidden="true"></span>
+                    <?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
+                </td>
+            </tr>
+        </tbody>
+        <?php endif; ?>
+
 
         $pages_links = $this->pagination->getPagesLinks();
         if ($pages_links) {
