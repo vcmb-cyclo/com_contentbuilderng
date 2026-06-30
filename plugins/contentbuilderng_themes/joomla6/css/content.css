@@ -668,16 +668,6 @@
 }
 
 @media (prefers-color-scheme: dark) {
-    .cbEditableWrapper,
-    .cbDetailsWrapper {
-        border-color: rgba(173, 193, 216, 0.22);
-        background:
-            radial-gradient(circle at top right, rgba(76, 141, 255, 0.18), transparent 38%),
-            linear-gradient(180deg, #1a2431 0%, #111a24 100%);
-        box-shadow: 0 0.65rem 1.25rem rgba(0, 0, 0, 0.42);
-        color: #e7edf6;
-    }
-
     .cbEditableWrapper .cbToolBar {
         border-color: rgba(173, 193, 216, 0.24);
         background: linear-gradient(180deg, #223143 0%, #1a2635 100%);

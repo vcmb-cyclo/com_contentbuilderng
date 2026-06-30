@@ -21,13 +21,6 @@
 .cb-list-sticky .cb-list-filters td{background:transparent}
 .cb-list-filters td{padding:.4rem .15rem .75rem}
 .cb-list-filters .form-select,.cb-list-filters .form-control{border-radius:.5rem}
-.cb-list-filters .form-select:disabled,
-.cb-list-filters .form-control:disabled{
-    color:var(--bs-secondary-color,#6c757d);
-    background-color:var(--bs-secondary-bg,#e9ecef);
-    border-color:var(--bs-border-color,#dee2e6);
-    opacity:1;
-}
 .cb-list-filters .input-group-text{border-radius:.5rem 0 0 .5rem;background:var(--bs-tertiary-bg,#f8f9fa)}
 .cb-list-table{margin-top:.35rem!important}
 .cb-list-table th{font-size:.875rem;letter-spacing:.01em}
