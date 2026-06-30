@@ -1957,8 +1957,7 @@ CSS
 						<span class="fa-solid fa-circle-question" aria-hidden="true"></span>
 					</span>
 				<?php endif; ?>
-                <br />
-                <small class="d-inline-block mt-1">
+                <small class="d-block mt-1">
                     <?php echo htmlspecialchars($previewFrontendPermissionHint, ENT_QUOTES, 'UTF-8'); ?>
                 </small>
 			</span>
@@ -2075,7 +2074,7 @@ by this block. -->
 	<?php if ($showTopBar) : ?>
 		<div class="<?php echo $showStickyButtonBar ? 'cb-list-sticky' : ''; ?>">
 			<div class="cb-list-panel cb-list-sticky-panel">
-			<table class="cbFilterTable cb-list-filters" width="100%">
+			<table class="cbFilterTable cb-list-filters w-100">
 				<?php if ($language_allowed) : ?>
 					<tr>
 						<td>
@@ -2622,15 +2621,15 @@ by this block. -->
 			<thead>
 				<tr>
 					<?php if ($isBfLinked): ?>
-						<th class="table-light text-muted" width="5" title="BreezingForms Record ID">BF</th>
+						<th class="table-light text-muted" title="BreezingForms Record ID">BF</th>
 					<?php endif; ?>
 					<?php if (!empty($this->debug_show_cb_id)): ?>
-						<th class="table-light text-muted" width="5"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_CB_ID_COLUMN'); ?></th>
+						<th class="table-light text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_CB_ID_COLUMN'); ?></th>
 					<?php endif; ?>
 					<?php
 						if ($showPreviewLink && ($view_allowed || $this->own_only)) {
 						?>
-							<th class="table-light" width="20">
+							<th class="table-light">
 								<span class="visually-hidden"><?php echo Text::_('COM_CONTENTBUILDERNG_DETAILS'); ?></span>
 							</th>
 						<?php
@@ -2638,7 +2637,7 @@ by this block. -->
 
 					if ($this->show_id_column) {
 					?>
-						<th class="table-light hidden-phone" width="5">
+						<th class="table-light d-none d-sm-table-cell">
 							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_ID', ENT_QUOTES, 'UTF-8'), 'colRecord', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
@@ -2646,7 +2645,7 @@ by this block. -->
 
 					if ($this->select_column && ($delete_allowed || $state_allowed || $publish_allowed)) {
 					?>
-						<th class="table-light hidden-phone" width="20">
+						<th class="table-light d-none d-sm-table-cell">
 							<input class="contentbuilderng_select_all form-check-input" type="checkbox"
 								onclick="contentbuilderng_selectAll(this);" />
 						</th>
@@ -2655,7 +2654,7 @@ by this block. -->
 
 					if ($showEditAction) {
 					?>
-						<th class="table-light" width="20">
+						<th class="table-light">
 							<?php echo Text::_('COM_CONTENTBUILDERNG_EDIT'); ?>
 						</th>
 					<?php
@@ -2663,7 +2662,7 @@ by this block. -->
 
 						if ($this->list_state) {
 						?>
-							<th class="table-light hidden-phone">
+							<th class="table-light d-none d-sm-table-cell">
 								<?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'), 'colState', $this->lists['order_Dir'], $this->lists['order']); ?>
 							</th>
 						<?php
@@ -2671,7 +2670,7 @@ by this block. -->
 
 						if ($this->list_publish || $directStorageMode) {
 						?>
-							<th class="table-light" width="20">
+							<th class="table-light">
 								<?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'), 'colPublished', $this->lists['order_Dir'], $this->lists['order']); ?>
 							</th>
 						<?php
@@ -2679,7 +2678,7 @@ by this block. -->
 
 						if ($this->list_language) {
 						?>
-							<th class="table-light hidden-phone" width="20">
+							<th class="table-light d-none d-sm-table-cell">
 								<?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_LANGUAGE'), 'colLanguage', $this->lists['order_Dir'], $this->lists['order']); ?>
 							</th>
 						<?php
@@ -2687,7 +2686,7 @@ by this block. -->
 
 					if ($this->list_article) {
 					?>
-						<th class="table-light hidden-phone">
+						<th class="table-light d-none d-sm-table-cell">
 							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_ARTICLE', ENT_QUOTES, 'UTF-8'), 'colArticleId', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
@@ -2695,14 +2694,14 @@ by this block. -->
 
 					if ($this->list_author) {
 					?>
-						<th class="table-light hidden-phone">
+						<th class="table-light d-none d-sm-table-cell">
 							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_AUTHOR', ENT_QUOTES, 'UTF-8'), 'colAuthor', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
 					}
 					if ($this->list_last_modification) {
 					?>
-						<th class="table-light hidden-phone">
+						<th class="table-light d-none d-sm-table-cell">
 							<?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_LAST_MODIFICATION'), 'colLastModification', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
@@ -2710,7 +2709,7 @@ by this block. -->
 
 					if ($this->list_rating) {
 					?>
-						<th class="table-light hidden-phone">
+						<th class="table-light d-none d-sm-table-cell">
 							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_RATING', ENT_QUOTES, 'UTF-8'), 'colRating', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 						<?php
@@ -2718,12 +2717,12 @@ by this block. -->
 
 					if ($this->labels) {
 						$label_count = 0;
-						$hidden = ' hidden-phone';
+						$hidden = ' d-none d-sm-table-cell';
 						foreach ($this->labels as $reference_id => $label) {
 							if ($label_count == 0) {
 								$hidden = '';
 							} else {
-								$hidden = ' hidden-phone';
+								$hidden = ' d-none d-sm-table-cell';
 							}
 							?>
 								<th class="table-light<?php echo $hidden; ?>">
@@ -2765,14 +2764,14 @@ by this block. -->
 				?>
 				<tr class="<?php echo "row$k"; ?>">
 					<?php if ($isBfLinked): ?>
-						<td class="text-muted small hidden-phone">
+						<td class="text-muted small d-none d-sm-table-cell">
 							<a href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>administrator/index.php?option=com_breezingformsng&act=managerecs&task=edit&record_id=<?php echo (int) $row->colRecord; ?>&form_selection=0" target="_blank" rel="noopener noreferrer" title="BreezingForms #<?php echo (int) $row->colRecord; ?>">
 								<?php echo (int) $row->colRecord; ?>
 							</a>
 						</td>
 					<?php endif; ?>
 					<?php if (!empty($this->debug_show_cb_id)): ?>
-						<td class="text-muted small hidden-phone"><?php echo (int) ($this->cb_record_ids[$row->colRecord] ?? 0); ?></td>
+						<td class="text-muted small d-none d-sm-table-cell"><?php echo (int) ($this->cb_record_ids[$row->colRecord] ?? 0); ?></td>
 					<?php endif; ?>
 					<?php
 					if ($showPreviewLink && ($view_allowed || $hasOwnerViewRule)) {
@@ -2795,7 +2794,7 @@ by this block. -->
 
 					if ($this->show_id_column) {
 					?>
-						<td class="hidden-phone">
+						<td class="d-none d-sm-table-cell">
 							<?php
 							if ($rowCanView) {
 							?>
@@ -2816,7 +2815,7 @@ by this block. -->
 					<?php
 					if ($this->select_column && ($delete_allowed || $state_allowed || $publish_allowed)) {
 					?>
-						<td class="hidden-phone">
+						<td class="d-none d-sm-table-cell">
 							<?php echo $select; ?>
 						</td>
 					<?php
@@ -2843,7 +2842,7 @@ by this block. -->
 					<?php
 					if ($this->list_state) {
 					?>
-						<td class="hidden-phone"
+						<td class="d-none d-sm-table-cell"
 							data-cb-state-cell
 							data-record-id="<?php echo (int) $row->colRecord; ?>"
 							style="background-color: #<?php echo isset($this->state_colors[$row->colRecord]) ? $this->state_colors[$row->colRecord] : 'FFFFFF'; ?>;">
@@ -2855,7 +2854,6 @@ by this block. -->
 								<?php endforeach; ?>
 									<select
 										class="form-select form-select-sm"
-										style="display:inline-block;width:auto;min-width:0;max-width:100%;"
 										onchange="contentbuilderng_state_single(this, this.value, <?php echo (int) $row->colRecord; ?>);"
 										title="<?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?>"
 										data-cb-state-select
@@ -2911,7 +2909,7 @@ by this block. -->
 					<?php
 					if ($this->list_language) {
 					?>
-						<td class="hidden-phone">
+						<td class="d-none d-sm-table-cell">
 							<?php echo isset($this->lang_codes[$row->colRecord]) && $this->lang_codes[$row->colRecord] ? $this->lang_codes[$row->colRecord] : '*'; ?>
 						</td>
 					<?php
@@ -2920,7 +2918,7 @@ by this block. -->
 					<?php
 					if ($this->list_article) {
 					?>
-						<td class="hidden-phone">
+						<td class="d-none d-sm-table-cell">
 							<?php
 							if ($rowCanView) {
 							?>
@@ -2941,7 +2939,7 @@ by this block. -->
 					<?php
 					if ($this->list_author) {
 					?>
-						<td class="hidden-phone">
+						<td class="d-none d-sm-table-cell">
 							<?php echo htmlspecialchars($row->colAuthor, ENT_QUOTES, 'UTF-8'); ?>
 						</td>
 					<?php
@@ -2951,7 +2949,7 @@ by this block. -->
 					if ($this->list_last_modification) {
 						$lastModificationText = $formatListLastModification($row->colLastModification ?? '');
 					?>
-						<td class="hidden-phone">
+						<td class="d-none d-sm-table-cell">
 							<?php echo htmlspecialchars($lastModificationText, ENT_QUOTES, 'UTF-8'); ?>
 						</td>
 					<?php
@@ -2960,7 +2958,7 @@ by this block. -->
 					<?php
 					if ($this->list_rating) {
 					?>
-						<td class="hidden-phone">
+						<td class="d-none d-sm-table-cell">
 							<?php
 								echo RatingHelper::getRating(Factory::getApplication()->getInput()->getInt('id', 0), $row->colRecord, $row->colRating, $this->rating_slots, Factory::getApplication()->getInput()->getCmd('lang', ''), $rating_allowed, $row->colRatingCount, $row->colRatingSum);
 							?>
@@ -2970,14 +2968,14 @@ by this block. -->
 					?>
 					<?php
 					$label_count = 0;
-					$hidden = ' class="hidden-phone"';
+					$hidden = ' class="d-none d-sm-table-cell"';
 					foreach ($row as $key => $value) {
 						// filtering out disallowed columns
 						if (in_array(str_replace('col', '', $key), $this->visible_cols)) {
 							if ($label_count == 0) {
 								$hidden = '';
 							} else {
-								$hidden = ' class="hidden-phone"';
+								$hidden = ' class="d-none d-sm-table-cell"';
 							}
 					?>
 							<td<?php echo $hidden; ?>>
