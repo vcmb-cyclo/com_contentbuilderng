@@ -274,6 +274,7 @@ $ratingCsrfToken = Session::getFormToken();
 // Charge le manifeste joomla.asset.json du composant
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 
+$wa->useStyle('com_contentbuilderng.frontend');
 $wa->useScript('com_contentbuilderng.contentbuilderng');
 PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
 
@@ -2079,7 +2080,7 @@ by this block. -->
 					<tr>
 						<td>
 							<div class="d-inline-flex align-items-center gap-1 me-2">
-									<select class="form-select form-select-sm" style="max-width: 100px;" name="list_language">
+									<select class="form-select form-select-sm cb-filter-select-lang" name="list_language">
 									<option value="*"> -
 										<?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?> -
 									</option>
@@ -2109,7 +2110,7 @@ by this block. -->
 						<div class="d-flex flex-wrap align-items-center gap-2 flex-grow-1">
 
 								<?php if ($this->list_state && $state_allowed && count($this->states)) : ?>
-									<select class="form-select form-select-sm" style="max-width: 140px;" disabled
+									<select class="form-select form-select-sm cb-filter-select-state" disabled
 										name="list_state" title="<?php echo Text::_('COM_CONTENTBUILDERNG_BULK_OPTIONS'); ?>: <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?>"
 										onchange="if (this.value !== '-1') { contentbuilderng_state(); }">
 										<option value="-1"> - <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?> -</option>
@@ -2123,7 +2124,7 @@ by this block. -->
 							<?php endif; ?>
 
 								<?php if ($this->list_publish && $publish_allowed) : ?>
-									<select class="form-select form-select-sm" style="max-width: 160px;" disabled
+									<select class="form-select form-select-sm cb-filter-select-pub" disabled
 										name="list_publish" title="<?php echo Text::_('COM_CONTENTBUILDERNG_BULK_OPTIONS'); ?>: <?php echo Text::_('COM_CONTENTBUILDERNG_PUBLISH'); ?>"
 										onchange="if (this.value !== '-1') { contentbuilderng_publish(); }">
 									<option value="-1"> - <?php echo Text::_('COM_CONTENTBUILDERNG_UPDATE_STATUS'); ?> -</option>
@@ -2133,7 +2134,7 @@ by this block. -->
 							<?php endif; ?>
 
 							<?php if ($this->display_filter) : ?>
-									<div class="input-group input-group-sm" style="max-width: 360px;">
+									<div class="input-group input-group-sm cb-filter-search-group">
 									<span class="input-group-text">
 										<?php echo Text::_('COM_CONTENTBUILDERNG_FILTER'); ?>
 									</span>
@@ -2165,7 +2166,7 @@ by this block. -->
 								<?php endif; ?>
 
 							<?php if ($this->list_state && count($this->states)) : ?>
-								<select class="form-select form-select-sm" style="max-width: 160px;"
+								<select class="form-select form-select-sm cb-filter-select-pub"
 									name="list_state_filter" id="list_state_filter"
 									title="<?php echo Text::_('COM_CONTENTBUILDERNG_FILTER'); ?>: <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?>"
 									onchange="document.adminForm.submit();">
@@ -2179,7 +2180,7 @@ by this block. -->
 							<?php endif; ?>
 
 							<?php if ($this->list_publish) : ?>
-								<select class="form-select form-select-sm" style="max-width: 190px;"
+								<select class="form-select form-select-sm cb-filter-select-md"
 									name="list_publish_filter" id="list_publish_filter"
 									title="<?php echo Text::_('COM_CONTENTBUILDERNG_FILTER'); ?>: <?php echo Text::_('COM_CONTENTBUILDERNG_PUBLISH'); ?>"
 									onchange="document.adminForm.submit();">
@@ -2194,7 +2195,7 @@ by this block. -->
 							<?php endif; ?>
 
 							<?php if ($this->list_language) : ?>
-								<select class="form-select form-select-sm" style="max-width: 160px;"
+								<select class="form-select form-select-sm cb-filter-select-pub"
 									name="list_language_filter" id="list_language_filter"
 									title="<?php echo Text::_('COM_CONTENTBUILDERNG_FILTER'); ?>: <?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?>"
 									onchange="document.adminForm.submit();">
@@ -2230,7 +2231,7 @@ by this block. -->
 										<?php endif; ?>
 
 									<?php if ($this->show_records_per_page) : ?>
-										<div style="max-width: 120px;">
+										<div class="cb-filter-select-rpp">
 											<?php
 											$currentLimit = (int) (($this->state?->get('list.limit')) ?? ($this->pagination->limit ?? 20));
 											$totalItems = (int) ($this->pagination->total ?? 0);

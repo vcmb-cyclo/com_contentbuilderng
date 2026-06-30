@@ -23,6 +23,10 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Application\CMSApplication;
 
+$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+$wa->useStyle('com_contentbuilderng.frontend');
+
 $toUnicodeSlug = static function (string $string): string {
     $str = preg_replace('/\xE3\x80\x80/', ' ', $string) ?? $string;
     $str = str_replace('-', ' ', $str);
@@ -48,26 +52,28 @@ if ($this->page_heading) {
     <?php
     if ($this->show_tags) {
         ?>
-        <?php echo Text::_('COM_CONTENTBUILDERNG_FILTER_TAG'); ?>:
-        <select name="filter_tag" onchange="document.adminForm.submit();">
-            <option value=""> -
-                <?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_FILTER_TAG_ALL'), ENT_QUOTES, 'UTF-8') ?> -
-            </option>
-            <?php
-            foreach ($this->tags as $tag) {
-                ?>
-                <option value="<?php echo htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8') ?>" <?php echo strtolower($this->lists['filter_tag']) == strtolower($tag->tag) ? ' selected="selected"' : ''; ?>>
-                    <?php echo htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8') ?>
+        <div class="cb-pubforms-tag-filter">
+            <label for="filter_tag"><?php echo Text::_('COM_CONTENTBUILDERNG_FILTER_TAG'); ?> :</label>
+            <select id="filter_tag" name="filter_tag" class="form-select form-select-sm w-auto"
+                onchange="document.adminForm.submit();">
+                <option value=""> -
+                    <?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_FILTER_TAG_ALL'), ENT_QUOTES, 'UTF-8') ?> -
                 </option>
                 <?php
-            }
-            ?>
-        </select>
-        <br />
+                foreach ($this->tags as $tag) {
+                    ?>
+                    <option value="<?php echo htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8') ?>" <?php echo strtolower($this->lists['filter_tag']) == strtolower($tag->tag) ? ' selected="selected"' : ''; ?>>
+                        <?php echo htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8') ?>
+                    </option>
+                    <?php
+                }
+                ?>
+            </select>
+        </div>
         <?php
     }
     ?>
-    <table class="category" width="100%" border="0" cellspacing="0" cellpadding="2">
+    <table class="table table-hover table-sm">
         <thead>
             <tr>
 
@@ -75,7 +81,7 @@ if ($this->page_heading) {
                 if ($this->show_id) {
                     ?>
 
-                    <<?php echo $th; ?> width="5" class="align-middle text-nowrap small text-uppercase">
+                    <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_ID'); ?>
                         <?php //echo HTMLHelper::_('grid.sort', Text::_( 'COM_CONTENTBUILDERNG_ID' ), 'id', $this->lists['order_Dir'], $this->lists['order'] );     ?>
                     </<?php echo $th; ?>>
@@ -84,7 +90,7 @@ if ($this->page_heading) {
                 }
                 ?>
 
-                <<?php echo $th; ?> style="width: 200px !important;" class="align-middle text-nowrap small text-uppercase">
+                <<?php echo $th; ?> class="align-middle text-nowrap small text-uppercase cb-pubforms-th-name">
                     <?php echo Text::_('COM_CONTENTBUILDERNG_FORM'); ?>
                     <?php // echo HTMLHelper::_('grid.sort', Text::_( 'COM_CONTENTBUILDERNG_VIEW_NAME' ), 'name', $this->lists['order_Dir'], $this->lists['order'] );     ?>
                 </<?php echo $th; ?>>
@@ -216,8 +222,11 @@ if ($this->page_heading) {
                     ?>
 
                     <td class="align-top">
-                        <img width="16" height="16" alt=""
-                            src="<?php echo $this->perms[$row->id]['view'] ? Uri::root(true) . '/media/com_contentbuilderng/images/tick.png' : Uri::root(true) . '/media/com_contentbuilderng/images/untick.png'; ?>" />
+                        <?php if ($this->perms[$row->id]['view']): ?>
+                        <span class="fa-solid fa-check cb-pubforms-perm-icon is-allowed" role="img" aria-label="<?php echo Text::_('JYES'); ?>"></span>
+                    <?php else: ?>
+                        <span class="fa-solid fa-xmark cb-pubforms-perm-icon is-denied" role="img" aria-label="<?php echo Text::_('JNO'); ?>"></span>
+                    <?php endif; ?>
                     </td>
 
                     <?php
@@ -229,8 +238,11 @@ if ($this->page_heading) {
                     ?>
 
                     <td class="align-top">
-                        <img width="16" height="16" alt=""
-                            src="<?php echo $this->perms[$row->id]['new'] ? Uri::root(true) . '/media/com_contentbuilderng/images/tick.png' : Uri::root(true) . '/media/com_contentbuilderng/images/untick.png'; ?>" />
+                        <?php if ($this->perms[$row->id]['new']): ?>
+                        <span class="fa-solid fa-check cb-pubforms-perm-icon is-allowed" role="img" aria-label="<?php echo Text::_('JYES'); ?>"></span>
+                    <?php else: ?>
+                        <span class="fa-solid fa-xmark cb-pubforms-perm-icon is-denied" role="img" aria-label="<?php echo Text::_('JNO'); ?>"></span>
+                    <?php endif; ?>
                     </td>
 
                     <?php
@@ -242,8 +254,11 @@ if ($this->page_heading) {
                     ?>
 
                     <td class="align-top">
-                        <img width="16" height="16" alt=""
-                            src="<?php echo $this->perms[$row->id]['edit'] ? Uri::root(true) . '/media/com_contentbuilderng/images/tick.png' : Uri::root(true) . '/media/com_contentbuilderng/images/untick.png'; ?>" />
+                        <?php if ($this->perms[$row->id]['edit']): ?>
+                        <span class="fa-solid fa-check cb-pubforms-perm-icon is-allowed" role="img" aria-label="<?php echo Text::_('JYES'); ?>"></span>
+                    <?php else: ?>
+                        <span class="fa-solid fa-xmark cb-pubforms-perm-icon is-denied" role="img" aria-label="<?php echo Text::_('JNO'); ?>"></span>
+                    <?php endif; ?>
                     </td>
 
                     <?php
