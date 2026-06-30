@@ -12,6 +12,9 @@
 .cb-filter-select-rpp   { max-width: 120px; }
 .cb-filter-search-group { max-width: 360px; }
 
+/* ── Utilitaires ─────────────────────────────────────────────────*/
+.cb-clear-right { clear: right; }
+
 /* ── publicforms : liste de formulaires publics ───────────────────*/
 .cb-pubforms-tag-filter {
     display: flex;

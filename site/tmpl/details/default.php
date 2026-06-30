@@ -551,7 +551,7 @@ CSS
 
     if ($showTopBar) {
     ?>
-        <div style="clear:right;"></div>
+        <div class="cb-clear-right"></div>
     <?php
         if ($buttons !== '') {
             echo str_replace('class="cbToolBar ', 'class="cbToolBar cbToolBar--top ', $buttons);
@@ -608,7 +608,7 @@ CSS
             echo str_replace('class="cbToolBar ', 'class="cbToolBar cbToolBar--bottom ', $buttons);
         }
     ?>
-        <div style="clear:right;"></div>
+        <div class="cb-clear-right"></div>
     <?php
     }
     ?>
