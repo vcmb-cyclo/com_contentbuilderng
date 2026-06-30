@@ -252,9 +252,10 @@ $resetUrl = Route::_(
                 <?php echo Text::_('COM_CONTENTBUILDERNG_SAVE'); ?>
             </button>
             <button
-                type="button"
+                type="reset"
+                id="cb-elementoptions-reset"
                 class="btn btn-sm btn-secondary"
-                onclick="window.location.href='<?php echo htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8'); ?>';">
+                form="adminForm">
                 <span class="fa-solid fa-rotate-left me-1" aria-hidden="true"></span>
                 <?php echo Text::_('COM_CONTENTBUILDERNG_RESET'); ?>
             </button>
