@@ -10,7 +10,7 @@ Le projet est issu de la migration et de la modernisation de l'ancien ContentBui
 de Crosstec. Il s'agit d'un projet communautaire, distinct du produit historique et
 fourni sans garantie.
 
-> ℹ️ **Note :** cette documentation décrit la version `6.1.7-RC59` du composant
+> ℹ️ **Note :** cette documentation décrit la version `6.1.7-RC60` du composant
 > (champ `<version>` du fichier `com_contentbuilderng.xml`). Les écrans et options
 > peuvent évoluer d'une version à l'autre.
 
