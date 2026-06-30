@@ -254,12 +254,26 @@ final class StatsService
             default => [],
         };
 
+        $numericSum = null;
+        if ($values !== []) {
+            $acc = 0.0;
+            foreach ($values as $value => $count) {
+                if (!is_numeric($value)) {
+                    $acc = null;
+                    break;
+                }
+                $acc += (float) $value * $count;
+            }
+            $numericSum = $acc;
+        }
+
         return [
             'requested' => $requestedField,
             'reference_id' => (int) $field['reference_id'],
             'name' => (string) $field['name'],
             'label' => (string) $field['label'],
             'total' => array_sum($values),
+            'sum' => $numericSum,
             'values' => $values,
         ];
     }
