@@ -252,13 +252,25 @@ $resetUrl = Route::_(
                 <?php echo Text::_('COM_CONTENTBUILDERNG_SAVE'); ?>
             </button>
             <button
-                type="reset"
+                type="button"
                 id="cb-elementoptions-reset"
-                class="btn btn-sm btn-secondary"
-                form="adminForm">
+                class="btn btn-sm btn-secondary">
                 <span class="fa-solid fa-rotate-left me-1" aria-hidden="true"></span>
                 <?php echo Text::_('COM_CONTENTBUILDERNG_RESET'); ?>
             </button>
+            <script>
+            document.getElementById('cb-elementoptions-reset').addEventListener('click', function() {
+                var select = document.getElementById('validations');
+                if (select) {
+                    Array.prototype.forEach.call(select.options, function(opt) { opt.selected = false; });
+                }
+                ['custom_validation_script', 'custom_init_script', 'custom_action_script'].forEach(function(name) {
+                    if (Joomla && Joomla.editors && Joomla.editors.instances && Joomla.editors.instances[name]) {
+                        Joomla.editors.instances[name].setValue('');
+                    }
+                });
+            });
+            </script>
         </div>
 
         <div class="w-100">
