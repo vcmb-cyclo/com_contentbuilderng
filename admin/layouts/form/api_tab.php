@@ -39,6 +39,7 @@ $cbStatsTotalSyntax = '{CBStats id=' . $formId . ' output=total}';
 $cbStatsDebugSyntax = '{CBStats id=' . $formId . ' output=total debug=1}';
 $cbStatsFilterSyntax = '{CBStats id=' . $formId . ' filter[field]=NomDuChamp filter[value]="200 km* | 300 km*" output=total}';
 $cbStatsTableSyntax = '{CBStats id=' . $formId . ' field=NomDuChamp output=table}';
+$cbStatsSumSyntax   = '{CBStats id=' . $formId . ' field=NomDuChamp output=sum}';
 $apiPermissionRequirements = new ApiPermissionRequirementService();
 $permissionLabelKeys = [
     'api' => 'COM_CONTENTBUILDERNG_PERM_API',
@@ -158,7 +159,8 @@ $renderPermissions = static function (array $permissions) use ($permissionLabelK
                 <code><?php echo htmlspecialchars($cbStatsTotalSyntax, ENT_QUOTES, 'UTF-8'); ?></code><br>
                 <code><?php echo htmlspecialchars($cbStatsDebugSyntax, ENT_QUOTES, 'UTF-8'); ?></code><br>
                 <code><?php echo htmlspecialchars($cbStatsFilterSyntax, ENT_QUOTES, 'UTF-8'); ?></code><br>
-                <code><?php echo htmlspecialchars($cbStatsTableSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
+                <code><?php echo htmlspecialchars($cbStatsTableSyntax, ENT_QUOTES, 'UTF-8'); ?></code><br>
+                <code><?php echo htmlspecialchars($cbStatsSumSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
             </td>
             <td><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_STATS_DESC'); ?></td>
             <td><?php echo $renderPermissions($apiPermissionRequirements->getRequiredPermissions('GET', 'stats', 0)); ?></td>

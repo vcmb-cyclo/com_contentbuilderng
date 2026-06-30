@@ -317,6 +317,11 @@ $wa->addInlineStyle(
 	border-collapse:separate;
 	border-spacing:0;
 }
+.cb-scroll-x,
+.cb-list-data-panel{
+	overflow-x:auto;
+	-webkit-overflow-scrolling:touch;
+}
 .cb-list-has-sticky-header .cb-scroll-x,
 .cb-list-has-sticky-header .cb-list-data-panel{
 	position:relative;
@@ -2110,9 +2115,9 @@ by this block. -->
 
 								<?php if ($this->list_state && $state_allowed && count($this->states)) : ?>
 									<select class="form-select form-select-sm cb-filter-select-state" disabled
-										name="list_state" title="<?php echo Text::_('COM_CONTENTBUILDERNG_BULK_OPTIONS'); ?>: <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?>"
+										name="list_state" id="list_state" title="<?php echo Text::_('COM_CONTENTBUILDERNG_BULK_OPTIONS'); ?>: <?php echo Text::_('COM_CONTENTBUILDERNG_STATE_CHANGER'); ?>"
 										onchange="if (this.value !== '-1') { contentbuilderng_state(); }">
-										<option value="-1"> - <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?> -</option>
+										<option value="-1"> - <?php echo Text::_('COM_CONTENTBUILDERNG_STATE_CHANGER'); ?> -</option>
 										<option value="0">-</option>
 										<?php foreach ($this->states as $state) : ?>
 											<option value="<?php echo $state['id']; ?>">
@@ -2167,9 +2172,9 @@ by this block. -->
 							<?php if ($this->list_state && count($this->states)) : ?>
 								<select class="form-select form-select-sm cb-filter-select-pub"
 									name="list_state_filter" id="list_state_filter"
-									title="<?php echo Text::_('COM_CONTENTBUILDERNG_FILTER'); ?>: <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?>"
+									title="<?php echo Text::_('COM_CONTENTBUILDERNG_STATE_FILTER'); ?>"
 									onchange="document.adminForm.submit();">
-									<option value="0"> - <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'); ?> -</option>
+									<option value="0"> - <?php echo Text::_('COM_CONTENTBUILDERNG_STATE_FILTER'); ?> -</option>
 									<?php foreach ($this->states as $state) : ?>
 										<option value="<?php echo $state['id'] ?>" <?php echo $this->lists['filter_state'] == $state['id'] ? 'selected' : ''; ?>>
 											<?php echo $state['title'] ?>

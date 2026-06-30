@@ -157,7 +157,7 @@ use Joomla\CMS\Language\Text;
 
             event.preventDefault();
             refreshElementOrderValues();
-            cbSetDirtyState(true);
+            cbHandleDirtyInteraction();
         });
     });
 </script>
