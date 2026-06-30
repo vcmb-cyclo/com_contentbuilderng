@@ -51,7 +51,7 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         $formId = (int) (($attributes['id'] ?? '') !== '' ? $attributes['id'] : $this->extractId($rawAttributes));
         $debug = stripos($rawAttributes, 'debug') !== false || $this->isEnabled((string) ($attributes['debug'] ?? '0'));
         $output = strtolower(trim((string) ($attributes['output'] ?? 'total')));
-        $allowedOutputs = ['total', 'table', 'form_name'];
+        $allowedOutputs = ['total', 'table', 'form_name', 'sum'];
         $field = trim((string) ($attributes['field'] ?? ''));
         $filterField = trim((string) ($attributes['filter[field]'] ?? ''));
         $filterValue = trim((string) ($attributes['filter[value]'] ?? ''));
@@ -59,7 +59,7 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
 
         if (!in_array($output, $allowedOutputs, true)) {
             return $debug
-                ? 'CBStats DEBUG: invalid output parameter "' . htmlspecialchars($output, ENT_QUOTES, 'UTF-8') . '". Allowed values: total, table, form_name.'
+                ? 'CBStats DEBUG: invalid output parameter "' . htmlspecialchars($output, ENT_QUOTES, 'UTF-8') . '". Allowed values: total, table, form_name, sum.'
                 : 'Invalid statistics request.';
         }
 
@@ -112,10 +112,16 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
                 return 'CBStats DEBUG: ViewID=' . $formId . '; total=' . (int) ($total ?? 0) . '.';
             }
 
+            if ($debug && $output === 'sum') {
+                $numericSum = $payload['field']['sum'] ?? null;
+                return 'CBStats DEBUG: ViewID=' . $formId . '; sum=' . ($numericSum !== null ? $numericSum : 'null (non-numeric values)') . '.';
+            }
+
             return match ($output) {
                 'form_name' => htmlspecialchars($this->getFormName($payload), ENT_QUOTES, 'UTF-8'),
                 'table' => $this->renderTable($payload),
                 'total' => (string) (int) ($total ?? 0),
+                'sum' => $this->renderSum($payload),
             };
         } catch (\Throwable $exception) {
             if ((int) $exception->getCode() === 403) {
@@ -211,6 +217,17 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
     private function isEnabled(string $value): bool
     {
         return in_array(strtolower(trim($value)), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    private function renderSum(array $payload): string
+    {
+        $sum = $payload['field']['sum'] ?? null;
+
+        if ($sum === null) {
+            return '0';
+        }
+
+        return $sum == (int) $sum ? (string) (int) $sum : (string) $sum;
     }
 
     private function renderTable(array $payload): string
