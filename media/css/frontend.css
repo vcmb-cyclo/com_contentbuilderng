@@ -38,6 +38,12 @@
 .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success, #198754); }
 .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger,  #dc3545); }
 
+/* ── Mode sombre (Cassiopeia / Bootstrap 5 [data-bs-theme="dark"]) ─
+   --bs-success et --bs-danger ne sont pas redéfinis par Bootstrap en
+   dark mode : on bascule sur les variantes -text-emphasis adaptées.  */
+[data-bs-theme="dark"] .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success-text-emphasis, #75b798); }
+[data-bs-theme="dark"] .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger-text-emphasis,  #ea868f); }
+
 /* ── Impression (vue details/print) ──────────────────────────────*/
 .cb-print-wrapper {
     max-width: 960px;
