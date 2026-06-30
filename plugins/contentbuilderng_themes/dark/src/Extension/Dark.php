@@ -120,8 +120,9 @@ final class Dark extends CMSPlugin implements SubscriberInterface
             return;
         }
 
-        $out = \file_get_contents(__DIR__ . '/../../css/content.css');
-
+        $joomla6Base = \JPATH_PLUGINS . '/contentbuilderng_themes/joomla6/css/content.css';
+        $out  = \is_file($joomla6Base) ? \file_get_contents($joomla6Base) : '';
+        $out .= \file_get_contents(__DIR__ . '/../../css/content.css');
 
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);
@@ -137,7 +138,7 @@ final class Dark extends CMSPlugin implements SubscriberInterface
             return;
         }
 
-        // Comme ton original: même CSS
+        // Même CSS que content
         return $this->onContentTemplateCss($event);
     }
 
@@ -147,7 +148,9 @@ final class Dark extends CMSPlugin implements SubscriberInterface
             return;
         }
 
-        $out = \file_get_contents(__DIR__ . '/../../css/list.css');
+        $joomla6Base = \JPATH_PLUGINS . '/contentbuilderng_themes/joomla6/css/list.css';
+        $out  = \is_file($joomla6Base) ? \file_get_contents($joomla6Base) : '';
+        $out .= \file_get_contents(__DIR__ . '/../../css/list.css');
 
 
         if ($event instanceof Event) {
