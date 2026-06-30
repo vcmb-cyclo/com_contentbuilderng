@@ -50,8 +50,21 @@
 .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger,  #dc3545); }
 
 /* ── Mode sombre (Cassiopeia / Bootstrap 5 [data-bs-theme="dark"]) ─
+   Cassiopeia définit ses propres variables de lien (--link-color,
+   --link-color-rgb…) sans préfixe bs-, distinctes de --bs-link-color.
+   Bootstrap redéfinit --bs-link-color en dark mode mais pas les
+   variables Cassiopeia → les liens restent bleu très sombre (#224faa).
+   On aligne ici les variables Cassiopeia sur les valeurs Bootstrap
+   dark mode (#6ea8fe / #8bb9fe).
+
    --bs-success et --bs-danger ne sont pas redéfinis par Bootstrap en
    dark mode : on bascule sur les variantes -text-emphasis adaptées.  */
+[data-bs-theme="dark"] {
+    --link-color:           #6ea8fe;
+    --link-color-rgb:       110, 168, 254;
+    --link-hover-color:     #8bb9fe;
+    --link-hover-color-rgb: 139, 185, 254;
+}
 [data-bs-theme="dark"] .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success-text-emphasis, #75b798); }
 [data-bs-theme="dark"] .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger-text-emphasis,  #ea868f); }
 
