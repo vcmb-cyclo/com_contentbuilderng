@@ -53,6 +53,44 @@
 }
 
 @media print {
-    .cb-print-actions { display: none !important; }
-    .cb-print-wrapper { max-width: 100%; padding: 0; }
+    /* Masque la navigation et l'interface Joomla */
+    header, footer, nav,
+    #sp-top-bar, #sp-menu, #sp-bottom,
+    .mod-menu, .navbar, .main-nav,
+    .system-message, .alert,
+    .cb-print-actions {
+        display: none !important;
+    }
+
+    /* Réinitialise les marges du template */
+    body, html {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        color: #000 !important;
+        font-size: 11pt !important;
+    }
+
+    /* Le contenu CB prend toute la largeur */
+    .cb-print-wrapper {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Évite les coupures de page à l'intérieur des champs */
+    .mb-3, .cb-print-meta {
+        break-inside: avoid;
+    }
+
+    /* Liens : affiche l'URL entre parenthèses */
+    a[href]::after {
+        content: " (" attr(href) ")";
+        font-size: .8em;
+        color: #555;
+    }
+    a[href^="#"]::after,
+    a[href^="javascript"]::after {
+        content: "";
+    }
 }

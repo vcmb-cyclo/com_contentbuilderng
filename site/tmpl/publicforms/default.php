@@ -18,7 +18,6 @@
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Application\CMSApplication;
@@ -73,6 +72,7 @@ if ($this->page_heading) {
         <?php
     }
     ?>
+    <div class="table-responsive">
     <table class="table table-hover table-sm">
         <thead>
             <tr>
@@ -269,6 +269,19 @@ if ($this->page_heading) {
             $k = 1 - $k;
         }
 
+        if ($n === 0) {
+            ?>
+            <tbody>
+                <tr>
+                    <td colspan="9" class="text-center py-4 text-muted">
+                        <span class="fa-solid fa-folder-open me-2" aria-hidden="true"></span>
+                        <?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
+                    </td>
+                </tr>
+            </tbody>
+            <?php
+        }
+
         $pages_links = $this->pagination->getPagesLinks();
         if ($pages_links) {
             ?>
@@ -284,6 +297,7 @@ if ($this->page_heading) {
         ?>
 
     </table>
+    </div><?php /* .table-responsive */ ?>
 
 
     <input type="hidden" name="option" value="com_contentbuilderng" />
