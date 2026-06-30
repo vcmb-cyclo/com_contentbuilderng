@@ -14,6 +14,7 @@
           <files>
         <filename plugin="joomla6">services/provider.php</filename>
         <folder>src</folder>
+        <folder>css</folder>
         <folder>language</folder>
     </files>
 </extension>

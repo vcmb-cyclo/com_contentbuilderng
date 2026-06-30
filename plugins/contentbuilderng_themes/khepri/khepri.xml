@@ -13,6 +13,7 @@
           <files>
         <filename plugin="khepri">services/provider.php</filename>
         <folder>src</folder>
+        <folder>css</folder>
         <folder>language</folder>
     </files>
 </extension>
