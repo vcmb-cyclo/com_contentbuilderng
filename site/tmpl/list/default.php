@@ -2129,7 +2129,8 @@ by this block. -->
 
 								<?php if ($this->list_publish && $publish_allowed) : ?>
 									<select class="form-select form-select-sm cb-filter-select-pub" disabled
-										name="list_publish" title="<?php echo Text::_('COM_CONTENTBUILDERNG_BULK_OPTIONS'); ?>: <?php echo Text::_('COM_CONTENTBUILDERNG_PUBLISH'); ?>"
+										name="list_publish" id="list_publish"
+										title="<?php echo Text::_('COM_CONTENTBUILDERNG_PUBLISH_CHANGER_TIP'); ?>"
 										onchange="if (this.value !== '-1') { contentbuilderng_publish(); }">
 									<option value="-1"> - <?php echo Text::_('COM_CONTENTBUILDERNG_UPDATE_STATUS'); ?> -</option>
 									<option value="1"><?php echo Text::_('COM_CONTENTBUILDERNG_PUBLISH'); ?></option>

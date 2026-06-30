@@ -5,12 +5,12 @@
 
 /* ── Filtres : contraintes de largeur des selects ─────────────────
    Remplacent les style="max-width: Xpx" inline dans les templates  */
-.cb-filter-select-lang  { max-width: 100px; }
-.cb-filter-select-state { max-width: 140px; }
-.cb-filter-select-pub   { max-width: 160px; }
-.cb-filter-select-md    { max-width: 190px; }
-.cb-filter-select-rpp   { max-width: 120px; }
-.cb-filter-search-group { max-width: 360px; }
+.form-select.cb-filter-select-lang  { max-width: 100px; }
+.form-select.cb-filter-select-state { max-width: 140px; }
+.form-select.cb-filter-select-pub   { max-width: 160px; }
+.form-select.cb-filter-select-md    { max-width: 190px; }
+.form-select.cb-filter-select-rpp   { max-width: 120px; }
+.cb-filter-search-group             { max-width: 360px; }
 
 /* ── Selects d'actions groupées (état / publication) désactivés ───
    Bootstrap ne change que le fond (--bs-secondary-bg) sur :disabled ;
