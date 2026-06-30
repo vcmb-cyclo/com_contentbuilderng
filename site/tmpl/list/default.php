@@ -317,6 +317,11 @@ $wa->addInlineStyle(
 	border-collapse:separate;
 	border-spacing:0;
 }
+.cb-scroll-x,
+.cb-list-data-panel{
+	overflow-x:auto;
+	-webkit-overflow-scrolling:touch;
+}
 .cb-list-has-sticky-header .cb-scroll-x,
 .cb-list-has-sticky-header .cb-list-data-panel{
 	position:relative;
