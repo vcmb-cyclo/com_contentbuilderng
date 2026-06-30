@@ -68,6 +68,11 @@ if ($this->page_heading) {
                 }
                 ?>
             </select>
+            <noscript>
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    <?php echo Text::_('JSEARCH_FILTER_SUBMIT'); ?>
+                </button>
+            </noscript>
         </div>
         <?php
     }
