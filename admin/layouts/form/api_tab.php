@@ -14,6 +14,7 @@
 \defined('_JEXEC') or die;
 
 use CB\Component\Contentbuilderng\Administrator\Service\ApiPermissionRequirementService;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 
 $apiExampleDetailUrl = (string) ($displayData['apiExampleDetailUrl'] ?? '');
@@ -63,37 +64,10 @@ $renderPermissions = static function (array $permissions) use ($permissionLabelK
 
     return implode(' <span class="text-muted">+</span> ', $items);
 };
+$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+$wa->useStyle('com_contentbuilderng.admin-form-api');
 ?>
-<style>
-    #cb-form-api-endpoints {
-        width: 100%;
-        min-width: 0;
-    }
-
-    #cb-form-api-endpoints th:first-child,
-    #cb-form-api-endpoints td:first-child {
-        width: 8rem;
-    }
-
-    #cb-form-api-endpoints th:nth-child(2),
-    #cb-form-api-endpoints td:nth-child(2),
-    #cb-form-api-endpoints th:nth-child(3),
-    #cb-form-api-endpoints td:nth-child(3) {
-        width: 36%;
-    }
-
-    #cb-form-api-endpoints th:last-child,
-    #cb-form-api-endpoints td:last-child {
-        width: 10rem;
-    }
-
-    #cb-form-api-endpoints code,
-    .cb-form-api-inline-code {
-        overflow-wrap: anywhere;
-        white-space: normal;
-        word-break: break-word;
-    }
-</style>
 <h3 id="cb-form-api" class="mb-3"><?php echo Text::_('COM_CONTENTBUILDERNG_API_TAB_TITLE'); ?></h3>
 <p class="text-muted mb-3">
     <?php echo Text::_('COM_CONTENTBUILDERNG_API_TAB_INTRO'); ?>

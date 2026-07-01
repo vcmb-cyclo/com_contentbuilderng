@@ -1,0 +1,13 @@
+/* ContentBuilderNG - liste admin des formulaires. */
+
+    .cb-forms-preview-link::before,
+    .cb-forms-preview-link::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    .cb-preview-head-icon{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+    }

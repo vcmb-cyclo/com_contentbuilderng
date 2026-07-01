@@ -10,6 +10,99 @@
             "uri": "com_contentbuilderng/css/frontend.css"
         },
         {
+            "name": "com_contentbuilderng.list",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/list.css",
+            "dependencies": [
+                "com_contentbuilderng.frontend"
+            ]
+        },
+        {
+            "name": "com_contentbuilderng.edit",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/edit.css",
+            "dependencies": [
+                "com_contentbuilderng.frontend"
+            ]
+        },
+        {
+            "name": "com_contentbuilderng.edit-fallback",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/edit-fallback.css",
+            "dependencies": [
+                "com_contentbuilderng.frontend"
+            ]
+        },
+        {
+            "name": "com_contentbuilderng.details",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/details.css",
+            "dependencies": [
+                "com_contentbuilderng.frontend"
+            ]
+        },
+        {
+            "name": "com_contentbuilderng.details-fallback",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/details-fallback.css",
+            "dependencies": [
+                "com_contentbuilderng.frontend"
+            ]
+        },
+        {
+            "name": "com_contentbuilderng.debug-panel",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/debug-panel.css",
+            "dependencies": [
+                "com_contentbuilderng.frontend"
+            ]
+        },
+        {
+            "name": "com_contentbuilderng.admin-about",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/admin-about.css"
+        },
+        {
+            "name": "com_contentbuilderng.elementoptions",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/elementoptions.css"
+        },
+        {
+            "name": "com_contentbuilderng.admin-list",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/admin-list.css"
+        },
+        {
+            "name": "com_contentbuilderng.admin-forms",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/admin-forms.css"
+        },
+        {
+            "name": "com_contentbuilderng.admin-storages",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/admin-storages.css"
+        },
+        {
+            "name": "com_contentbuilderng.admin-storage",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/admin-storage.css"
+        },
+        {
+            "name": "com_contentbuilderng.admin-user",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/admin-user.css"
+        },
+        {
+            "name": "com_contentbuilderng.admin-users",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/admin-users.css"
+        },
+        {
+            "name": "com_contentbuilderng.admin-form-api",
+            "type": "style",
+            "uri": "com_contentbuilderng/css/admin-form-api.css"
+        },
+        {
             "name": "com_contentbuilderng.admin-toolbar",
             "type": "style",
             "uri": "com_contentbuilderng/css/admin-toolbar.css"

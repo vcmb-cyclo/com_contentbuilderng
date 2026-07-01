@@ -1,0 +1,18 @@
+/* ContentBuilderNG - liste admin des stockages. */
+
+    .cb-storage-preview-link::before,
+    .cb-storage-preview-link::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    .cb-preview-head-icon{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+    }
+
+    .cb-storages-drag-handle{cursor:grab;color:var(--bs-secondary-color);vertical-align:middle}
+    .cb-storages-drag-handle:active{cursor:grabbing}
+    .cb-storages-drag-handle.disabled,.cb-storages-drag-handle:disabled{cursor:not-allowed;opacity:.45}
+    .cb-elements-row-dragging{opacity:.55}

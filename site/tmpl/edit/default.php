@@ -373,8 +373,12 @@ if ($showColumnHeader) {
         . '</div>';
 }
 
+$wa = $app->getDocument()->getWebAssetManager();
+$wa->useStyle('com_contentbuilderng.edit');
+if (!empty($this->debug_mode)) {
+    $wa->useStyle('com_contentbuilderng.debug-panel');
+}
 if (!empty($this->theme_css) || !empty($this->theme_js)) {
-    $wa = $app->getDocument()->getWebAssetManager();
     $themeCss = trim((string) ($this->theme_css ?? ''));
     if ($themeCss !== '') {
         $wa->addInlineStyle($themeCss);
@@ -385,65 +389,7 @@ if (!empty($this->theme_css) || !empty($this->theme_js)) {
         $wa->addInlineScript($themeJs);
     }
 }
-$wa = $app->getDocument()->getWebAssetManager();
 PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
-$wa->addInlineStyle(
-    <<<'CSS'
-.cb-preview-config-help{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:1.55rem;
-    height:1.55rem;
-    margin-left:.25rem;
-    border-radius:999px;
-    color:#7a4c07;
-    background:rgba(255,255,255,.45);
-    text-decoration:none;
-    vertical-align:middle;
-}
-.cb-preview-config-help:hover,
-.cb-preview-config-help:focus{
-    color:#5f3b00;
-    background:rgba(255,255,255,.62);
-    outline:none;
-}
-.cbEditStateControlRow{
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    gap:.75rem;
-}
-.cbEditStateControlRow .form-select{
-    width:auto;
-    min-width:14rem;
-    max-width:22rem;
-}
-.cbEditStateBadge:empty{
-    display:none;
-}
-@media (prefers-color-scheme: dark){
-    .cb-preview-config-help{
-        color:#f5d38f;
-        background:rgba(255,255,255,.08);
-    }
-    .cb-preview-config-help:hover,
-    .cb-preview-config-help:focus{
-        color:#ffe8b3;
-        background:rgba(255,255,255,.14);
-    }
-}
-@media (max-width:575.98px){
-    .cbEditStateControlRow{
-        align-items:stretch;
-    }
-    .cbEditStateControlRow .form-select{
-        width:100%;
-        max-width:none;
-    }
-}
-CSS
-);
 ?>
 <a name="article_up"></a>
 <script type="text/javascript">

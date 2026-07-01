@@ -29,12 +29,10 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         . '" value="1"' . ($checked ? ' checked="checked"' : '') . ' /></span>';
 };
 
+$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+$wa->useStyle('com_contentbuilderng.admin-user');
 ?>
-<style type="text/css">
-    label {
-        display: inline;
-    }
-</style>
 
 <div style="float:right" class="mb-3">
     <input type="button" class="btn btn-sm btn-primary w-25" value="<?php echo Text::_('COM_CONTENTBUILDERNG_SAVE'); ?>"

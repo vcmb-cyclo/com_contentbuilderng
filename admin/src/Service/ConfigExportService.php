@@ -153,7 +153,7 @@ class ConfigExportService
         ];
     }
 
-    public function logReport(array $payload, array $selectedSections, array $selectedFormIds, array $selectedStorageIds): void
+    public function logReport(array $payload, array $selectedSections, array $selectedFormIds, array $selectedStorageIds, string $fileName): void
     {
         $dataSections = is_array($payload['data'] ?? null) ? $payload['data'] : [];
         $details = [];
@@ -174,6 +174,7 @@ class ConfigExportService
         }
 
         Logger::info('Configuration export completed', [
+            'output_file' => $fileName,
             'sections' => array_values($selectedSections),
             'form_ids' => array_values($selectedFormIds),
             'storage_ids' => array_values($selectedStorageIds),

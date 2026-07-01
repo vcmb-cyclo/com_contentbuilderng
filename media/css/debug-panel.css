@@ -1,0 +1,50 @@
+/* ContentBuilderNG - panneau debug frontend. */
+
+    .cb-debug-details {
+        overflow: hidden;
+    }
+
+    .cb-debug-details > summary {
+        padding: .85rem 1rem;
+        cursor: pointer;
+    }
+
+    .cb-debug-details:not([open]) > summary {
+        color: var(--bs-white, #fff);
+        background: var(--bs-danger, #b02a37);
+    }
+
+    .cb-debug-details[open] > summary {
+        color: var(--bs-danger-text-emphasis, #58151c);
+        background: var(--bs-danger-bg-subtle, #f8d7da);
+        border-bottom: 1px solid var(--bs-danger-border-subtle, #f1aeb5);
+    }
+
+    .cb-debug-details-body {
+        padding: 0 1rem 1rem;
+    }
+
+    .cb-debug-permissions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .65rem 1.25rem;
+    }
+
+    .cb-debug-permission {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        margin: 0;
+        min-height: 1.5rem;
+    }
+
+    .cb-debug-permission .form-check-input {
+        float: none;
+        margin: 0;
+        opacity: 1;
+    }
+
+    .cb-debug-permission .form-check-input:disabled ~ .form-check-label {
+        opacity: 1;
+    }

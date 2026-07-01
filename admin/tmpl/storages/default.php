@@ -22,6 +22,10 @@ use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 
 Factory::getApplication()->getDocument()->getWebAssetManager()->useScript('core');
 
+$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+$wa->useStyle('com_contentbuilderng.admin-storages');
+
 // Sécurité: valeurs par défaut
 $listOrder = (string) $this->state->get('list.ordering', 'a.ordering');
 $listDirn  = strtolower((string) $this->state->get('list.direction', 'asc'));
@@ -247,24 +251,6 @@ if (storagesTable && storagesTable.tBodies.length) {
 }
 });
 </script>
-<style>
-    .cb-storage-preview-link::before,
-    .cb-storage-preview-link::after {
-        content: none !important;
-        display: none !important;
-    }
-
-    .cb-preview-head-icon{
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-    }
-
-    .cb-storages-drag-handle{cursor:grab;color:var(--bs-secondary-color);vertical-align:middle}
-    .cb-storages-drag-handle:active{cursor:grabbing}
-    .cb-storages-drag-handle.disabled,.cb-storages-drag-handle:disabled{cursor:not-allowed;opacity:.45}
-    .cb-elements-row-dragging{opacity:.55}
-</style>
 
 <form action="<?php echo Route::_('index.php?option=com_contentbuilderng&view=storages'); ?>"
     method="post"

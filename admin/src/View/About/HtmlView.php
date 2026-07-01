@@ -32,6 +32,7 @@ class HtmlView extends BaseHtmlView
     protected string $componentBuildTimestamp = '';
     protected array $phpLibraries = [];
     protected array $javascriptLibraries = [];
+    protected array $plugins = [];
     protected array $auditReport = [];
     protected array $logReport = [];
     protected array $packedPayloadReport = [];
@@ -140,6 +141,7 @@ class HtmlView extends BaseHtmlView
         $this->componentBuildTimestamp = (string) ($versionInformation['buildTimestamp'] ?? '');
         $this->phpLibraries = $this->getInstalledPhpLibraries();
         $this->javascriptLibraries = $this->getInstalledJavascriptLibraries();
+        $this->plugins = $this->getInstalledPlugins();
         $auditReport = $app->getUserState('com_contentbuilderng.about.audit', []);
         $this->auditReport = is_array($auditReport) ? $auditReport : [];
         $app->setUserState('com_contentbuilderng.about.audit', []);
@@ -316,6 +318,77 @@ class HtmlView extends BaseHtmlView
                 'message' => $e->getMessage(),
             ];
         }
+    }
+
+    private function getInstalledPlugins(): array
+    {
+        try {
+            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $query = $db->getQuery(true)
+                ->select([
+                    $db->quoteName('extension_id'),
+                    $db->quoteName('name'),
+                    $db->quoteName('element'),
+                    $db->quoteName('folder'),
+                    $db->quoteName('enabled'),
+                    $db->quoteName('manifest_cache'),
+                ])
+                ->from($db->quoteName('#__extensions'))
+                ->where($db->quoteName('type') . ' = ' . $db->quote('plugin'))
+                ->where(
+                    '('
+                    . $db->quoteName('folder') . ' LIKE ' . $db->quote('contentbuilderng_%')
+                    . ' OR (' . $db->quoteName('folder') . ' = ' . $db->quote('content') . ' AND ' . $db->quoteName('element') . ' LIKE ' . $db->quote('contentbuilderng_%') . ')'
+                    . ' OR (' . $db->quoteName('folder') . ' = ' . $db->quote('system') . ' AND ' . $db->quoteName('element') . ' = ' . $db->quote('contentbuilderng_system') . ')'
+                    . ')'
+                )
+                ->order([$db->quoteName('folder') . ' ASC', $db->quoteName('element') . ' ASC']);
+
+            $db->setQuery($query);
+            $rows = $db->loadAssocList() ?: [];
+        } catch (\Throwable) {
+            return [];
+        }
+
+        $plugins = [];
+        $language = Factory::getApplication()->getLanguage();
+
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $manifest = [];
+            $manifestCache = (string) ($row['manifest_cache'] ?? '');
+            if ($manifestCache !== '') {
+                $decodedManifest = json_decode($manifestCache, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decodedManifest)) {
+                    $manifest = $decodedManifest;
+                }
+            }
+
+            $group = (string) ($row['folder'] ?? '');
+            $element = (string) ($row['element'] ?? '');
+            $languageExtension = 'plg_' . $group . '_' . $element;
+            $language->load($languageExtension, JPATH_ADMINISTRATOR) || $language->load($languageExtension, JPATH_SITE);
+
+            $name = trim((string) ($manifest['name'] ?? $row['name'] ?? ''));
+            $description = trim((string) ($manifest['description'] ?? ''));
+            $description = trim(strip_tags(Text::_($description)));
+            $description = preg_replace('/\s+/', ' ', $description) ?? $description;
+
+            $plugins[] = [
+                'id' => (int) ($row['extension_id'] ?? 0),
+                'name' => $name !== '' ? Text::_($name) : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'),
+                'group' => $group,
+                'element' => $element,
+                'version' => (string) ($manifest['version'] ?? ''),
+                'enabled' => (int) ($row['enabled'] ?? 0) === 1,
+                'description' => $description !== '' ? $description : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'),
+            ];
+        }
+
+        return $plugins;
     }
 
     private function getInstalledPhpLibraries(): array

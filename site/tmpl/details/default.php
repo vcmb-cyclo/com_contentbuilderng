@@ -174,6 +174,10 @@ $wa = $document->getWebAssetManager();
 // Charge le manifeste joomla.asset.json du composant
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 
+$wa->useStyle('com_contentbuilderng.details');
+if (!empty($this->debug_mode)) {
+    $wa->useStyle('com_contentbuilderng.debug-panel');
+}
 $wa->useScript('com_contentbuilderng.contentbuilderng');
 PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
 ?>
@@ -206,83 +210,6 @@ $themeJs = trim((string) ($this->theme_js ?? ''));
 if ($themeJs !== '') {
     $wa->addInlineScript($themeJs);
 }
-?>
-<?php
-$wa->addInlineStyle(
-    <<<'CSS'
-.cbDetailsWrapper .cbToolBar.cbToolBar--top{
-    position:sticky;
-    top:var(--cb-details-sticky-top, .5rem);
-    z-index:9;
-    margin:.25rem 0 .9rem !important;
-    padding:.65rem .75rem;
-    border:1px solid var(--bs-border-color, #dee2e6);
-    border-radius:.9rem;
-    background:rgba(var(--bs-body-bg-rgb, 255,255,255), .96);
-    box-shadow:0 .35rem .9rem rgba(0,0,0,.06);
-    backdrop-filter:blur(6px);
-}
-.cbDetailsWrapper .cbToolBar.cbToolBar--top .btn{
-    white-space:nowrap;
-}
-.cb-preview-config-help{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:1.55rem;
-    height:1.55rem;
-    margin-left:.25rem;
-    border-radius:999px;
-    color:#7a4c07;
-    background:rgba(255,255,255,.45);
-    text-decoration:none;
-    vertical-align:middle;
-}
-.cb-preview-config-help:hover,
-.cb-preview-config-help:focus{
-    color:#5f3b00;
-    background:rgba(255,255,255,.62);
-    outline:none;
-}
-@media (prefers-color-scheme: dark){
-    .cbDetailsWrapper .cbToolBar.cbToolBar--top{
-        border-color:rgba(173,193,216,.3);
-        background:rgba(26,36,49,.94);
-        box-shadow:0 .38rem .95rem rgba(0,0,0,.42);
-    }
-    .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn-outline-secondary{
-        border-color:rgba(173,193,216,.34);
-        color:#d8e5f5;
-        background-color:transparent;
-    }
-    .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn-outline-secondary:hover,
-    .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn-outline-secondary:focus{
-        border-color:rgba(173,193,216,.45);
-        background:#22344a;
-        color:#f2f7ff;
-    }
-    .cb-preview-config-help{
-        color:#f5d38f;
-        background:rgba(255,255,255,.08);
-    }
-    .cb-preview-config-help:hover,
-    .cb-preview-config-help:focus{
-        color:#ffe8b3;
-        background:rgba(255,255,255,.14);
-    }
-}
-@media (max-width:767.98px){
-    .cbDetailsWrapper .cbToolBar.cbToolBar--top{
-        top:0;
-        padding:.38rem;
-    }
-    .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn{
-        flex:1 1 calc(50% - .5rem);
-        justify-content:center;
-    }
-}
-CSS
-);
 ?>
 <script type="text/javascript">
     <!--
