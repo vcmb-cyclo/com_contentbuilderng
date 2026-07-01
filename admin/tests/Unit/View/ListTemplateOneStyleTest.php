@@ -32,18 +32,20 @@ final class ListTemplateOneStyleTest extends TestCase
     public function testCassiopeiaVariantUsesTemplateAndBootstrapVariables(): void
     {
         $template = $this->read('site/tmpl/list/default.php');
+        $css      = $this->read('media/css/list.css');
 
-        self::assertStringContainsString('.cb-list-template-cassiopeia{', $template);
-        self::assertStringContainsString('--cassiopeia-color-primary', $template);
-        self::assertStringContainsString('--bs-body-bg', $template);
-        self::assertStringContainsString('--bs-border-color', $template);
-        self::assertStringContainsString(
-            '.cb-list-template-cassiopeia .cb-list-table',
-            $template
-        );
+        // Styles are loaded via WAM, no longer inline in the template
+        self::assertStringContainsString("useStyle('com_contentbuilderng.list')", $template);
+
+        // Cassiopeia-specific rules live in list.css
+        self::assertStringContainsString('.cb-list-template-cassiopeia{', $css);
+        self::assertStringContainsString('--cassiopeia-color-primary', $css);
+        self::assertStringContainsString('--bs-body-bg', $css);
+        self::assertStringContainsString('--bs-border-color', $css);
+        self::assertStringContainsString('.cb-list-template-cassiopeia .cb-list-table', $css);
         self::assertStringContainsString(
             '.cb-list-template-cassiopeia .pagination .active .page-link',
-            $template
+            $css
         );
     }
 
