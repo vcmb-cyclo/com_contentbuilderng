@@ -3,14 +3,24 @@
    Pas de sélecteurs globaux agressifs.
    ---------------------------------------------------------------- */
 
-/* ── Filtres : contraintes de largeur des selects ─────────────────
-   Remplacent les style="max-width: Xpx" inline dans les templates  */
-.form-select.cb-filter-select-lang  { max-width: 100px; }
-.form-select.cb-filter-select-state { max-width: 140px; }
-.form-select.cb-filter-select-pub   { max-width: 160px; }
-.form-select.cb-filter-select-md    { max-width: 190px; }
-.form-select.cb-filter-select-rpp   { max-width: 120px; }
-.cb-filter-search-group             { max-width: 360px; }
+/* ── Liste frontend : toolbar, filtres et selects ───────────────── */
+.cb-list-filters .form-select {
+    width: auto;
+    max-width: 100%;
+}
+.cb-filter-select-lang  { min-width: 7rem; max-width: 10rem; }
+.cb-filter-select-state { min-width: 14rem; max-width: 24rem; }
+.cb-filter-select-pub   { min-width: 13rem; max-width: 22rem; }
+.cb-filter-select-md    { min-width: 12rem; max-width: 18rem; }
+.cb-filter-select-rpp   { min-width: 5.5rem; max-width: 7rem; }
+.cb-filter-search-group { max-width: 360px; }
+.cb-list-toolbar-actions {
+    flex-wrap: wrap;
+}
+.cb-list-toolbar-actions .btn,
+.cb-list-toolbar-actions .form-select {
+    flex: 0 0 auto;
+}
 
 /* ── Selects d'actions groupées (état / publication) désactivés ───
    Bootstrap ne change que le fond (--bs-secondary-bg) sur :disabled ;
@@ -21,6 +31,20 @@
     opacity: .6;
     color: var(--bs-secondary-color, #6c757d);
     cursor: not-allowed;
+}
+
+@media (max-width: 767.98px) {
+    .cb-list-filters .form-select,
+    .cb-filter-search-group,
+    .cb-list-toolbar-actions,
+    .cb-list-toolbar-actions .btn {
+        width: 100%;
+        max-width: none;
+    }
+
+    .cb-list-toolbar-actions {
+        align-items: stretch !important;
+    }
 }
 
 /* ── Utilitaires ─────────────────────────────────────────────────*/

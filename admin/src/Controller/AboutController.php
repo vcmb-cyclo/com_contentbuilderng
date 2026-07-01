@@ -335,21 +335,20 @@ final class AboutController extends BaseController
             $includeStorageContent = $this->shouldExportStorageContent();
             $payload = $service->buildPayload($selectedSections, $selectedFormIds, $selectedStorageIds, $includeStorageContent, $this->getCurrentUserId());
             $exportSummary = $service->buildSummary($payload, $selectedSections, $selectedFormIds, $selectedStorageIds, $includeStorageContent);
+            $fileName = 'contentbuilderng-config-' . Factory::getDate()->format('Ymd-His') . '.json';
 
             $app->setUserState('com_contentbuilderng.about.export', [
                 'generated_at' => $this->getJoomlaLocalDateTime(),
-                'summary' => $exportSummary,
+                'summary' => array_merge($exportSummary, ['file_name' => $fileName]),
             ]);
 
-            $service->logReport($payload, $selectedSections, $selectedFormIds, $selectedStorageIds);
+            $service->logReport($payload, $selectedSections, $selectedFormIds, $selectedStorageIds, $fileName);
 
             $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
             if (!is_string($json) || $json === '') {
                 throw new \RuntimeException('Failed to encode configuration export payload.');
             }
-
-            $fileName = 'contentbuilderng-config-' . Factory::getDate()->format('Ymd-His') . '.json';
 
             $app->setHeader('Content-Type', 'application/json; charset=utf-8', true);
             $app->setHeader('Content-Disposition', 'attachment; filename="' . $fileName . '"', true);

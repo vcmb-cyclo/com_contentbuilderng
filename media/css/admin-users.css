@@ -1,0 +1,29 @@
+/* ContentBuilderNG - liste admin utilisateurs. */
+
+        .cb-users-columns-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            margin: 0 0 1rem;
+        }
+
+        .cb-users-columns-menu {
+            min-width: 16rem;
+            max-width: min(24rem, 90vw);
+        }
+
+        .cb-users-columns-menu .dropdown-item {
+            padding: .35rem .5rem;
+            white-space: normal;
+        }
+
+        .cb-users-columns-menu .dropdown-item {
+            cursor: pointer;
+        }
+
+        .cb-users-col-hidden {
+            display: none !important;
+        }
+
+        .cb-users-columns-pending {
+            visibility: hidden;
+        }

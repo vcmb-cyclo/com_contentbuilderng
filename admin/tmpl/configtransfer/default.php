@@ -26,6 +26,7 @@ $exportDetails = array_values(array_filter(array_map('strval', (array) ($exportS
 $exportGeneratedAt = (string) ($exportReport['generated_at'] ?? Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'));
 $exportTablesCount = (int) ($exportSummary['tables'] ?? 0);
 $exportRowsCount = (int) ($exportSummary['rows'] ?? 0);
+$exportFileName = (string) ($exportSummary['file_name'] ?? Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'));
 $importReport = is_array($this->importReport ?? null) ? $this->importReport : [];
 $importSummary = is_array($importReport['summary'] ?? null) ? $importReport['summary'] : [];
 $importDetails = array_values(array_filter(
@@ -328,7 +329,7 @@ $exportStorageContent = (int) (($this->exportStorageContent ?? false) ? 1 : 0) =
                                 <div class="alert alert-info mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_EXPORT_LOG_EMPTY'); ?></div>
                             <?php else : ?>
                                 <p class="text-muted small mb-2">
-                                    <?php echo Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_EXPORT_LOG_LAST_RUN', $exportGeneratedAt, $exportTablesCount, $exportRowsCount); ?>
+                                    <?php echo Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_EXPORT_LOG_LAST_RUN', $exportGeneratedAt, $exportTablesCount, $exportRowsCount, $exportFileName); ?>
                                 </p>
                                 <?php if ($exportDetails === []) : ?>
                                     <div class="alert alert-secondary mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'); ?></div>

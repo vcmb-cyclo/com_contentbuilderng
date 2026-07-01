@@ -1,0 +1,30 @@
+/* ContentBuilderNG - onglet API admin formulaire. */
+
+    #cb-form-api-endpoints {
+        width: 100%;
+        min-width: 0;
+    }
+
+    #cb-form-api-endpoints th:first-child,
+    #cb-form-api-endpoints td:first-child {
+        width: 8rem;
+    }
+
+    #cb-form-api-endpoints th:nth-child(2),
+    #cb-form-api-endpoints td:nth-child(2),
+    #cb-form-api-endpoints th:nth-child(3),
+    #cb-form-api-endpoints td:nth-child(3) {
+        width: 36%;
+    }
+
+    #cb-form-api-endpoints th:last-child,
+    #cb-form-api-endpoints td:last-child {
+        width: 10rem;
+    }
+
+    #cb-form-api-endpoints code,
+    .cb-form-api-inline-code {
+        overflow-wrap: anywhere;
+        white-space: normal;
+        word-break: break-word;
+    }

@@ -693,35 +693,11 @@ class HtmlView extends BaseHtmlView
         }
     }
 
-    private function getFallbackEditThemeCss(): string
+    private function useFallbackEditThemeCss(): void
     {
-        return <<<'CSS'
-.cbEditableWrapper{
-    max-width:1120px;
-    margin:.55rem auto 1rem;
-    padding:.7rem .78rem .72rem;
-    border:1px solid rgba(36,61,86,.12);
-    border-radius:.85rem;
-    background:radial-gradient(circle at top right,rgba(13,110,253,.08),transparent 38%),linear-gradient(180deg,#fff 0,#f8fbff 100%);
-    box-shadow:0 .55rem 1.2rem rgba(16,32,56,.08)
-}
-.cbEditableWrapper .cbToolBar{padding:.38rem .46rem;border:1px solid rgba(45,73,104,.14);border-radius:.72rem;background:rgba(255,255,255,.85)}
-.cbEditableWrapper .cbToolBar.mb-5{margin-bottom:.6rem!important}
-.cbEditableWrapper .cbToolBar .cbButton.btn{border-radius:999px;font-weight:600;font-size:.85rem;padding:.34rem .78rem}
-.cbEditableWrapper fieldset.border.rounded.p-3.mb-3{padding:.52rem!important;margin-bottom:.36rem!important;border-radius:.62rem!important}
-.cbEditableWrapper .mb-3{margin-bottom:.34rem!important}
-.cbEditableWrapper .form-label,.cbEditableWrapper label{font-size:.82rem;margin-bottom:.14rem}
-.cbEditableWrapper :is(input[type="text"],input[type="email"],input[type="number"],input[type="date"],input[type="datetime-local"],input[type="time"],input[type="url"],input[type="password"],textarea,select){min-height:1.82rem;padding:.24rem .42rem}
-.cbEditableWrapper .form-select.form-select-sm,.cbEditableWrapper .form-select-sm,.cbEditableWrapper .form-control.form-control-sm{min-height:1.72rem;font-size:.84rem;padding-top:.16rem;padding-bottom:.16rem}
-.cbEditableWrapper select,.cbEditableWrapper .form-select,.cbEditableWrapper .form-select-sm{line-height:1.35;vertical-align:middle}
-.cbEditableWrapper select:not([multiple]):not([size]),.cbEditableWrapper .form-select:not([multiple]):not([size]),.cbEditableWrapper .form-select-sm:not([multiple]):not([size]){min-height:1.94rem;padding-top:.2rem;padding-bottom:.2rem;padding-right:3.25rem}
-.cbEditableWrapper .form-select:not([multiple]):not([size]),.cbEditableWrapper .form-select-sm:not([multiple]):not([size]){background-position:right .62rem center;background-repeat:no-repeat}
-@media (max-width:767.98px){
-    .cbEditableWrapper{margin-top:.4rem;padding:.58rem .5rem .6rem;border-radius:.68rem}
-    .cbEditableWrapper .cbToolBar{padding:.32rem}
-    .cbEditableWrapper .cbToolBar .cbButton.btn{width:100%;justify-content:center}
-}
-CSS;
+        $wa = $this->getDocument()->getWebAssetManager();
+        $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+        $wa->useStyle('com_contentbuilderng.edit-fallback');
     }
 
     #[\Override]
@@ -802,7 +778,7 @@ CSS;
                     $results = $eventObj->getArgument('result') ?: [];
                     $this->theme_css = trim(implode('', $results));
                     if ($this->theme_css === '' && ($fallbackTheme || $themePlugin === 'joomla6')) {
-                        $this->theme_css = $this->getFallbackEditThemeCss();
+                        $this->useFallbackEditThemeCss();
                     }
 
                     $eventObj = new \Joomla\CMS\Event\GenericEvent('onEditableTemplateJavascript', ['theme' => $themePlugin]);

@@ -59,37 +59,11 @@ $sortLink = function (string $label, string $field) use ($ordering, $direction, 
 
     return '<a href="' . $url . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . $indicator . '</a>';
 };
+$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+$wa->useStyle('com_contentbuilderng.admin-users');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm">
-    <style>
-        .cb-users-columns-toolbar {
-            display: flex;
-            justify-content: flex-end;
-            margin: 0 0 1rem;
-        }
-
-        .cb-users-columns-menu {
-            min-width: 16rem;
-            max-width: min(24rem, 90vw);
-        }
-
-        .cb-users-columns-menu .dropdown-item {
-            padding: .35rem .5rem;
-            white-space: normal;
-        }
-
-        .cb-users-columns-menu .dropdown-item {
-            cursor: pointer;
-        }
-
-        .cb-users-col-hidden {
-            display: none !important;
-        }
-
-        .cb-users-columns-pending {
-            visibility: hidden;
-        }
-    </style>
 
     <input class="form-control form-control-sm w-25"
         type="text"

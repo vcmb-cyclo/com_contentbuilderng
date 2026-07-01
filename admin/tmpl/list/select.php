@@ -46,6 +46,7 @@ $wa = $document->getWebAssetManager();
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 $wa->useScript('core');
 $wa->useScript('com_contentbuilderng.contentbuilderng');
+$wa->useStyle('com_contentbuilderng.admin-list');
 
 ?>
 <?php
@@ -59,14 +60,6 @@ if ($themeJs !== '') {
     $wa->addInlineScript($themeJs);
 }
 ?>
-<style>
-    @media (max-width: 575.98px) {
-        .cb-list-compact-select {
-            width: 8.5rem !important;
-            max-width: 8.5rem !important;
-        }
-    }
-</style>
 <script type="text/javascript">
 <!--
     function contentbuilderng_state() {

@@ -23,6 +23,10 @@ use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 $app = Factory::getApplication();
 $app->getDocument()->getWebAssetManager()->useScript('core');
 
+$wa = $app->getDocument()->getWebAssetManager();
+$wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+$wa->useStyle('com_contentbuilderng.admin-forms');
+
 // Sécurité: valeurs par défaut
 $order     = $this->lists['order'] ?? 'a.ordering';
 $orderDir  = $this->lists['order_Dir'] ?? 'asc';
@@ -263,19 +267,6 @@ if (formsTable && formsTable.tBodies.length) {
 }
 });
 </script>
-<style>
-    .cb-forms-preview-link::before,
-    .cb-forms-preview-link::after {
-        content: none !important;
-        display: none !important;
-    }
-
-    .cb-preview-head-icon{
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-    }
-</style>
 <form action="<?php echo Route::_('index.php?option=com_contentbuilderng&view=forms'); ?>"
     method="post"
     name="adminForm"

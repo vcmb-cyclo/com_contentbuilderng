@@ -1,0 +1,43 @@
+/* ContentBuilderNG - vue administration element options. */
+
+    label { display: inline; }
+    .cb-elementoptions-shell{padding:.85rem .95rem 1rem;background:linear-gradient(180deg,var(--bs-body-bg),var(--bs-tertiary-bg));border:1px solid var(--bs-border-color);border-radius:1rem}
+    .cb-elementoptions-toolbar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.8rem;padding:.65rem .75rem;background:var(--bs-body-bg);border:1px solid var(--bs-border-color);border-radius:.9rem;box-shadow:0 .2rem .65rem rgba(16,24,40,.06)}
+    .cb-elementoptions-toolbar .form-select{min-width:220px;max-width:360px}
+    .cb-elementoptions-title{margin:0;font-size:1rem;font-weight:700;color:var(--bs-emphasis-color)}
+    .cb-elementoptions-type-label{margin:0 0 0 .2rem;color:var(--bs-secondary-color);font-size:.82rem;font-weight:600;white-space:nowrap}
+    .cb-elementoptions-shell fieldset legend{padding:0 .35rem;margin-bottom:.85rem;font-size:.96rem;font-weight:700}
+    .cb-elementoptions-shell .admintable{width:100%!important;margin:0}
+    .cb-elementoptions-shell .admintable td{padding:.45rem .4rem;vertical-align:top}
+    .cb-elementoptions-shell .admintable td.key{width:170px;color:var(--bs-emphasis-color);font-weight:600}
+    .cb-elementoptions-shell textarea.form-control{min-height:110px}
+    .cb-elementoptions-shell .form-check-input{margin-right:.35rem}
+    .cb-elementoptions-shell .cb-inline-grid{display:grid;grid-template-columns:170px minmax(0,1fr) 170px minmax(0,1fr);gap:.45rem .7rem;align-items:center}
+    .cb-elementoptions-shell .cb-inline-grid label{font-weight:600;color:var(--bs-emphasis-color)}
+    .cb-elementoptions-shell .cb-inline-flags{display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap}
+    .cb-validation-help{margin-top:.45rem;color:var(--bs-secondary-color);font-size:.82rem}
+    .cb-type-picker{position:relative;min-width:220px;max-width:360px}
+    .cb-type-picker-button{display:flex;align-items:center;justify-content:space-between;gap:.7rem;width:100%;padding:.375rem .75rem}
+    .cb-type-picker-current{display:inline-flex;align-items:center;gap:.55rem;min-width:0}
+    .cb-type-picker-current-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .cb-type-picker-menu{position:absolute;top:calc(100% + .35rem);left:0;right:0;z-index:1080;display:none;min-width:100%;max-height:18rem;overflow:auto;padding:.35rem;background:var(--bs-body-bg);border:1px solid var(--bs-border-color);border-radius:.75rem;box-shadow:0 .65rem 1.6rem rgba(16,24,40,.18)}
+    .cb-type-picker.is-open .cb-type-picker-menu{display:block}
+    .cb-type-picker-option{display:flex;align-items:center;gap:.55rem;width:100%;padding:.45rem .65rem;border:0;border-radius:.55rem;background:transparent;color:var(--bs-body-color);text-align:left}
+    .cb-type-picker-option:hover,
+    .cb-type-picker-option:focus{background:var(--bs-tertiary-bg);outline:0}
+    .cb-type-picker-option.is-active{background:var(--bs-secondary-bg);font-weight:600}
+    .cb-type-picker-icon{display:inline-flex;align-items:center;justify-content:center;width:1.25rem;color:var(--bs-emphasis-color);flex:0 0 1.25rem}
+    .cb-type-picker-caret{margin-left:auto}
+    .cb-tooltip-label{display:inline-flex;align-items:center;cursor:help}
+    .cb-tooltip-label:focus{outline:0;box-shadow:0 0 0 .15rem rgba(var(--bs-primary-rgb),.25);border-radius:.25rem}
+    @media (max-width:767.98px){
+        .cb-elementoptions-shell{padding:.8rem}
+        .cb-elementoptions-toolbar{align-items:stretch}
+        .cb-elementoptions-toolbar .form-select,
+        .cb-elementoptions-toolbar .btn,
+        .cb-type-picker{width:100%;max-width:none}
+        .cb-elementoptions-type-label{margin-left:0}
+        .cb-elementoptions-shell .admintable td,
+        .cb-elementoptions-shell .admintable td.key{display:block;width:100%!important;padding:.3rem 0}
+        .cb-elementoptions-shell .cb-inline-grid{grid-template-columns:1fr}
+    }

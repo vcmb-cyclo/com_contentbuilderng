@@ -1,0 +1,8 @@
+/* ContentBuilderNG - liste admin des enregistrements. */
+
+    @media (max-width: 575.98px) {
+        .cb-list-compact-select {
+            width: 8.5rem !important;
+            max-width: 8.5rem !important;
+        }
+    }
