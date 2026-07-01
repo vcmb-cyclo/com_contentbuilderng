@@ -2,7 +2,7 @@
 <extension type="plugin" group="contentbuilderng_themes" method="upgrade">
   <name>ContentBuilder NG - Themes - Blank</name>
   <author>XDA+GIL</author>
-  <creationDate>2026-07-01</creationDate>
+  <creationDate>2026-07-02</creationDate>
   <copyright>(C) 2026 XDA+GIL</copyright>
   <license>GNU/GPL v2 or later</license>
   <authorEmail>noreply@vcmb.fr</authorEmail>
