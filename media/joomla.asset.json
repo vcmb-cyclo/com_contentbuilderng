@@ -7,12 +7,12 @@
         {
             "name": "com_contentbuilderng.frontend",
             "type": "style",
-            "uri": "com_contentbuilderng/css/frontend.css"
+            "uri": "com_contentbuilderng/frontend.css"
         },
         {
             "name": "com_contentbuilderng.list",
             "type": "style",
-            "uri": "com_contentbuilderng/css/list.css",
+            "uri": "com_contentbuilderng/list.css",
             "dependencies": [
                 "com_contentbuilderng.frontend"
             ]
@@ -20,7 +20,7 @@
         {
             "name": "com_contentbuilderng.edit",
             "type": "style",
-            "uri": "com_contentbuilderng/css/edit.css",
+            "uri": "com_contentbuilderng/edit.css",
             "dependencies": [
                 "com_contentbuilderng.frontend"
             ]
@@ -28,7 +28,7 @@
         {
             "name": "com_contentbuilderng.edit-fallback",
             "type": "style",
-            "uri": "com_contentbuilderng/css/edit-fallback.css",
+            "uri": "com_contentbuilderng/edit-fallback.css",
             "dependencies": [
                 "com_contentbuilderng.frontend"
             ]
@@ -36,7 +36,7 @@
         {
             "name": "com_contentbuilderng.details",
             "type": "style",
-            "uri": "com_contentbuilderng/css/details.css",
+            "uri": "com_contentbuilderng/details.css",
             "dependencies": [
                 "com_contentbuilderng.frontend"
             ]
@@ -44,7 +44,7 @@
         {
             "name": "com_contentbuilderng.details-fallback",
             "type": "style",
-            "uri": "com_contentbuilderng/css/details-fallback.css",
+            "uri": "com_contentbuilderng/details-fallback.css",
             "dependencies": [
                 "com_contentbuilderng.frontend"
             ]
@@ -52,7 +52,7 @@
         {
             "name": "com_contentbuilderng.debug-panel",
             "type": "style",
-            "uri": "com_contentbuilderng/css/debug-panel.css",
+            "uri": "com_contentbuilderng/debug-panel.css",
             "dependencies": [
                 "com_contentbuilderng.frontend"
             ]
@@ -60,72 +60,72 @@
         {
             "name": "com_contentbuilderng.admin-about",
             "type": "style",
-            "uri": "com_contentbuilderng/css/admin-about.css"
+            "uri": "com_contentbuilderng/admin-about.css"
         },
         {
             "name": "com_contentbuilderng.elementoptions",
             "type": "style",
-            "uri": "com_contentbuilderng/css/elementoptions.css"
+            "uri": "com_contentbuilderng/elementoptions.css"
         },
         {
             "name": "com_contentbuilderng.admin-list",
             "type": "style",
-            "uri": "com_contentbuilderng/css/admin-list.css"
+            "uri": "com_contentbuilderng/admin-list.css"
         },
         {
             "name": "com_contentbuilderng.admin-forms",
             "type": "style",
-            "uri": "com_contentbuilderng/css/admin-forms.css"
+            "uri": "com_contentbuilderng/admin-forms.css"
         },
         {
             "name": "com_contentbuilderng.admin-storages",
             "type": "style",
-            "uri": "com_contentbuilderng/css/admin-storages.css"
+            "uri": "com_contentbuilderng/admin-storages.css"
         },
         {
             "name": "com_contentbuilderng.admin-storage",
             "type": "style",
-            "uri": "com_contentbuilderng/css/admin-storage.css"
+            "uri": "com_contentbuilderng/admin-storage.css"
         },
         {
             "name": "com_contentbuilderng.admin-user",
             "type": "style",
-            "uri": "com_contentbuilderng/css/admin-user.css"
+            "uri": "com_contentbuilderng/admin-user.css"
         },
         {
             "name": "com_contentbuilderng.admin-users",
             "type": "style",
-            "uri": "com_contentbuilderng/css/admin-users.css"
+            "uri": "com_contentbuilderng/admin-users.css"
         },
         {
             "name": "com_contentbuilderng.admin-form-api",
             "type": "style",
-            "uri": "com_contentbuilderng/css/admin-form-api.css"
+            "uri": "com_contentbuilderng/admin-form-api.css"
         },
         {
             "name": "com_contentbuilderng.admin-toolbar",
             "type": "style",
-            "uri": "com_contentbuilderng/css/admin-toolbar.css"
+            "uri": "com_contentbuilderng/admin-toolbar.css"
         },
         {
             "name": "com_contentbuilderng.system",
             "type": "style",
-            "uri": "com_contentbuilderng/css/system.css"
+            "uri": "com_contentbuilderng/system.css"
         },
         {
             "name": "com_contentbuilderng.form-edit",
             "type": "style",
-            "uri": "com_contentbuilderng/css/form-edit.css"
+            "uri": "com_contentbuilderng/form-edit.css"
         },
         {
             "name": "com_contentbuilderng.menu-options.css",
             "type": "style",
-            "uri": "com_contentbuilderng/css/menu-options.css"
+            "uri": "com_contentbuilderng/menu-options.css"
         },
         {
             "name": "com_contentbuilderng.menu-options.js",
             "type": "script",
-            "uri": "com_contentbuilderng/js/menu-options.js",
+            "uri": "com_contentbuilderng/menu-options.js",
             "dependencies": [
                 "core"
             ],
@@ -136,7 +136,7 @@
         {
             "name": "com_contentbuilderng.contentbuilderng",
             "type": "script",
-            "uri": "com_contentbuilderng/js/contentbuilderng.js",
+            "uri": "com_contentbuilderng/contentbuilderng.js",
             "dependencies": [
                 "core"
             ]
@@ -144,7 +144,7 @@
         {
             "name": "com_contentbuilderng.admin-ui",
             "type": "script",
-            "uri": "com_contentbuilderng/js/admin-ui.js",
+            "uri": "com_contentbuilderng/admin-ui.js",
             "dependencies": [
                 "core"
             ],
