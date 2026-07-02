@@ -10,10 +10,7 @@
 .cb-list-sticky .cb-list-panel{
 	margin:0;
 }
-.cb-list-sticky .cb-list-header{
-	margin:0 0 .55rem;
-}
-.cb-list-sticky .cb-list-actions{
+.cb-list-sticky .cb-list-toolbar-actions{
 	flex-wrap:wrap;
 	justify-content:flex-end;
 }
@@ -43,6 +40,9 @@
 	display:none;
 	overflow:hidden;
 	pointer-events:none;
+	background:var(--bs-body-bg,#fff);
+	box-shadow:0 10px 18px -12px rgba(15,23,42,.35);
+	border-bottom:1px solid var(--bs-border-color,rgba(15,23,42,.12));
 }
 .cb-list-sticky-head-clone.is-visible{
 	display:block;
