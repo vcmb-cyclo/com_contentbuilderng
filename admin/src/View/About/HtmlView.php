@@ -19,6 +19,7 @@ use Joomla\CMS\Document\HtmlDocument;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Application\AdministratorApplication;
+use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseInterface;
 
 class HtmlView extends BaseHtmlView
@@ -122,6 +123,11 @@ class HtmlView extends BaseHtmlView
             ->text('COM_CONTENTBUILDERNG_ABOUT_SHOW_LOG')
             ->icon('fa fa-file-text-o')
             ->listCheck(false);
+
+        $toolbar->linkButton('about_extensions')
+            ->url(Route::_('index.php?option=com_contentbuilderng&view=about&layout=extensions', false))
+            ->text('COM_CONTENTBUILDERNG_ABOUT_EXTENSIONS')
+            ->icon('fa fa-plug');
 
         ToolbarHelper::preferences('com_contentbuilderng');
         
@@ -376,6 +382,7 @@ class HtmlView extends BaseHtmlView
             $description = trim((string) ($manifest['description'] ?? ''));
             $description = trim(strip_tags(Text::_($description)));
             $description = preg_replace('/\s+/', ' ', $description) ?? $description;
+            $usageInfo = $this->getPluginUsageInfo($group, $element);
 
             $plugins[] = [
                 'id' => (int) ($row['extension_id'] ?? 0),
@@ -385,10 +392,68 @@ class HtmlView extends BaseHtmlView
                 'version' => (string) ($manifest['version'] ?? ''),
                 'enabled' => (int) ($row['enabled'] ?? 0) === 1,
                 'description' => $description !== '' ? $description : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'),
+                'category' => Text::_($usageInfo['category']),
+                'purpose' => Text::_($usageInfo['purpose']),
+                'usage' => Text::_($usageInfo['usage']),
             ];
         }
 
         return $plugins;
+    }
+
+    private function getPluginUsageInfo(string $group, string $element): array
+    {
+        $pluginKey = $group . '.' . $element;
+
+        $purposes = [
+            'content.contentbuilderng_download' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_CONTENT_DOWNLOAD',
+            'content.contentbuilderng_image_scale' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_CONTENT_IMAGE_SCALE',
+            'content.contentbuilderng_permission_observer' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_CONTENT_PERMISSION_OBSERVER',
+            'content.contentbuilderng_rating' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_CONTENT_RATING',
+            'content.contentbuilderng_stats' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_CONTENT_STATS',
+            'content.contentbuilderng_verify' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_CONTENT_VERIFY',
+            'contentbuilderng_listaction.trash' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_LISTACTION_TRASH',
+            'contentbuilderng_listaction.untrash' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_LISTACTION_UNTRASH',
+            'contentbuilderng_submit.submit_sample' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_SUBMIT_SAMPLE',
+            'contentbuilderng_themes.blank' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_THEME_BLANK',
+            'contentbuilderng_themes.dark' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_THEME_DARK',
+            'contentbuilderng_themes.joomla6' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_THEME_JOOMLA6',
+            'contentbuilderng_themes.khepri' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_THEME_KHEPRI',
+            'contentbuilderng_validation.date_is_valid' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_VALIDATION_DATE_IS_VALID',
+            'contentbuilderng_validation.date_not_before' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_VALIDATION_DATE_NOT_BEFORE',
+            'contentbuilderng_validation.email' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_VALIDATION_EMAIL',
+            'contentbuilderng_validation.equal' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_VALIDATION_EQUAL',
+            'contentbuilderng_validation.notempty' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_VALIDATION_NOTEMPTY',
+            'contentbuilderng_verify.passthrough' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_VERIFY_PASSTHROUGH',
+            'contentbuilderng_verify.paypal' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_VERIFY_PAYPAL',
+            'system.contentbuilderng_system' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_SYSTEM',
+        ];
+
+        $categories = [
+            'content' => 'COM_CONTENTBUILDERNG_EXTENSION_CATEGORY_CONTENT',
+            'contentbuilderng_listaction' => 'COM_CONTENTBUILDERNG_EXTENSION_CATEGORY_LISTACTION',
+            'contentbuilderng_submit' => 'COM_CONTENTBUILDERNG_EXTENSION_CATEGORY_SUBMIT',
+            'contentbuilderng_themes' => 'COM_CONTENTBUILDERNG_EXTENSION_CATEGORY_THEME',
+            'contentbuilderng_validation' => 'COM_CONTENTBUILDERNG_EXTENSION_CATEGORY_VALIDATION',
+            'contentbuilderng_verify' => 'COM_CONTENTBUILDERNG_EXTENSION_CATEGORY_VERIFY',
+            'system' => 'COM_CONTENTBUILDERNG_EXTENSION_CATEGORY_SYSTEM',
+        ];
+
+        $usages = [
+            'content' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_CONTENT',
+            'contentbuilderng_listaction' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_LISTACTION',
+            'contentbuilderng_submit' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_SUBMIT',
+            'contentbuilderng_themes' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_THEME',
+            'contentbuilderng_validation' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_VALIDATION',
+            'contentbuilderng_verify' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_VERIFY',
+            'system' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_SYSTEM',
+        ];
+
+        return [
+            'category' => $categories[$group] ?? 'COM_CONTENTBUILDERNG_EXTENSION_CATEGORY_OTHER',
+            'purpose' => $purposes[$pluginKey] ?? 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_OTHER',
+            'usage' => $usages[$group] ?? 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_OTHER',
+        ];
     }
 
     private function getInstalledPhpLibraries(): array

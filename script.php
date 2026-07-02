@@ -342,6 +342,7 @@ class com_contentbuilderngInstallerScript
                 $this->incomingPackageSourceRoot = $source;
                 if ($source && is_dir($source)) {
                     $this->log('[INFO] Plugin install source resolved: ' . $source, Log::INFO);
+                    $this->installerService->removeStaleInstallDirectories($source);
                 } else {
                     $this->log('[WARNING] Plugin install source not resolved; missing plugins may not be installable in this run.', Log::WARNING);
                 }

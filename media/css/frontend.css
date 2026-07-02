@@ -73,24 +73,35 @@
 .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success, #198754); }
 .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger,  #dc3545); }
 
-/* ── Mode sombre (Cassiopeia / Bootstrap 5 [data-bs-theme="dark"]) ─
+/* ── Mode sombre ────────────────────────────────────────────────
+   Ce site Cassiopeia ne pose pas [data-bs-theme="dark"] : le mode
+   sombre est piloté uniquement par prefers-color-scheme (cf. list.css).
    Cassiopeia définit ses propres variables de lien (--link-color,
-   --link-color-rgb…) sans préfixe bs-, distinctes de --bs-link-color.
-   Bootstrap redéfinit --bs-link-color en dark mode mais pas les
-   variables Cassiopeia → les liens restent bleu très sombre (#224faa).
-   On aligne ici les variables Cassiopeia sur les valeurs Bootstrap
-   dark mode (#6ea8fe / #8bb9fe).
+   --link-color-rgb…) sans préfixe bs-, distinctes de --bs-link-color,
+   et ne les redéfinit pas en dark → les liens restent bleu très sombre
+   (#224faa), illisible sur fond sombre. On aligne ici les variables
+   Cassiopeia sur les valeurs Bootstrap dark mode (#6ea8fe / #8bb9fe).
 
    --bs-success et --bs-danger ne sont pas redéfinis par Bootstrap en
    dark mode : on bascule sur les variantes -text-emphasis adaptées.  */
-[data-bs-theme="dark"] {
+@media (prefers-color-scheme: dark) {
+    html {
+        --link-color:           #6ea8fe;
+        --link-color-rgb:       110, 168, 254;
+        --link-hover-color:     #8bb9fe;
+        --link-hover-color-rgb: 139, 185, 254;
+    }
+    .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success-text-emphasis, #75b798); }
+    .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger-text-emphasis,  #ea868f); }
+}
+[data-bs-theme="dark"] .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success-text-emphasis, #75b798); }
+[data-bs-theme="dark"] .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger-text-emphasis,  #ea868f); }
+html[data-bs-theme="dark"] {
     --link-color:           #6ea8fe;
     --link-color-rgb:       110, 168, 254;
     --link-hover-color:     #8bb9fe;
     --link-hover-color-rgb: 139, 185, 254;
 }
-[data-bs-theme="dark"] .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success-text-emphasis, #75b798); }
-[data-bs-theme="dark"] .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger-text-emphasis,  #ea868f); }
 
 /* ── Impression (vue details/print) ──────────────────────────────*/
 .cb-print-wrapper {
