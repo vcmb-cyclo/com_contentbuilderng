@@ -741,7 +741,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 										<?php endif; ?>
 
 									<?php if ($this->show_records_per_page) : ?>
-										<div class="cb-filter-select-rpp">
+										<div class="cb-filter-rpp-wrap">
 											<?php
 											$currentLimit = (int) (($this->state?->get('list.limit')) ?? ($this->pagination->limit ?? 20));
 											$totalItems = (int) ($this->pagination->total ?? 0);
@@ -1078,69 +1078,12 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					</article>
 				<?php } ?>
 			</div>
-			<?php
-			$pagTotal = (int) ($this->pagination->total ?? 0);
-			$pagLimit = max(1, (int) ($this->pagination->limit ?? 0));
-			$pagStart = (int) ($this->lists['liststart'] ?? ($requestList['start'] ?? 0));
-			$pagPages = (int) ceil($pagTotal / $pagLimit);
-			$pagCurrent = $pagPages > 0 ? (int) floor($pagStart / $pagLimit) + 1 : 1;
-			$pagLastStart = $pagPages > 0 ? max(0, ($pagPages - 1) * $pagLimit) : 0;
-			$showSummary = $pagTotal > 0;
-			$showPagination = $pagPages > 1;
-			$rangeStart = $pagTotal > 0 ? $pagStart + 1 : 0;
-			$rangeEnd = $pagTotal > 0 ? min($pagStart + $pagLimit, $pagTotal) : 0;
-			if ($showSummary) :
-				$params = Uri::getInstance()->getQuery(true);
-				$params['option'] = 'com_contentbuilderng';
-				$params['task'] = 'list.display';
-				$params['id'] = $input->getInt('id', 0);
-				$params['Itemid'] = $input->getInt('Itemid', 0);
-				$params['list'] = [
-					'limit' => $pagLimit,
-					'ordering' => $this->lists['order'],
-					'direction' => $this->lists['order_Dir'],
-					'start' => 0,
-				];
-				$buildPageLink = static function (int $start) use ($params): string {
-					$params['list']['start'] = max(0, $start);
-					return Route::_('index.php?' . http_build_query($params), false);
-				};
-			?>
-				<nav class="pagination__wrapper d-flex flex-wrap align-items-center justify-content-start gap-2 mt-3" aria-label="<?php echo Text::_('JLIB_HTML_PAGINATION'); ?>">
-					<div class="small text-muted me-2 cb-pagination-summary">
-						<?php echo Text::sprintf('COM_CONTENTBUILDERNG_LIST_PAGINATION_SUMMARY', $rangeStart, $rangeEnd, $pagTotal); ?>
-					</div>
-					<?php if ($showPagination) : ?>
-						<ul class="pagination pagination-sm mb-0">
-							<li class="page-item<?php echo $pagCurrent <= 1 ? ' disabled' : ''; ?>">
-								<a class="page-link" href="<?php echo $buildPageLink(0); ?>" aria-label="<?php echo Text::_('JLIB_HTML_START'); ?>">
-									<span aria-hidden="true">&lt;&lt;</span>
-								</a>
-							</li>
-							<li class="page-item<?php echo $pagCurrent <= 1 ? ' disabled' : ''; ?>">
-								<a class="page-link" href="<?php echo $buildPageLink($pagStart - $pagLimit); ?>" aria-label="<?php echo Text::_('JPREV'); ?>">
-									<span aria-hidden="true">&lt;</span>
-								</a>
-							</li>
-							<?php for ($p = 1; $p <= $pagPages; $p++) : $startForPage = ($p - 1) * $pagLimit; ?>
-								<li class="page-item<?php echo $p === $pagCurrent ? ' active' : ''; ?>">
-									<a class="page-link" href="<?php echo $buildPageLink($startForPage); ?>"><?php echo $p; ?></a>
-								</li>
-							<?php endfor; ?>
-							<li class="page-item<?php echo $pagCurrent >= $pagPages ? ' disabled' : ''; ?>">
-								<a class="page-link" href="<?php echo $buildPageLink($pagStart + $pagLimit); ?>" aria-label="<?php echo Text::_('JNEXT'); ?>">
-									<span aria-hidden="true">&gt;</span>
-								</a>
-							</li>
-							<li class="page-item<?php echo $pagCurrent >= $pagPages ? ' disabled' : ''; ?>">
-								<a class="page-link" href="<?php echo $buildPageLink($pagLastStart); ?>" aria-label="<?php echo Text::_('JLIB_HTML_END'); ?>">
-									<span aria-hidden="true">&gt;&gt;</span>
-								</a>
-							</li>
-						</ul>
-					<?php endif; ?>
-				</nav>
-			<?php endif; ?>
+			<?php echo LayoutHelper::render('contentbuilderng.list_pagination', [
+				'pagination' => $this->pagination,
+				'lists' => $this->lists,
+				'requestList' => $requestList,
+				'navClass' => 'mt-3',
+			]); ?>
 		</div>
 	<?php else : ?>
 	<div class="cb-scroll-x cb-list-panel cb-list-data-panel">
@@ -1530,77 +1473,18 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 				$k = 1 - $k;
 			} ?>
 				<?php
-				$pagTotal = (int) ($this->pagination->total ?? 0);
-				$pagLimit = max(1, (int) ($this->pagination->limit ?? 0));
-				$pagStart = (int) ($this->lists['liststart'] ?? ($requestList['start'] ?? 0));
-				$pagPages = (int) ceil($pagTotal / $pagLimit);
-				$pagCurrent = $pagPages > 0 ? (int) floor($pagStart / $pagLimit) + 1 : 1;
-				$pagLastStart = $pagPages > 0 ? max(0, ($pagPages - 1) * $pagLimit) : 0;
-				$showSummary = $pagTotal > 0;
-				$showPagination = $pagPages > 1;
-				$rangeStart = $pagTotal > 0 ? $pagStart + 1 : 0;
-				$rangeEnd = $pagTotal > 0 ? min($pagStart + $pagLimit, $pagTotal) : 0;
+				$paginationHtml = LayoutHelper::render('contentbuilderng.list_pagination', [
+				    'pagination' => $this->pagination,
+				    'lists' => $this->lists,
+				    'requestList' => $requestList,
+				]);
 
-				if ($showSummary) :
-				    $params = Uri::getInstance()->getQuery(true);
-				    $params['option'] = 'com_contentbuilderng';
-				    $params['task'] = 'list.display';
-				    $params['id'] = Factory::getApplication()->getInput()->getInt('id', 0);
-				    $params['Itemid'] = Factory::getApplication()->getInput()->getInt('Itemid', 0);
-				    $params['list'] = [
-				        'limit' => $pagLimit,
-				        'ordering' => $this->lists['order'],
-				        'direction' => $this->lists['order_Dir'],
-				        'start' => 0,
-				    ];
-
-				    $buildPageLink = static function (int $start) use ($params): string {
-				        $params['list']['start'] = max(0, $start);
-				        return Route::_('index.php?' . http_build_query($params), false);
-				    };
-
+				if ($paginationHtml !== '') :
 				?>
 					<tfoot>
 						<tr>
 							<td colspan="1000">
-									<nav class="pagination__wrapper d-flex flex-wrap align-items-center justify-content-start gap-2" aria-label="<?php echo Text::_('JLIB_HTML_PAGINATION'); ?>">
-										<div class="small text-muted me-2 cb-pagination-summary">
-											<?php echo Text::sprintf('COM_CONTENTBUILDERNG_LIST_PAGINATION_SUMMARY', $rangeStart, $rangeEnd, $pagTotal); ?>
-										</div>
-									<?php if ($showPagination) : ?>
-										<ul class="pagination pagination-sm mb-0">
-											<li class="page-item<?php echo $pagCurrent <= 1 ? ' disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink(0); ?>" aria-label="<?php echo Text::_('JLIB_HTML_START'); ?>">
-													<span aria-hidden="true">&lt;&lt;</span>
-												</a>
-											</li>
-											<li class="page-item<?php echo $pagCurrent <= 1 ? ' disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink($pagStart - $pagLimit); ?>" aria-label="<?php echo Text::_('JPREV'); ?>">
-													<span aria-hidden="true">&lt;</span>
-												</a>
-											</li>
-											<?php for ($p = 1; $p <= $pagPages; $p++) :
-											    $startForPage = ($p - 1) * $pagLimit;
-											?>
-												<li class="page-item<?php echo $p === $pagCurrent ? ' active' : ''; ?>">
-													<a class="page-link" href="<?php echo $buildPageLink($startForPage); ?>">
-														<?php echo $p; ?>
-													</a>
-												</li>
-											<?php endfor; ?>
-											<li class="page-item<?php echo $pagCurrent >= $pagPages ? ' disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink($pagStart + $pagLimit); ?>" aria-label="<?php echo Text::_('JNEXT'); ?>">
-													<span aria-hidden="true">&gt;</span>
-												</a>
-											</li>
-											<li class="page-item<?php echo $pagCurrent >= $pagPages ? ' disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink($pagLastStart); ?>" aria-label="<?php echo Text::_('JLIB_HTML_END'); ?>">
-													<span aria-hidden="true">&gt;&gt;</span>
-												</a>
-											</li>
-										</ul>
-									<?php endif; ?>
-								</nav>
+								<?php echo $paginationHtml; ?>
 							</td>
 						</tr>
 					</tfoot>
