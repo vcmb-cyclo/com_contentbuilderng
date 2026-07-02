@@ -48,6 +48,47 @@
     }
 }
 
+/* ── Pagination : replier les items sur petits écrans ────────────
+   Bootstrap ne pose pas flex-wrap sur ul.pagination : avec beaucoup
+   de pages, la barre déborde du viewport en portrait mobile.       */
+.pagination__wrapper .pagination {
+    flex-wrap: wrap;
+}
+
+/* ── Contenu d'enregistrement (details/edit/cartes) ──────────────
+   Le HTML des enregistrements est fourni par l'utilisateur : images
+   à largeur fixe, tableaux larges, URLs longues. On le contient dans
+   le viewport sans toucher au desktop.                             */
+.cbDetailsBody,
+.cbEditableBody,
+.cb-list-card-value {
+    overflow-wrap: break-word;
+    min-width: 0;
+}
+.cbDetailsBody img,
+.cbDetailsBody iframe,
+.cbDetailsBody video,
+.cbEditableBody img,
+.cbEditableBody iframe,
+.cbEditableBody video,
+.cb-list-card-value img {
+    max-width: 100%;
+    height: auto;
+}
+.cbDetailsBody table,
+.cbEditableBody table {
+    max-width: 100%;
+}
+@media (max-width: 767.98px) {
+    /* Filet de sécurité : un tableau saisi dans un enregistrement
+       scrolle dans son bloc au lieu d'élargir toute la page. */
+    .cbDetailsBody,
+    .cbEditableBody {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
 /* ── Utilitaires ─────────────────────────────────────────────────*/
 .cb-clear-right { clear: right; }
 
