@@ -77,8 +77,10 @@ class HtmlView extends BaseHtmlView
             }'
         );
 
+        $layout = $this->getLayout();
+
         ToolbarHelper::title(
-            $this->getLayout() === 'packedpayload'
+            $layout === 'packedpayload'
                 ? Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_WORKFLOW_PACKED_DATA_RAW_TITLE')
                 : Text::_('COM_CONTENTBUILDERNG') . ' / ' . Text::_('COM_CONTENTBUILDERNG_ABOUT'),
             'logo_left'
@@ -86,48 +88,50 @@ class HtmlView extends BaseHtmlView
 
         /** @var Toolbar $toolbar */
         $toolbar = $document->getToolbar('toolbar');
-        $maintenanceDropdown = $toolbar->dropdownButton('about-maintenance-group');
-        $maintenanceDropdown->text(Text::_('COM_CONTENTBUILDERNG_TOOLBAR_ACTIONS'));
-        $maintenanceDropdown->toggleSplit(false);
-        $maintenanceDropdown->icon('fa fa-wrench');
-        $maintenanceDropdown->buttonClass('btn btn-action');
-        $maintenanceDropdown->listCheck(false);
+        if ($layout !== 'extensions') {
+            $maintenanceDropdown = $toolbar->dropdownButton('about-maintenance-group');
+            $maintenanceDropdown->text(Text::_('COM_CONTENTBUILDERNG_TOOLBAR_ACTIONS'));
+            $maintenanceDropdown->toggleSplit(false);
+            $maintenanceDropdown->icon('fa fa-wrench');
+            $maintenanceDropdown->buttonClass('btn btn-action');
+            $maintenanceDropdown->listCheck(false);
 
-        $maintenanceChildToolbar = $maintenanceDropdown->getChildToolbar();
-        $maintenanceChildToolbar->standardButton('about_audit')
-            ->task('about.runAudit')
-            ->text('COM_CONTENTBUILDERNG_ABOUT_AUDIT')
-            ->icon('fa fa-search')
-            ->listCheck(false);
+            $maintenanceChildToolbar = $maintenanceDropdown->getChildToolbar();
+            $maintenanceChildToolbar->standardButton('about_audit')
+                ->task('about.runAudit')
+                ->text('COM_CONTENTBUILDERNG_ABOUT_AUDIT')
+                ->icon('fa fa-search')
+                ->listCheck(false);
 
-        $maintenanceChildToolbar->standardButton('about_migrate_packed_data')
-            ->task('about.startRepairWorkflow')
-            ->text('COM_CONTENTBUILDERNG_ABOUT_MIGRATE_PACKED_DATA')
-            ->icon('fa fa-refresh')
-            ->listCheck(false);
+            $maintenanceChildToolbar->standardButton('about_migrate_packed_data')
+                ->task('about.startRepairWorkflow')
+                ->text('COM_CONTENTBUILDERNG_ABOUT_MIGRATE_PACKED_DATA')
+                ->icon('fa fa-refresh')
+                ->listCheck(false);
 
-        $maintenanceChildToolbar->standardButton('about_export_configuration')
-            ->task('configtransfer.export')
-            ->text('COM_CONTENTBUILDERNG_ABOUT_EXPORT_CONFIGURATION')
-            ->icon('fa fa-download')
-            ->listCheck(false);
+            $maintenanceChildToolbar->standardButton('about_export_configuration')
+                ->task('configtransfer.export')
+                ->text('COM_CONTENTBUILDERNG_ABOUT_EXPORT_CONFIGURATION')
+                ->icon('fa fa-download')
+                ->listCheck(false);
 
-        $maintenanceChildToolbar->standardButton('about_import_configuration')
-            ->task('configtransfer.import')
-            ->text('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION')
-            ->icon('fa fa-upload')
-            ->listCheck(false);
+            $maintenanceChildToolbar->standardButton('about_import_configuration')
+                ->task('configtransfer.import')
+                ->text('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION')
+                ->icon('fa fa-upload')
+                ->listCheck(false);
 
-        $toolbar->standardButton('about_show_log')
-            ->task('about.showLog')
-            ->text('COM_CONTENTBUILDERNG_ABOUT_SHOW_LOG')
-            ->icon('fa fa-file-text-o')
-            ->listCheck(false);
+            $toolbar->standardButton('about_show_log')
+                ->task('about.showLog')
+                ->text('COM_CONTENTBUILDERNG_ABOUT_SHOW_LOG')
+                ->icon('fa fa-file-text-o')
+                ->listCheck(false);
 
-        $toolbar->linkButton('about_extensions')
-            ->url(Route::_('index.php?option=com_contentbuilderng&view=about&layout=extensions', false))
-            ->text('COM_CONTENTBUILDERNG_ABOUT_EXTENSIONS')
-            ->icon('fa fa-plug');
+            $toolbar->linkButton('about_extensions')
+                ->url(Route::_('index.php?option=com_contentbuilderng&view=about&layout=extensions', false))
+                ->text('COM_CONTENTBUILDERNG_ABOUT_EXTENSIONS')
+                ->icon('fa fa-plug');
+        }
 
         ToolbarHelper::preferences('com_contentbuilderng');
         
