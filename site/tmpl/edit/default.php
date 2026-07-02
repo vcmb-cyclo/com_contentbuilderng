@@ -24,6 +24,7 @@ use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Helper\RatingHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Site\Helper\DebugPermissionHelper;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewColorModeHelper;
@@ -724,15 +725,11 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             </span>
         </div>
         <?php
-        $debugPermissions = [
-            'view' => $view_allowed,
-            'new' => $new_allowed,
-            'edit' => $edit_allowed,
-            'delete' => $delete_allowed,
-            'state' => $state_allowed,
-            'rating' => $rating_allowed,
-            'fullarticle' => $fullarticle_allowed,
-        ];
+        $debugPermissions = DebugPermissionHelper::resolvePermissions(
+            $permissionService,
+            (int) $id,
+            $frontend
+        );
         $debugFilters = [
             'record_id' => $recordId,
             'ordering' => $listState['ordering'] ?? '',

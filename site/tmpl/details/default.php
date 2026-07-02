@@ -24,6 +24,7 @@ use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Administrator\Helper\RatingHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Site\Helper\DebugPermissionHelper;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewColorModeHelper;
@@ -231,12 +232,11 @@ if ($themeJs !== '') {
             </span>
         </div>
         <?php
-        $debugPermissions = [
-            'view' => $view_allowed,
-            'edit' => $edit_allowed,
-            'delete' => $delete_allowed,
-            'rating' => $rating_allowed,
-        ];
+        $debugPermissions = DebugPermissionHelper::resolvePermissions(
+            $permissionService,
+            (int) $input->getInt('id', 0),
+            $frontend
+        );
         $debugFilters = [
             'record_id' => $recordId,
             'ordering' => $listOrdering,

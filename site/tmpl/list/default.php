@@ -26,6 +26,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Helper\RatingHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Site\Helper\DebugPermissionHelper;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewColorModeHelper;
@@ -1038,16 +1039,11 @@ JS
 			</span>
 		</div>
 		<?php
-		$debugPermissions = [
-			'view' => $view_allowed,
-			'new' => $new_allowed,
-			'edit' => $edit_allowed,
-			'delete' => $delete_allowed,
-			'state' => $state_allowed,
-			'publish' => $publish_allowed,
-			'language' => $language_allowed,
-			'rating' => $rating_allowed,
-		];
+		$debugPermissions = DebugPermissionHelper::resolvePermissions(
+			$permissionService,
+			(int) ($this->form_id ?? 0),
+			$frontend
+		);
 		$debugFilters = [
 			'search' => (string) ($state?->get('formsd_filter') ?? ''),
 			'state' => (int) ($state?->get('formsd_filter_state') ?? 0),
