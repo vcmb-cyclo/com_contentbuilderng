@@ -906,7 +906,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 						$hasSelectionControl = $this->select_column && ($delete_allowed || $state_allowed || $publish_allowed);
 						$hasStateControl = $this->list_state && $state_allowed && count($this->states);
 						$hasStaticStateBadge = $this->list_state && !$hasStateControl && isset($this->state_titles[$row->colRecord]) && $this->state_titles[$row->colRecord] !== '';
-						$stateBadgeStyle = $getStateBadgeStyle($row->colRecord, $this->state_colors);
+						$stateBadgeStyle = $getStateBadgeStyle($row->colRecord, (array) ($this->state_colors ?? []));
 						$showFooter = $hasSelectionControl || ($hasStateControl || ($hasStaticStateBadge && !$isTilesVariant));
 						$footerClass = 'cb-list-card-footer';
 						if (!$showFooter) {
@@ -1311,11 +1311,12 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					?>
 					<?php
 					if ($this->list_state) {
+						$stateCellStyle = $getStateBadgeStyle($row->colRecord, (array) ($this->state_colors ?? []));
 					?>
 						<td class="d-none d-sm-table-cell"
 							data-cb-state-cell
 							data-record-id="<?php echo (int) $row->colRecord; ?>"
-							style="background-color: #<?php echo isset($this->state_colors[$row->colRecord]) ? $this->state_colors[$row->colRecord] : 'FFFFFF'; ?>;">
+							<?php echo $stateCellStyle !== '' ? 'style="' . htmlspecialchars($stateCellStyle, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>
 							<?php if ($state_allowed && count($this->states)) : ?>
 								<?php $currentStateTitle = $this->state_titles[$row->colRecord] ?? ''; ?>
 								<?php $currentStateId = ''; ?>
