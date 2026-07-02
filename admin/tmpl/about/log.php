@@ -1,4 +1,9 @@
-<?php \defined('_JEXEC') or die; ?>
+<?php
+
+\defined('_JEXEC') or die;
+
+use Joomla\CMS\Language\Text;
+?>
 
 <div class="card mt-3">
     <div class="card-body">

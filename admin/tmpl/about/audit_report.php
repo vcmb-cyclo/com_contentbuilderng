@@ -1,4 +1,10 @@
-<?php \defined('_JEXEC') or die; ?>
+<?php
+
+\defined('_JEXEC') or die;
+
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Router\Route;
+?>
 
 <div class="card mt-3" id="cb-audit-section">
     <div class="card-body">
