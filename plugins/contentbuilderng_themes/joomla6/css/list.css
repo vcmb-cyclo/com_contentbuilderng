@@ -70,16 +70,20 @@
     .cb-list-sticky .cb-list-filters td,
     .cb-list-filters td{color:#d8e5f5}
     .cb-list-filters .form-select,
-    .cb-list-filters .form-control{
+    .cb-list-filters .form-control,
+    .cb-list-toolbar-actions .form-select{
         color:#e7edf6;
         background-color:#111a24;
-        border-color:rgba(173,193,216,.3)
+        border-color:rgba(173,193,216,.3);
+        color-scheme:dark
     }
     .cb-list-filters .form-select:disabled,
-    .cb-list-filters .form-control:disabled{
-        color:#a8b8ca;
+    .cb-list-filters .form-control:disabled,
+    .cb-list-toolbar-actions .form-select:disabled{
+        color:#e7edf6;
         background-color:#233142;
-        border-color:rgba(173,193,216,.24)
+        border-color:rgba(173,193,216,.24);
+        opacity:1
     }
     .cb-list-filters .input-group-text{background:#1f2d3d;color:#d8e5f5;border-color:rgba(173,193,216,.24)}
     .cb-list-filters .btn-outline-primary{

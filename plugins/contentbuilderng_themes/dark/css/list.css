@@ -40,16 +40,19 @@
     background:#111a2a!important;
 }
 .cb-list-filters .form-control,
-.cb-list-filters .form-select{
+.cb-list-filters .form-select,
+.cb-list-toolbar-actions .form-select{
     background:#0d1522!important;
     border-color:#2f4563!important;
     color:#d8e7ff!important;
+    color-scheme:dark;
 }
 .cb-list-filters .form-select:disabled,
-.cb-list-filters .form-control:disabled{
-    color:var(--bs-secondary-color,#6c757d)!important;
-    background-color:var(--bs-secondary-bg,#e9ecef)!important;
-    border-color:var(--bs-border-color,#dee2e6)!important;
+.cb-list-filters .form-control:disabled,
+.cb-list-toolbar-actions .form-select:disabled{
+    color:#d8e7ff!important;
+    background-color:#1a2a40!important;
+    border-color:#304864!important;
     opacity:1!important;
 }
 .cb-list-filters .input-group-text{
