@@ -23,7 +23,7 @@ $plugins = is_array($this->plugins ?? null) ? $this->plugins : [];
             <p class="text-muted mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_EXTENSIONS_DESC'); ?></p>
         </div>
         <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-sm btn-outline-primary" href="<?php echo Route::_('index.php?option=com_plugins&view=plugins&filter[search]=' . rawurlencode('contentbuilderng'), false); ?>">
+            <a class="btn btn-sm btn-outline-primary" href="<?php echo Route::_('index.php?option=com_plugins&view=plugins&filter[search]=' . rawurlencode('contentbuilder ng'), false); ?>">
                 <span class="fa-solid fa-plug" aria-hidden="true"></span>
                 <?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_EXTENSIONS_MANAGE_PLUGINS'); ?>
             </a>
