@@ -440,73 +440,24 @@ class FormModel extends AdminModel
         $db = $this->getDatabase();
         $themes = [];
 
-        $enabledQueries = [
-            "Select `element` From #__extensions Where `type` = 'plugin' And `folder` = 'contentbuilderng_themes' And `enabled` = 1",
-            "Select `element` From #__extensions Where `type` = 'plugin' And `folder` = 'contentbuilderng_themes' And `enabled` = 1",
-        ];
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('element'))
+            ->from($db->quoteName('#__extensions'))
+            ->where($db->quoteName('type') . ' = ' . $db->quote('plugin'))
+            ->where($db->quoteName('folder') . ' = ' . $db->quote('contentbuilderng_themes'))
+            ->where($db->quoteName('enabled') . ' = 1');
 
-        foreach ($enabledQueries as $query) {
-            try {
-                $db->setQuery($query);
-                $rows = $db->loadColumn() ?: [];
-            } catch (\Throwable $e) {
-                $rows = [];
-            }
+        $db->setQuery($query);
+        $rows = $db->loadColumn() ?: [];
 
-            foreach ($rows as $row) {
-                $row = trim((string) $row);
-                if ($row !== '') {
-                    $themes[] = $row;
-                }
-            }
-        }
-
-        // If no enabled plugin row could be found, keep a safe fallback list.
-        if (empty($themes)) {
-            $fallbackQueries = [
-                "Select `element` From #__extensions Where `type` = 'plugin' And `folder` = 'contentbuilderng_themes'",
-                "Select `element` From #__extensions Where `type` = 'plugin' And `folder` = 'contentbuilderng_themes'",
-            ];
-
-            foreach ($fallbackQueries as $query) {
-                try {
-                    $db->setQuery($query);
-                    $rows = $db->loadColumn() ?: [];
-                } catch (\Throwable $e) {
-                    $rows = [];
-                }
-
-                foreach ($rows as $row) {
-                    $row = trim((string) $row);
-                    if ($row !== '') {
-                        $themes[] = $row;
-                    }
-                }
-            }
-        }
-
-        // Last-resort fallback: scan plugin directories if extension rows are missing.
-        foreach ([JPATH_ROOT . '/plugins/contentbuilderng_themes', JPATH_ROOT . '/plugins/contentbuilderng_themes'] as $path) {
-            if (!is_dir($path)) {
-                continue;
-            }
-            foreach (Folder::folders($path) as $folder) {
-                $folder = trim((string) $folder);
-                if ($folder !== '') {
-                    $themes[] = $folder;
-                }
+        foreach ($rows as $row) {
+            $row = trim((string) $row);
+            if ($row !== '') {
+                $themes[] = $row;
             }
         }
 
         $themes = array_values(array_unique($themes));
-
-        if (!in_array('dark', $themes, true)) {
-            $themes[] = 'dark';
-        }
-
-        if (empty($themes)) {
-            return ['joomla6', 'dark', 'blank', 'khepri'];
-        }
 
         usort($themes, static function (string $a, string $b): int {
             $order = ['joomla6' => 0, 'dark' => 1, 'blank' => 2, 'khepri' => 3];
@@ -518,11 +469,7 @@ class FormModel extends AdminModel
             return strcasecmp($a, $b);
         });
 
-        if (!in_array('joomla6', $themes, true)) {
-            array_unshift($themes, 'joomla6');
-        }
-
-        return array_values(array_unique($themes));
+        return $themes;
     }
 
     function getVerificationPlugins()
