@@ -212,16 +212,13 @@ if ($themeJs !== '') {
     $wa->addInlineScript($themeJs);
 }
 ?>
-<script type="text/javascript">
-    <!--
+<script>
     function contentbuilderng_delete() {
         var confirmed = confirm('<?php echo Text::_('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MESSAGE'); ?>');
         if (confirmed) {
             location.href = '<?php echo Uri::root() . ltrim(Route::_('index.php?option=com_contentbuilderng&title=' . Factory::getApplication()->getInput()->get('title', '', 'string') . (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->getInput()->get('tmpl', '', 'string') : '') . (Factory::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->getInput()->get('layout', '', 'string') : '') . '&task=edit.delete&id=' . Factory::getApplication()->getInput()->getInt('id', 0) . '&cid[]=' . Factory::getApplication()->getInput()->getCmd('record_id', 0) . '&Itemid=' . Factory::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : ''), false), '/'); ?>';
         }
     }
-    //
-    -->
 </script>
 <div class="cbDetailsWrapper">
 
@@ -271,10 +268,10 @@ if ($themeJs !== '') {
                 <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE') . ' - ' . Text::sprintf($directStorageMode ? 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_STORAGE' : 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName); ?>
                 <?php echo LayoutHelper::render('contentbuilderng.preview_color_mode', ['mode' => $previewColorMode]); ?>
                 <?php if ($previewActorLabel !== ''): ?>
-                    <span class="badge text-bg-secondary ms-2">Preview actor: <?php echo htmlspecialchars($previewActorLabel, ENT_QUOTES, 'UTF-8'); ?><?php echo $previewActorId > 0 ? ' (#' . (int) $previewActorId . ')' : ''; ?></span>
+                    <span class="badge text-bg-secondary ms-2"><?php echo Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_ACTOR_BADGE', htmlspecialchars($previewActorLabel, ENT_QUOTES, 'UTF-8')); ?><?php echo $previewActorId > 0 ? ' (#' . (int) $previewActorId . ')' : ''; ?></span>
                 <?php endif; ?>
                 <?php if ($showPreviewSessionBadge): ?>
-                    <span class="badge text-bg-secondary ms-1">Session: <?php echo htmlspecialchars($currentSessionLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="badge text-bg-secondary ms-1"><?php echo Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_SESSION_BADGE', htmlspecialchars($currentSessionLabel, ENT_QUOTES, 'UTF-8')); ?></span>
                 <?php endif; ?>
                 <?php if (!$directStorageMode) : ?>
                     <span class="cb-preview-config-help" title="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" tabindex="0">
@@ -416,7 +413,7 @@ if ($themeJs !== '') {
     <?php
     if ($this->show_page_heading && $headingTitle !== '') {
     ?>
-        <h1 class="display-6 mb-4">
+        <h1 class="h3 mb-4">
             <?php echo $headingTitle; ?>
         </h1>
     <?php
@@ -517,7 +514,7 @@ if ($themeJs !== '') {
 
 
     <?php if ($showAuditTrail && ($createdTrailText !== '' || $modifiedTrailText !== '')) : ?>
-        <div class="cbAuditTrail mt-2 mb-2">
+        <div class="cbAuditTrail mt-2 mb-3">
             <?php if ($createdTrailText !== '') : ?>
                 <span class="small created-by"><?php echo $createdTrailText; ?></span>
             <?php endif; ?>
@@ -526,8 +523,6 @@ if ($themeJs !== '') {
             <?php endif; ?>
         </div>
     <?php endif; ?>
-
-    <br />
 
     <?php
     if (MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_bottom_bar', (int) ($this->cb_show_details_bottom_bar ?? 0)) === 1) {

@@ -598,9 +598,7 @@
 		// Limit box select (legacy name="limit" or Joomla name="list[limit]")
 		const limitSelect = form.querySelector('select[name="limit"], select[name="list[limit]"]');
 		if (limitSelect) {
-			limitSelect.classList.add('form-select', 'form-select-sm');
-			limitSelect.style.maxWidth = '120px';
-			limitSelect.style.width = 'auto';
+			limitSelect.classList.add('form-select', 'form-select-sm', 'cb-filter-select-rpp');
 			// Mirror legacy limit into Joomla 6 list[limit] and submit immediately.
 			limitSelect.addEventListener('change', function() {
 				syncListLimitFromSelect();

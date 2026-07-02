@@ -33,6 +33,11 @@
 .cbEditStateBadge:empty{
     display:none;
 }
+/* Espace entre le corps éditable (ou l'audit trail) et la barre
+   d'actions du bas, sans <br> dans le markup. */
+.cbEditableWrapper .cbEditableBody{
+    margin-bottom:1rem;
+}
 @media (prefers-color-scheme: dark){
     .cb-preview-config-help{
         color:#f5d38f;

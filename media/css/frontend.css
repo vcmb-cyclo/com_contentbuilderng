@@ -37,7 +37,8 @@
     .cb-list-filters .form-select,
     .cb-filter-search-group,
     .cb-list-toolbar-actions,
-    .cb-list-toolbar-actions .btn {
+    .cb-list-toolbar-actions .btn,
+    div.cb-filter-select-rpp {
         width: 100%;
         max-width: none;
     }
