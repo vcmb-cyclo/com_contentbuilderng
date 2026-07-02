@@ -47,6 +47,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -59,6 +61,32 @@ jobs:
         run: |
           version="$(grep -oPm1 '(?<=<version>)[^<]+' com_contentbuilderng.xml)"
           echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Tag release version
+        if: github.ref == 'refs/heads/main'
+        env:
+          # GITHUB_TOKEN ne peut pas être utilisé ici : un push effectué avec
+          # ce jeton par défaut ne déclenche jamais de nouveau workflow run
+          # (protection anti-boucle de GitHub Actions), donc le tag serait
+          # créé mais le run "push tag" qui publie la release ne démarrerait
+          # jamais. RELEASE_TAG_PAT doit être un PAT (scope repo / contents)
+          # stocké en secret du dépôt.
+          RELEASE_TAG_PAT: ${{ secrets.RELEASE_TAG_PAT }}
+        run: |
+          if [ -z "${RELEASE_TAG_PAT}" ]; then
+            echo "::warning::RELEASE_TAG_PAT secret is not set - skipping automatic release tagging. See workflow comments for setup."
+            exit 0
+          fi
+
+          tag="v${{ steps.version.outputs.version }}"
+          if git rev-parse "refs/tags/${tag}" >/dev/null 2>&1; then
+            echo "Tag ${tag} already exists, skipping."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag "${tag}"
+            git push "https://x-access-token:${RELEASE_TAG_PAT}@github.com/${GITHUB_REPOSITORY}.git" "${tag}"
+          fi
 
       - name: Set package creation date
         run: |
