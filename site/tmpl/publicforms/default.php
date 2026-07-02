@@ -281,6 +281,7 @@ if ($this->page_heading) {
             <?php
             $k = 1 - $k;
         }
+        ?>
 
         <?php if ($n === 0): ?>
             <tr>

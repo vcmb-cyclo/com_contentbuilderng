@@ -72,6 +72,12 @@
     }
 }
 
+/* Espace entre le corps de la fiche et la suite (audit trail ou barre
+   d'actions du bas), sans <br> dans le markup. */
+.cbDetailsWrapper .cbDetailsBody{
+    margin-bottom:1rem;
+}
+
 /* ContentBuilderNG - animation prepare/blink details. */
 
 .cb-prepare-blink{

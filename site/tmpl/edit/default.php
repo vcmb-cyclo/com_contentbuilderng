@@ -294,7 +294,7 @@ $auditTrailHtml = '';
 if ($showAuditTrail && ($createdTrailText !== '' || $modifiedTrailText !== '')) {
     ob_start();
     ?>
-    <div class="cbAuditTrail mt-2 mb-2">
+    <div class="cbAuditTrail mt-2 mb-3">
         <?php if ($createdTrailText !== '') : ?>
             <span class="small created-by"><?php echo $createdTrailText; ?></span>
         <?php endif; ?>
@@ -392,8 +392,7 @@ if (!empty($this->theme_css) || !empty($this->theme_js)) {
 }
 PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
 ?>
-<a name="article_up"></a>
-<script type="text/javascript">
+<script>
     function contentbuilderng_delete() {
         var confirmed = confirm('<?php echo Text::_('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MESSAGE'); ?>');
         if (confirmed) {
@@ -776,10 +775,10 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
                 <?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE') . ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName); ?>
                 <?php echo LayoutHelper::render('contentbuilderng.preview_color_mode', ['mode' => $previewColorMode]); ?>
                 <?php if ($previewActorLabel !== ''): ?>
-                    <span class="badge text-bg-secondary ms-2">Preview actor: <?php echo htmlspecialchars($previewActorLabel, ENT_QUOTES, 'UTF-8'); ?><?php echo $previewActorId > 0 ? ' (#' . (int) $previewActorId . ')' : ''; ?></span>
+                    <span class="badge text-bg-secondary ms-2"><?php echo Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_ACTOR_BADGE', htmlspecialchars($previewActorLabel, ENT_QUOTES, 'UTF-8')); ?><?php echo $previewActorId > 0 ? ' (#' . (int) $previewActorId . ')' : ''; ?></span>
                 <?php endif; ?>
                 <?php if ($showPreviewSessionBadge): ?>
-                    <span class="badge text-bg-secondary ms-1">Session: <?php echo htmlspecialchars($currentSessionLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="badge text-bg-secondary ms-1"><?php echo Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_SESSION_BADGE', htmlspecialchars($currentSessionLabel, ENT_QUOTES, 'UTF-8')); ?></span>
                 <?php endif; ?>
                 <span class="cb-preview-config-help" title="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" tabindex="0">
                     <span class="fa-solid fa-circle-question" aria-hidden="true"></span>
@@ -814,7 +813,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
     <?php
     if ($this->show_page_heading && $this->page_title) {
     ?>
-        <h1 class="display-6 mb-4">
+        <h1 class="h3 mb-4">
             <?php echo $this->page_title; ?>
         </h1>
     <?php
@@ -825,12 +824,12 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
     ob_start();
     if ($this->record_id && $edit_allowed && $this->create_articles && $fullarticle_allowed) {
     ?>
-        <button class="btn btn-sm btn-primary cbButton cbArticleSettingsButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_ARTICLE_SETTINGS_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="if(document.getElementById('cbArticleOptions').style.display == 'none'){document.getElementById('cbArticleOptions').style.display='block'}else{document.getElementById('cbArticleOptions').style.display='none'};"><?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_ARTICLE_SETTINGS'); ?></button>
+        <button type="button" class="btn btn-sm btn-primary cbButton cbArticleSettingsButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_ARTICLE_SETTINGS_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="var o=document.getElementById('cbArticleOptions');o.hidden=!o.hidden;"><?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_ARTICLE_SETTINGS'); ?></button>
     <?php
     }
     if (($edit_allowed || $new_allowed) && !$this->edit_by_type) {
     ?>
-        <button class="btn btn-sm btn-primary cbButton cbSaveButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_SAVE_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="document.getElementById('contentbuilderng_task').value='edit.save';contentbuilderng.onSubmit();">
+        <button type="button" class="btn btn-sm btn-primary cbButton cbSaveButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_SAVE_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="document.getElementById('contentbuilderng_task').value='edit.save';contentbuilderng.onSubmit();">
             <span class="fa-solid fa-floppy-disk me-1" aria-hidden="true"></span>
             <?php echo trim($this->save_button_title) != '' ? htmlspecialchars($this->save_button_title, ENT_QUOTES, 'UTF-8') : Text::_('COM_CONTENTBUILDERNG_SAVE'); ?>
         </button>
@@ -838,7 +837,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
     }
     if ($this->record_id && $edit_allowed && $this->create_articles && $this->edit_by_type && $fullarticle_allowed) {
     ?>
-        <button class="btn btn-sm btn-primary cbButton cbArticleSettingsButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_APPLY_ARTICLE_SETTINGS_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="document.getElementById('contentbuilderng_task').value='edit.apply';contentbuilderng.onSubmit();">
+        <button type="button" class="btn btn-sm btn-primary cbButton cbArticleSettingsButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_APPLY_ARTICLE_SETTINGS_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="document.getElementById('contentbuilderng_task').value='edit.apply';contentbuilderng.onSubmit();">
             <span class="fa-solid fa-check me-1" aria-hidden="true"></span>
             <?php echo Text::_('COM_CONTENTBUILDERNG_APPLY_ARTICLE_SETTINGS'); ?>
         </button>
@@ -895,7 +894,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             }
                 ?>
 
-                <div id="cbArticleOptions" style="display:none;">
+                <div id="cbArticleOptions" hidden>
 
                     <fieldset class="border rounded p-3 mb-3">
                         <ul class="list-unstyled mb-0">
@@ -904,9 +903,6 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
 
                             <li><?php echo $this->article_options->getLabel('catid'); ?>
                                 <?php echo $this->article_options->getInput('catid'); ?></li>
-
-                            <!--<li><?php echo $this->article_options->getLabel('state'); ?>
-	<?php echo $this->article_options->getInput('state'); ?></li>-->
 
                             <li><?php echo $this->article_options->getLabel('access'); ?>
                                 <?php echo $this->article_options->getInput('access'); ?></li>
@@ -1060,7 +1056,6 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             </div>
             <?php echo $this->event->afterDisplayContent; ?>
             <?php echo $auditTrailHtml; ?>
-            <br />
             <?php
             if ($bottomBarToggle === 1) {
 
@@ -1106,7 +1101,6 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             </div>
             <?php echo $this->event->afterDisplayContent; ?>
             <?php echo $auditTrailHtml; ?>
-            <br />
             <?php
             if ($bottomBarToggle === 1) {
 

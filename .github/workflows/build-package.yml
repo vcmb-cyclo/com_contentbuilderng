@@ -10,6 +10,48 @@ on:
       - 'v*'
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup PHP 8.1 (minimum supported version)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+          coverage: none
+
+      - name: PHP syntax check
+        run: |
+          find . -type f -name '*.php' \
+            -not -path './admin/vendor/*' \
+            -print0 | xargs -0 -n1 -P4 php -l > /dev/null
+
+      - name: Validate XML files
+        run: |
+          find . -type f -name '*.xml' \
+            -not -path './admin/vendor/*' \
+            -print0 | xargs -0 xmllint --noout
+
+      - name: Check version consistency
+        run: |
+          manifest_version="$(grep -oPm1 '(?<=<version>)[^<]+' com_contentbuilderng.xml)"
+          update_version="$(grep -oPm1 '(?<=<version>)[^<]+' com_contentbuilderng_update.xml)"
+          if [ "${manifest_version}" != "${update_version}" ]; then
+            echo "::error::Version mismatch: manifest ${manifest_version} vs update stream ${update_version}."
+            exit 1
+          fi
+
+      - name: Check translations
+        run: python3 scripts/check-translations.py
+
+      - name: Audit composer dependencies
+        working-directory: admin
+        run: composer audit --locked --no-interaction
+
   unit-tests:
     runs-on: ubuntu-latest
 
@@ -39,7 +81,7 @@ jobs:
           path: admin/coverage.xml
 
   package:
-    needs: unit-tests
+    needs: [lint, unit-tests]
     runs-on: ubuntu-latest
     permissions:
       contents: write

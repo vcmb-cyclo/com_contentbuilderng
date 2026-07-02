@@ -465,10 +465,10 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					<?php echo LayoutHelper::render('contentbuilderng.preview_color_mode', ['mode' => $previewColorMode]); ?>
 					<?php echo ' - ' . Text::sprintf($directStorageMode ? 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_STORAGE' : 'COM_CONTENTBUILDERNG_PREVIEW_CURRENT_FORM', $previewFormName); ?>
 	                <?php if ($previewActorLabel !== ''): ?>
-	                    <span class="badge text-bg-secondary ms-2">Preview actor: <?php echo htmlspecialchars($previewActorLabel, ENT_QUOTES, 'UTF-8'); ?><?php echo $previewActorId > 0 ? ' (#' . (int) $previewActorId . ')' : ''; ?></span>
+	                    <span class="badge text-bg-secondary ms-2"><?php echo Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_ACTOR_BADGE', htmlspecialchars($previewActorLabel, ENT_QUOTES, 'UTF-8')); ?><?php echo $previewActorId > 0 ? ' (#' . (int) $previewActorId . ')' : ''; ?></span>
 	                <?php endif; ?>
                 <?php if ($showPreviewSessionBadge): ?>
-                    <span class="badge text-bg-secondary ms-1">Session: <?php echo htmlspecialchars($currentSessionLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="badge text-bg-secondary ms-1"><?php echo Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_SESSION_BADGE', htmlspecialchars($currentSessionLabel, ENT_QUOTES, 'UTF-8')); ?></span>
                 <?php endif; ?>
 				<?php if (!$directStorageMode) : ?>
 					<span class="cb-preview-config-help" title="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($previewConfigTabLabel, ENT_QUOTES, 'UTF-8'); ?>" tabindex="0">
@@ -493,21 +493,14 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 <?php if (!empty($this->preview_no_list_fields)): ?>
 	<div class="alert alert-warning mb-3">
 		<?php echo !empty($this->invalid_list_setup)
-			? 'This view is incomplete and cannot render a list.'
+			? Text::_('COM_CONTENTBUILDERNG_LIST_VIEW_INCOMPLETE')
 			: Text::_($directStorageMode ? 'COM_CONTENTBUILDERNG_PREVIEW_NO_STORAGE_FIELDS' : 'COM_CONTENTBUILDERNG_PREVIEW_NO_LIST_FIELDS'); ?>
 	</div>
 <?php endif; ?>
 <?php echo $this->intro_text; ?>
 
-<!-- 2023-12-19 XDA / GIL - BEGIN - Fix
-<form action="index.php" method=<php echo $___getpost;?>" name="adminForm" id
-Fix search, delete, pagination and 404 behavior.
-Replace line 144 of media/com_contentbuilderng/images/list/tmpl/default.php
-by this block. -->
 	<form action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=list.display&' . $listTarget . $currentListLayoutQuery . '&Itemid=' . (int) Factory::getApplication()->getInput()->getInt('Itemid', 0) . $previewQuery); ?>"
 		method="<?php echo $___getpost; ?>" name="adminForm" id="adminForm" class="cb-list-template-<?php echo htmlspecialchars($cbListTemplateVariant, ENT_QUOTES, 'UTF-8'); ?><?php echo !empty($this->list_header_sticky) && !$isCardsVariant && !$isTilesVariant ? ' cb-list-has-sticky-header' : ''; ?>">
-
-	<!-- 2023-12-19 END -->
 	<?php
 	$showNewButton = ($new_allowed && !empty($this->new_button));
 	$showStickyButtonBar = !empty($this->button_bar_sticky);
@@ -592,35 +585,29 @@ by this block. -->
 	<?php if ($showTopBar) : ?>
 		<div class="<?php echo $showStickyButtonBar ? 'cb-list-sticky' : ''; ?>">
 			<div class="cb-list-panel cb-list-sticky-panel">
-			<table class="cbFilterTable cb-list-filters w-100">
+			<div class="cb-list-filters w-100">
 				<?php if ($language_allowed) : ?>
-					<tr>
-						<td>
-							<div class="d-inline-flex align-items-center gap-1 me-2">
-									<select class="form-select form-select-sm cb-filter-select-lang" name="list_language" aria-label="<?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?>">
-									<option value="*"> -
-										<?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?> -
+					<div class="cb-list-filters-row">
+						<div class="d-inline-flex align-items-center gap-1 me-2">
+								<select class="form-select form-select-sm cb-filter-select-lang" name="list_language" aria-label="<?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?>">
+								<option value="*"> -
+									<?php echo Text::_('COM_CONTENTBUILDERNG_LANGUAGE'); ?> -
+								</option>
+								<?php foreach ($this->languages as $filter_language) : ?>
+									<option value="<?php echo $filter_language; ?>">
+										<?php echo $filter_language; ?>
 									</option>
-									<option value="*">
-										<?php echo Text::_('COM_CONTENTBUILDERNG_ANY'); ?>
-									</option>
-									<?php foreach ($this->languages as $filter_language) : ?>
-										<option value="<?php echo $filter_language; ?>">
-											<?php echo $filter_language; ?>
-										</option>
-									<?php endforeach; ?>
-									</select>
-									<button class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1" onclick="contentbuilderng_language();">
-										<span class="fa-solid fa-check" aria-hidden="true"></span>
-										<?php echo Text::_('COM_CONTENTBUILDERNG_APPLY'); ?>
-									</button>
-								</div>
-						</td>
-					</tr>
+								<?php endforeach; ?>
+								</select>
+								<button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1" onclick="contentbuilderng_language();">
+									<span class="fa-solid fa-check" aria-hidden="true"></span>
+									<?php echo Text::_('COM_CONTENTBUILDERNG_APPLY'); ?>
+								</button>
+							</div>
+					</div>
 				<?php endif; ?>
 
-				<tr>
-					<td>
+				<div class="cb-list-filters-row">
 						<div class="d-flex flex-wrap align-items-center gap-2">
 
 						<!-- GAUCHE : filtre + selects + boutons (optionnel) -->
@@ -747,14 +734,14 @@ by this block. -->
 										<?php endif; ?>
 
 										<?php if ($delete_allowed) : ?>
-											<button class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 rounded-pill" onclick="contentbuilderng_delete();" title="<?php echo Text::_('COM_CONTENTBUILDERNG_DELETE_SELECTED_TOOLTIP'); ?>">
+											<button type="button" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 rounded-pill" onclick="contentbuilderng_delete();" title="<?php echo Text::_('COM_CONTENTBUILDERNG_DELETE_SELECTED_TOOLTIP'); ?>">
 												<span class="fa-solid fa-trash" aria-hidden="true"></span>
 												<span class="d-none d-md-inline"><?php echo Text::_('COM_CONTENTBUILDERNG_DELETE'); ?></span>
 											</button>
 										<?php endif; ?>
 
 									<?php if ($this->show_records_per_page) : ?>
-										<div class="cb-filter-select-rpp">
+										<div class="cb-filter-rpp-wrap">
 											<?php
 											$currentLimit = (int) (($this->state?->get('list.limit')) ?? ($this->pagination->limit ?? 20));
 											$totalItems = (int) ($this->pagination->total ?? 0);
@@ -803,9 +790,8 @@ by this block. -->
 						<?php endif; ?>
 
 						</div>
-					</td>
-				</tr>
-			</table>
+				</div>
+			</div>
 			</div>
 		</div>
 	<?php endif; ?>
@@ -1092,53 +1078,12 @@ by this block. -->
 					</article>
 				<?php } ?>
 			</div>
-			<?php
-			$pagTotal = (int) ($this->pagination->total ?? 0);
-			$pagLimit = max(1, (int) ($this->pagination->limit ?? 0));
-			$pagStart = (int) ($this->lists['liststart'] ?? ($requestList['start'] ?? 0));
-			$pagPages = (int) ceil($pagTotal / $pagLimit);
-			$pagCurrent = $pagPages > 0 ? (int) floor($pagStart / $pagLimit) + 1 : 1;
-			$pagLastStart = $pagPages > 0 ? max(0, ($pagPages - 1) * $pagLimit) : 0;
-			$showSummary = $pagTotal > 0;
-			$showPagination = $pagPages > 1;
-			$rangeStart = $pagTotal > 0 ? $pagStart + 1 : 0;
-			$rangeEnd = $pagTotal > 0 ? min($pagStart + $pagLimit, $pagTotal) : 0;
-			if ($showSummary) :
-				$params = Uri::getInstance()->getQuery(true);
-				$params['option'] = 'com_contentbuilderng';
-				$params['task'] = 'list.display';
-				$params['id'] = $input->getInt('id', 0);
-				$params['Itemid'] = $input->getInt('Itemid', 0);
-				$params['list'] = [
-					'limit' => $pagLimit,
-					'ordering' => $this->lists['order'],
-					'direction' => $this->lists['order_Dir'],
-					'start' => 0,
-				];
-				$buildPageLink = static function (int $start) use ($params): string {
-					$params['list']['start'] = max(0, $start);
-					return Route::_('index.php?' . http_build_query($params), false);
-				};
-			?>
-				<nav class="pagination__wrapper d-flex flex-wrap align-items-center justify-content-start gap-2 mt-3" aria-label="Pagination">
-					<div class="small text-muted me-2 cb-pagination-summary">
-						<?php echo $rangeStart . ' - ' . $rangeEnd . ' / ' . $pagTotal . ' items'; ?>
-					</div>
-					<?php if ($showPagination) : ?>
-						<ul class="pagination pagination-sm mb-0">
-							<li class="page-item<?php echo $pagCurrent <= 1 ? ' disabled' : ''; ?>"><a class="page-link" href="<?php echo $buildPageLink(0); ?>">&lt;&lt;</a></li>
-							<li class="page-item<?php echo $pagCurrent <= 1 ? ' disabled' : ''; ?>"><a class="page-link" href="<?php echo $buildPageLink($pagStart - $pagLimit); ?>">&lt;</a></li>
-							<?php for ($p = 1; $p <= $pagPages; $p++) : $startForPage = ($p - 1) * $pagLimit; ?>
-								<li class="page-item<?php echo $p === $pagCurrent ? ' active' : ''; ?>">
-									<a class="page-link" href="<?php echo $buildPageLink($startForPage); ?>"><?php echo $p; ?></a>
-								</li>
-							<?php endfor; ?>
-							<li class="page-item<?php echo $pagCurrent >= $pagPages ? ' disabled' : ''; ?>"><a class="page-link" href="<?php echo $buildPageLink($pagStart + $pagLimit); ?>">&gt;</a></li>
-							<li class="page-item<?php echo $pagCurrent >= $pagPages ? ' disabled' : ''; ?>"><a class="page-link" href="<?php echo $buildPageLink($pagLastStart); ?>">&gt;&gt;</a></li>
-						</ul>
-					<?php endif; ?>
-				</nav>
-			<?php endif; ?>
+			<?php echo LayoutHelper::render('contentbuilderng.list_pagination', [
+				'pagination' => $this->pagination,
+				'lists' => $this->lists,
+				'requestList' => $requestList,
+				'navClass' => 'mt-3',
+			]); ?>
 		</div>
 	<?php else : ?>
 	<div class="cb-scroll-x cb-list-panel cb-list-data-panel">
@@ -1528,77 +1473,18 @@ by this block. -->
 				$k = 1 - $k;
 			} ?>
 				<?php
-				$pagTotal = (int) ($this->pagination->total ?? 0);
-				$pagLimit = max(1, (int) ($this->pagination->limit ?? 0));
-				$pagStart = (int) ($this->lists['liststart'] ?? ($requestList['start'] ?? 0));
-				$pagPages = (int) ceil($pagTotal / $pagLimit);
-				$pagCurrent = $pagPages > 0 ? (int) floor($pagStart / $pagLimit) + 1 : 1;
-				$pagLastStart = $pagPages > 0 ? max(0, ($pagPages - 1) * $pagLimit) : 0;
-				$showSummary = $pagTotal > 0;
-				$showPagination = $pagPages > 1;
-				$rangeStart = $pagTotal > 0 ? $pagStart + 1 : 0;
-				$rangeEnd = $pagTotal > 0 ? min($pagStart + $pagLimit, $pagTotal) : 0;
+				$paginationHtml = LayoutHelper::render('contentbuilderng.list_pagination', [
+				    'pagination' => $this->pagination,
+				    'lists' => $this->lists,
+				    'requestList' => $requestList,
+				]);
 
-				if ($showSummary) :
-				    $params = Uri::getInstance()->getQuery(true);
-				    $params['option'] = 'com_contentbuilderng';
-				    $params['task'] = 'list.display';
-				    $params['id'] = Factory::getApplication()->getInput()->getInt('id', 0);
-				    $params['Itemid'] = Factory::getApplication()->getInput()->getInt('Itemid', 0);
-				    $params['list'] = [
-				        'limit' => $pagLimit,
-				        'ordering' => $this->lists['order'],
-				        'direction' => $this->lists['order_Dir'],
-				        'start' => 0,
-				    ];
-
-				    $buildPageLink = static function (int $start) use ($params): string {
-				        $params['list']['start'] = max(0, $start);
-				        return Route::_('index.php?' . http_build_query($params), false);
-				    };
-
+				if ($paginationHtml !== '') :
 				?>
 					<tfoot>
 						<tr>
 							<td colspan="1000">
-									<nav class="pagination__wrapper d-flex flex-wrap align-items-center justify-content-start gap-2" aria-label="Pagination">
-										<div class="small text-muted me-2 cb-pagination-summary">
-											<?php echo $rangeStart . ' - ' . $rangeEnd . ' / ' . $pagTotal . ' items'; ?>
-										</div>
-									<?php if ($showPagination) : ?>
-										<ul class="pagination pagination-sm mb-0">
-											<li class="page-item<?php echo $pagCurrent <= 1 ? ' disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink(0); ?>" aria-label="First">
-													<span aria-hidden="true">&lt;&lt;</span>
-												</a>
-											</li>
-											<li class="page-item<?php echo $pagCurrent <= 1 ? ' disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink($pagStart - $pagLimit); ?>" aria-label="Previous">
-													<span aria-hidden="true">&lt;</span>
-												</a>
-											</li>
-											<?php for ($p = 1; $p <= $pagPages; $p++) :
-											    $startForPage = ($p - 1) * $pagLimit;
-											?>
-												<li class="page-item<?php echo $p === $pagCurrent ? ' active' : ''; ?>">
-													<a class="page-link" href="<?php echo $buildPageLink($startForPage); ?>">
-														<?php echo $p; ?>
-													</a>
-												</li>
-											<?php endfor; ?>
-											<li class="page-item<?php echo $pagCurrent >= $pagPages ? ' disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink($pagStart + $pagLimit); ?>" aria-label="Next">
-													<span aria-hidden="true">&gt;</span>
-												</a>
-											</li>
-											<li class="page-item<?php echo $pagCurrent >= $pagPages ? ' disabled' : ''; ?>">
-												<a class="page-link" href="<?php echo $buildPageLink($pagLastStart); ?>" aria-label="Last">
-													<span aria-hidden="true">&gt;&gt;</span>
-												</a>
-											</li>
-										</ul>
-									<?php endif; ?>
-								</nav>
+								<?php echo $paginationHtml; ?>
 							</td>
 						</tr>
 					</tfoot>

@@ -70,7 +70,7 @@ if (!$hasActions) {
     <?php echo $extraHtml; ?>
 
     <?php if ($showDelete) : ?>
-        <button class="btn btn-sm btn-outline-danger cbButton cbDeleteButton d-inline-flex align-items-center gap-1 rounded-pill"
+        <button type="button" class="btn btn-sm btn-outline-danger cbButton cbDeleteButton d-inline-flex align-items-center gap-1 rounded-pill"
             onclick="contentbuilderng_delete();"
             title="<?php echo htmlspecialchars($deleteTooltip, ENT_QUOTES, 'UTF-8'); ?>">
             <span class="fa-solid fa-trash" aria-hidden="true"></span>
@@ -80,7 +80,7 @@ if (!$hasActions) {
 
     <?php if ($showClose) : ?>
         <?php if ($closeOnclick !== '') : ?>
-            <button class="btn btn-sm btn-outline-secondary cbButton cbBackButton cbCloseButton"
+            <button type="button" class="btn btn-sm btn-outline-secondary cbButton cbBackButton cbCloseButton"
                 title="<?php echo htmlspecialchars($closeTooltip, ENT_QUOTES, 'UTF-8'); ?>"
                 onclick="<?php echo htmlspecialchars($closeOnclick, ENT_QUOTES, 'UTF-8'); ?>">
                 <span class="icon-undo me-1" aria-hidden="true"></span>

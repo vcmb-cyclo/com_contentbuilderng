@@ -26,6 +26,16 @@
 	overflow-x:auto;
 	-webkit-overflow-scrolling:touch;
 }
+/* En-têtes de tri : soulignement au survol/focus uniquement,
+   pour alléger la ligne d'en-tête. */
+.cb-list-table thead th a{
+	text-decoration:none;
+}
+.cb-list-table thead th a:hover,
+.cb-list-table thead th a:focus{
+	text-decoration:underline;
+	text-underline-offset:.14rem;
+}
 .cb-list-has-sticky-header .cb-scroll-x,
 .cb-list-has-sticky-header .cb-list-data-panel{
 	position:relative;
@@ -368,7 +378,7 @@
 .cb-list-template-cassiopeia .cb-list-filters{
 	margin:0;
 }
-.cb-list-template-cassiopeia .cb-list-filters td{
+.cb-list-template-cassiopeia .cb-list-filters-row{
 	padding:.25rem;
 }
 .cb-list-template-cassiopeia .cb-list-data-panel{
