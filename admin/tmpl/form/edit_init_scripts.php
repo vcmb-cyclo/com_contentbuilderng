@@ -1291,10 +1291,13 @@ use Joomla\CMS\Language\Text;
             return false;
         }
 
-        var wrapper = document.createElement('div');
-        wrapper.innerHTML = rawValue;
-
-        var text = (wrapper.textContent || wrapper.innerText || '')
+        // Strip tags via regex instead of DOM innerHTML: setting innerHTML can
+        // still fire handlers such as onerror/onload even on a detached node,
+        // so this avoids that sink entirely for a simple "has visible text?" check.
+        var text = rawValue
+            .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+            .replace(/<[^>]*>/g, ' ')
+            .replace(/&nbsp;/gi, ' ')
             .replace(/\u00a0/g, ' ')
             .trim();
 

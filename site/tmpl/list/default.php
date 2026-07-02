@@ -632,7 +632,7 @@ JS
 			return;
 		}
 
-		var arrowColor = colors.foreground.replace('#', '%23');
+		var arrowColor = colors.foreground.replace(/#/g, '%23');
 		var arrow = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3E%3Cpath fill=\'none\' stroke=\'' + arrowColor + '\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.8\' d=\'m3.5 6 4.5 4.5L12.5 6\'/%3E%3C/svg%3E")';
 
 		select.style.setProperty('background-color', colors.background, 'important');
