@@ -22,9 +22,15 @@ $plugins = is_array($this->plugins ?? null) ? $this->plugins : [];
             <h2 class="h5 mb-1"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_EXTENSIONS_TITLE'); ?></h2>
             <p class="text-muted mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_EXTENSIONS_DESC'); ?></p>
         </div>
-        <a class="btn btn-sm btn-outline-secondary" href="<?php echo Route::_('index.php?option=com_contentbuilderng&view=about', false); ?>">
-            <?php echo Text::_('COM_CONTENTBUILDERNG_HELP_BACK_TO_ABOUT'); ?>
-        </a>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-sm btn-outline-primary" href="<?php echo Route::_('index.php?option=com_plugins&view=plugins&filter[search]=' . rawurlencode('contentbuilderng'), false); ?>">
+                <span class="fa-solid fa-plug" aria-hidden="true"></span>
+                <?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_EXTENSIONS_MANAGE_PLUGINS'); ?>
+            </a>
+            <a class="btn btn-sm btn-outline-secondary" href="<?php echo Route::_('index.php?option=com_contentbuilderng&view=about', false); ?>">
+                <?php echo Text::_('COM_CONTENTBUILDERNG_HELP_BACK_TO_ABOUT'); ?>
+            </a>
+        </div>
     </div>
     <div class="card-body">
         <?php if ($plugins === []) : ?>
