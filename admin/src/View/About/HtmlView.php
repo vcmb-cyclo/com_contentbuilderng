@@ -449,10 +449,18 @@ class HtmlView extends BaseHtmlView
             'system' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_SYSTEM',
         ];
 
+        $pluginUsages = [
+            'contentbuilderng_validation.date_is_valid' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_VALIDATION_DATE_IS_VALID',
+            'contentbuilderng_validation.date_not_before' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_VALIDATION_DATE_NOT_BEFORE',
+            'contentbuilderng_validation.email' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_VALIDATION_EMAIL',
+            'contentbuilderng_validation.equal' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_VALIDATION_EQUAL',
+            'contentbuilderng_validation.notempty' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_VALIDATION_NOTEMPTY',
+        ];
+
         return [
             'category' => $categories[$group] ?? 'COM_CONTENTBUILDERNG_EXTENSION_CATEGORY_OTHER',
             'purpose' => $purposes[$pluginKey] ?? 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_OTHER',
-            'usage' => $usages[$group] ?? 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_OTHER',
+            'usage' => $pluginUsages[$pluginKey] ?? $usages[$group] ?? 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_OTHER',
         ];
     }
 
