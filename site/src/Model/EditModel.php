@@ -52,9 +52,18 @@ use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PublishedRecordVisibilityHelper;
+use CB\Component\Contentbuilderng\Site\Model\Edit\ListStateAndRatingTrait;
+use CB\Component\Contentbuilderng\Site\Model\Edit\OwnershipTrait;
+use CB\Component\Contentbuilderng\Site\Model\Edit\PathHelpersTrait;
+use CB\Component\Contentbuilderng\Site\Model\Edit\VisibilityTrait;
 
 class EditModel extends BaseDatabaseModel
 {
+    use ListStateAndRatingTrait;
+    use OwnershipTrait;
+    use PathHelpersTrait;
+    use VisibilityTrait;
+
     private AdministratorApplication|SiteApplication $app;
     private readonly RuntimeUtilityService $runtimeUtilityService;
     private readonly ListSupportService $listSupportService;
@@ -76,133 +85,9 @@ class EditModel extends BaseDatabaseModel
 
     private $_latest = false;
 
-    private function getMenuToggle(string $key, int $default = 0): int
-    {
-        return MenuParamHelper::resolveInputOrMenuToggle($this->app, $key, $default);
-    }
-
-    private function getComponent(): ContentbuilderngComponent
-    {
-        $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
-
-        if (!$component instanceof ContentbuilderngComponent) {
-            throw new \RuntimeException('Unexpected component instance');
-        }
-
-        return $component;
-    }
-
     private $_page_title = '';
 
     private $_page_heading = '';
-
-    private function getEffectiveOwnershipUserId(bool $useOwnOnly): int
-    {
-        if (!$useOwnOnly) {
-            return -1;
-        }
-
-        if ($this->app->getInput()->getBool('cb_preview_ok', false)) {
-            $previewActorId = (int) $this->app->getInput()->getInt('cb_preview_actor_id', 0);
-
-            if ($previewActorId > 0) {
-                return $previewActorId;
-            }
-        }
-
-        return (int) ($this->app->getIdentity()->id ?? 0);
-    }
-
-    private function cleanComponentCaches(): void
-    {
-        $cacheFactory = Factory::getContainer()->get(CacheControllerFactoryInterface::class);
-        $cacheBase = (string) $this->app->get('cache_path', JPATH_SITE . '/cache');
-
-        foreach (array('com_content', 'com_contentbuilderng') as $group) {
-            $cacheFactory->createCacheController(
-                'callback',
-                array(
-                    'defaultgroup' => $group,
-                    'cachebase' => $cacheBase,
-                )
-            )->clean();
-        }
-    }
-
-    private function appendListStateData(object $data): object
-    {
-        $data->cb_record_id = $this->listSupportService->getInternalRecordId(
-            (string) ($data->type ?? ''),
-            $data->reference_id ?? 0,
-            $this->_record_id
-        );
-        $data->list_state = (int) ($data->list_state ?? 0);
-        $data->states = [];
-        $data->state_ids = [];
-        $data->state_titles = [];
-        $data->state_colors = [];
-
-        if ($data->list_state !== 1 || (int) $this->_id <= 0) {
-            return $data;
-        }
-
-        $data->states = $this->listSupportService->getListStates((int) $this->_id);
-
-        if ((int) $this->_record_id <= 0) {
-            return $data;
-        }
-
-        $recordItems = [(object) ['colRecord' => (int) $this->_record_id]];
-        $data->state_ids = $this->listSupportService->getStateIds($recordItems, (int) $this->_id);
-        $data->state_titles = $this->listSupportService->getStateTitles($recordItems, (int) $this->_id);
-        $data->state_colors = $this->listSupportService->getStateColors($recordItems, (int) $this->_id);
-
-        return $data;
-    }
-
-    private function appendRatingData(object $data): object
-    {
-        $data->list_rating = (int) ($data->list_rating ?? 0);
-        $data->rating_slots = (int) ($data->rating_slots ?? 0);
-        $data->rating = 0.0;
-        $data->rating_count = 0;
-        $data->rating_sum = 0;
-
-        if ($data->list_rating !== 1 || (int) $this->_id <= 0 || (int) $this->_record_id <= 0) {
-            return $data;
-        }
-
-        $db = $this->getDatabase();
-        $query = $db->getQuery(true)
-            ->select([
-                $db->quoteName('rating_count'),
-                $db->quoteName('rating_sum'),
-            ])
-            ->from($db->quoteName('#__contentbuilderng_records'))
-            ->where($db->quoteName('record_id') . ' = ' . $db->quote((string) $this->_record_id));
-
-        if (isset($data->type) && (string) $data->type !== '') {
-            $query->where($db->quoteName('type') . ' = ' . $db->quote((string) $data->type));
-        }
-
-        if (isset($data->reference_id) && (string) $data->reference_id !== '') {
-            $query->where($db->quoteName('reference_id') . ' = ' . $db->quote((string) $data->reference_id));
-        }
-
-        $query->setLimit(1);
-        $db->setQuery($query);
-        $ratingRow = $db->loadAssoc();
-
-        if (!$ratingRow) {
-            return $data;
-        }
-
-        $data->rating_count = (int) ($ratingRow['rating_count'] ?? 0);
-        $data->rating_sum = (int) ($ratingRow['rating_sum'] ?? 0);
-        $data->rating = $data->rating_count > 0 ? ($data->rating_sum / $data->rating_count) : 0.0;
-
-        return $data;
-    }
 
     public function getItem($pk = null)
     {
@@ -220,90 +105,6 @@ class EditModel extends BaseDatabaseModel
         $item = $this->getItem();
 
         return is_object($item) && property_exists($item, 'form') ? $item->form : null;
-    }
-
-    private function normalizePath(string $path): string
-    {
-        $path = str_replace('\\', '/', $path);
-        return preg_replace('#/+#', '/', $path) ?? $path;
-    }
-
-    private function toSafePathToken(mixed $value): string
-    {
-        if (is_array($value)) {
-            $value = array_values(array_filter($value, static fn($v) => $v !== null && $v !== '' && $v !== 'cbGroupMark'));
-            $value = implode('/', array_map(static fn($v) => (string) $v, $value));
-        }
-
-        $value = trim((string) $value);
-        if ($value === '') {
-            return '_empty_';
-        }
-
-        $value = preg_replace('#[^A-Za-z0-9._/\-]#', '_', $value) ?? $value;
-        return $value === '' ? '_empty_' : $value;
-    }
-
-    private function isSafeStoragePath(string $path): bool
-    {
-        $siteRoot = realpath(JPATH_SITE);
-        if ($siteRoot === false) {
-            return false;
-        }
-
-        $siteRoot = rtrim($this->normalizePath($siteRoot), '/');
-        $realPath = realpath($path);
-        if ($realPath === false) {
-            return false;
-        }
-
-        $realPath = $this->normalizePath($realPath);
-        return strncasecmp($realPath, $siteRoot . '/', strlen($siteRoot) + 1) === 0 || strcasecmp($realPath, $siteRoot) === 0;
-    }
-
-    private function createPathByTokens(string $path, array $names): string
-    {
-        if (trim($path) === '') {
-            return '';
-        }
-
-        $path = str_replace('|', '/', $path);
-        $path = str_replace(array('{CBSite}', '{cbsite}'), JPATH_SITE, $path);
-
-        foreach ($names as $id => $name) {
-            $value = $this->app->getInput()->post->get('cb_' . $id, '', 'raw');
-            $value = $this->toSafePathToken($value);
-            $path = str_replace('{' . strtolower($name) . ':value}', $value, $path);
-        }
-
-        $path = str_replace('{userid}', (string) (int) ($this->app->getIdentity()->id ?? 0), $path);
-        $path = str_replace('{username}', $this->toSafePathToken((string) ($this->app->getIdentity()->username ?? 'anonymous') . '_' . (int) ($this->app->getIdentity()->id ?? 0)), $path);
-        $path = str_replace('{name}', $this->toSafePathToken((string) ($this->app->getIdentity()->name ?? 'Anonymous') . '_' . (int) ($this->app->getIdentity()->id ?? 0)), $path);
-
-        $_now = Factory::getDate();
-
-        $path = str_replace('{date}', $_now->format('Y-m-d'), $path);
-        $path = str_replace('{time}', $_now->format('His'), $path);
-        $path = str_replace('{datetime}', $_now->format('Y-m-d_His'), $path);
-
-        $endpath = (new PathService())->makeSafeFolder($path);
-        $endpath = $this->normalizePath($endpath);
-
-        $isAbsolute = strpos($endpath, '/') === 0 || (bool) preg_match('#^[A-Za-z]:/#', $endpath);
-        if (!$isAbsolute) {
-            $endpath = rtrim($this->normalizePath(JPATH_SITE), '/') . '/' . ltrim($endpath, '/');
-        }
-
-        if (!is_dir($endpath) && !Folder::create($endpath)) {
-            return '';
-        }
-
-        if (!$this->isSafeStoragePath($endpath) || !ContentbuilderngHelper::is_internal_path($endpath)) {
-            return '';
-        }
-
-        $real = realpath($endpath);
-        return $real === false ? '' : $this->normalizePath($real);
     }
 
     public function __construct(
@@ -675,7 +476,6 @@ class EditModel extends BaseDatabaseModel
                             }
                         }
 
-
                         // Preserve the computed CB title when Prefix In Title is enabled.
                         // Fall back to the Joomla menu title only when no CB title was built.
                         $prefixTitle = (string) $data->page_title;
@@ -838,49 +638,6 @@ var contentbuilderng = new function(){
         $msg = '';
         eval($code);
         return $msg;
-    }
-
-    private function isRecordAllowedByMenuFilter(object $data, array $ids): bool
-    {
-        if ((int) $this->_record_id <= 0 || empty($this->_menu_filter)) {
-            return true;
-        }
-
-        $isAdminPreview = $this->app->getInput()->getBool('cb_preview_ok', false);
-        $publishedOnly = $isAdminPreview ? false : (bool) ($data->published_only ?? false);
-        $ownerFilterUserId = $this->frontend
-            ? $this->getEffectiveOwnershipUserId((bool) ($data->own_only_fe ?? false))
-            : $this->getEffectiveOwnershipUserId((bool) ($data->own_only ?? false));
-        $showAllLanguages = $isAdminPreview ? true : ($this->frontend ? (bool) ($data->show_all_languages_fe ?? false) : true);
-
-        $matches = $data->form->getListRecords(
-            $ids,
-            '',
-            [],
-            0,
-            1,
-            '',
-            [],
-            'desc',
-            (int) $this->_record_id,
-            $publishedOnly,
-            $ownerFilterUserId,
-            0,
-            -1,
-            -1,
-            -1,
-            -1,
-            $this->_menu_filter,
-            $showAllLanguages,
-            null
-        );
-
-        return is_array($matches) && count($matches) > 0;
-    }
-
-    private function shouldRestrictToPublishedOnly(object $data, bool $isAdminPreview): bool
-    {
-        return PublishedRecordVisibilityHelper::shouldRestrictToPublishedOnly($data, $isAdminPreview);
     }
 
     function store()
@@ -1551,7 +1308,6 @@ var contentbuilderng = new function(){
 
                         $meta = $data->form->getRecordMetadata($record_return);
 
-
                         if (!$data->registration_bypass_plugin || $meta->created_id) {
 
                             $user_id = $this->register(
@@ -1872,7 +1628,6 @@ var contentbuilderng = new function(){
                     if ((!$this->app->getInput()->getCmd('record_id', 0) && $data->email_notifications) || ($this->app->getInput()->getCmd('record_id', 0) && $data->email_update_notifications)) {
                         $from = $MailFrom = (string) $this->app->get('mailfrom');
                         $fromname = (string) $this->app->get('fromname');
-
 
                         $mailer = Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
 

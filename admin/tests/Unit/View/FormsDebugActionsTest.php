@@ -53,7 +53,7 @@ final class FormsDebugActionsTest extends TestCase
     public function testEditViewUsesGreenBugIconForEnabledDebugState(): void
     {
         $layout = $this->read('admin/layouts/form/view_tab.php');
-        $script = $this->read('admin/tmpl/form/edit_init_scripts.php');
+        $script = $this->read('media/js/form-edit-init.js');
 
         self::assertStringContainsString(
             "str_replace('icon-publish', 'fa fa-bug text-success', \$debugToggleHtml)",
@@ -71,7 +71,7 @@ final class FormsDebugActionsTest extends TestCase
 
     public function testEditViewAppliesInitialDebugTabStateAfterDomIsReady(): void
     {
-        $script = $this->read('admin/tmpl/form/edit_init_scripts.php');
+        $script = $this->read('media/js/form-edit-init.js');
 
         self::assertStringContainsString(
             "document.addEventListener('DOMContentLoaded', function() {\n        cbToggleDebugTab(cbDebugModeEnabled);\n    });",
