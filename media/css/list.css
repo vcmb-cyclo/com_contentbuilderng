@@ -905,12 +905,8 @@
 	.cb-list-template-cassiopeia .cb-list-data-panel{
 		padding:0;
 	}
-	.cb-list-template-cassiopeia .cb-list-filters .d-flex{
-		align-items:stretch!important;
-	}
 	.cb-list-template-cassiopeia .cb-list-filters .input-group{
-		max-width:none!important;
-		width:100%;
+		max-width:360px;
 	}
 	.cb-list-template-cards .cb-list-cards{
 		grid-template-columns:1fr;

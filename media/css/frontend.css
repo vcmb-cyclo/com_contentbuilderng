@@ -34,17 +34,16 @@
 }
 
 @media (max-width: 767.98px) {
+    .cb-list-filters {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .cb-list-filters .form-select,
     .cb-filter-search-group,
     .cb-list-toolbar-actions,
-    .cb-list-toolbar-actions .btn,
     .cb-filter-rpp-wrap {
-        width: 100%;
-        max-width: none;
-    }
-
-    .cb-list-toolbar-actions {
-        align-items: stretch !important;
+        flex-shrink: 0;
     }
 }
 
@@ -133,6 +132,27 @@
         --link-hover-color:     #8bb9fe;
         --link-hover-color-rgb: 139, 185, 254;
     }
+    .cb-list-filters .form-select,
+    .cb-list-toolbar-actions .form-select {
+        color: #ffffff !important;
+        background-color: #0f1824 !important;
+        border-color: rgba(190, 213, 241, .42) !important;
+        color-scheme: dark;
+    }
+    .cb-list-filters .form-select:disabled,
+    .cb-list-toolbar-actions .form-select:disabled {
+        color: #ffffff !important;
+        background-color: #172638 !important;
+        border-color: rgba(190, 213, 241, .34) !important;
+        opacity: 1;
+    }
+    .cb-list-filters .form-select:focus,
+    .cb-list-toolbar-actions .form-select:focus {
+        color: #ffffff !important;
+        background-color: #111d2b !important;
+        border-color: #78a6dd !important;
+        box-shadow: 0 0 0 .18rem rgba(120, 166, 221, .2) !important;
+    }
     .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success-text-emphasis, #75b798); }
     .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger-text-emphasis,  #ea868f); }
 }
@@ -143,6 +163,27 @@ html[data-bs-theme="dark"] {
     --link-color-rgb:       110, 168, 254;
     --link-hover-color:     #8bb9fe;
     --link-hover-color-rgb: 139, 185, 254;
+}
+html[data-bs-theme="dark"] .cb-list-filters .form-select,
+html[data-bs-theme="dark"] .cb-list-toolbar-actions .form-select {
+    color: #ffffff !important;
+    background-color: #0f1824 !important;
+    border-color: rgba(190, 213, 241, .42) !important;
+    color-scheme: dark;
+}
+html[data-bs-theme="dark"] .cb-list-filters .form-select:disabled,
+html[data-bs-theme="dark"] .cb-list-toolbar-actions .form-select:disabled {
+    color: #ffffff !important;
+    background-color: #172638 !important;
+    border-color: rgba(190, 213, 241, .34) !important;
+    opacity: 1;
+}
+html[data-bs-theme="dark"] .cb-list-filters .form-select:focus,
+html[data-bs-theme="dark"] .cb-list-toolbar-actions .form-select:focus {
+    color: #ffffff !important;
+    background-color: #111d2b !important;
+    border-color: #78a6dd !important;
+    box-shadow: 0 0 0 .18rem rgba(120, 166, 221, .2) !important;
 }
 
 /* ── Impression (vue details/print) ──────────────────────────────*/
