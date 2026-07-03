@@ -212,7 +212,7 @@ final class Khepri extends CMSPlugin implements SubscriberInterface
         }
 
 		$db = Factory::getContainer()->get(DatabaseInterface::class);
-		$out = '<table border="0" width="100%" class="admintable adminlist"><tbody>' . "\n";
+		$out = '<table class="table table-striped align-middle"><tbody>' . "\n";
 		$names = $form->getElementNames();
 		foreach ($names as $reference_id => $name) {
 			$db->setQuery("Select id, `type` From #__contentbuilderng_elements Where published = 1 And form_id = " . intval($contentbuilderng_form_id) . " And reference_id = " . $db->Quote($reference_id));
@@ -220,7 +220,7 @@ final class Khepri extends CMSPlugin implements SubscriberInterface
 			if (is_array($result)) {
 				if ($result['type'] != 'hidden') {
 					$out .= '{hide-if-empty ' . $name . '}' . "\n\n";
-					$out .= '<tr class="row0"><td width="20%" class="key align-top"><label>{' . $name . ':label}</label></td><td>{' . $name . ':value}</td></tr>' . "\n\n";
+					$out .= '<tr><th scope="row" class="w-25 align-top">{' . $name . ':label}</th><td>{' . $name . ':value}</td></tr>' . "\n\n";
 					$out .= '{/hide}' . "\n\n";
 				}
 			}
@@ -276,7 +276,7 @@ final class Khepri extends CMSPlugin implements SubscriberInterface
 			Factory::getApplication()->enqueueMessage($msg, 'warning');
 			Log::add($msg, Log::WARNING, 'com_contentbuilderng');
 		}
-		$out = '<table border="0" width="100%" class="admintable adminlist"><tbody>' . "\n";
+		$out = '<table class="table table-striped align-middle"><tbody>' . "\n";
 		$names = $form->getElementNames();
 		$hidden = array();
 		foreach ($names as $reference_id => $name) {
@@ -285,7 +285,7 @@ final class Khepri extends CMSPlugin implements SubscriberInterface
 			$result = $db->loadAssoc();
 			if (is_array($result)) {
 				if ($result['type'] != 'hidden') {
-					$out .= '<tr class="row0"><td width="20%" class="key align-top">{' . $name . ':label}</td><td>{' . $name . ':item}</td></tr>' . "\n";
+					$out .= '<tr><th scope="row" class="w-25 align-top"><label>{' . $name . ':label}</label></th><td>{' . $name . ':item}</td></tr>' . "\n";
 				} else {
 					$hidden[] = '{' . $name . ':item}' . "\n";
 				}

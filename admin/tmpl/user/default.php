@@ -47,7 +47,7 @@ $wa->useStyle('com_contentbuilderng.admin-user');
 
     <div class="w-100">
         <table class="table table-striped">
-            <tr class="row0">
+            <tr>
                 <td class="key text-end" style="width: 20%;">
                     <?php echo Text::_('COM_CONTENTBUILDERNG_ID'); ?>
                 </td>
@@ -55,7 +55,7 @@ $wa->useStyle('com_contentbuilderng.admin-user');
                     <?php echo htmlspecialchars($this->subject->id, ENT_QUOTES, 'UTF-8'); ?>
                 </td>
             </tr>
-            <tr class="row0">
+            <tr>
                 <td class="key text-end" style="width: 20%;">
                     <?php echo Text::_('COM_CONTENTBUILDERNG_NAME'); ?>
                 </td>
@@ -63,7 +63,7 @@ $wa->useStyle('com_contentbuilderng.admin-user');
                     <?php echo htmlspecialchars($this->subject->name, ENT_QUOTES, 'UTF-8'); ?>
                 </td>
             </tr>
-            <tr class="row0">
+            <tr>
                 <td class="key text-end" style="width: 20%;">
                     <?php echo Text::_('COM_CONTENTBUILDERNG_USERNAME'); ?>
                 </td>
@@ -71,7 +71,7 @@ $wa->useStyle('com_contentbuilderng.admin-user');
                     <?php echo htmlspecialchars($this->subject->username, ENT_QUOTES, 'UTF-8'); ?>
                 </td>
             </tr>
-            <tr class="row0">
+            <tr>
                 <td class="key text-end" style="width: 20%;">
                     <label for="limit_add">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_PERM_LIMIT_ADD'); ?>:
@@ -82,7 +82,7 @@ $wa->useStyle('com_contentbuilderng.admin-user');
                         value="<?php echo $this->subject->limit_add; ?>" />
                 </td>
             </tr>
-            <tr class="row0">
+            <tr>
                 <td class="key text-end" style="width: 20%;">
                     <label for="limit_edit">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_PERM_LIMIT_EDIT'); ?>:
@@ -93,7 +93,7 @@ $wa->useStyle('com_contentbuilderng.admin-user');
                         value="<?php echo $this->subject->limit_edit; ?>" />
                 </td>
             </tr>
-            <tr class="row0">
+            <tr>
                 <td class="key text-end" style="width: 20%;">
                     <label for="verification_date_view">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_PERM_VERIFICATION_DATE_VIEW'); ?>:
@@ -122,7 +122,7 @@ $wa->useStyle('com_contentbuilderng.admin-user');
 
                 </td>
             </tr>
-            <tr class="row0">
+            <tr>
                 <td class="key text-end" style="width: 20%;">
                     <label for="verification_date_new">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_PERM_VERIFICATION_DATE_NEW'); ?>:
@@ -152,7 +152,7 @@ $wa->useStyle('com_contentbuilderng.admin-user');
 
                 </td>
             </tr>
-            <tr class="row0">
+            <tr>
                 <td class="key text-end" style="width: 20%;">
                     <label for="verification_date_edit">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_PERM_VERIFICATION_DATE_EDIT'); ?>:
@@ -182,7 +182,7 @@ $wa->useStyle('com_contentbuilderng.admin-user');
 
                 </td>
             </tr>
-            <tr class="row0">
+            <tr>
                 <td class="key text-end" style="width: 20%;">
                     <label for="published">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'); ?>

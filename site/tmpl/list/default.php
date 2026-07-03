@@ -642,9 +642,9 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 
 							<?php if ($this->display_filter) : ?>
 									<div class="input-group input-group-sm cb-filter-search-group">
-									<span class="input-group-text">
+									<label class="input-group-text" for="contentbuilderng_filter">
 										<?php echo Text::_('COM_CONTENTBUILDERNG_FILTER'); ?>
-									</span>
+									</label>
 
 									<input
 										type="text"
@@ -1088,6 +1088,9 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 	<?php else : ?>
 	<div class="cb-scroll-x cb-list-panel cb-list-data-panel">
 			<table class="table table-striped table-hover align-middle cb-list-table">
+			<caption class="visually-hidden">
+				<?php echo trim((string) ($this->page_title ?? '')) !== '' ? $this->escape($this->page_title) : Text::_('COM_CONTENTBUILDERNG_RECORDS'); ?>
+			</caption>
 			<thead>
 				<tr>
 					<?php if ($isBfLinked): ?>
@@ -1197,8 +1200,8 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					?>
 				</tr>
 			</thead>
+			<tbody>
 			<?php
-			$k = 0;
 			$n = count((array) $this->items);
 			for ($i = 0; $i < $n; $i++) {
 				$row = $this->items[$i];
@@ -1224,7 +1227,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
                     $rowCanView = $view_allowed || $canAccessOwnedRecord('view', $row->colRecord);
                     $rowCanEdit = $edit_allowed || $canAccessOwnedRecord('edit', $row->colRecord);
 				?>
-				<tr class="<?php echo "row$k"; ?>">
+				<tr>
 					<?php if ($isBfLinked): ?>
 						<td class="text-muted small">
 							<a href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>administrator/index.php?option=com_breezingformsng&act=managerecs&task=edit&record_id=<?php echo (int) $row->colRecord; ?>&form_selection=0" target="_blank" rel="noopener noreferrer" title="BreezingForms #<?php echo (int) $row->colRecord; ?>">
@@ -1455,8 +1458,8 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 						?>
 				</tr>
 			<?php
-				$k = 1 - $k;
 			} ?>
+			</tbody>
 				<?php
 				$paginationHtml = LayoutHelper::render('contentbuilderng.list_pagination', [
 				    'pagination' => $this->pagination,
