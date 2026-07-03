@@ -1107,7 +1107,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 
 					if ($this->show_id_column) {
 					?>
-						<th scope="col" class="table-light d-none d-sm-table-cell">
+						<th scope="col" class="table-light">
 							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_ID', ENT_QUOTES, 'UTF-8'), 'colRecord', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
@@ -1115,7 +1115,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 
 					if ($this->select_column && ($delete_allowed || $state_allowed || $publish_allowed)) {
 					?>
-						<th scope="col" class="table-light d-none d-sm-table-cell">
+						<th scope="col" class="table-light">
 							<input class="contentbuilderng_select_all form-check-input" type="checkbox"
 								onclick="contentbuilderng_selectAll(this);" />
 						</th>
@@ -1132,7 +1132,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 
 						if ($this->list_state) {
 						?>
-							<th scope="col" class="table-light d-none d-sm-table-cell">
+							<th scope="col" class="table-light">
 								<?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_EDIT_STATE'), 'colState', $this->lists['order_Dir'], $this->lists['order']); ?>
 							</th>
 						<?php
@@ -1148,7 +1148,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 
 						if ($this->list_language) {
 						?>
-							<th scope="col" class="table-light d-none d-sm-table-cell">
+							<th scope="col" class="table-light">
 								<?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_LANGUAGE'), 'colLanguage', $this->lists['order_Dir'], $this->lists['order']); ?>
 							</th>
 						<?php
@@ -1156,7 +1156,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 
 					if ($this->list_article) {
 					?>
-						<th scope="col" class="table-light d-none d-sm-table-cell">
+						<th scope="col" class="table-light">
 							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_ARTICLE', ENT_QUOTES, 'UTF-8'), 'colArticleId', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
@@ -1164,14 +1164,14 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 
 					if ($this->list_author) {
 					?>
-						<th scope="col" class="table-light d-none d-sm-table-cell">
+						<th scope="col" class="table-light">
 							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_AUTHOR', ENT_QUOTES, 'UTF-8'), 'colAuthor', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
 					}
 					if ($this->list_last_modification) {
 					?>
-						<th scope="col" class="table-light d-none d-sm-table-cell">
+						<th scope="col" class="table-light">
 							<?php echo HTMLHelper::_('grid.sort', Text::_('COM_CONTENTBUILDERNG_LAST_MODIFICATION'), 'colLastModification', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 					<?php
@@ -1179,27 +1179,19 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 
 					if ($this->list_rating) {
 					?>
-						<th scope="col" class="table-light d-none d-sm-table-cell">
+						<th scope="col" class="table-light">
 							<?php echo HTMLHelper::_('grid.sort', htmlspecialchars('COM_CONTENTBUILDERNG_RATING', ENT_QUOTES, 'UTF-8'), 'colRating', $this->lists['order_Dir'], $this->lists['order']); ?>
 						</th>
 						<?php
 					}
 
 					if ($this->labels) {
-						$label_count = 0;
-						$hidden = ' d-none d-sm-table-cell';
 						foreach ($this->labels as $reference_id => $label) {
-							if ($label_count == 0) {
-								$hidden = '';
-							} else {
-								$hidden = ' d-none d-sm-table-cell';
-							}
 							?>
-								<th scope="col" class="table-light<?php echo $hidden; ?>">
+								<th scope="col" class="table-light">
 									<?php echo HTMLHelper::_('grid.sort', nl2br(htmlspecialchars($wordwrapLabel((string) $label), ENT_QUOTES, 'UTF-8')), "col$reference_id", $this->lists['order_Dir'], $this->lists['order']); ?>
 								</th>
 						<?php
-							$label_count++;
 						}
 					}
 					?>
@@ -1234,14 +1226,14 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 				?>
 				<tr class="<?php echo "row$k"; ?>">
 					<?php if ($isBfLinked): ?>
-						<td class="text-muted small d-none d-sm-table-cell">
+						<td class="text-muted small">
 							<a href="<?php echo \Joomla\CMS\Uri\Uri::root(); ?>administrator/index.php?option=com_breezingformsng&act=managerecs&task=edit&record_id=<?php echo (int) $row->colRecord; ?>&form_selection=0" target="_blank" rel="noopener noreferrer" title="BreezingForms #<?php echo (int) $row->colRecord; ?>">
 								<?php echo (int) $row->colRecord; ?>
 							</a>
 						</td>
 					<?php endif; ?>
 					<?php if (!empty($this->debug_mode) && !empty($this->debug_show_cb_id)): ?>
-						<td class="text-muted small d-none d-sm-table-cell"><?php echo (int) ($this->cb_record_ids[$row->colRecord] ?? 0); ?></td>
+						<td class="text-muted small"><?php echo (int) ($this->cb_record_ids[$row->colRecord] ?? 0); ?></td>
 					<?php endif; ?>
 					<?php
 					if ($showPreviewLink && ($view_allowed || $hasOwnerViewRule)) {
@@ -1264,7 +1256,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 
 					if ($this->show_id_column) {
 					?>
-						<td class="d-none d-sm-table-cell">
+						<td>
 							<?php
 							if ($rowCanView) {
 							?>
@@ -1285,7 +1277,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					<?php
 					if ($this->select_column && ($delete_allowed || $state_allowed || $publish_allowed)) {
 					?>
-						<td class="d-none d-sm-table-cell">
+						<td>
 							<?php echo $select; ?>
 						</td>
 					<?php
@@ -1313,7 +1305,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					if ($this->list_state) {
 						$stateCellStyle = $getStateBadgeStyle($row->colRecord, (array) ($this->state_colors ?? []));
 					?>
-						<td class="d-none d-sm-table-cell"
+						<td
 							data-cb-state-cell
 							data-record-id="<?php echo (int) $row->colRecord; ?>"
 							<?php echo $stateCellStyle !== '' ? 'style="' . htmlspecialchars($stateCellStyle, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>
@@ -1380,7 +1372,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					<?php
 					if ($this->list_language) {
 					?>
-						<td class="d-none d-sm-table-cell">
+						<td>
 							<?php echo isset($this->lang_codes[$row->colRecord]) && $this->lang_codes[$row->colRecord] ? $this->lang_codes[$row->colRecord] : '*'; ?>
 						</td>
 					<?php
@@ -1389,7 +1381,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					<?php
 					if ($this->list_article) {
 					?>
-						<td class="d-none d-sm-table-cell">
+						<td>
 							<?php
 							if ($rowCanView) {
 							?>
@@ -1410,7 +1402,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					<?php
 					if ($this->list_author) {
 					?>
-						<td class="d-none d-sm-table-cell">
+						<td>
 							<?php echo htmlspecialchars($row->colAuthor, ENT_QUOTES, 'UTF-8'); ?>
 						</td>
 					<?php
@@ -1420,7 +1412,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					if ($this->list_last_modification) {
 						$lastModificationText = $formatListLastModification($row->colLastModification ?? '');
 					?>
-						<td class="d-none d-sm-table-cell">
+						<td>
 							<?php echo htmlspecialchars($lastModificationText, ENT_QUOTES, 'UTF-8'); ?>
 						</td>
 					<?php
@@ -1429,7 +1421,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					<?php
 					if ($this->list_rating) {
 					?>
-						<td class="d-none d-sm-table-cell">
+						<td>
 							<?php
 								echo RatingHelper::getRating(Factory::getApplication()->getInput()->getInt('id', 0), $row->colRecord, $row->colRating, $this->rating_slots, Factory::getApplication()->getInput()->getCmd('lang', ''), $rating_allowed, $row->colRatingCount, $row->colRatingSum);
 							?>
@@ -1438,18 +1430,11 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					}
 					?>
 					<?php
-					$label_count = 0;
-					$hidden = ' class="d-none d-sm-table-cell"';
 					foreach ($row as $key => $value) {
 						// filtering out disallowed columns
 						if (in_array(str_replace('col', '', $key), $this->visible_cols)) {
-							if ($label_count == 0) {
-								$hidden = '';
-							} else {
-								$hidden = ' class="d-none d-sm-table-cell"';
-							}
 					?>
-							<td<?php echo $hidden; ?>>
+							<td>
 								<?php
 								if (in_array(str_replace('col', '', $key), $this->linkable_elements) && $rowCanView) {
 								?>
@@ -1465,7 +1450,6 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 								?>
 								</td>
 						<?php
-							$label_count++;
 						}
 					}
 						?>
