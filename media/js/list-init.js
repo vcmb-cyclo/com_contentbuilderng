@@ -229,9 +229,12 @@
 		var green = parseInt(hex.substring(2, 4), 16);
 		var blue = parseInt(hex.substring(4, 6), 16);
 		var brightness = ((red * 299) + (green * 587) + (blue * 114)) / 1000;
-		var textColor = brightness > 160 ? '#111827' : '#F9FAFB';
+		var textColor = brightness >= 150 ? '#16324F' : '#FFFFFF';
 
-		return 'background-color:#' + hex + ';color:' + textColor + ';';
+		// The custom properties let theme CSS reapply the state colour where
+		// dark-mode table rules override the inline background with !important.
+		return 'background-color:#' + hex + ';color:' + textColor + ';'
+			+ '--cb-state-bg:#' + hex + ';--cb-state-fg:' + textColor + ';';
 	}
 
 	function contentbuilderngGetStateSelectColors(color) {
@@ -251,7 +254,7 @@
 
 		return {
 			background: '#' + hex,
-			foreground: brightness > 160 ? '#111827' : '#F9FAFB'
+			foreground: brightness >= 150 ? '#16324F' : '#FFFFFF'
 		};
 	}
 
@@ -355,7 +358,11 @@
 		});
 
 		stateCells.forEach(function(stateCell) {
-			stateCell.style.backgroundColor = normalizedColor !== '' ? ('#' + normalizedColor) : '#FFFFFF';
+			if (badgeStyle !== '') {
+				stateCell.setAttribute('style', badgeStyle);
+			} else {
+				stateCell.setAttribute('style', 'background-color:#FFFFFF;');
+			}
 		});
 
 		stateBadges.forEach(function(stateBadge) {

@@ -68,7 +68,10 @@ $getStateBadgeStyle = static function ($recordId, array $stateColors): string {
 	$brightness = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
 	$textColor = $brightness >= 150 ? '#16324F' : '#FFFFFF';
 
-	return 'background-color:#' . $color . ';color:' . $textColor . ';';
+	// The custom properties let theme CSS reapply the state colour where
+	// dark-mode table rules override the inline background with !important.
+	return 'background-color:#' . $color . ';color:' . $textColor . ';'
+		. '--cb-state-bg:#' . $color . ';--cb-state-fg:' . $textColor . ';';
 };
 
 $input = $app->getInput();
