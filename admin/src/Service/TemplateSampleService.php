@@ -29,7 +29,7 @@ class TemplateSampleService
         }
 
         $requestedPlugin = trim((string) $plugin);
-        $activePlugin = $requestedPlugin !== '' ? $requestedPlugin : 'joomla6';
+        $activePlugin = $requestedPlugin !== '' ? $requestedPlugin : 'thoth';
 
         if (!PluginHelper::isEnabled('contentbuilderng_themes', $activePlugin)) {
             $msg = "ContentBuilder NG theme plugin not enabled: contentbuilderng_themes/{$activePlugin}";
@@ -38,9 +38,9 @@ class TemplateSampleService
         }
 
         if (!PluginHelper::importPlugin('contentbuilderng_themes', $activePlugin)) {
-            $activePlugin = 'joomla6';
+            $activePlugin = 'thoth';
             PluginHelper::importPlugin('contentbuilderng_themes', $activePlugin);
-            $msg = 'ContentBuilder NG theme fallback applied for details sample: contentbuilderng_themes/joomla6';
+            $msg = 'ContentBuilder NG theme fallback applied for details sample: contentbuilderng_themes/thoth';
             Log::add($msg, Log::WARNING, 'com_contentbuilderng');
         }
 
@@ -111,7 +111,7 @@ class TemplateSampleService
         }
 
         $requestedPlugin = trim((string) $plugin);
-        $activePlugin = $requestedPlugin !== '' ? $requestedPlugin : 'joomla6';
+        $activePlugin = $requestedPlugin !== '' ? $requestedPlugin : 'thoth';
 
         if (!PluginHelper::isEnabled('contentbuilderng_themes', $activePlugin)) {
             $msg = "ContentBuilder NG theme plugin not enabled: contentbuilderng_themes/{$activePlugin}";
@@ -120,9 +120,9 @@ class TemplateSampleService
         }
 
         if (!PluginHelper::importPlugin('contentbuilderng_themes', $activePlugin)) {
-            $activePlugin = 'joomla6';
+            $activePlugin = 'thoth';
             PluginHelper::importPlugin('contentbuilderng_themes', $activePlugin);
-            $msg = 'ContentBuilder NG theme fallback applied for editable sample: contentbuilderng_themes/joomla6';
+            $msg = 'ContentBuilder NG theme fallback applied for editable sample: contentbuilderng_themes/thoth';
             Log::add($msg, Log::WARNING, 'com_contentbuilderng');
         }
 

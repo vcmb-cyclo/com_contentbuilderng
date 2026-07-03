@@ -385,7 +385,6 @@ if (formsTable && formsTable.tBodies.length) {
             </thead>
             <tbody>
                 <?php
-                $k = 0;
                 $n = count($this->items);
                 for ($i = 0; $i < $n; $i++) {
                     $row = $this->items[$i];
@@ -394,7 +393,7 @@ if (formsTable && formsTable.tBodies.length) {
                     $debug = ContentbuilderngHelper::listDebug('forms', $row, $i);
                     $published = ContentbuilderngHelper::listPublish('forms', $row, $i);
                 ?>
-                    <tr class="<?php echo "row$k"; ?>" data-cb-row-id="<?php echo (int) $row->id; ?>">
+                    <tr data-cb-row-id="<?php echo (int) $row->id; ?>">
                         <td>
                             <?php echo $row->id; ?>
                         </td>
@@ -491,7 +490,6 @@ if (formsTable && formsTable.tBodies.length) {
 
                     </tr>
                 <?php
-                    $k = 1 - $k;
                 }
                 ?>
             </tbody>

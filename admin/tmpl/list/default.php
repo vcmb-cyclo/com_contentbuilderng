@@ -512,7 +512,6 @@ if ($themeJs !== '') {
                 </tr>
             </thead>
             <?php
-            $k = 0;
             $n = count($this->items);
             for ($i = 0; $i < $n; $i++) {
                 $row = $this->items[$i];
@@ -522,7 +521,7 @@ if ($themeJs !== '') {
                 $unpublish_link = Route::_('index.php?option=com_contentbuilderng&task=edit.display&task=edit.publish&backtolist=1&id=' . $this->form_id . '&list_publish=0&cid[]=' . $row->colRecord . '&Itemid=' . Factory::getApplication()->getInput()->getInt('Itemid', 0) . (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->getInput()->get('tmpl', '', 'string') : '') . (Factory::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->getInput()->get('layout', '', 'string') : '') . '&limitstart=' . Factory::getApplication()->getInput()->getInt('limitstart', 0) . '&filter_order=' . Factory::getApplication()->getInput()->getCmd('filter_order'));
                 $select = '<input class="form-check-input" type="checkbox" id="cb' . (int) $i . '" name="cid[]" value="' . (int) $row->colRecord . '" onclick="Joomla.isChecked(this.checked);">';
                 ?>
-                <tr class="<?php echo"row$k"; ?>">
+                <tr>
                     <?php
                     if ($this->show_id_column) {
                         ?>
@@ -679,7 +678,6 @@ if ($themeJs !== '') {
                     ?>
                 </tr>
                 <?php
-                $k = 1 - $k;
             }
             $pages_links = $this->pagination->getPagesLinks();
             if ($pages_links || $this->show_records_per_page) {

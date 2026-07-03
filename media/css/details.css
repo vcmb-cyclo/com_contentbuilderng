@@ -67,7 +67,7 @@
         padding:.38rem;
     }
     .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn{
-        flex:1 1 calc(50% - .5rem);
+        flex:0 0 auto;
         justify-content:center;
         /* Libellés longs (fr/de) : on autorise le retour à la ligne
            dans le bouton plutôt qu'un débordement du viewport. */
@@ -89,4 +89,13 @@
 
 @keyframes cb-blink{
     50%{opacity:0}
+}
+
+/* Fil d'Ariane du titre (liste > écran courant). */
+.cbPageBreadcrumb .cbPageBreadcrumbLink{
+    color:inherit;
+}
+.cbPageBreadcrumb .cbPageBreadcrumbLink:hover,
+.cbPageBreadcrumb .cbPageBreadcrumbLink:focus{
+    text-decoration:underline;
 }

@@ -120,9 +120,10 @@ final class Dark extends CMSPlugin implements SubscriberInterface
             return;
         }
 
-        $joomla6Base = \JPATH_PLUGINS . '/contentbuilderng_themes/joomla6/css/content.css';
-        $out  = \is_file($joomla6Base) ? \file_get_contents($joomla6Base) : '';
-        $out .= \file_get_contents(__DIR__ . '/../../css/content.css');
+        $thothBase = \JPATH_PLUGINS . '/contentbuilderng_themes/thoth/css/content.css';
+        $out  = \is_file($thothBase) ? \file_get_contents($thothBase) : '';
+        $cssFile = __DIR__ . '/../../css/content.css';
+        $out .= \is_file($cssFile) ? (string) \file_get_contents($cssFile) : '';
 
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);
@@ -148,9 +149,10 @@ final class Dark extends CMSPlugin implements SubscriberInterface
             return;
         }
 
-        $joomla6Base = \JPATH_PLUGINS . '/contentbuilderng_themes/joomla6/css/list.css';
-        $out  = \is_file($joomla6Base) ? \file_get_contents($joomla6Base) : '';
-        $out .= \file_get_contents(__DIR__ . '/../../css/list.css');
+        $thothBase = \JPATH_PLUGINS . '/contentbuilderng_themes/thoth/css/list.css';
+        $out  = \is_file($thothBase) ? \file_get_contents($thothBase) : '';
+        $cssFile = __DIR__ . '/../../css/list.css';
+        $out .= \is_file($cssFile) ? (string) \file_get_contents($cssFile) : '';
 
 
         if ($event instanceof Event) {

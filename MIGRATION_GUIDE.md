@@ -53,7 +53,7 @@ Pendant l'installation ou la mise à jour, ContentBuilder NG :
 6. adapte les colonnes, dates, valeurs par défaut, index et colonnes d'audit attendus ;
 7. installe ou actualise les plugins livrés avec le paquet et désactive leurs
    équivalents historiques ;
-8. remplace les thèmes non pris en charge par le thème Joomla 6 ;
+8. remplace les thèmes non pris en charge par le thème Thoth ;
 9. nettoie les doublons connus, anciens fichiers de langue, menus obsolètes et caches ;
 10. conserve les données, vues, éléments, enregistrements, stockages et associations
     d'articles présents dans les tables migrées.
@@ -300,7 +300,7 @@ cohérents.
   pas réécrits automatiquement.
 - **Plugins historiques** : ils sont désactivés, pas convertis en plugins Joomla 6.
 - **Thèmes historiques** : une référence non prise en charge peut être remplacée par
-  le thème `joomla6`.
+  le thème `thoth`.
 - **Permissions de fichiers ou SQL insuffisantes** : l'installation peut copier une
   partie des fichiers sans terminer toutes les adaptations.
 - **BreezingForms absent ou formulaire source supprimé** : les vues liées ne peuvent

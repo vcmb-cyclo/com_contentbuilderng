@@ -43,6 +43,7 @@ class HtmlView extends BaseHtmlView
     public int $cb_show_details_top_bar = 1;
     public int $cb_show_details_bottom_bar = 0;
     public int $show_back_button = 1;
+    public int $show_title_breadcrumb = 1;
     public int $cb_filter_in_title = 0;
     public int $cb_prefix_in_title = 0;
     public int $debug_mode = 0;
@@ -408,7 +409,7 @@ class HtmlView extends BaseHtmlView
 			$themePlugin = (string) ($subject->theme_plugin ?? '');
 			$fallbackTheme = false;
 			if ($themePlugin === '' || !PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin)) {
-				$themePlugin = 'joomla6';
+				$themePlugin = 'thoth';
 				PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin);
 				$fallbackTheme = true;
 			}
@@ -417,7 +418,7 @@ class HtmlView extends BaseHtmlView
 		$dispatcher->dispatch('onContentTemplateCss', $eventObj);
 		$results = $eventObj->getArgument('result') ?: [];
 		$this->theme_css = trim(implode('', $results));
-        if ($this->theme_css === '' && ($fallbackTheme || $themePlugin === 'joomla6')) {
+        if ($this->theme_css === '' && ($fallbackTheme || $themePlugin === 'thoth')) {
             $this->useFallbackDetailsThemeCss();
         }
 
@@ -448,6 +449,7 @@ class HtmlView extends BaseHtmlView
 
 		$this->print_button = $subject->print_button;
 		$this->show_back_button = $subject->show_back_button;
+		$this->show_title_breadcrumb = (int) ($subject->show_title_breadcrumb ?? 1);
 		$this->cb_show_author = (int) ($subject->cb_show_author ?? 1);
 		$this->cb_show_details_top_bar = (int) ($subject->cb_show_details_top_bar ?? 1);
 		$this->cb_show_details_bottom_bar = (int) ($subject->cb_show_details_bottom_bar ?? 0);

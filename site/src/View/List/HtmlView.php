@@ -47,7 +47,7 @@ class HtmlView extends BaseHtmlView
         $subject = $this->get('Data');
         $themePlugin = (string) ($subject->theme_plugin ?? '');
         if ($themePlugin === '' || !PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin)) {
-            $themePlugin = 'joomla6';
+            $themePlugin = 'thoth';
             PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin);
         }
 

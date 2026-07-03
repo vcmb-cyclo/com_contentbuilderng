@@ -138,6 +138,7 @@ CREATE TABLE IF NOT EXISTS `#__contentbuilderng_elements`
 --   cb_show_details_top_bar         1 = show toolbar at top of details page.
 --   cb_show_details_bottom_bar      1 = show toolbar at bottom of details page.
 --   show_back_button                1 = show Back button on details page.
+--   show_title_breadcrumb           1 = render page title as breadcrumb on details/edit pages.
 --   cb_filter_in_title              1 = append active filter value to page title.
 --   cb_prefix_in_title              1 = prepend view name to page title.
 --   select_column                   1 = show checkbox column for bulk actions.
@@ -289,6 +290,7 @@ CREATE TABLE IF NOT EXISTS `#__contentbuilderng_forms`
     `cb_show_details_top_bar`             tinyint(1)   NOT NULL DEFAULT '1',
     `cb_show_details_bottom_bar`          tinyint(1)   NOT NULL DEFAULT '0',
     `show_back_button`                    tinyint(1)   NOT NULL DEFAULT '1',
+    `show_title_breadcrumb`               tinyint(1)   NOT NULL DEFAULT '1',
     `cb_filter_in_title`                  tinyint(1)   NOT NULL DEFAULT '0',
     `cb_prefix_in_title`                  tinyint(1)   NOT NULL DEFAULT '0',
     `select_column`                       tinyint(1)   NOT NULL DEFAULT '0',

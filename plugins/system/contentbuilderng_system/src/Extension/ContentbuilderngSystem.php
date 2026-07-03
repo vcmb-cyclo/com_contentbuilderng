@@ -307,7 +307,7 @@ final class ContentbuilderngSystem extends CMSPlugin implements SubscriberInterf
                 foreach ($themes as $theme) {
                     if ($theme) {
                         if (!PluginHelper::importPlugin('contentbuilderng_themes', $theme)) {
-                            PluginHelper::importPlugin('contentbuilderng_themes', 'joomla6');
+                            PluginHelper::importPlugin('contentbuilderng_themes', 'thoth');
                         }
                         $dispatcher = $this->app->getDispatcher();
                         $eventresults_css = $dispatcher->dispatch('onContentTemplateCss', new \Joomla\CMS\Event\GenericEvent('onContentTemplateCss', ['theme' => $theme]));

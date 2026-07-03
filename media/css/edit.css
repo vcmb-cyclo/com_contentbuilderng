@@ -58,6 +58,10 @@
         border-color:rgba(190,213,241,.42)!important;
         box-shadow:none!important;
         color-scheme:dark;
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='m3.5 6 4.5 4.5L12.5 6'/%3E%3C/svg%3E")!important;
+        background-repeat:no-repeat!important;
+        background-position:right .75rem center!important;
+        background-size:16px 12px!important;
     }
     .cbEditStateControlRow .form-select:disabled{
         color:#ffffff!important;
@@ -93,6 +97,10 @@ html[data-bs-theme="dark"] .cbEditStateControlRow .form-select{
     border-color:rgba(190,213,241,.42)!important;
     box-shadow:none!important;
     color-scheme:dark;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='m3.5 6 4.5 4.5L12.5 6'/%3E%3C/svg%3E")!important;
+    background-repeat:no-repeat!important;
+    background-position:right .75rem center!important;
+    background-size:16px 12px!important;
 }
 html[data-bs-theme="dark"] .cbEditStateControlRow .form-select:disabled{
     color:#ffffff!important;
@@ -125,4 +133,13 @@ html[data-bs-theme="dark"] .cbEditRatingControl .cbVotingDisplay{
         width:100%;
         max-width:none;
     }
+}
+
+/* Fil d'Ariane du titre (liste > écran courant). */
+.cbPageBreadcrumb .cbPageBreadcrumbLink{
+    color:inherit;
+}
+.cbPageBreadcrumb .cbPageBreadcrumbLink:hover,
+.cbPageBreadcrumb .cbPageBreadcrumbLink:focus{
+    text-decoration:underline;
 }

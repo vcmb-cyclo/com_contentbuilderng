@@ -1,6 +1,6 @@
 <?php
 
-namespace CB\Plugin\ContentbuilderngThemes\Joomla6\Extension;
+namespace CB\Plugin\ContentbuilderngThemes\Thoth\Extension;
 
 /**
  * @version     6.0
@@ -23,9 +23,9 @@ use Joomla\CMS\Event\GenericEvent as Event;
 use Joomla\Event\SubscriberInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 
-final class Joomla6 extends CMSPlugin implements SubscriberInterface
+final class Thoth extends CMSPlugin implements SubscriberInterface
 {
-    private const THEME_NAME = 'joomla6';
+    private const THEME_NAME = 'thoth';
 
     private function acceptsThemeEvent(Event $event): bool
     {
@@ -120,7 +120,8 @@ final class Joomla6 extends CMSPlugin implements SubscriberInterface
             return;
         }
 
-        $out = \file_get_contents(__DIR__ . '/../../css/content.css');
+        $cssFile = __DIR__ . '/../../css/content.css';
+        $out = \is_file($cssFile) ? (string) \file_get_contents($cssFile) : '';
 
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);
@@ -136,7 +137,6 @@ final class Joomla6 extends CMSPlugin implements SubscriberInterface
             return;
         }
 
-        // Comme ton original: même CSS
         return $this->onContentTemplateCss($event);
     }
 
@@ -146,7 +146,8 @@ final class Joomla6 extends CMSPlugin implements SubscriberInterface
             return;
         }
 
-        $out = \file_get_contents(__DIR__ . '/../../css/list.css');
+        $cssFile = __DIR__ . '/../../css/list.css';
+        $out = \is_file($cssFile) ? (string) \file_get_contents($cssFile) : '';
 
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);

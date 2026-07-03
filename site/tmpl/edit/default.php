@@ -263,8 +263,6 @@ $editNextHref = $nextRecordId > 0
         )
     )
     : '';
-$showColumnHeader = $input->getInt('cb_show_column_header', 1) === 1;
-$columnHeaderHtml = '';
 $showAuditTrail = $showAuthorToggle === 1;
 
 $createdOnText = '';
@@ -365,13 +363,6 @@ if ($showRatingControl) {
     </div>
     <?php
     $ratingControlHtml = ob_get_clean();
-}
-
-if ($showColumnHeader) {
-    $columnHeaderHtml = '<div class="cbColumnHeader d-none d-md-grid" aria-hidden="true">'
-        . '<div class="cbColumnHeaderLabel">' . Text::_('COM_CONTENTBUILDERNG_COLUMN_HEADER_FIELD') . '</div>'
-        . '<div class="cbColumnHeaderValue">' . Text::_('COM_CONTENTBUILDERNG_COLUMN_HEADER_VALUE') . '</div>'
-        . '</div>';
 }
 
 $wa = $app->getDocument()->getWebAssetManager();
@@ -813,9 +804,25 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
     <?php
     if ($this->show_page_heading && $this->page_title) {
     ?>
-        <h1 class="h3 mb-4">
-            <?php echo $this->page_title; ?>
-        </h1>
+        <?php if ((int) ($this->show_title_breadcrumb ?? 1) === 1) : ?>
+            <h1 class="h3 mb-4 cbPageBreadcrumb">
+                <a class="cbPageBreadcrumbLink text-decoration-none" href="<?php echo $listHref; ?>">
+                    <?php echo $this->escape($this->page_title); ?>
+                </a>
+                <?php if (!$backToList && $hasRecord) : ?>
+                    <span class="text-muted mx-1" aria-hidden="true">&rsaquo;</span>
+                    <a class="cbPageBreadcrumbLink text-muted text-decoration-none" href="<?php echo $detailsHref; ?>">
+                        <?php echo Text::_('COM_CONTENTBUILDERNG_BREADCRUMB_DETAILS'); ?>
+                    </a>
+                <?php endif; ?>
+                <span class="text-muted mx-1" aria-hidden="true">&rsaquo;</span>
+                <span class="text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_BREADCRUMB_EDIT'); ?></span>
+            </h1>
+        <?php else : ?>
+            <h1 class="h3 mb-4">
+                <?php echo $this->escape($this->page_title); ?>
+            </h1>
+        <?php endif; ?>
     <?php
     }
     ?>
@@ -1051,7 +1058,6 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             <?php echo $stateControlHtml; ?>
             <?php echo $ratingControlHtml; ?>
             <div class="cbEditableBody">
-                <?php echo $columnHeaderHtml; ?>
                 <?php echo $this->tpl ?>
             </div>
             <?php echo $this->event->afterDisplayContent; ?>
@@ -1096,7 +1102,6 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             <?php echo $stateControlHtml; ?>
             <?php echo $ratingControlHtml; ?>
             <div class="cbEditableBody">
-                <?php echo $columnHeaderHtml; ?>
                 <?php echo $this->tpl ?>
             </div>
             <?php echo $this->event->afterDisplayContent; ?>
@@ -1118,7 +1123,6 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
                 <?php echo $stateControlHtml; ?>
                 <?php echo $ratingControlHtml; ?>
                 <div class="cbEditableBody">
-                    <?php echo $columnHeaderHtml; ?>
                     <?php echo $this->tpl ?>
                 </div>
                 <?php echo $this->event->afterDisplayContent; ?>

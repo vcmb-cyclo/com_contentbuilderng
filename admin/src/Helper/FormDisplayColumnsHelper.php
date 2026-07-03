@@ -37,6 +37,7 @@ final class FormDisplayColumnsHelper
             'cb_show_details_top_bar' => 'TINYINT(1) NOT NULL DEFAULT 1',
             'cb_show_details_bottom_bar' => 'TINYINT(1) NOT NULL DEFAULT 0',
             'show_back_button' => 'TINYINT(1) NOT NULL DEFAULT 1',
+            'show_title_breadcrumb' => 'TINYINT(1) NOT NULL DEFAULT 1',
             'cb_filter_in_title' => 'TINYINT(1) NOT NULL DEFAULT 0',
             'cb_prefix_in_title' => 'TINYINT(1) NOT NULL DEFAULT 0',
             'debug_mode' => 'TINYINT(1) NOT NULL DEFAULT 0',

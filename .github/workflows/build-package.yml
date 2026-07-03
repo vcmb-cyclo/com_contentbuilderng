@@ -55,6 +55,34 @@ jobs:
         working-directory: admin
         run: composer audit --locked --no-interaction
 
+  phpstan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        working-directory: admin
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Extract Joomla core for class discovery
+        run: |
+          container="$(docker create joomla:6.0-apache)"
+          mkdir -p joomla-stubs
+          docker cp "${container}:/usr/src/joomla/libraries" joomla-stubs/libraries
+          docker rm "${container}"
+
+      - name: Run PHPStan
+        run: admin/vendor/bin/phpstan analyse -c phpstan.neon.dist --no-progress --error-format=github
+
   unit-tests:
     runs-on: ubuntu-latest
 
@@ -84,7 +112,7 @@ jobs:
           path: admin/coverage.xml
 
   package:
-    needs: [lint, unit-tests]
+    needs: [lint, unit-tests, phpstan]
     runs-on: ubuntu-latest
     permissions:
       contents: write

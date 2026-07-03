@@ -8,6 +8,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Installer\Installer;
 use Joomla\CMS\Log\Log;
 use Joomla\Database\DatabaseInterface;
+use Joomla\Database\ParameterType;
 use Joomla\Filesystem\File;
 use Joomla\Filesystem\Folder;
 
@@ -224,7 +225,7 @@ final class PluginInstallerService
         $db = $this->db();
         $installer = new Installer();
         $installer->setDatabase(Factory::getContainer()->get(DatabaseInterface::class));
-        $supported = ['blank', 'joomla6', 'dark', 'khepri'];
+        $supported = ['blank', 'thoth', 'dark', 'khepri'];
 
         try {
             $query = $db->getQuery(true)
@@ -266,9 +267,9 @@ final class PluginInstallerService
             return;
         }
 
-        $supported = $this->getPlugins()['contentbuilderng_themes'] ?? ['joomla6'];
-        if (!in_array('joomla6', $supported, true)) {
-            $supported[] = 'joomla6';
+        $supported = $this->getPlugins()['contentbuilderng_themes'] ?? ['thoth'];
+        if (!in_array('thoth', $supported, true)) {
+            $supported[] = 'thoth';
         }
 
         $migratedLegacy = 0;
@@ -277,13 +278,13 @@ final class PluginInstallerService
         try {
             $query = $db->getQuery(true)
                 ->update($db->quoteName('#__contentbuilderng_forms'))
-                ->set($db->quoteName('theme_plugin') . ' = ' . $db->quote('joomla6'))
-                ->where($db->quoteName('theme_plugin') . ' = ' . $db->quote('joomla3'));
+                ->set($db->quoteName('theme_plugin') . ' = ' . $db->quote('thoth'))
+                ->whereIn($db->quoteName('theme_plugin'), ['joomla3', 'joomla6'], ParameterType::STRING);
             $db->setQuery($query);
             $db->execute();
             $migratedLegacy = (int) $db->getAffectedRows();
         } catch (\Throwable $e) {
-            $this->log('[WARNING] Failed migrating joomla3 theme references: ' . $e->getMessage(), Log::WARNING);
+            $this->log('[WARNING] Failed migrating legacy theme references: ' . $e->getMessage(), Log::WARNING);
         }
 
         try {
@@ -300,7 +301,7 @@ final class PluginInstallerService
                 $quoted = array_map(static fn($theme) => $db->quote((string) $theme), $unsupported);
                 $query = $db->getQuery(true)
                     ->update($db->quoteName('#__contentbuilderng_forms'))
-                    ->set($db->quoteName('theme_plugin') . ' = ' . $db->quote('joomla6'))
+                    ->set($db->quoteName('theme_plugin') . ' = ' . $db->quote('thoth'))
                     ->where($db->quoteName('theme_plugin') . ' IN (' . implode(',', $quoted) . ')');
                 $db->setQuery($query);
                 $db->execute();
@@ -311,7 +312,7 @@ final class PluginInstallerService
         }
 
         if ($migratedLegacy > 0 || $migratedUnsupported > 0) {
-            $this->log("[OK] Normalized form theme references to joomla6: {$migratedLegacy} legacy + {$migratedUnsupported} unsupported.");
+            $this->log("[OK] Normalized form theme references to thoth: {$migratedLegacy} legacy + {$migratedUnsupported} unsupported.");
         } else {
             $this->log('[INFO] No form theme references needed normalization.');
         }
@@ -565,7 +566,7 @@ final class PluginInstallerService
         return [
             'contentbuilderng_verify' => ['paypal', 'passthrough'],
             'contentbuilderng_validation' => ['notempty', 'equal', 'email', 'date_not_before', 'date_is_valid'],
-            'contentbuilderng_themes' => ['khepri', 'blank', 'joomla6', 'dark'],
+            'contentbuilderng_themes' => ['khepri', 'blank', 'thoth', 'dark'],
             'system' => ['contentbuilderng_system'],
             'contentbuilderng_submit' => ['submit_sample'],
             'contentbuilderng_listaction' => ['trash', 'untrash'],

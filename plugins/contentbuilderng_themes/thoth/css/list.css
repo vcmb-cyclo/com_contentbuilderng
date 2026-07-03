@@ -169,6 +169,12 @@
         background-color:#111a24!important;
         color:#e7edf6!important;
     }
+    /* Reapply the per-record state colour set as inline custom properties;
+       the generic !important cell backgrounds above would otherwise hide it. */
+    .cb-list-table > tbody > tr > td[data-cb-state-cell][style*="--cb-state-bg"]{
+        background-color:var(--cb-state-bg)!important;
+        color:var(--cb-state-fg, #e7edf6)!important;
+    }
     .cb-debug-details{
         color:#e7edf6;
         background:#111a24!important;

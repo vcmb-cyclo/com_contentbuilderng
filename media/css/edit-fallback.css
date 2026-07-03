@@ -1,4 +1,4 @@
-/* ContentBuilderNG - theme frontend edit Joomla 6 par defaut. */
+/* ContentBuilderNG - theme frontend edit Thoth par defaut. */
 
 .cbEditableWrapper{
     max-width:1120px;
@@ -23,5 +23,5 @@
 @media (max-width:767.98px){
     .cbEditableWrapper{margin-top:.4rem;padding:.58rem .5rem .6rem;border-radius:.68rem}
     .cbEditableWrapper .cbToolBar{padding:.32rem}
-    .cbEditableWrapper .cbToolBar .cbButton.btn{width:100%;justify-content:center}
+    .cbEditableWrapper .cbToolBar .cbButton.btn{flex:0 0 auto;justify-content:center}
 }

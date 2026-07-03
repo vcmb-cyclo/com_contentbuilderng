@@ -221,12 +221,10 @@ class ExportModel extends BaseDatabaseModel
                         $filters = array();
                         $filters_from = array();
                         $filters_to = array();
-                        $calendar_formats = array();
 
                         $filters = $app->getSession()->get('com_contentbuilderng.filter.' . $this->_id, array());
                         $filters_from = $app->getSession()->get('com_contentbuilderng.calendar_filter_from.' . $this->_id, array());
                         $filters_to = $app->getSession()->get('com_contentbuilderng.calendar_filter_to.' . $this->_id, array());
-                        $calendar_formats = $app->getSession()->get('com_contentbuilderng.calendar_formats.' . $this->_id, array());
                         $filter_keywords = $app->getSession()->get('com_contentbuilderng.filter_keywords.' . $this->_id, '');
                         $filter_cats = $app->getSession()->get('com_contentbuilderng.filter_article_categories.' . $this->_id, -1);
 
@@ -236,33 +234,6 @@ class ExportModel extends BaseDatabaseModel
 
                         if ($filter_cats != -1) {
                             $this->setState('article_category_filter', $filter_cats);
-                        }
-
-                        foreach ($calendar_formats as $col => $calendar_format) {
-                            if (isset($filters[$col])) {
-                                $filter_exploded = explode('/', $filters[$col]);
-                                if (isset($filter_exploded[2])) {
-                                    $to_exploded = explode('to', $filter_exploded[2]);
-                                    switch (count($to_exploded)) {
-                                        case 2:
-                                            if ($to_exploded[0] != '') {
-                                                $filters[$col] = '@range/date/' .  ContentbuilderngHelper::convertDate(trim($to_exploded[0]), $calendar_format) . ' to ' . ContentbuilderngHelper::convertDate(trim($to_exploded[1]), $calendar_format);
-                                            } else {
-                                                $filters[$col] = '@range/date/to ' . ContentbuilderngHelper::convertDate(trim($to_exploded[1]), $calendar_format);
-                                            }
-                                            break;
-                                        case 1:
-                                            $filters[$col] = '@range/date/' .  ContentbuilderngHelper::convertDate(trim($to_exploded[0]), $calendar_format);
-                                            break;
-                                    }
-                                    if (isset($to_exploded[0]) && isset($to_exploded[1]) && trim($to_exploded[0]) == '' && trim($to_exploded[1]) == '') {
-                                        $filters[$col] = '';
-                                    }
-                                    if (isset($to_exploded[0]) && !isset($to_exploded[1]) && trim($to_exploded[0]) == '') {
-                                        $filters[$col] = '';
-                                    }
-                                }
-                            }
                         }
 
                         $new_filters = array();

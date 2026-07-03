@@ -1873,10 +1873,6 @@
 
         var name = String(field.name || '');
 
-        if (/^jform\[order\]\[\d+\]$/.test(name)) {
-            return true;
-        }
-
         return name === 'limit'
             && String(field.id || '') === 'limit'
             && typeof field.closest === 'function'

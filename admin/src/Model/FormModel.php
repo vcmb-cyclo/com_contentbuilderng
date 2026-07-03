@@ -460,7 +460,7 @@ class FormModel extends AdminModel
         $themes = array_values(array_unique($themes));
 
         usort($themes, static function (string $a, string $b): int {
-            $order = ['joomla6' => 0, 'dark' => 1, 'blank' => 2, 'khepri' => 3];
+            $order = ['thoth' => 0, 'dark' => 1, 'blank' => 2, 'khepri' => 3];
             $rankA = $order[$a] ?? 99;
             $rankB = $order[$b] ?? 99;
             if ($rankA !== $rankB) {
@@ -581,6 +581,7 @@ class FormModel extends AdminModel
             $data->cb_show_details_top_bar = 1;
             $data->cb_show_details_bottom_bar = 0;
             $data->show_back_button = 1;
+            $data->show_title_breadcrumb = 1;
             $data->cb_filter_in_title = 0;
             $data->cb_prefix_in_title = 0;
             $data->debug_mode = 0;
@@ -624,7 +625,7 @@ class FormModel extends AdminModel
             $data->registration_bypass_verification_name = '';
             $data->registration_bypass_verify_view = '';
 
-            $data->theme_plugin = 'joomla6';
+            $data->theme_plugin = 'thoth';
 
             $data->rating_slots = 5;
 
@@ -696,6 +697,10 @@ class FormModel extends AdminModel
 
         if (!isset($data->show_back_button)) {
             $data->show_back_button = 1;
+        }
+
+        if (!isset($data->show_title_breadcrumb)) {
+            $data->show_title_breadcrumb = 1;
         }
 
         if (!isset($data->cb_filter_in_title)) {
@@ -945,6 +950,7 @@ class FormModel extends AdminModel
             'cb_show_details_top_bar',
             'cb_show_details_bottom_bar',
             'show_back_button',
+            'show_title_breadcrumb',
             'cb_filter_in_title',
             'cb_prefix_in_title',
             'debug_mode',
@@ -995,7 +1001,7 @@ class FormModel extends AdminModel
         if ($selectedThemePlugin !== '') {
             $availableThemePlugins = $this->getThemePlugins();
             if (!in_array($selectedThemePlugin, $availableThemePlugins, true)) {
-                $jform['theme_plugin'] = 'joomla6';
+                $jform['theme_plugin'] = 'thoth';
             }
         }
 

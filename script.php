@@ -358,7 +358,7 @@ class com_contentbuilderngInstallerScript
                 // Remove unsupported theme plugins (these are NG themes; ok to uninstall)
                 $this->removeDeprecatedThemePlugins();
 
-                // Normalize stored theme references to joomla6 when legacy/unsupported
+                // Normalize stored theme references to thoth when legacy/unsupported
                 $this->normalizeFormThemePlugins();
 
                 // Normalize legacy "type" fields pointing to component

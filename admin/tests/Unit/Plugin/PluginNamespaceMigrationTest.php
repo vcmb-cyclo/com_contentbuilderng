@@ -34,7 +34,7 @@ final class PluginNamespaceMigrationTest extends TestCase
         return [
             'themes/blank'   => ['contentbuilderng_themes', 'blank',   'Blank',   'CB\Plugin\ContentbuilderngThemes\Blank\Extension'],
             'themes/dark'    => ['contentbuilderng_themes', 'dark',    'Dark',    'CB\Plugin\ContentbuilderngThemes\Dark\Extension'],
-            'themes/joomla6' => ['contentbuilderng_themes', 'joomla6', 'Joomla6', 'CB\Plugin\ContentbuilderngThemes\Joomla6\Extension'],
+            'themes/thoth' => ['contentbuilderng_themes', 'thoth', 'Thoth', 'CB\Plugin\ContentbuilderngThemes\Thoth\Extension'],
             'themes/khepri'  => ['contentbuilderng_themes', 'khepri',  'Khepri',  'CB\Plugin\ContentbuilderngThemes\Khepri\Extension'],
 
             'validation/email'           => ['contentbuilderng_validation', 'email',           'Email',         'CB\Plugin\ContentbuilderngValidation\Email\Extension'],

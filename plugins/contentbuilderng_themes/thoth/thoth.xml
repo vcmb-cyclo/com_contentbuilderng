@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" group="contentbuilderng_themes" method="upgrade">
+  <name>ContentBuilder NG - Themes - Thoth</name>
+  <author>XDA+GIL</author>
+  <creationDate>2026-07-03</creationDate>
+  <copyright>(C) 2026 XDA+GIL</copyright>
+  <license>GNU/GPL v2 or later</license>
+  <authorEmail>noreply@vcmb.fr</authorEmail>
+  <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
+  <version>6.1.7-RC70</version>
+  <description><![CDATA[The native ContentBuilder NG Thoth theme]]></description>
+  <namespace path="src">CB\Plugin\ContentbuilderngThemes\Thoth</namespace>
+  <files>
+    <filename plugin="thoth">services/provider.php</filename>
+    <folder>src</folder>
+    <folder>css</folder>
+    <folder>language</folder>
+  </files>
+</extension>

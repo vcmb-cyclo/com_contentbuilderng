@@ -127,6 +127,7 @@ class FormTable extends Table
     public $cb_show_details_top_bar = 1;
     public $cb_show_details_bottom_bar = 0;
     public $show_back_button = 1;
+    public $show_title_breadcrumb = 1;
     public $cb_filter_in_title = 0;
     public $cb_prefix_in_title = 0;
     public $debug_mode = 0;

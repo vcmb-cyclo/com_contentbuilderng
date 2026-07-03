@@ -24,6 +24,7 @@ final class FormDisplayColumnsHelperTest extends TestCase
             'cb_show_details_top_bar' => 'TINYINT(1) NOT NULL DEFAULT 1',
             'cb_show_details_bottom_bar' => 'TINYINT(1) NOT NULL DEFAULT 0',
             'show_back_button' => 'TINYINT(1) NOT NULL DEFAULT 1',
+            'show_title_breadcrumb' => 'TINYINT(1) NOT NULL DEFAULT 1',
             'cb_filter_in_title' => 'TINYINT(1) NOT NULL DEFAULT 0',
             'cb_prefix_in_title' => 'TINYINT(1) NOT NULL DEFAULT 0',
             'debug_mode' => 'TINYINT(1) NOT NULL DEFAULT 0',
@@ -56,7 +57,7 @@ final class FormDisplayColumnsHelperTest extends TestCase
 
         self::assertSame(1, $summary['scanned']);
         self::assertSame(1, $summary['missing_tables']);
-        self::assertSame(13, $summary['missing_columns_total']);
+        self::assertSame(14, $summary['missing_columns_total']);
         self::assertCount(1, $summary['issues']);
         self::assertSame('#__contentbuilderng_forms', $summary['issues'][0]['table']);
         self::assertSame([
@@ -65,6 +66,7 @@ final class FormDisplayColumnsHelperTest extends TestCase
             'list_header_sticky',
             'show_preview_link',
             'list_last_modification',
+            'show_title_breadcrumb',
             'cb_prefix_in_title',
             'debug_mode',
             'debug_show_bf_id',
@@ -100,18 +102,19 @@ final class FormDisplayColumnsHelperTest extends TestCase
         $db->method('setQuery')->willReturnCallback(static function (string $query) use (&$sql): void {
             $sql[] = $query;
         });
-        $db->expects(self::exactly(9))->method('execute');
+        $db->expects(self::exactly(10))->method('execute');
 
         $summary = FormDisplayColumnsHelper::repair($db);
 
         self::assertSame(1, $summary['scanned']);
         self::assertSame(1, $summary['issues']);
-        self::assertSame(9, $summary['repaired']);
+        self::assertSame(10, $summary['repaired']);
         self::assertSame(0, $summary['unchanged']);
         self::assertSame(0, $summary['errors']);
         self::assertSame('repaired', $summary['tables'][0]['status']);
         self::assertSame([
             'cb_show_details_bottom_bar',
+            'show_title_breadcrumb',
             'cb_prefix_in_title',
             'debug_mode',
             'debug_show_bf_id',
@@ -123,6 +126,7 @@ final class FormDisplayColumnsHelperTest extends TestCase
         ], $summary['tables'][0]['missing']);
         self::assertSame([
             'cb_show_details_bottom_bar',
+            'show_title_breadcrumb',
             'cb_prefix_in_title',
             'debug_mode',
             'debug_show_bf_id',
@@ -132,7 +136,14 @@ final class FormDisplayColumnsHelperTest extends TestCase
             'debug_show_filters',
             'debug_show_cb_id',
         ], $summary['tables'][0]['added']);
-        self::assertCount(9, $sql);
+        self::assertCount(10, $sql);
+        self::assertTrue(
+            \in_array(
+                'ALTER TABLE `#__contentbuilderng_forms` ADD `show_title_breadcrumb` TINYINT(1) NOT NULL DEFAULT 1',
+                $sql,
+                true
+            )
+        );
         self::assertTrue(
             \in_array(
                 'ALTER TABLE `#__contentbuilderng_forms` ADD `cb_prefix_in_title` TINYINT(1) NOT NULL DEFAULT 0',

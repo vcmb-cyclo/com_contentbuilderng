@@ -228,7 +228,7 @@ Bundled validation plugins:
 
 Other bundled families:
 
-- `Joomla 6`, `Dark`, `Blank`, and `Khepri` themes;
+- `Thoth`, `Dark`, `Blank`, and `Khepri` themes;
 - Trash and Untrash list actions;
 - Pass-Through and PayPal verification;
 - a submission sample;

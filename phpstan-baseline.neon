@@ -1,0 +1,1207 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Variable \$displayData might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: admin/layouts/form/advanced_options.php
+
+		-
+			message: '#^Variable \$displayData might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: admin/layouts/form/article_tab.php
+
+		-
+			message: '#^Variable \$displayData might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: admin/layouts/form/bf_system_fields_modal.php
+
+		-
+			message: '#^Variable \$displayData might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: admin/layouts/form/details_display.php
+
+		-
+			message: '#^Variable \$displayData might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: admin/layouts/form/edit_display.php
+
+		-
+			message: '#^Variable \$displayData might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: admin/layouts/form/elements_table.php
+
+		-
+			message: '#^Variable \$displayData might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: admin/layouts/form/list_states.php
+
+		-
+			message: '#^Variable \$displayData might not be defined\.$#'
+			identifier: variable.undefined
+			count: 5
+			path: admin/layouts/form/permissions_tab.php
+
+		-
+			message: '#^Variable \$displayData might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: admin/layouts/form/prepare_editor.php
+
+		-
+			message: '#^Variable \$displayData might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: admin/layouts/form/view_tab.php
+
+		-
+			message: '#^Variable \$displayData might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: admin/layouts/storage/storage_tab.php
+
+		-
+			message: '#^Method CB\\Component\\Contentbuilderng\\Administrator\\Controller\\ElementoptionsController\:\:display\(\) should return static\(CB\\Component\\Contentbuilderng\\Administrator\\Controller\\ElementoptionsController\) but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: admin/src/Controller/ElementoptionsController.php
+
+		-
+			message: '#^Variable \$formId might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: admin/src/Controller/FormController.php
+
+		-
+			message: '#^Method CB\\Component\\Contentbuilderng\\Administrator\\Controller\\UsersController\:\:display\(\) should return static\(CB\\Component\\Contentbuilderng\\Administrator\\Controller\\UsersController\) but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: admin/src/Controller/UsersController.php
+
+		-
+			message: '#^Function CB\\Component\\Contentbuilderng\\Administrator\\Helper\\mb_wordwrap invoked with 5 parameters, 1\-3 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: admin/src/Helper/ContentbuilderngHelper.php
+
+		-
+			message: '#^Undefined variable\: \$row$#'
+			identifier: variable.undefined
+			count: 1
+			path: admin/src/Model/Category_fields/categoryeditcb.php
+
+		-
+			message: '#^Variable \$row in isset\(\) is never defined\.$#'
+			identifier: isset.variable
+			count: 1
+			path: admin/src/Model/Category_fields/categoryeditcb.php
+
+		-
+			message: '#^Access to an undefined property \$this\(CB\\Component\\Contentbuilderng\\Administrator\\Model\\ElementoptionsModel\)\:\:\$_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/Model/ElementoptionsModel.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\Model\\ElementoptionsModel\:\:\$_data\.$#'
+			identifier: property.notFound
+			count: 3
+			path: admin/src/Model/ElementoptionsModel.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\Model\\ElementoptionsModel\:\:\$_id\.$#'
+			identifier: property.notFound
+			count: 5
+			path: admin/src/Model/ElementoptionsModel.php
+
+		-
+			message: '#^Undefined variable\: \$row$#'
+			identifier: variable.undefined
+			count: 1
+			path: admin/src/Model/FormModel.php
+
+		-
+			message: '#^Variable \$row in isset\(\) is never defined\.$#'
+			identifier: isset.variable
+			count: 1
+			path: admin/src/Model/FormModel.php
+
+		-
+			message: '#^Variable \$columns in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: admin/src/Model/StorageModel.php
+
+		-
+			message: '#^Method CB\\Component\\Contentbuilderng\\Administrator\\Model\\StoragesModel\:\:saveOrder\(\) should return string but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: admin/src/Model/StoragesModel.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\Model\\UserModel\:\:\$_data\.$#'
+			identifier: property.notFound
+			count: 2
+			path: admin/src/Model/UserModel.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\Model\\UserModel\:\:\$_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: admin/src/Model/UserModel.php
+
+		-
+			message: '#^Anonymous function has an unused use \$contentbuilderngFormId\.$#'
+			identifier: closure.unusedUse
+			count: 2
+			path: admin/src/Service/TemplateRenderService.php
+
+		-
+			message: '#^Anonymous function has an unused use \$elementsAllowed\.$#'
+			identifier: closure.unusedUse
+			count: 2
+			path: admin/src/Service/TemplateRenderService.php
+
+		-
+			message: '#^Anonymous function has an unused use \$item\.$#'
+			identifier: closure.unusedUse
+			count: 2
+			path: admin/src/Service/TemplateRenderService.php
+
+		-
+			message: '#^Anonymous function has an unused use \$items\.$#'
+			identifier: closure.unusedUse
+			count: 2
+			path: admin/src/Service/TemplateRenderService.php
+
+		-
+			message: '#^Anonymous function has an unused use \$rawItems\.$#'
+			identifier: closure.unusedUse
+			count: 1
+			path: admin/src/Service/TemplateRenderService.php
+
+		-
+			message: '#^Anonymous function has an unused use \$record\.$#'
+			identifier: closure.unusedUse
+			count: 2
+			path: admin/src/Service/TemplateRenderService.php
+
+		-
+			message: '#^Anonymous function has an unused use \$recordId\.$#'
+			identifier: closure.unusedUse
+			count: 2
+			path: admin/src/Service/TemplateRenderService.php
+
+		-
+			message: '#^Anonymous function has an unused use \$result\.$#'
+			identifier: closure.unusedUse
+			count: 2
+			path: admin/src/Service/TemplateRenderService.php
+
+		-
+			message: '#^Anonymous function has an unused use \$template\.$#'
+			identifier: closure.unusedUse
+			count: 2
+			path: admin/src/Service/TemplateRenderService.php
+
+		-
+			message: '#^Call to an undefined method CB\\Component\\Contentbuilderng\\Administrator\\Service\\TemplateSampleService\:\:getApp\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: admin/src/Service/TemplateSampleService.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$apply_button_title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$back_button\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$create_articles\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$created\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$edit_by_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$event\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$latest\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$limited_options\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$modified\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$modified_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$page_title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$record_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$save_button_title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$show_page_heading\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$theme_css\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$theme_js\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$toc\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$tpl\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Elementoptions\\HtmlView\:\:\$element\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Elementoptions/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Elementoptions\\HtmlView\:\:\$group_definition\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Elementoptions/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Elementoptions\\HtmlView\:\:\$validations\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Elementoptions/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$all_elements\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$elements\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$form\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$gmap\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$item\.$#'
+			identifier: property.notFound
+			count: 2
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$listDirn\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$listOrder\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$list_states_action_plugins\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$ordering\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$pagination\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$referencingMenuItems\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$state\.$#'
+			identifier: property.notFound
+			count: 3
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$theme_plugins\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Form\\HtmlView\:\:\$verification_plugins\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Variable \$formId on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Forms\\HtmlView\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Forms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Forms\\HtmlView\:\:\$lists\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Forms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Forms\\HtmlView\:\:\$ordering\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Forms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Forms\\HtmlView\:\:\$pagination\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Forms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Forms\\HtmlView\:\:\$previewLinks\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Forms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Forms\\HtmlView\:\:\$state\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Forms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Forms\\HtmlView\:\:\$tags\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Forms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Storages\\HtmlView\:\:\$previewLinks\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/Storages/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\User\\HtmlView\:\:\$subject\.$#'
+			identifier: property.notFound
+			count: 1
+			path: admin/src/View/User/HtmlView.php
+
+		-
+			message: '#^Variable \$ref_id might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: plugins/content/contentbuilderng_image_scale/src/Extension/ContentbuilderngImageScale.php
+
+		-
+			message: '#^Variable \$ref_own_only might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: plugins/content/contentbuilderng_image_scale/src/Extension/ContentbuilderngImageScale.php
+
+		-
+			message: '#^Variable \$ref_own_only_fe might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: plugins/content/contentbuilderng_image_scale/src/Extension/ContentbuilderngImageScale.php
+
+		-
+			message: '#^Variable \$ref_published_only might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: plugins/content/contentbuilderng_image_scale/src/Extension/ContentbuilderngImageScale.php
+
+		-
+			message: '#^Variable \$ref_type might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: plugins/content/contentbuilderng_image_scale/src/Extension/ContentbuilderngImageScale.php
+
+		-
+			message: '#^Variable \$rating_slots might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: plugins/content/contentbuilderng_rating/src/Extension/ContentbuilderngRating.php
+
+		-
+			message: '#^Variable \$displayData might not be defined\.$#'
+			identifier: variable.undefined
+			count: 5
+			path: site/layouts/contentbuilderng/debug_panel.php
+
+		-
+			message: '#^Method CB\\Component\\Contentbuilderng\\Site\\Controller\\DetailsController\:\:display\(\) should return static\(CB\\Component\\Contentbuilderng\\Site\\Controller\\DetailsController\) but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: site/src/Controller/DetailsController.php
+
+		-
+			message: '#^Method CB\\Component\\Contentbuilderng\\Site\\Controller\\EditController\:\:display\(\) should return static\(CB\\Component\\Contentbuilderng\\Site\\Controller\\EditController\) but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: site/src/Controller/EditController.php
+
+		-
+			message: '#^Variable \$msg might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: site/src/Controller/EditController.php
+
+		-
+			message: '#^Method CB\\Component\\Contentbuilderng\\Site\\Controller\\PublicformsController\:\:display\(\) should return static\(CB\\Component\\Contentbuilderng\\Site\\Controller\\PublicformsController\) but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: site/src/Controller/PublicformsController.php
+
+		-
+			message: '#^Method CB\\Component\\Contentbuilderng\\Site\\Controller\\VerifyController\:\:display\(\) should return static\(CB\\Component\\Contentbuilderng\\Site\\Controller\\VerifyController\) but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: site/src/Controller/VerifyController.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\Model\\DetailsModel\:\:\$_data\.$#'
+			identifier: property.notFound
+			count: 2
+			path: site/src/Model/DetailsModel.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\Model\\DetailsModel\:\:\$_id\.$#'
+			identifier: property.notFound
+			count: 15
+			path: site/src/Model/DetailsModel.php
+
+		-
+			message: '#^Variable \$data on left side of \?\? is never defined\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: site/src/Model/DetailsModel.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\Model\\EditModel\:\:\$_data\.$#'
+			identifier: property.notFound
+			count: 4
+			path: site/src/Model/EditModel.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\Model\\EditModel\:\:\$_id\.$#'
+			identifier: property.notFound
+			count: 39
+			path: site/src/Model/EditModel.php
+
+		-
+			message: '#^Variable \$fields might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: site/src/Model/EditModel.php
+
+		-
+			message: '#^Variable \$value might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: site/src/Model/EditModel.php
+
+		-
+			message: '#^Variable \$filter_order_Dir in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: site/src/Model/ListModel.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\Model\\PublicformsModel\:\:\$_data\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/Model/PublicformsModel.php
+
+		-
+			message: '#^Constructor of class CB\\Component\\Contentbuilderng\\Site\\Service\\Router has an unused parameter \$categoryFactory\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: site/src/Service/Router.php
+
+		-
+			message: '#^Constructor of class CB\\Component\\Contentbuilderng\\Site\\Service\\Router has an unused parameter \$db\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: site/src/Service/Router.php
+
+		-
+			message: '#^Constructor of class CB\\Component\\Contentbuilderng\\Site\\Service\\Router has an unused parameter \$menu\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: site/src/Service/Router.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$author\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$created\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$direct_storage_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$direct_storage_mode\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$direct_storage_unpublished\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$event\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$form_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$metadesc\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$metakey\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$modified\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$modified_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$next_record_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$page_title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$prev_record_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$print_button\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$rights\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$robots\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$show_id_column\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$show_page_heading\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$theme_css\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$theme_js\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$toc\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$tpl\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Details\\HtmlView\:\:\$xreference\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Export\\HtmlView\:\:\$data\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Export/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Export\\RawView\:\:\$data\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Export/RawView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$button_bar_sticky\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$cb_record_ids\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$direct_storage_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$direct_storage_mode\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$direct_storage_unpublished\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$display_filter\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$edit_button\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$export_xls\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$form\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$form_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$form_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$intro_text\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$invalid_list_setup\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$labels\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$lang_codes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$languages\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$linkable_elements\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$list_article\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$list_author\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$list_header_sticky\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$list_language\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$list_last_modification\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$list_publish\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$list_rating\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$list_state\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$lists\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$new_button\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$own_only\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$page_class\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$page_title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$pagination\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$preview_no_list_fields\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$published_items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$rating_slots\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$select_column\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$show_filter\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$show_id_column\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$show_page_heading\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$show_preview_link\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$show_records_per_page\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$slug2\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$source_reference_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$source_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$state\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$state_colors\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$state_titles\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$states\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$theme_css\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$theme_js\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$title_field\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\List\\HtmlView\:\:\$visible_cols\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$introtext\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$lists\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$ordering\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$page_heading\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$pagination\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$perms\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$show_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$show_permissions\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$show_permissions_edit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$show_permissions_new\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$show_tags\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$tags\.$#'
+			identifier: property.notFound
+			count: 1
+			path: site/src/View/Publicforms/HtmlView.php

@@ -406,7 +406,7 @@ class HtmlView extends BaseHtmlView
 
 				$themePlugin = trim((string) ($subject->theme_plugin ?? ''));
 				if ($themePlugin === '' || !PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin)) {
-					$themePlugin = 'joomla6';
+					$themePlugin = 'thoth';
 					PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin);
 				}
 		$dispatcher = Factory::getApplication()->getDispatcher();

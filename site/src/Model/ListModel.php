@@ -446,7 +446,6 @@ class ListModel extends BaseListModel
         $session->remove('com_contentbuilderng.filter.' . $this->_id);
         $session->remove('com_contentbuilderng.calendar_filter_from.' . $this->_id);
         $session->remove('com_contentbuilderng.calendar_filter_to.' . $this->_id);
-        $session->remove('com_contentbuilderng.calendar_formats.' . $this->_id);
         $session->remove('com_contentbuilderng.filter_keywords.' . $this->_id);
         $session->remove('com_contentbuilderng.filter_article_categories.' . $this->_id);
     }
@@ -524,7 +523,7 @@ class ListModel extends BaseListModel
         $data = (object) [
             'type' => 'com_contentbuilderng',
             'reference_id' => (int) $storage->id,
-            'theme_plugin' => 'joomla6',
+            'theme_plugin' => 'thoth',
             'show_filter' => 1,
             'show_records_per_page' => 1,
             'button_bar_sticky' => 0,
@@ -800,7 +799,6 @@ class ListModel extends BaseListModel
                         $app->getSession()->remove('com_contentbuilderng.filter.' . $this->_id);
                         $app->getSession()->remove('com_contentbuilderng.calendar_filter_from.' . $this->_id);
                         $app->getSession()->remove('com_contentbuilderng.calendar_filter_to.' . $this->_id);
-                        $app->getSession()->remove('com_contentbuilderng.calendar_formats.' . $this->_id);
                         $app->getSession()->remove('com_contentbuilderng.filter_keywords.' . $this->_id);
                         $app->getSession()->remove('com_contentbuilderng.filter_article_categories.' . $this->_id);
                     } else if (
@@ -816,7 +814,6 @@ class ListModel extends BaseListModel
                         $filters = array();
                         $filters_from = array();
                         $filters_to = array();
-                        $calendar_formats = array();
 
                         // renew on request
                         if ($app->getInput()->getBool('contentbuilderng_filter_signal', false)) {
@@ -832,7 +829,6 @@ class ListModel extends BaseListModel
                             $filters = $app->getInput()->post->get('cb_filter', [], 'array');
                             $filters_from = $app->getInput()->post->get('cbListFilterCalendarFrom', [], 'array');
                             $filters_to = $app->getInput()->post->get('cbListFilterCalendarTo', [], 'array');
-                            $calendar_formats = $app->getInput()->post->get('cb_filter_calendar_format', [], 'array');
 
                             $app->getSession()->set('com_contentbuilderng.filter_signal.' . $this->_id, true);
                             $app->getSession()->set('com_contentbuilderng.filter.' . $this->_id, $filters);
@@ -840,7 +836,6 @@ class ListModel extends BaseListModel
                             $app->getSession()->set('com_contentbuilderng.filter_article_categories.' . $this->_id, $app->getInput()->getInt('cbListFilterArticleCategories', -1));
                             $app->getSession()->set('com_contentbuilderng.calendar_filter_from.' . $this->_id, $filters_from);
                             $app->getSession()->set('com_contentbuilderng.calendar_filter_to.' . $this->_id, $filters_to);
-                            $app->getSession()->set('com_contentbuilderng.calendar_formats.' . $this->_id, $calendar_formats);
 
                             // else pick from session
                         } else if ($app->getSession()->get('com_contentbuilderng.filter_signal.' . $this->_id, false)) {
@@ -848,7 +843,6 @@ class ListModel extends BaseListModel
                             $filters = $app->getSession()->get('com_contentbuilderng.filter.' . $this->_id, array());
                             $filters_from = $app->getSession()->get('com_contentbuilderng.calendar_filter_from.' . $this->_id, array());
                             $filters_to = $app->getSession()->get('com_contentbuilderng.calendar_filter_to.' . $this->_id, array());
-                            $calendar_formats = $app->getSession()->get('com_contentbuilderng.calendar_formats.' . $this->_id, array());
                             $filter_keywords = $app->getSession()->get('com_contentbuilderng.filter_keywords.' . $this->_id, '');
                             $filter_cats = $app->getSession()->get('com_contentbuilderng.filter_article_categories.' . $this->_id, -1);
 
@@ -858,33 +852,6 @@ class ListModel extends BaseListModel
 
                             if ($filter_cats != -1) {
                                 $this->setState('article_category_filter', $filter_cats);
-                            }
-                        }
-
-                        foreach ($calendar_formats as $col => $calendar_format) {
-                            if (isset($filters[$col])) {
-                                $filter_exploded = explode('/', $filters[$col]);
-                                if (isset($filter_exploded[2])) {
-                                    $to_exploded = explode('to', $filter_exploded[2]);
-                                    switch (count($to_exploded)) {
-                                        case 2:
-                                            if ($to_exploded[0] != '') {
-                                                $filters[$col] = '@range/date/' .  ContentbuilderngHelper::convertDate(trim($to_exploded[0]), $calendar_format) . ' to ' . ContentbuilderngHelper::convertDate(trim($to_exploded[1]), $calendar_format);
-                                            } else {
-                                                $filters[$col] = '@range/date/to ' . ContentbuilderngHelper::convertDate(trim($to_exploded[1]), $calendar_format);
-                                            }
-                                            break;
-                                        case 1:
-                                            $filters[$col] = '@range/date/' .  ContentbuilderngHelper::convertDate(trim($to_exploded[0]), $calendar_format);
-                                            break;
-                                    }
-                                    if (isset($to_exploded[0]) && isset($to_exploded[1]) && trim($to_exploded[0]) == '' && trim($to_exploded[1]) == '') {
-                                        $filters[$col] = '';
-                                    }
-                                    if (isset($to_exploded[0]) && !isset($to_exploded[1]) && trim($to_exploded[0]) == '') {
-                                        $filters[$col] = '';
-                                    }
-                                }
                             }
                         }
 

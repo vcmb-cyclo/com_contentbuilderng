@@ -164,7 +164,6 @@ if ($this->page_heading) {
         </thead>
         <tbody>
         <?php
-        $k = 0;
         $n = count($this->items);
         $colspan = 1 // form name always
             + (int) $this->show_id
@@ -181,7 +180,7 @@ if ($this->page_heading) {
                 $link_ = '<a href="' . $link . '">' . htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8') . '</a>';
             }
             ?>
-            <tr class="<?php echo"row$k"; ?>">
+            <tr>
 
                 <?php
                 if ($this->show_id) {
@@ -279,7 +278,6 @@ if ($this->page_heading) {
                 ?>
             </tr>
             <?php
-            $k = 1 - $k;
         }
         ?>
 

@@ -421,7 +421,7 @@ class HtmlView extends BaseHtmlView
             'contentbuilderng_submit.submit_sample' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_SUBMIT_SAMPLE',
             'contentbuilderng_themes.blank' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_THEME_BLANK',
             'contentbuilderng_themes.dark' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_THEME_DARK',
-            'contentbuilderng_themes.joomla6' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_THEME_JOOMLA6',
+            'contentbuilderng_themes.thoth' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_THEME_THOTH',
             'contentbuilderng_themes.khepri' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_THEME_KHEPRI',
             'contentbuilderng_validation.date_is_valid' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_VALIDATION_DATE_IS_VALID',
             'contentbuilderng_validation.date_not_before' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_VALIDATION_DATE_NOT_BEFORE',
