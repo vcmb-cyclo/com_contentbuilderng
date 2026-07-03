@@ -1,0 +1,19 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 1
+    paths:
+        - admin/src
+        - admin/layouts
+        - site/src
+        - site/layouts
+        - plugins
+        - script.php
+    excludePaths:
+        - admin/vendor
+    # Joomla core classes are not installed as a composer dependency.
+    # Point "joomla-stubs" at a Joomla 6 root (symlink locally, checkout in CI).
+    scanDirectories:
+        - joomla-stubs/libraries
+    treatPhpDocTypesAsCertain: false

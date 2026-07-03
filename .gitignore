@@ -9,3 +9,4 @@ admin/vendor/
 .playwright-cli/
 qa-artifacts/
 qa-report.html
+joomla-stubs
