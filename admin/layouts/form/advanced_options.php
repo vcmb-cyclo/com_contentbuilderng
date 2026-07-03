@@ -51,6 +51,7 @@ $advancedDefaults = [
     'export_xls' => 1,
     'print_button' => 0,
     'show_back_button' => 1,
+    'show_title_breadcrumb' => 1,
     'button_bar_sticky' => 0,
     'use_view_name_as_title' => 0,
     'list_header_sticky' => 0,
@@ -330,6 +331,15 @@ $advancedDefaults = [
                             <label class="form-check-label" for="show_preview_link">
                                 <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_PREVIEW_LINK_TIP'); ?>">
                                     <span class="fa-solid fa-eye" aria-hidden="true"></span>
+                                </span>
+                            </label>
+                        </div>
+                        <div>
+                            <input type="hidden" name="jform[show_title_breadcrumb]" value="0" />
+                            <?php echo $renderCheckbox('jform[show_title_breadcrumb]', 'show_title_breadcrumb', (bool) ($item->show_title_breadcrumb ?? true)); ?>
+                            <label class="form-check-label" for="show_title_breadcrumb">
+                                <span class="editlinktip hasTip" title="<?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_TITLE_BREADCRUMB_TIP'); ?>">
+                                    <?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_TITLE_BREADCRUMB'); ?>
                                 </span>
                             </label>
                         </div>

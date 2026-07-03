@@ -90,3 +90,12 @@
 @keyframes cb-blink{
     50%{opacity:0}
 }
+
+/* Fil d'Ariane du titre (liste > écran courant). */
+.cbPageBreadcrumb .cbPageBreadcrumbLink{
+    color:inherit;
+}
+.cbPageBreadcrumb .cbPageBreadcrumbLink:hover,
+.cbPageBreadcrumb .cbPageBreadcrumbLink:focus{
+    text-decoration:underline;
+}

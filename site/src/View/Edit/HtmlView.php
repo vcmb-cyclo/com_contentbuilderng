@@ -62,6 +62,7 @@ class HtmlView extends BaseHtmlView
     public int $prev_record_start = 0;
     public int $next_record_start = 0;
     public int $cb_show_author = 1;
+    public int $show_title_breadcrumb = 1;
     public int $cb_show_top_bar = 1;
     public int $cb_show_bottom_bar = 0;
     public int $cb_filter_in_title = 0;
@@ -724,6 +725,7 @@ class HtmlView extends BaseHtmlView
                     'save_button_title', 'id', 'article_options', 'article_settings',
                     'limited_options', 'show_id_column', 'toc', 'tpl',
                     'cb_show_author', 'cb_show_top_bar', 'cb_show_bottom_bar',
+                    'show_title_breadcrumb',
                     'cb_filter_in_title', 'cb_prefix_in_title', 'debug_mode',
                     'debug_show_bf_id', 'debug_enable_logs', 'debug_show_request_logs',
                     'debug_show_permissions', 'debug_show_filters', 'debug_show_cb_id',

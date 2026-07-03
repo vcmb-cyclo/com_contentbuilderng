@@ -804,9 +804,25 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
     <?php
     if ($this->show_page_heading && $this->page_title) {
     ?>
-        <h1 class="h3 mb-4">
-            <?php echo $this->page_title; ?>
-        </h1>
+        <?php if ((int) ($this->show_title_breadcrumb ?? 1) === 1) : ?>
+            <h1 class="h3 mb-4 cbPageBreadcrumb">
+                <a class="cbPageBreadcrumbLink text-decoration-none" href="<?php echo $listHref; ?>">
+                    <?php echo $this->page_title; ?>
+                </a>
+                <?php if (!$backToList && $hasRecord) : ?>
+                    <span class="text-muted mx-1" aria-hidden="true">&rsaquo;</span>
+                    <a class="cbPageBreadcrumbLink text-muted text-decoration-none" href="<?php echo $detailsHref; ?>">
+                        <?php echo Text::_('COM_CONTENTBUILDERNG_BREADCRUMB_DETAILS'); ?>
+                    </a>
+                <?php endif; ?>
+                <span class="text-muted mx-1" aria-hidden="true">&rsaquo;</span>
+                <span class="text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_BREADCRUMB_EDIT'); ?></span>
+            </h1>
+        <?php else : ?>
+            <h1 class="h3 mb-4">
+                <?php echo $this->page_title; ?>
+            </h1>
+        <?php endif; ?>
     <?php
     }
     ?>

@@ -581,6 +581,7 @@ class FormModel extends AdminModel
             $data->cb_show_details_top_bar = 1;
             $data->cb_show_details_bottom_bar = 0;
             $data->show_back_button = 1;
+            $data->show_title_breadcrumb = 1;
             $data->cb_filter_in_title = 0;
             $data->cb_prefix_in_title = 0;
             $data->debug_mode = 0;
@@ -696,6 +697,10 @@ class FormModel extends AdminModel
 
         if (!isset($data->show_back_button)) {
             $data->show_back_button = 1;
+        }
+
+        if (!isset($data->show_title_breadcrumb)) {
+            $data->show_title_breadcrumb = 1;
         }
 
         if (!isset($data->cb_filter_in_title)) {
@@ -945,6 +950,7 @@ class FormModel extends AdminModel
             'cb_show_details_top_bar',
             'cb_show_details_bottom_bar',
             'show_back_button',
+            'show_title_breadcrumb',
             'cb_filter_in_title',
             'cb_prefix_in_title',
             'debug_mode',
