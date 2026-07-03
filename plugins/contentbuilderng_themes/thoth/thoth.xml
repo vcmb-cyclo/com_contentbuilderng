@@ -9,12 +9,11 @@
   <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
   <version>6.1.7-RC70</version>
   <description><![CDATA[The native ContentBuilder NG Thoth theme]]></description>
-    <namespace path="src">CB\Plugin\ContentbuilderngThemes\Thoth</namespace>
-
-          <files>
-        <filename plugin="thoth">services/provider.php</filename>
-        <folder>src</folder>
-        <folder>css</folder>
-        <folder>language</folder>
-    </files>
+  <namespace path="src">CB\Plugin\ContentbuilderngThemes\Thoth</namespace>
+  <files>
+    <filename plugin="thoth">services/provider.php</filename>
+    <folder>src</folder>
+    <folder>css</folder>
+    <folder>language</folder>
+  </files>
 </extension>

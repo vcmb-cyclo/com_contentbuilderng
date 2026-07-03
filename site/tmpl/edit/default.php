@@ -807,7 +807,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
         <?php if ((int) ($this->show_title_breadcrumb ?? 1) === 1) : ?>
             <h1 class="h3 mb-4 cbPageBreadcrumb">
                 <a class="cbPageBreadcrumbLink text-decoration-none" href="<?php echo $listHref; ?>">
-                    <?php echo $this->page_title; ?>
+                    <?php echo $this->escape($this->page_title); ?>
                 </a>
                 <?php if (!$backToList && $hasRecord) : ?>
                     <span class="text-muted mx-1" aria-hidden="true">&rsaquo;</span>
@@ -820,7 +820,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             </h1>
         <?php else : ?>
             <h1 class="h3 mb-4">
-                <?php echo $this->page_title; ?>
+                <?php echo $this->escape($this->page_title); ?>
             </h1>
         <?php endif; ?>
     <?php

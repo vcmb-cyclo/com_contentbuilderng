@@ -416,14 +416,14 @@ if ($themeJs !== '') {
         <?php if ((int) ($this->show_title_breadcrumb ?? 1) === 1) : ?>
             <h1 class="h3 mb-4 cbPageBreadcrumb">
                 <a class="cbPageBreadcrumbLink text-decoration-none" href="<?php echo $closeListLink; ?>">
-                    <?php echo $headingTitle; ?>
+                    <?php echo $this->escape($headingTitle); ?>
                 </a>
                 <span class="text-muted mx-1" aria-hidden="true">&rsaquo;</span>
                 <span class="text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_BREADCRUMB_DETAILS'); ?></span>
             </h1>
         <?php else : ?>
             <h1 class="h3 mb-4">
-                <?php echo $headingTitle; ?>
+                <?php echo $this->escape($headingTitle); ?>
             </h1>
         <?php endif; ?>
     <?php

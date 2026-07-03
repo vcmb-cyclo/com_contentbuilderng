@@ -139,7 +139,9 @@ final class Khepri extends CMSPlugin implements SubscriberInterface
 			return;
 		}
 
-		return \file_get_contents(__DIR__ . '/../../css/content.css');
+		$cssFile = __DIR__ . '/../../css/content.css';
+
+		return \is_file($cssFile) ? (string) \file_get_contents($cssFile) : '';
 	}
 
 	/**
@@ -174,7 +176,8 @@ final class Khepri extends CMSPlugin implements SubscriberInterface
 			return;
 		}
 
-        $out = \file_get_contents(__DIR__ . '/../../css/list.css');
+        $cssFile = __DIR__ . '/../../css/list.css';
+        $out = \is_file($cssFile) ? (string) \file_get_contents($cssFile) : '';
 		if ($event instanceof Event) {
 			$this->pushEventResult($event, $out);
 			return;
