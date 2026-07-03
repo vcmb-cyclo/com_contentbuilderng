@@ -572,10 +572,22 @@
         box-shadow: none;
     }
 
-    html:not([data-bs-theme="light"]) .cbEditableWrapper > h1.display-6,
-    html:not([data-bs-theme="light"]) .cbDetailsWrapper > h1.display-6 {
+    /* Page background: this stylesheet is only injected on component pages,
+       so the body rule stays scoped to Details/Edit rendered with Thoth. */
+    html:not([data-bs-theme="light"]) body {
+        background-color: #0b121b;
+        color: #e7edf6;
+    }
+
+    html:not([data-bs-theme="light"]) .cbEditableWrapper > h1,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper > h1 {
         border-bottom-color: rgba(255, 255, 255, 0.16);
         color: #e7edf6;
+    }
+
+    /* Breadcrumb heading: separators and current-page segment. */
+    html:not([data-bs-theme="light"]) .cbPageBreadcrumb .text-muted {
+        color: #95a9c2 !important;
     }
 
     /* !important required: Bootstrap's .text-muted is itself !important. */
