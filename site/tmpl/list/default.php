@@ -961,8 +961,8 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 
 							<div class="cb-list-card-meta">
 								<span class="cb-list-card-badge">#<?php echo (int) $row->colRecord; ?></span>
-								<?php if (!empty($this->debug_show_cb_id)) : ?>
-									<span class="cb-list-card-badge">CBNG #<?php echo (int) ($this->cb_record_ids[$row->colRecord] ?? 0); ?></span>
+								<?php if (!empty($this->debug_mode) && !empty($this->debug_show_cb_id)) : ?>
+									<span class="cb-list-card-badge"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_CB_ID_COLUMN'); ?> #<?php echo (int) ($this->cb_record_ids[$row->colRecord] ?? 0); ?></span>
 								<?php endif; ?>
 								<?php if ($this->list_state && ($hasStateControl || $hasStaticStateBadge)) : ?>
 									<?php if ($hasStateControl && !$isTilesVariant) : ?>
@@ -1091,10 +1091,10 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 			<thead>
 				<tr>
 					<?php if ($isBfLinked): ?>
-						<th scope="col" class="table-light text-muted" title="BreezingForms Record ID">BF</th>
+						<th scope="col" class="table-light text-muted" title="<?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_BF_ID_COLUMN_TIP'); ?>"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_BF_ID_COLUMN'); ?></th>
 					<?php endif; ?>
-					<?php if (!empty($this->debug_show_cb_id)): ?>
-						<th scope="col" class="table-light text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_CB_ID_COLUMN'); ?></th>
+					<?php if (!empty($this->debug_mode) && !empty($this->debug_show_cb_id)): ?>
+						<th scope="col" class="table-light text-muted" title="<?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_CB_ID_COLUMN_TIP'); ?>"><?php echo Text::_('COM_CONTENTBUILDERNG_DEBUG_CB_ID_COLUMN'); ?></th>
 					<?php endif; ?>
 					<?php
 						if ($showPreviewLink && ($view_allowed || $this->own_only)) {
@@ -1240,7 +1240,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 							</a>
 						</td>
 					<?php endif; ?>
-					<?php if (!empty($this->debug_show_cb_id)): ?>
+					<?php if (!empty($this->debug_mode) && !empty($this->debug_show_cb_id)): ?>
 						<td class="text-muted small d-none d-sm-table-cell"><?php echo (int) ($this->cb_record_ids[$row->colRecord] ?? 0); ?></td>
 					<?php endif; ?>
 					<?php
