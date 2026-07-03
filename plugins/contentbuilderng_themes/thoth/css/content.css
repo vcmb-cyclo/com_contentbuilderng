@@ -559,6 +559,127 @@
     box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb, 13, 110, 253), 0.15);
 }
 
+/* OS-level dark mode fallback for templates that do not switch the
+   Bootstrap tokens via data-bs-theme; an explicit data-bs-theme="light"
+   keeps the variable-driven light rendering. */
+@media (prefers-color-scheme: dark) {
+    html:not([data-bs-theme="light"]) .cbEditableWrapper,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper {
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    html:not([data-bs-theme="light"]) .cbEditableWrapper > h1.display-6,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper > h1.display-6 {
+        border-bottom-color: rgba(255, 255, 255, 0.16);
+        color: #e7edf6;
+    }
+
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .cbToolBar,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar,
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .cbEditableBody,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbDetailsBody {
+        border-color: rgba(173, 193, 216, 0.24);
+        background: #1a2431;
+        box-shadow: 0 0.45rem 1rem rgba(0, 0, 0, 0.32);
+    }
+
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .cbEditableBody,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbDetailsBody {
+        color: #e7edf6;
+    }
+
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .cbColumnHeader,
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .created-by,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .created-by {
+        border-color: rgba(173, 193, 216, 0.24);
+        background: #22344a;
+        color: #d8e5f5;
+    }
+
+    html:not([data-bs-theme="light"]) .cbEditableWrapper #cbArticleOptions,
+    html:not([data-bs-theme="light"]) .cbEditableWrapper fieldset,
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .cbEditableBody > .mb-3,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbDetailsBody ul.category.list-striped.list-condensed > li,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbDetailsBody .list-group.list-group-flush > .list-group-item {
+        border-color: rgba(173, 193, 216, 0.24) !important;
+        background: #1f2d3d;
+        color: #e7edf6;
+        box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.22);
+    }
+
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .form-label,
+    html:not([data-bs-theme="light"]) .cbEditableWrapper label,
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .cbEditableBody > .mb-3 > .form-label,
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .cbEditableBody > .mb-3 > label.form-label,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbDetailsBody ul.category.list-striped.list-condensed > li strong.list-title,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbDetailsBody .list-group.list-group-flush > .list-group-item .form-label {
+        color: #c5d7ec;
+    }
+
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbDetailsBody ul.category.list-striped.list-condensed > li > div,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbDetailsBody .list-group.list-group-flush > .list-group-item .form-control-plaintext {
+        color: #e7edf6;
+    }
+
+    html:not([data-bs-theme="light"]) .cbEditableWrapper :is(
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="date"],
+        input[type="datetime-local"],
+        input[type="time"],
+        input[type="url"],
+        input[type="password"],
+        textarea,
+        select
+    ) {
+        border-color: rgba(173, 193, 216, 0.3);
+        background-color: #111a24;
+        color: #e7edf6;
+    }
+
+    html:not([data-bs-theme="light"]) .cbEditableWrapper :is(
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="date"],
+        input[type="datetime-local"],
+        input[type="time"],
+        input[type="url"],
+        input[type="password"],
+        textarea,
+        select
+    )::placeholder {
+        color: #95a9c2;
+    }
+
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .alert.alert-warning,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .alert.alert-warning {
+        border-color: rgba(255, 193, 7, 0.55);
+        background: linear-gradient(90deg, rgba(255, 193, 7, 0.18) 0%, rgba(255, 193, 7, 0.1) 100%);
+        color: #ffe79b;
+    }
+
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar .cbButton.btn-primary,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbTitleRecordNav .cbButton.btn-primary {
+        border-color: #66a3ff;
+        background: #1a2431;
+        color: #8fbeff;
+    }
+
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar .cbButton.btn-primary:hover,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar .cbButton.btn-primary:focus,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbTitleRecordNav .cbButton.btn-primary:hover,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbTitleRecordNav .cbButton.btn-primary:focus {
+        border-color: #66a3ff;
+        background: #66a3ff;
+        color: #102034;
+    }
+
+}
+
 @media (max-width: 767.98px) {
     .cbEditableWrapper {
         margin-top: 0.45rem;
