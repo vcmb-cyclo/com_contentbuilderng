@@ -179,6 +179,12 @@
 		border-bottom-color:rgba(148,163,184,.16);
 		box-shadow:0 10px 18px -18px rgba(0,0,0,.7), inset 0 -1px 0 rgba(148,163,184,.14);
 	}
+	/* Bootstrap .text-primary est !important : la valeur Cassiopeia
+	   (bleu marine) est illisible sur fond sombre. */
+	.cb-list-table a.text-primary,
+	.cb-list-table span.text-primary{
+		color:#9ec5fe!important;
+	}
 }
 @media (max-width:767.98px){
 	.cb-list-sticky{

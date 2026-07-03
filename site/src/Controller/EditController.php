@@ -295,7 +295,7 @@ class EditController extends BaseController
 
         $model = $this->getEditModel(['ignore_request' => true]);
         $changedCount = (int) $model->change_list_states();
-        $msg = Text::_($changedCount === 1 ? 'COM_CONTENTBUILDERNG_STATE_CHANGED' : 'COM_CONTENTBUILDERNG_STATES_CHANGED');
+        $msg = Text::plural('COM_CONTENTBUILDERNG_N_STATES_CHANGED', $changedCount);
 
         if ($this->isAjaxCall()) {
             $this->respondAjax(true, $msg);

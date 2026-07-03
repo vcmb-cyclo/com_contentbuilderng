@@ -18,7 +18,7 @@ use Joomla\CMS\Language\Text;
                         aria-expanded="false"
                         aria-controls="cb-about-plugins-collapse"
                     >
-                        <?php echo Text::sprintf($pluginsCount === 1 ? 'COM_CONTENTBUILDERNG_PLUGIN_COUNT' : 'COM_CONTENTBUILDERNG_PLUGINS_COUNT', (int) $pluginsCount); ?>
+                        <?php echo Text::plural('COM_CONTENTBUILDERNG_N_PLUGINS', (int) $pluginsCount); ?>
                     </button>
                 </h3>
                 <div

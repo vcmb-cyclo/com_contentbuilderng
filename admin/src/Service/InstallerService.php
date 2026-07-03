@@ -119,68 +119,6 @@ final class InstallerService
         }
     }
 
-    public function removeStaleInstallDirectories(?string $currentSource): void
-    {
-        $tmpRoots = $this->getAllowedInstallerTempRoots();
-
-        if ($tmpRoots === []) {
-            return;
-        }
-
-        $currentInstallDir = null;
-        $tmpRoot = null;
-
-        foreach ($tmpRoots as $candidateTmpRoot) {
-            $candidateInstallDir = $this->resolveCurrentInstallDirectory($currentSource, $candidateTmpRoot);
-
-            if ($candidateInstallDir !== null) {
-                $currentInstallDir = $candidateInstallDir;
-                $tmpRoot = $candidateTmpRoot;
-                break;
-            }
-        }
-
-        if ($currentInstallDir === null || $tmpRoot === null) {
-            $this->log('[WARNING] Skipped stale Joomla installer temporary directory cleanup: current installer source could not be resolved.', Log::WARNING);
-
-            return;
-        }
-
-        $installDirs = glob($tmpRoot . '/install_*', GLOB_ONLYDIR) ?: [];
-        $removed = 0;
-
-        foreach ($installDirs as $installDir) {
-            $realInstallDir = realpath($installDir);
-
-            if ($realInstallDir === false || !is_dir($realInstallDir)) {
-                continue;
-            }
-
-            if ($realInstallDir === $currentInstallDir) {
-                continue;
-            }
-
-            if (!$this->isDirectInstallTempDirectory($realInstallDir, $tmpRoot)) {
-                continue;
-            }
-
-            try {
-                if (Folder::delete($realInstallDir)) {
-                    $this->log('[OK] Removed stale Joomla installer temporary directory: ' . $realInstallDir . '.');
-                    $removed++;
-                } else {
-                    $this->log('[WARNING] Could not remove stale Joomla installer temporary directory: ' . $realInstallDir . '.', Log::WARNING);
-                }
-            } catch (\Throwable $e) {
-                $this->log('[WARNING] Error removing stale Joomla installer temporary directory ' . $realInstallDir . ': ' . $e->getMessage(), Log::WARNING);
-            }
-        }
-
-        if ($removed === 0) {
-            $this->log('[INFO] No stale Joomla installer temporary directories found.');
-        }
-    }
-
     public function removeObsoleteFiles(): void
     {
         $paths = [
@@ -878,53 +816,6 @@ final class InstallerService
     private function log(string $message, int $priority = Log::INFO): void
     {
         ($this->logger)($message, $priority);
-    }
-
-    private function resolveCurrentInstallDirectory(?string $currentSource, string $tmpRoot): ?string
-    {
-        $source = trim((string) $currentSource);
-
-        if ($source === '') {
-            return null;
-        }
-
-        $realSource = realpath($source);
-
-        if ($realSource === false) {
-            return null;
-        }
-
-        $current = $realSource;
-
-        while ($current !== '' && $current !== \dirname($current)) {
-            if (\dirname($current) === $tmpRoot && str_starts_with(basename($current), 'install_')) {
-                return $current;
-            }
-
-            $current = \dirname($current);
-        }
-
-        return null;
-    }
-
-    private function getAllowedInstallerTempRoots(): array
-    {
-        $roots = [];
-
-        foreach ([JPATH_ROOT . '/tmp', sys_get_temp_dir()] as $path) {
-            $realPath = realpath($path);
-
-            if ($realPath !== false && is_dir($realPath) && !in_array($realPath, $roots, true)) {
-                $roots[] = $realPath;
-            }
-        }
-
-        return $roots;
-    }
-
-    private function isDirectInstallTempDirectory(string $path, string $tmpRoot): bool
-    {
-        return \dirname($path) === $tmpRoot && str_starts_with(basename($path), 'install_');
     }
 
     private function safe(callable $callback, mixed $fallback = null): mixed

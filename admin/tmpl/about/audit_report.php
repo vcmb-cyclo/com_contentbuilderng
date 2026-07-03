@@ -164,6 +164,11 @@ use Joomla\CMS\Router\Route;
                         <th scope="row"><?php echo $renderAuditSummaryLink('stale_language_files', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STALE_LANGUAGE_FILES')); ?></th>
                         <td><?php echo $staleLanguageFilesCount; ?></td>
                     </tr>
+                    <tr class="<?php echo $hasStaleInstallerTempDirs ? 'table-warning' : ''; ?>">
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('stale_installer_temp'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('stale_installer_temp', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STALE_INSTALLER_TEMP')); ?></th>
+                        <td><?php echo $staleInstallerTempDirsCount; ?></td>
+                    </tr>
                     <tr>
                         <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('cb_tables_total'); ?></td>
                         <th scope="row"><?php echo $renderAuditSummaryLink('cb_table_stats', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_CB_TABLES_TOTAL')); ?></th>
@@ -944,6 +949,30 @@ use Joomla\CMS\Router\Route;
                             <li>
                                 <code><?php echo htmlspecialchars((string) ($staleLanguageFile['file'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></code>
                                 <span class="text-muted ms-1">(<?php echo htmlspecialchars((string) ($staleLanguageFile['scope'] ?? ''), ENT_QUOTES, 'UTF-8'); ?> / <?php echo htmlspecialchars((string) ($staleLanguageFile['lang_tag'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>)</span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ol>
+                <?php endif; ?>
+            </div>
+
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('stale_installer_temp'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 24;">
+                <h4 class="h6 mt-3<?php echo $hasStaleInstallerTempDirs ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('stale_installer_temp', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STALE_INSTALLER_TEMP'), $hasStaleInstallerTempDirs); ?></h4>
+                <?php if (empty($staleInstallerTempDirs)) : ?>
+                    <div class="alert cb-audit-ok-alert">
+                        <span class="cb-audit-section-title">
+                            <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
+                            <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_NO_STALE_INSTALLER_TEMP'); ?></span>
+                        </span>
+                    </div>
+                <?php else : ?>
+                    <ol class="mb-0 ps-3">
+                        <?php foreach ($staleInstallerTempDirs as $staleInstallerTempDir) : ?>
+                            <?php if (!is_array($staleInstallerTempDir)) { continue; } ?>
+                            <li>
+                                <code><?php echo htmlspecialchars((string) ($staleInstallerTempDir['path'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></code>
+                                <?php if (!empty($staleInstallerTempDir['modified'])) : ?>
+                                    <span class="text-muted ms-1">(<?php echo htmlspecialchars((string) $staleInstallerTempDir['modified'], ENT_QUOTES, 'UTF-8'); ?>)</span>
+                                <?php endif; ?>
                             </li>
                         <?php endforeach; ?>
                     </ol>
