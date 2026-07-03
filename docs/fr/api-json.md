@@ -240,6 +240,13 @@ Réponse :
 Le champ peut être recherché par référence, nom ou label, mais il doit être publié et
 autorisé par l'API.
 
+Lorsque toutes les valeurs distinctes du champ sont numériques, la charge utile
+`field` renvoie aussi les agrégats `sum` (pondéré par le nombre d'enregistrements),
+`min` et `max`. Lorsque toutes les valeurs distinctes sont des dates ISO
+(`AAAA-MM-JJ`, avec une heure optionnelle `HH:MM` ou `HH:MM:SS`), `min` et `max`
+renvoient la date la plus ancienne et la plus récente, `sum` restant `null`.
+Sinon, les trois clés valent `null`.
+
 ### Filtrer
 
 ```text

@@ -234,6 +234,12 @@ Permission: **Stats only**.
 The field can be resolved by reference, name, or label, but must be published and
 API-authorized.
 
+When every distinct value of the field is numeric, the `field` payload also
+returns the aggregates `sum` (weighted by record counts), `min` and `max`.
+When every distinct value is an ISO date (`YYYY-MM-DD`, with an optional
+`HH:MM` or `HH:MM:SS` time), `min` and `max` return the earliest and latest
+date while `sum` stays `null`. Otherwise the three keys are `null`.
+
 ### Filter
 
 ```text

@@ -254,28 +254,81 @@ final class StatsService
             default => [],
         };
 
-        $numericSum = null;
-        if ($values !== []) {
-            $acc = 0.0;
-            foreach ($values as $value => $count) {
-                if (!is_numeric($value)) {
-                    $acc = null;
-                    break;
-                }
-                $acc += (float) $value * $count;
-            }
-            $numericSum = $acc;
-        }
-
         return [
             'requested' => $requestedField,
             'reference_id' => (int) $field['reference_id'],
             'name' => (string) $field['name'],
             'label' => (string) $field['label'],
             'total' => array_sum($values),
-            'sum' => $numericSum,
+        ] + self::computeFieldAggregates($values) + [
             'values' => $values,
         ];
+    }
+
+    /**
+     * Aggregates over a value => occurrence-count map. When every distinct
+     * value is numeric: count-weighted sum and numeric min/max. When every
+     * distinct value is an ISO date (Y-m-d, optional H:i or H:i:s): earliest
+     * and latest date as min/max, sum null. All null otherwise or when the
+     * map is empty.
+     *
+     * @return array{sum: float|null, min: float|string|null, max: float|string|null}
+     */
+    public static function computeFieldAggregates(array $values): array
+    {
+        $none = ['sum' => null, 'min' => null, 'max' => null];
+
+        if ($values === []) {
+            return $none;
+        }
+
+        $sum = 0.0;
+        $min = null;
+        $max = null;
+        $allDates = true;
+
+        foreach ($values as $value => $count) {
+            if (!is_numeric($value)) {
+                $sum = null;
+                $min = null;
+                $max = null;
+                break;
+            }
+
+            $number = (float) $value;
+            $sum += $number * $count;
+            $min = $min === null ? $number : min($min, $number);
+            $max = $max === null ? $number : max($max, $number);
+        }
+
+        if ($sum !== null) {
+            return ['sum' => $sum, 'min' => $min, 'max' => $max];
+        }
+
+        foreach ($values as $value => $count) {
+            if (!self::isIsoDateValue((string) $value)) {
+                $allDates = false;
+                break;
+            }
+        }
+
+        if (!$allDates) {
+            return $none;
+        }
+
+        $dates = array_map('strval', array_keys($values));
+        sort($dates, SORT_STRING);
+
+        return ['sum' => null, 'min' => $dates[0], 'max' => $dates[count($dates) - 1]];
+    }
+
+    private static function isIsoDateValue(string $value): bool
+    {
+        if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})( \d{2}:\d{2}(:\d{2})?)?$/', $value, $matches)) {
+            return false;
+        }
+
+        return checkdate((int) $matches[2], (int) $matches[3], (int) $matches[1]);
     }
 
     private function resolveStatsField(int $formId, array $formRow, string $requestedField): ?array
