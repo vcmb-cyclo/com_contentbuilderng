@@ -94,16 +94,16 @@ final class RatingHelper
         if ($rating_allowed && !$scriptRendered) {
             $scriptRendered = true;
             $csrfToken = Session::getFormToken();
-            $voteSingular = Text::_('COM_CONTENTBUILDERNG_VOTES_SINGULAR');
-            $votePlural = Text::_('COM_CONTENTBUILDERNG_VOTES_PLURAL');
+            $voteLabels = [
+                'zero' => Text::_('COM_CONTENTBUILDERNG_N_VOTES_LABEL_0'),
+                'one'  => Text::_('COM_CONTENTBUILDERNG_N_VOTES_LABEL_1'),
+                'more' => Text::_('COM_CONTENTBUILDERNG_N_VOTES_LABEL_MORE'),
+            ];
             ?>
             <script>
             (function(){
                 var cbLastId = null;
-                var cbVoteLabels = {
-                    singular: <?php echo json_encode($voteSingular); ?>,
-                    plural: <?php echo json_encode($votePlural); ?>
-                };
+                var cbVoteLabels = <?php echo json_encode($voteLabels); ?>;
                 function cbFadeOut(el){
                     if(!el){return;}
                     window.setTimeout(function(){ el.style.display = "none"; }, 1800);
@@ -208,7 +208,7 @@ final class RatingHelper
                                 }
                                 if (scope) {
                                     scope.querySelectorAll(".cbRatingVotes").forEach(function(el) {
-                                        el.textContent = voteCount + " " + (voteCount === 1 ? cbVoteLabels.singular : cbVoteLabels.plural);
+                                        el.textContent = voteCount + " " + (voteCount === 0 ? cbVoteLabels.zero : voteCount === 1 ? cbVoteLabels.one : cbVoteLabels.more);
                                     });
                                 }
                             }
@@ -278,7 +278,7 @@ final class RatingHelper
                                     </div>
                                     <div style="clear: both;"></div>
                                     <div class="cbRatingVotes text-center">
-                                    <?php echo $rating_count == 1 ? $rating_count . ' ' . Text::_('COM_CONTENTBUILDERNG_VOTES_SINGULAR') : $rating_count . ' ' . Text::_('COM_CONTENTBUILDERNG_VOTES_PLURAL'); ?>
+                                    <?php echo Text::plural('COM_CONTENTBUILDERNG_N_VOTES', (int) $rating_count); ?>
                                     </div>
                                 </div>
                                 <?php
@@ -293,7 +293,7 @@ final class RatingHelper
                                     <?php echo $rating_count; ?>
                                     </div>
                                     <div class="cbRatingVotes text-center">
-                                    <?php echo $rating_count == 1 ? Text::_('COM_CONTENTBUILDERNG_VOTES_SINGULAR') : Text::_('COM_CONTENTBUILDERNG_VOTES_PLURAL'); ?>
+                                    <?php echo Text::plural('COM_CONTENTBUILDERNG_N_VOTES_LABEL', (int) $rating_count); ?>
                                     </div>
                                 </div>
                             <?php
@@ -320,7 +320,7 @@ final class RatingHelper
                                     </div>
                                     <div style="clear: both;"></div>
                                     <div class="cbRatingVotes text-center">
-                                    <?php echo $rating_count == 1 ? $rating_count . ' ' . Text::_('COM_CONTENTBUILDERNG_VOTES_SINGULAR') : $rating_count . ' ' . Text::_('COM_CONTENTBUILDERNG_VOTES_PLURAL'); ?>
+                                    <?php echo Text::plural('COM_CONTENTBUILDERNG_N_VOTES', (int) $rating_count); ?>
                                     </div>
                                 </div>
                                 <?php
@@ -333,7 +333,7 @@ final class RatingHelper
                                     <?php echo $rating_count; ?>
                                     </div>
                                     <div class="cbRatingVotes text-center">
-                                    <?php echo $rating_count == 1 ? Text::_('COM_CONTENTBUILDERNG_VOTES_SINGULAR') : Text::_('COM_CONTENTBUILDERNG_VOTES_PLURAL'); ?>
+                                    <?php echo Text::plural('COM_CONTENTBUILDERNG_N_VOTES_LABEL', (int) $rating_count); ?>
                                     </div>
                                 </div>
                             <?php
@@ -347,7 +347,7 @@ final class RatingHelper
                 </div>
                 <div style="clear: left;"></div>
                 <div class="cbRatingVotes text-center">
-                    <?php echo $rating_count == 1 ? $rating_count . ' ' . Text::_('COM_CONTENTBUILDERNG_VOTES_SINGULAR') : $rating_count . ' ' . Text::_('COM_CONTENTBUILDERNG_VOTES_PLURAL'); ?>
+                    <?php echo Text::plural('COM_CONTENTBUILDERNG_N_VOTES', (int) $rating_count); ?>
                 </div>
             </div>
             <?php

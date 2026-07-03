@@ -18,7 +18,7 @@ use Joomla\CMS\Language\Text;
                         aria-expanded="false"
                         aria-controls="cb-about-php-libraries-collapse"
                     >
-                        <?php echo Text::sprintf($phpLibrariesCount === 1 ? 'COM_CONTENTBUILDERNG_PHP_LIBRARY_COUNT' : 'COM_CONTENTBUILDERNG_PHP_LIBRARIES_COUNT', (int) $phpLibrariesCount); ?>
+                        <?php echo Text::plural('COM_CONTENTBUILDERNG_N_PHP_LIBRARIES', (int) $phpLibrariesCount); ?>
                     </button>
                 </h3>
                 <div
