@@ -797,7 +797,6 @@
     }
 
     .cbEditableWrapper .cbToolBar .cbButton.btn {
-        width: 100%;
         justify-content: center;
         font-size: 0.84rem;
     }
@@ -838,7 +837,6 @@
     }
 
     .cbDetailsWrapper .cbToolBar .cbButton.btn {
-        width: 100%;
         justify-content: center;
     }
 
