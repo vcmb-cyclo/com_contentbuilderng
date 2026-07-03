@@ -35,28 +35,28 @@
     outline:none;
 }
 @media (prefers-color-scheme: dark){
-    .cbDetailsWrapper .cbToolBar.cbToolBar--top{
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar.cbToolBar--top{
         border-color:rgba(173,193,216,.3);
         background:rgba(26,36,49,.94);
         box-shadow:0 .38rem .95rem rgba(0,0,0,.42);
     }
-    .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn-outline-secondary{
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn-outline-secondary{
         border-color:rgba(173,193,216,.34);
         color:#d8e5f5;
         background-color:transparent;
     }
-    .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn-outline-secondary:hover,
-    .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn-outline-secondary:focus{
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn-outline-secondary:hover,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar.cbToolBar--top .btn-outline-secondary:focus{
         border-color:rgba(173,193,216,.45);
         background:#22344a;
         color:#f2f7ff;
     }
-    .cb-preview-config-help{
+    html:not([data-bs-theme="light"]) .cb-preview-config-help{
         color:#f5d38f;
         background:rgba(255,255,255,.08);
     }
-    .cb-preview-config-help:hover,
-    .cb-preview-config-help:focus{
+    html:not([data-bs-theme="light"]) .cb-preview-config-help:hover,
+    html:not([data-bs-theme="light"]) .cb-preview-config-help:focus{
         color:#ffe8b3;
         background:rgba(255,255,255,.14);
     }

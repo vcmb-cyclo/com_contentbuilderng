@@ -39,20 +39,20 @@
     margin-bottom:1rem;
 }
 @media (prefers-color-scheme: dark){
-    .cb-preview-config-help{
+    html:not([data-bs-theme="light"]) .cb-preview-config-help{
         color:#f5d38f;
         background:rgba(255,255,255,.08);
     }
-    .cb-preview-config-help:hover,
-    .cb-preview-config-help:focus{
+    html:not([data-bs-theme="light"]) .cb-preview-config-help:hover,
+    html:not([data-bs-theme="light"]) .cb-preview-config-help:focus{
         color:#ffe8b3;
         background:rgba(255,255,255,.14);
     }
-    .cbEditStateControl .form-label,
-    .cbEditRatingControl .form-label{
+    html:not([data-bs-theme="light"]) .cbEditStateControl .form-label,
+    html:not([data-bs-theme="light"]) .cbEditRatingControl .form-label{
         color:#c5d7ec;
     }
-    .cbEditStateControlRow .form-select{
+    html:not([data-bs-theme="light"]) .cbEditStateControlRow .form-select{
         color:#ffffff!important;
         background-color:#0f1824!important;
         border-color:rgba(190,213,241,.42)!important;
@@ -63,27 +63,27 @@
         background-position:right .75rem center!important;
         background-size:16px 12px!important;
     }
-    .cbEditStateControlRow .form-select:disabled{
+    html:not([data-bs-theme="light"]) .cbEditStateControlRow .form-select:disabled{
         color:#ffffff!important;
         background-color:#172638!important;
         border-color:rgba(190,213,241,.34)!important;
         opacity:1;
     }
-    .cbEditStateControlRow .form-select:focus{
+    html:not([data-bs-theme="light"]) .cbEditStateControlRow .form-select:focus{
         color:#ffffff!important;
         background-color:#111d2b!important;
         border-color:#78a6dd!important;
         box-shadow:0 0 0 .18rem rgba(120,166,221,.2)!important;
     }
-    .cbEditStateControlRow .form-select option{
+    html:not([data-bs-theme="light"]) .cbEditStateControlRow .form-select option{
         color:#ffffff;
         background-color:#0f1824;
     }
-    .cbEditRatingControl .cbRatingCount,
-    .cbEditRatingControl .cbRatingVotes{
+    html:not([data-bs-theme="light"]) .cbEditRatingControl .cbRatingCount,
+    html:not([data-bs-theme="light"]) .cbEditRatingControl .cbRatingVotes{
         color:#e7edf6;
     }
-    .cbEditRatingControl .cbVotingDisplay{
+    html:not([data-bs-theme="light"]) .cbEditRatingControl .cbVotingDisplay{
         filter:drop-shadow(0 1px 0 rgba(0,0,0,.35));
     }
 }
