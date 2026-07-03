@@ -48,6 +48,74 @@
         color:#ffe8b3;
         background:rgba(255,255,255,.14);
     }
+    .cbEditStateControl .form-label,
+    .cbEditRatingControl .form-label{
+        color:#c5d7ec;
+    }
+    .cbEditStateControlRow .form-select{
+        color:#ffffff!important;
+        background-color:#0f1824!important;
+        border-color:rgba(190,213,241,.42)!important;
+        box-shadow:none!important;
+        color-scheme:dark;
+    }
+    .cbEditStateControlRow .form-select:disabled{
+        color:#ffffff!important;
+        background-color:#172638!important;
+        border-color:rgba(190,213,241,.34)!important;
+        opacity:1;
+    }
+    .cbEditStateControlRow .form-select:focus{
+        color:#ffffff!important;
+        background-color:#111d2b!important;
+        border-color:#78a6dd!important;
+        box-shadow:0 0 0 .18rem rgba(120,166,221,.2)!important;
+    }
+    .cbEditStateControlRow .form-select option{
+        color:#ffffff;
+        background-color:#0f1824;
+    }
+    .cbEditRatingControl .cbRatingCount,
+    .cbEditRatingControl .cbRatingVotes{
+        color:#e7edf6;
+    }
+    .cbEditRatingControl .cbVotingDisplay{
+        filter:drop-shadow(0 1px 0 rgba(0,0,0,.35));
+    }
+}
+html[data-bs-theme="dark"] .cbEditStateControl .form-label,
+html[data-bs-theme="dark"] .cbEditRatingControl .form-label{
+    color:#c5d7ec;
+}
+html[data-bs-theme="dark"] .cbEditStateControlRow .form-select{
+    color:#ffffff!important;
+    background-color:#0f1824!important;
+    border-color:rgba(190,213,241,.42)!important;
+    box-shadow:none!important;
+    color-scheme:dark;
+}
+html[data-bs-theme="dark"] .cbEditStateControlRow .form-select:disabled{
+    color:#ffffff!important;
+    background-color:#172638!important;
+    border-color:rgba(190,213,241,.34)!important;
+    opacity:1;
+}
+html[data-bs-theme="dark"] .cbEditStateControlRow .form-select:focus{
+    color:#ffffff!important;
+    background-color:#111d2b!important;
+    border-color:#78a6dd!important;
+    box-shadow:0 0 0 .18rem rgba(120,166,221,.2)!important;
+}
+html[data-bs-theme="dark"] .cbEditStateControlRow .form-select option{
+    color:#ffffff;
+    background-color:#0f1824;
+}
+html[data-bs-theme="dark"] .cbEditRatingControl .cbRatingCount,
+html[data-bs-theme="dark"] .cbEditRatingControl .cbRatingVotes{
+    color:#e7edf6;
+}
+html[data-bs-theme="dark"] .cbEditRatingControl .cbVotingDisplay{
+    filter:drop-shadow(0 1px 0 rgba(0,0,0,.35));
 }
 @media (max-width:575.98px){
     .cbEditStateControlRow{
