@@ -13,12 +13,12 @@ Les plugins de thème peuvent générer :
 
 Thèmes livrés :
 
-- Joomla 6 ;
+- Thoth ;
 - Dark ;
 - Blank ;
 - Khepri, hérité de ContentBuilder.
 
-Le thème Joomla 6 est utilisé comme repli lorsque le thème demandé n'est pas
+Le thème Thoth est utilisé comme repli lorsque le thème demandé n'est pas
 disponible.
 
 Procédure conseillée :

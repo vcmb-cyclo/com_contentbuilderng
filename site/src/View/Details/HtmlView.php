@@ -408,7 +408,7 @@ class HtmlView extends BaseHtmlView
 			$themePlugin = (string) ($subject->theme_plugin ?? '');
 			$fallbackTheme = false;
 			if ($themePlugin === '' || !PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin)) {
-				$themePlugin = 'joomla6';
+				$themePlugin = 'thoth';
 				PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin);
 				$fallbackTheme = true;
 			}
@@ -417,7 +417,7 @@ class HtmlView extends BaseHtmlView
 		$dispatcher->dispatch('onContentTemplateCss', $eventObj);
 		$results = $eventObj->getArgument('result') ?: [];
 		$this->theme_css = trim(implode('', $results));
-        if ($this->theme_css === '' && ($fallbackTheme || $themePlugin === 'joomla6')) {
+        if ($this->theme_css === '' && ($fallbackTheme || $themePlugin === 'thoth')) {
             $this->useFallbackDetailsThemeCss();
         }
 

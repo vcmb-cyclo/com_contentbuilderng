@@ -295,7 +295,7 @@ Plugins de validation livrés :
 
 Autres familles livrées :
 
-- thèmes `Joomla 6`, `Dark`, `Blank` et `Khepri` ;
+- thèmes `Thoth`, `Dark`, `Blank` et `Khepri` ;
 - actions de liste Corbeille et Restaurer ;
 - vérifications Pass-Through et PayPal ;
 - exemple de plugin de soumission ;

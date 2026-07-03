@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="plugin" group="contentbuilderng_themes" method="upgrade">
-  <name>ContentBuilder NG - Themes - Joomla 6</name>
+  <name>ContentBuilder NG - Themes - Thoth</name>
   <author>XDA+GIL</author>
   <creationDate>2026-07-03</creationDate>
   <copyright>(C) 2026 XDA+GIL</copyright>
@@ -8,11 +8,11 @@
   <authorEmail>noreply@vcmb.fr</authorEmail>
   <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
   <version>6.1.7-RC69</version>
-  <description><![CDATA[A Joomla 6 compatible theme]]></description>
-    <namespace path="src">CB\Plugin\ContentbuilderngThemes\Joomla6</namespace>
+  <description><![CDATA[The native ContentBuilder NG Thoth theme]]></description>
+    <namespace path="src">CB\Plugin\ContentbuilderngThemes\Thoth</namespace>
 
           <files>
-        <filename plugin="joomla6">services/provider.php</filename>
+        <filename plugin="thoth">services/provider.php</filename>
         <folder>src</folder>
         <folder>css</folder>
         <folder>language</folder>

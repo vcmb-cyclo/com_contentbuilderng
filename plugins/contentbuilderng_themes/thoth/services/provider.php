@@ -8,7 +8,7 @@ use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
 use Joomla\Event\DispatcherInterface;
-use CB\Plugin\ContentbuilderngThemes\Joomla6\Extension\Joomla6;
+use CB\Plugin\ContentbuilderngThemes\Thoth\Extension\Thoth;
 
 return new class implements ServiceProviderInterface {
     public function register(Container $container): void
@@ -16,9 +16,9 @@ return new class implements ServiceProviderInterface {
         $container->set(
             PluginInterface::class,
             static function (Container $container) {
-                $plugin = new Joomla6(
+                $plugin = new Thoth(
                     $container->get(DispatcherInterface::class),
-                    (array) PluginHelper::getPlugin('contentbuilderng_themes', 'joomla6')
+                    (array) PluginHelper::getPlugin('contentbuilderng_themes', 'thoth')
                 );
                 $plugin->setApplication(Factory::getApplication());
 

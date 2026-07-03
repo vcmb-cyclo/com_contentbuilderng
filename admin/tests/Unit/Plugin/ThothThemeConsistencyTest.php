@@ -6,15 +6,15 @@ namespace CB\Component\Contentbuilderng\Tests\Unit\Plugin;
 
 use PHPUnit\Framework\TestCase;
 
-final class Joomla6ThemeConsistencyTest extends TestCase
+final class ThothThemeConsistencyTest extends TestCase
 {
     private string $source;
 
     protected function setUp(): void
     {
-        $root = \dirname(__DIR__, 4) . '/plugins/contentbuilderng_themes/joomla6';
+        $root = \dirname(__DIR__, 4) . '/plugins/contentbuilderng_themes/thoth';
         $parts = [
-            $root . '/src/Extension/Joomla6.php',
+            $root . '/src/Extension/Thoth.php',
             $root . '/css/content.css',
             $root . '/css/list.css',
         ];

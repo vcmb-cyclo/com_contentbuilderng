@@ -524,7 +524,7 @@ class ListModel extends BaseListModel
         $data = (object) [
             'type' => 'com_contentbuilderng',
             'reference_id' => (int) $storage->id,
-            'theme_plugin' => 'joomla6',
+            'theme_plugin' => 'thoth',
             'show_filter' => 1,
             'show_records_per_page' => 1,
             'button_bar_sticky' => 0,

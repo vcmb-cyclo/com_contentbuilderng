@@ -1,6 +1,6 @@
 <?php
 
-namespace CB\Plugin\ContentbuilderngThemes\Joomla6\Extension;
+namespace CB\Plugin\ContentbuilderngThemes\Thoth\Extension;
 
 /**
  * @version     6.0
@@ -23,9 +23,9 @@ use Joomla\CMS\Event\GenericEvent as Event;
 use Joomla\Event\SubscriberInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 
-final class Joomla6 extends CMSPlugin implements SubscriberInterface
+final class Thoth extends CMSPlugin implements SubscriberInterface
 {
-    private const THEME_NAME = 'joomla6';
+    private const THEME_NAME = 'thoth';
 
     private function acceptsThemeEvent(Event $event): bool
     {

@@ -357,7 +357,7 @@ class DetailsModel extends ListModel
             return (object) [
                 'type' => 'com_contentbuilderng',
                 'reference_id' => (int) $storage->id,
-                'theme_plugin' => 'joomla6',
+                'theme_plugin' => 'thoth',
                 'form_id' => 0,
                 'direct_storage_mode' => 1,
                 'direct_storage_id' => (int) $storage->id,

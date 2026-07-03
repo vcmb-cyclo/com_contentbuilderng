@@ -137,7 +137,7 @@ final class InstallerService
             // Legacy plugin root files replaced by src/Extension/ + services/provider.php
             JPATH_PLUGINS . '/contentbuilderng_themes/blank/blank.php',
             JPATH_PLUGINS . '/contentbuilderng_themes/dark/dark.php',
-            JPATH_PLUGINS . '/contentbuilderng_themes/joomla6/joomla6.php',
+            JPATH_PLUGINS . '/contentbuilderng_themes/thoth/thoth.php',
             JPATH_PLUGINS . '/contentbuilderng_themes/khepri/khepri.php',
             JPATH_PLUGINS . '/contentbuilderng_validation/email/email.php',
             JPATH_PLUGINS . '/contentbuilderng_validation/notempty/notempty.php',
