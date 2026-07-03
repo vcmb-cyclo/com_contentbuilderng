@@ -779,3 +779,23 @@
     }
 }
 
+
+@media (max-width: 575.98px) {
+    /* Collapse toolbar buttons to their icon so the bar keeps to one line;
+       the title attribute still provides the label. */
+    .cbEditableWrapper .cbToolBar .cbButton.btn,
+    .cbDetailsWrapper .cbToolBar .cbButton.btn,
+    .cbDetailsWrapper .cbTitleRecordNav .cbButton.btn {
+        font-size: 0;
+        line-height: 0;
+        padding: 0.5rem 0.62rem;
+    }
+
+    .cbEditableWrapper .cbToolBar .cbButton.btn :is([class^="fa-"], [class*=" fa-"], [class^="icon-"], [class*=" icon-"]),
+    .cbDetailsWrapper .cbToolBar .cbButton.btn :is([class^="fa-"], [class*=" fa-"], [class^="icon-"], [class*=" icon-"]),
+    .cbDetailsWrapper .cbTitleRecordNav .cbButton.btn :is([class^="fa-"], [class*=" fa-"], [class^="icon-"], [class*=" icon-"]) {
+        font-size: 0.95rem;
+        line-height: 1;
+        margin: 0 !important;
+    }
+}

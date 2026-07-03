@@ -831,7 +831,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
     ob_start();
     if ($this->record_id && $edit_allowed && $this->create_articles && $fullarticle_allowed) {
     ?>
-        <button type="button" class="btn btn-sm btn-primary cbButton cbArticleSettingsButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_ARTICLE_SETTINGS_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="var o=document.getElementById('cbArticleOptions');o.hidden=!o.hidden;"><?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_ARTICLE_SETTINGS'); ?></button>
+        <button type="button" class="btn btn-sm btn-primary cbButton cbArticleSettingsButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_ARTICLE_SETTINGS_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="var o=document.getElementById('cbArticleOptions');o.hidden=!o.hidden;"><span class="fa-solid fa-gear me-1" aria-hidden="true"></span><?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_ARTICLE_SETTINGS'); ?></button>
     <?php
     }
     if (($edit_allowed || $new_allowed) && !$this->edit_by_type) {
