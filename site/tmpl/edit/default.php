@@ -263,8 +263,6 @@ $editNextHref = $nextRecordId > 0
         )
     )
     : '';
-$showColumnHeader = $input->getInt('cb_show_column_header', 1) === 1;
-$columnHeaderHtml = '';
 $showAuditTrail = $showAuthorToggle === 1;
 
 $createdOnText = '';
@@ -365,13 +363,6 @@ if ($showRatingControl) {
     </div>
     <?php
     $ratingControlHtml = ob_get_clean();
-}
-
-if ($showColumnHeader) {
-    $columnHeaderHtml = '<div class="cbColumnHeader d-none d-md-grid" aria-hidden="true">'
-        . '<div class="cbColumnHeaderLabel">' . Text::_('COM_CONTENTBUILDERNG_COLUMN_HEADER_FIELD') . '</div>'
-        . '<div class="cbColumnHeaderValue">' . Text::_('COM_CONTENTBUILDERNG_COLUMN_HEADER_VALUE') . '</div>'
-        . '</div>';
 }
 
 $wa = $app->getDocument()->getWebAssetManager();
@@ -1051,7 +1042,6 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             <?php echo $stateControlHtml; ?>
             <?php echo $ratingControlHtml; ?>
             <div class="cbEditableBody">
-                <?php echo $columnHeaderHtml; ?>
                 <?php echo $this->tpl ?>
             </div>
             <?php echo $this->event->afterDisplayContent; ?>
@@ -1096,7 +1086,6 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             <?php echo $stateControlHtml; ?>
             <?php echo $ratingControlHtml; ?>
             <div class="cbEditableBody">
-                <?php echo $columnHeaderHtml; ?>
                 <?php echo $this->tpl ?>
             </div>
             <?php echo $this->event->afterDisplayContent; ?>
@@ -1118,7 +1107,6 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
                 <?php echo $stateControlHtml; ?>
                 <?php echo $ratingControlHtml; ?>
                 <div class="cbEditableBody">
-                    <?php echo $columnHeaderHtml; ?>
                     <?php echo $this->tpl ?>
                 </div>
                 <?php echo $this->event->afterDisplayContent; ?>
