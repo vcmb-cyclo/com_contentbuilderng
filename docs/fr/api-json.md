@@ -240,6 +240,10 @@ Réponse :
 Le champ peut être recherché par référence, nom ou label, mais il doit être publié et
 autorisé par l'API.
 
+Lorsque toutes les valeurs distinctes du champ sont numériques, la charge utile
+`field` renvoie aussi les agrégats `sum` (pondéré par le nombre d'enregistrements),
+`min` et `max` ; sinon ces trois clés valent `null`.
+
 ### Filtrer
 
 ```text

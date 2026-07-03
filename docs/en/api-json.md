@@ -234,6 +234,10 @@ Permission: **Stats only**.
 The field can be resolved by reference, name, or label, but must be published and
 API-authorized.
 
+When every distinct value of the field is numeric, the `field` payload also
+returns the aggregates `sum` (weighted by record counts), `min` and `max`;
+otherwise these three keys are `null`.
+
 ### Filter
 
 ```text

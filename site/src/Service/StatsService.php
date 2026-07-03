@@ -255,16 +255,27 @@ final class StatsService
         };
 
         $numericSum = null;
+        $numericMin = null;
+        $numericMax = null;
         if ($values !== []) {
             $acc = 0.0;
+            $min = null;
+            $max = null;
             foreach ($values as $value => $count) {
                 if (!is_numeric($value)) {
                     $acc = null;
+                    $min = null;
+                    $max = null;
                     break;
                 }
-                $acc += (float) $value * $count;
+                $number = (float) $value;
+                $acc += $number * $count;
+                $min = $min === null ? $number : min($min, $number);
+                $max = $max === null ? $number : max($max, $number);
             }
             $numericSum = $acc;
+            $numericMin = $min;
+            $numericMax = $max;
         }
 
         return [
@@ -274,6 +285,8 @@ final class StatsService
             'label' => (string) $field['label'],
             'total' => array_sum($values),
             'sum' => $numericSum,
+            'min' => $numericMin,
+            'max' => $numericMax,
             'values' => $values,
         ];
     }
