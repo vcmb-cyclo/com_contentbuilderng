@@ -91,24 +91,6 @@ parameters:
 			path: admin/src/Helper/ContentbuilderngHelper.php
 
 		-
-			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/src/types/com_breezingforms\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: admin/src/Helper/FormSourceFactory.php
-
-		-
-			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/src/types/com_contentbuilderng\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: admin/src/Helper/FormSourceFactory.php
-
-		-
-			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/vendor/autoload\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: admin/src/Helper/VendorHelper.php
-
-		-
 			message: '#^Undefined variable\: \$row$#'
 			identifier: variable.undefined
 			count: 1
@@ -553,30 +535,6 @@ parameters:
 			path: plugins/content/contentbuilderng_rating/src/Extension/ContentbuilderngRating.php
 
 		-
-			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/src/Helper/ContentbuilderngHelper\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: plugins/system/contentbuilderng_system/src/Extension/ContentbuilderngSystem.php
-
-		-
-			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/src/Helper/FormSourceFactory\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: plugins/system/contentbuilderng_system/src/Extension/ContentbuilderngSystem.php
-
-		-
-			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/src/Helper/Logger\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: plugins/system/contentbuilderng_system/src/Extension/ContentbuilderngSystem.php
-
-		-
-			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/src/Helper/PackedDataHelper\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: plugins/system/contentbuilderng_system/src/Extension/ContentbuilderngSystem.php
-
-		-
 			message: '#^Variable \$displayData might not be defined\.$#'
 			identifier: variable.undefined
 			count: 5
@@ -640,18 +598,6 @@ parameters:
 			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\Model\\EditModel\:\:\$_id\.$#'
 			identifier: property.notFound
 			count: 39
-			path: site/src/Model/EditModel.php
-
-		-
-			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/vendor/autoload\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: site/src/Model/EditModel.php
-
-		-
-			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/vendor/bgli100/securimage/securimage\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
 			path: site/src/Model/EditModel.php
 
 		-

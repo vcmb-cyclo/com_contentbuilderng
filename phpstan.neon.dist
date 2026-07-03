@@ -19,6 +19,10 @@ parameters:
     scanDirectories:
         - joomla-stubs/libraries
     treatPhpDocTypesAsCertain: false
+    # Include paths are built from JPATH_* constants and only resolve in a
+    # deployed Joomla install, not in the repository layout.
+    ignoreErrors:
+        - '#^Path in (require|include)(_once)?\(\) ".*" is not a file or it does not exist\.$#'
     # Tolerate baseline entries that no longer match: the analysed Joomla core
     # (local install vs CI docker image) may differ slightly in version.
     reportUnmatchedIgnoredErrors: false
