@@ -404,6 +404,10 @@ class com_contentbuilderngInstallerScript
 
             if ($type !== 'uninstall') {
                 $this->reportUpdatedPackageAssets($type);
+
+                // Guard against "phantom updates": DB updated but files never
+                // copied (e.g. installer source lost before the copy phase).
+                $this->verifyInstalledExtensionConsistency($parent);
             }
 
             // Final cache purge (autoload + caches + opcache)
@@ -1330,6 +1334,62 @@ class com_contentbuilderngInstallerScript
         $version = trim((string) ($decoded['version'] ?? ''));
 
         return $version !== '' ? $version : self::UNKNOWN_INSTALLED_VERSION;
+    }
+
+    private function verifyInstalledExtensionConsistency($parent): void
+    {
+        $manifestPath = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/com_contentbuilderng.xml';
+
+        $requiredFiles = [
+            $manifestPath,
+            JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/services/provider.php',
+            JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/src/Extension/ContentbuilderngComponent.php',
+            JPATH_SITE . '/components/com_contentbuilderng/src/Controller/DisplayController.php',
+        ];
+
+        foreach ($requiredFiles as $requiredFile) {
+            if (!is_file($requiredFile)) {
+                $this->log(
+                    '[ERROR] Installed files inconsistent: required file missing after copy: ' . $requiredFile
+                        . '. The package files were not deployed correctly - reinstall the package.',
+                    Log::ERROR
+                );
+
+                return;
+            }
+        }
+
+        $expectedVersion = $this->getIncomingPackageVersion($parent);
+
+        if ($expectedVersion === '' || $expectedVersion === self::UNKNOWN_INSTALLED_VERSION) {
+            $this->log('[INFO] Installed files consistency: package version unknown, version check skipped.', Log::INFO);
+
+            return;
+        }
+
+        $installedVersion = '';
+
+        try {
+            $manifest = @simplexml_load_file($manifestPath);
+            if ($manifest instanceof \SimpleXMLElement) {
+                $installedVersion = trim((string) ($manifest->version ?? ''));
+            }
+        } catch (\Throwable) {
+            // handled below as mismatch
+        }
+
+        if ($installedVersion !== $expectedVersion) {
+            $this->log(
+                '[ERROR] Installed files inconsistent: deployed manifest reports version "' . $installedVersion
+                    . '" but the installed package is "' . $expectedVersion
+                    . '". The package files were not deployed correctly - reinstall the package.',
+                Log::ERROR
+            );
+
+            return;
+        }
+
+        $this->log('[OK] Installed files consistency verified (manifest present, version ' . $installedVersion . ').');
     }
 
     private function getIncomingPackageVersion($parent): string
