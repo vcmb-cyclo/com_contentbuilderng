@@ -691,9 +691,9 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 								<select class="form-select form-select-sm cb-filter-select-md"
 									name="list_publish_filter" id="list_publish_filter"
 									title="<?php echo Text::_('COM_CONTENTBUILDERNG_FILTER'); ?>: <?php echo Text::_('COM_CONTENTBUILDERNG_PUBLISH'); ?>"
-									aria-label="<?php echo Text::_('JOPTION_SELECT_PUBLISHED'); ?>"
+									aria-label="<?php echo Text::_('JSTATUS'); ?>"
 									onchange="document.adminForm.submit();">
-									<option value="-1"> - <?php echo Text::_('JOPTION_SELECT_PUBLISHED'); ?> -</option>
+									<option value="-1"> - <?php echo Text::_('JSTATUS'); ?> -</option>
 									<option value="1" <?php echo $this->lists['filter_publish'] == 1 ? 'selected' : ''; ?>>
 										<?php echo Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED') ?>
 									</option>
