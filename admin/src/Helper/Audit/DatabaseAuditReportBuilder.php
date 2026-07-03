@@ -67,6 +67,7 @@ final class DatabaseAuditReportBuilder
         $invalidDatetimeSortIssues = (array) ($data['invalid_datetime_sort_issues'] ?? []);
         $generatedArticleCategoryIssues = (array) ($data['generated_article_category_issues'] ?? []);
         $staleLanguageFiles = (array) ($data['stale_language_files'] ?? []);
+        $staleInstallerTempDirs = (array) ($data['stale_installer_temp_dirs'] ?? []);
         $cbTableStats = (array) ($data['cb_tables'] ?? []);
         $errors = (array) ($data['errors'] ?? []);
 
@@ -147,7 +148,8 @@ final class DatabaseAuditReportBuilder
             + count($elementReferenceIssues)
             + count($invalidDatetimeSortIssues)
             + count($generatedArticleCategoryIssues)
-            + count($staleLanguageFiles);
+            + count($staleLanguageFiles)
+            + count($staleInstallerTempDirs);
 
         return [
             'generated_at' => Factory::getDate()->toSql(),
@@ -175,6 +177,7 @@ final class DatabaseAuditReportBuilder
             'invalid_datetime_sort_issues' => $invalidDatetimeSortIssues,
             'generated_article_category_issues' => $generatedArticleCategoryIssues,
             'stale_language_files' => $staleLanguageFiles,
+            'stale_installer_temp_dirs' => $staleInstallerTempDirs,
             'cb_tables' => $cbTableStats,
             'summary' => [
                 'duplicate_index_groups' => count($duplicateIndexes),
@@ -202,6 +205,7 @@ final class DatabaseAuditReportBuilder
                 'generated_article_category_issues' => count($generatedArticleCategoryIssues),
                 'generated_article_category_rows' => $invalidGeneratedArticleCategoryRows,
                 'stale_language_files' => count($staleLanguageFiles),
+                'stale_installer_temp_dirs' => count($staleInstallerTempDirs),
                 'issues_total' => $issuesTotal,
             ],
             'errors' => $errors,

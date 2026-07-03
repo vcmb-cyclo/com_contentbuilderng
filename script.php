@@ -340,9 +340,11 @@ class com_contentbuilderngInstallerScript
                 // Install / update plugins shipped in package
                 $source = $this->resolveInstallSourcePath($parent);
                 $this->incomingPackageSourceRoot = $source;
+                // Stale tmp/install_* directories are no longer purged here:
+                // touching the installer temp area mid-install can break the
+                // manifest copy. The audit & repair workflow handles it.
                 if ($source && is_dir($source)) {
                     $this->log('[INFO] Plugin install source resolved: ' . $source, Log::INFO);
-                    $this->installerService->removeStaleInstallDirectories($source);
                 } else {
                     $this->log('[WARNING] Plugin install source not resolved; missing plugins may not be installable in this run.', Log::WARNING);
                 }

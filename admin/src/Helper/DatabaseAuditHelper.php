@@ -25,6 +25,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\Audit\GeneratedArticleCat
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\HistoricalAssetAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\InvalidDatetimeSortAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\MenuViewAuditHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StaleInstallerTempAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StaleLanguageFilesAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormDisplayColumnsHelper;
 use Joomla\CMS\Factory;
@@ -252,6 +253,8 @@ final class DatabaseAuditHelper
         $errors = array_merge($errors, $generatedArticleCategoryErrors);
         [$staleLanguageFiles, $staleLanguageErrors] = StaleLanguageFilesAuditHelper::inspect();
         $errors = array_merge($errors, $staleLanguageErrors);
+        [$staleInstallerTempDirs, $staleInstallerTempErrors] = StaleInstallerTempAuditHelper::inspect();
+        $errors = array_merge($errors, $staleInstallerTempErrors);
 
         return DatabaseAuditReportBuilder::build([
             'tables' => $tables,
@@ -277,6 +280,7 @@ final class DatabaseAuditHelper
             'invalid_datetime_sort_issues' => $invalidDatetimeSortIssues,
             'generated_article_category_issues' => $generatedArticleCategoryIssues,
             'stale_language_files' => $staleLanguageFiles,
+            'stale_installer_temp_dirs' => $staleInstallerTempDirs,
             'cb_tables' => $cbTableStats,
             'errors' => $errors,
         ], $toAlias);

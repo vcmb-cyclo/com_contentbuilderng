@@ -16,6 +16,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\BfFieldSyncAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\ElementReferenceAuditHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StaleInstallerTempAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StaleLanguageFilesAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\EncodingAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\GeneratedArticleCategoryAuditHelper;
@@ -51,6 +52,7 @@ class RepairWorkflowService
         'element_reference_consistency',
         'generated_article_categories',
         'stale_language_files',
+        'stale_installer_temp',
     ];
 
     public function createWorkflowState(): array
@@ -147,6 +149,7 @@ class RepairWorkflowService
             'generated_article_categories'   => $this->buildGeneratedArticleCategoryStepResult(GeneratedArticleCategoryAuditHelper::repair($db)),
             'element_reference_consistency'  => $this->buildElementReferenceConsistencyStepResult(ElementReferenceAuditHelper::repair($db)),
             'stale_language_files'           => $this->buildStaleLanguageFilesStepResult(StaleLanguageFilesAuditHelper::repair()),
+            'stale_installer_temp'           => $this->buildStaleInstallerTempStepResult(StaleInstallerTempAuditHelper::repair()),
             default                          => throw new \RuntimeException('Unknown repair step: ' . $stepId),
         };
     }
@@ -630,8 +633,20 @@ class RepairWorkflowService
                 'skip_summary' => 'No stale language file found. Skipped automatically.',
                 'has_errors' => false,
             ];
+
+            $staleInstallerTempCount = (int) ($auditSummary['stale_installer_temp_dirs'] ?? 0);
+            $prechecks['stale_installer_temp'] = [
+                'count' => $staleInstallerTempCount,
+                'description' => match (true) {
+                    $staleInstallerTempCount <= 0 => 'No stale Joomla installer temporary directory was found in the installer temp locations.',
+                    $staleInstallerTempCount === 1 => '1 stale Joomla installer temporary directory was found and can be removed in this step.',
+                    default => $staleInstallerTempCount . ' stale Joomla installer temporary directories were found and can be removed in this step.',
+                },
+                'skip_summary' => 'No stale installer temporary directory found. Skipped automatically.',
+                'has_errors' => false,
+            ];
         } catch (\Throwable $e) {
-            foreach (['duplicate_indexes', 'historical_tables', 'historical_menu_entries', 'table_encoding', 'audit_columns', 'form_audit_columns', 'plugin_duplicates', 'bf_field_sync', 'menu_view_consistency', 'frontend_permission_consistency', 'element_reference_consistency', 'generated_article_categories', 'stale_language_files'] as $stepId) {
+            foreach (['duplicate_indexes', 'historical_tables', 'historical_menu_entries', 'table_encoding', 'audit_columns', 'form_audit_columns', 'plugin_duplicates', 'bf_field_sync', 'menu_view_consistency', 'frontend_permission_consistency', 'element_reference_consistency', 'generated_article_categories', 'stale_language_files', 'stale_installer_temp'] as $stepId) {
                 $prechecks[$stepId] = [
                     'count' => 1,
                     'description' => 'Pre-check unavailable for this step. You can still run the repair manually.',
@@ -1193,6 +1208,34 @@ class RepairWorkflowService
             'summary' => $scanned === 0
                 ? 'No stale ContentBuilder language file found.'
                 : sprintf('%d stale language file(s) found, %d removed, %d error(s).', $scanned, $repaired, $errors),
+            'lines'   => $lines,
+        ];
+    }
+
+    private function buildStaleInstallerTempStepResult(array $summary): array
+    {
+        $lines = [];
+
+        foreach ((array) ($summary['removed'] ?? []) as $path) {
+            $lines[] = 'Removed: ' . $path;
+        }
+
+        foreach ((array) ($summary['warnings'] ?? []) as $warning) {
+            $warning = trim((string) $warning);
+            if ($warning !== '') {
+                $lines[] = 'Warning: ' . $warning;
+            }
+        }
+
+        $scanned  = (int) ($summary['scanned'] ?? 0);
+        $repaired = (int) ($summary['repaired'] ?? 0);
+        $errors   = (int) ($summary['errors'] ?? 0);
+
+        return [
+            'level'   => $errors > 0 ? 'warning' : 'message',
+            'summary' => $scanned === 0
+                ? 'No stale Joomla installer temporary directory found.'
+                : sprintf('%d stale installer temporary directory(ies) found, %d removed, %d error(s).', $scanned, $repaired, $errors),
             'lines'   => $lines,
         ];
     }
