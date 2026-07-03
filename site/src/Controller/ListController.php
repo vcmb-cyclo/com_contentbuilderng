@@ -189,10 +189,7 @@ class ListController extends BaseController
         $this->app->getInput()->set('cid', $selectedItems);
 
         $changedCount = (int) $model->change_list_states();
-        $messageKey = $changedCount === 1
-            ? 'COM_CONTENTBUILDERNG_STATE_CHANGED'
-            : 'COM_CONTENTBUILDERNG_STATES_CHANGED';
-        $message = Text::_($messageKey) . ' (' . $changedCount . ')';
+        $message = Text::plural('COM_CONTENTBUILDERNG_N_STATES_CHANGED', $changedCount);
 
         $state = $this->resolveListState();
         $previewQuery = $this->buildPreviewQuery();
