@@ -3,6 +3,8 @@ includes:
 
 parameters:
     level: 1
+    bootstrapFiles:
+        - phpstan-bootstrap.php
     paths:
         - admin/src
         - admin/layouts
@@ -17,3 +19,6 @@ parameters:
     scanDirectories:
         - joomla-stubs/libraries
     treatPhpDocTypesAsCertain: false
+    # Tolerate baseline entries that no longer match: the analysed Joomla core
+    # (local install vs CI docker image) may differ slightly in version.
+    reportUnmatchedIgnoredErrors: false

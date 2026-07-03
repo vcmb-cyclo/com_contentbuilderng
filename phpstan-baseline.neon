@@ -19,28 +19,10 @@ parameters:
 			path: admin/layouts/form/bf_system_fields_modal.php
 
 		-
-			message: '#^Constant JPATH_COMPONENT_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: admin/layouts/form/details_display.php
-
-		-
 			message: '#^Variable \$displayData might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
 			path: admin/layouts/form/details_display.php
-
-		-
-			message: '#^Constant JPATH_COMPONENT_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: admin/layouts/form/edit_display.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: admin/layouts/form/edit_display.php
 
 		-
 			message: '#^Variable \$displayData might not be defined\.$#'
@@ -73,12 +55,6 @@ parameters:
 			path: admin/layouts/form/prepare_editor.php
 
 		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: admin/layouts/form/view_tab.php
-
-		-
 			message: '#^Variable \$displayData might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
@@ -109,38 +85,26 @@ parameters:
 			path: admin/src/Controller/UsersController.php
 
 		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: admin/src/Extension/ContentbuilderngComponent.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: admin/src/Helper/Audit/StaleLanguageFilesAuditHelper.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 4
-			path: admin/src/Helper/ContentbuilderngHelper.php
-
-		-
 			message: '#^Function CB\\Component\\Contentbuilderng\\Administrator\\Helper\\mb_wordwrap invoked with 5 parameters, 1\-3 required\.$#'
 			identifier: arguments.count
 			count: 1
 			path: admin/src/Helper/ContentbuilderngHelper.php
 
 		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
+			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/src/types/com_breezingforms\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
 			count: 1
 			path: admin/src/Helper/FormSourceFactory.php
 
 		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
+			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/src/types/com_contentbuilderng\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: admin/src/Helper/FormSourceFactory.php
+
+		-
+			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/vendor/autoload\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
 			count: 1
 			path: admin/src/Helper/VendorHelper.php
 
@@ -175,18 +139,6 @@ parameters:
 			path: admin/src/Model/ElementoptionsModel.php
 
 		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: admin/src/Model/ElementoptionsModel.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: admin/src/Model/FormModel.php
-
-		-
 			message: '#^Undefined variable\: \$row$#'
 			identifier: variable.undefined
 			count: 1
@@ -197,12 +149,6 @@ parameters:
 			identifier: isset.variable
 			count: 1
 			path: admin/src/Model/FormModel.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: admin/src/Model/StorageModel.php
 
 		-
 			message: '#^Variable \$columns in empty\(\) always exists and is not falsy\.$#'
@@ -227,66 +173,6 @@ parameters:
 			identifier: property.notFound
 			count: 2
 			path: admin/src/Model/UserModel.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: admin/src/Model/VerifyModel.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: admin/src/Service/ArticleService.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: admin/src/Service/FormResolverService.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: admin/src/Service/FormSupportService.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 10
-			path: admin/src/Service/FormSupportService.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 14
-			path: admin/src/Service/InstallerService.php
-
-		-
-			message: '#^Constant JPATH_PLUGINS not found\.$#'
-			identifier: constant.notFound
-			count: 21
-			path: admin/src/Service/InstallerService.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 10
-			path: admin/src/Service/InstallerService.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: admin/src/Service/PermissionService.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: admin/src/Service/PermissionService.php
 
 		-
 			message: '#^Anonymous function has an unused use \$contentbuilderngFormId\.$#'
@@ -343,28 +229,10 @@ parameters:
 			path: admin/src/Service/TemplateRenderService.php
 
 		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: admin/src/Service/TemplateRenderService.php
-
-		-
 			message: '#^Call to an undefined method CB\\Component\\Contentbuilderng\\Administrator\\Service\\TemplateSampleService\:\:getApp\(\)\.$#'
 			identifier: method.notFound
 			count: 2
 			path: admin/src/Service/TemplateSampleService.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: admin/src/View/About/HtmlView.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: admin/src/View/About/HtmlView.php
 
 		-
 			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$apply_button_title\.$#'
@@ -649,36 +517,6 @@ parameters:
 			path: admin/src/View/User/HtmlView.php
 
 		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: admin/src/types/com_breezingforms.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: admin/src/types/com_contentbuilderng.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: plugins/content/contentbuilderng_download/src/Extension/ContentbuilderngDownload.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 13
-			path: plugins/content/contentbuilderng_download/src/Extension/ContentbuilderngDownload.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 29
-			path: plugins/content/contentbuilderng_image_scale/src/Extension/ContentbuilderngImageScale.php
-
-		-
 			message: '#^Variable \$ref_id might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -709,94 +547,34 @@ parameters:
 			path: plugins/content/contentbuilderng_image_scale/src/Extension/ContentbuilderngImageScale.php
 
 		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: plugins/content/contentbuilderng_rating/src/Extension/ContentbuilderngRating.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 8
-			path: plugins/content/contentbuilderng_rating/src/Extension/ContentbuilderngRating.php
-
-		-
 			message: '#^Variable \$rating_slots might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
 			path: plugins/content/contentbuilderng_rating/src/Extension/ContentbuilderngRating.php
 
 		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: plugins/contentbuilderng_listaction/trash/src/Extension/Trash.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: plugins/contentbuilderng_listaction/untrash/src/Extension/Untrash.php
-
-		-
-			message: '#^Constant JPATH_PLUGINS not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: plugins/contentbuilderng_themes/dark/src/Extension/Dark.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: plugins/contentbuilderng_validation/date_is_valid/src/Extension/DateIsValid.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: plugins/contentbuilderng_validation/date_not_before/src/Extension/DateNotBefore.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: plugins/contentbuilderng_validation/email/src/Extension/Email.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: plugins/contentbuilderng_validation/equal/src/Extension/Equal.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: plugins/contentbuilderng_validation/notempty/src/Extension/Notempty.php
-
-		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: plugins/system/contentbuilderng_system/src/Extension/ContentbuilderngSystem.php
-
-		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
+			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/src/Helper/ContentbuilderngHelper\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
 			count: 1
 			path: plugins/system/contentbuilderng_system/src/Extension/ContentbuilderngSystem.php
 
 		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 19
-			path: script.php
+			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/src/Helper/FormSourceFactory\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: plugins/system/contentbuilderng_system/src/Extension/ContentbuilderngSystem.php
 
 		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
+			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/src/Helper/Logger\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
 			count: 1
-			path: script.php
+			path: plugins/system/contentbuilderng_system/src/Extension/ContentbuilderngSystem.php
+
+		-
+			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/src/Helper/PackedDataHelper\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: plugins/system/contentbuilderng_system/src/Extension/ContentbuilderngSystem.php
 
 		-
 			message: '#^Variable \$displayData might not be defined\.$#'
@@ -865,15 +643,15 @@ parameters:
 			path: site/src/Model/EditModel.php
 
 		-
-			message: '#^Constant JPATH_ADMINISTRATOR not found\.$#'
-			identifier: constant.notFound
-			count: 3
+			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/vendor/autoload\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
 			path: site/src/Model/EditModel.php
 
 		-
-			message: '#^Constant JPATH_SITE not found\.$#'
-			identifier: constant.notFound
-			count: 19
+			message: '#^Path in require_once\(\) "/home/xavier/workspaces/vcmb/com_contentbuilderng/components/com_contentbuilderng/vendor/bgli100/securimage/securimage\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
 			path: site/src/Model/EditModel.php
 
 		-
