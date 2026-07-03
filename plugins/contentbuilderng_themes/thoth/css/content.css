@@ -578,6 +578,12 @@
         color: #e7edf6;
     }
 
+    /* !important required: Bootstrap's .text-muted is itself !important. */
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .cbCurrentRecordId,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbCurrentRecordId {
+        color: #95a9c2 !important;
+    }
+
     html:not([data-bs-theme="light"]) .cbEditableWrapper .cbToolBar,
     html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar,
     html:not([data-bs-theme="light"]) .cbEditableWrapper .cbEditableBody,
