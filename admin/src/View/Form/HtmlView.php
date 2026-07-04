@@ -87,6 +87,9 @@ class HtmlView extends BaseHtmlView
             . 'height:48px;'
             . 'vertical-align:middle;'
             . '}'
+            // The admin template adds an external-link icon to every target="_blank"
+            // anchor; the Preview button already has its own eye icon for that.
+            . '#toolbar-link::before{content:none;}'
         );
 
 
