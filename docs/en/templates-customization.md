@@ -98,13 +98,19 @@ Confirmed statistics examples include:
 
 ```text
 {CBStats id=3 output=total}
+{CBStats id=3 output=form_name}
 {CBStats id=3 field=FieldName output=table}
+{CBStats id=3 field=FieldName output=sum}
+{CBStats id=3 field=FieldName output=min}
+{CBStats id=3 field=FieldName output=max}
 {CBStats id=3 filter[field]=Route filter[value]="200 km* | 300 km*" output=total}
 ```
 
-Supported `CBStats` outputs include `total`, `table`, and `form_name`. Field
-permissions for API/Stats are enforced. The complete syntax of every other content
-plugin is not exhaustively documented in the repository: **To verify** from its
+Supported `CBStats` outputs are `total`, `table`, `form_name`, `sum`, `min` and `max`.
+`sum`, `min` and `max` require `field=FieldName` and only consider records where that
+field's value is numeric; they return `0` as soon as any matching value is
+non-numeric. Field permissions for API/Stats are enforced. The complete syntax of
+every other content plugin is not exhaustively documented in the repository: **To verify** from its
 installed plugin help and templates.
 
 ## Joomla overrides
