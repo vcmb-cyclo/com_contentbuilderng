@@ -231,6 +231,11 @@ $formatListLastModification = static function ($value): string {
 };
 if ($isAdminPreview && !$directStorageMode) {
     $previewLayoutBaseParams = Uri::getInstance()->getQuery(true);
+    // The router/dispatcher use a transient "controller"/"task" pair for SEF
+    // resolution (see Router::parse() and Dispatcher); carrying them into a
+    // freshly generated link causes Joomla to look for a "list" controller
+    // class instead of dispatching view=list normally.
+    unset($previewLayoutBaseParams['controller'], $previewLayoutBaseParams['task']);
     $previewLayoutBaseParams['list'] = $listState;
 
     foreach ($previewLayoutOptions as $layoutName => $layoutLabel) {
