@@ -291,14 +291,10 @@ class HtmlView extends BaseHtmlView
                 Route::TLS_IGNORE,
                 true
             );
-            $toolbar->linkButton('link', '')
-                ->url($previewUrl)
+            $toolbar->link(Text::_('COM_CONTENTBUILDERNG_PREVIEW'), $previewUrl)
                 ->icon('icon-eye')
                 ->target('_blank')
-                ->attributes([
-                    'title' => Text::_('COM_CONTENTBUILDERNG_PREVIEW_TIP'),
-                    'aria-label' => Text::_('COM_CONTENTBUILDERNG_PREVIEW'),
-                ]);
+                ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_PREVIEW_TIP')]);
         }
 
         ToolbarHelper::help(
