@@ -433,6 +433,7 @@ class HtmlView extends BaseHtmlView
 
 		$this->show_page_heading = $subject->show_page_heading;
 		$this->tpl = $subject->template;
+		$this->form = $subject->form ?? null;
 		$this->form_name = $subject->name ?? '';
 		$this->page_title = $subject->page_title;
 		$this->created = $subject->created;
