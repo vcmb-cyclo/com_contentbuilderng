@@ -1445,12 +1445,12 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 								if (in_array(str_replace('col', '', $key), $this->linkable_elements) && $rowCanView) {
 								?>
 									<a href="<?php echo $link; ?>">
-										<?php echo $value; ?>
+										<?php echo nl2br((string) $value); ?>
 									</a>
 								<?php
 								} else {
 								?>
-									<?php echo $value; ?>
+									<?php echo nl2br((string) $value); ?>
 								<?php
 								}
 								?>
