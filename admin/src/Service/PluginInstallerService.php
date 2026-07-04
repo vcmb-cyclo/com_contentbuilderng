@@ -247,6 +247,26 @@ final class PluginInstallerService
                 continue;
             }
 
+            // Installer::uninstall() needs the plugin manifest; when the files
+            // are already gone it only raises a warning and leaves the row
+            // behind, so drop the orphaned record directly instead.
+            $pluginPath = JPATH_PLUGINS . '/contentbuilderng_themes/' . $element;
+            if (!is_file($pluginPath . '/' . $element . '.xml')) {
+                $this->log("[INFO] Dropping orphaned theme plugin record contentbuilderng_themes/{$element} (id {$id}, files already removed).");
+                $this->safe(function () use ($db, $id, $pluginPath): void {
+                    $query = $db->getQuery(true)
+                        ->delete($db->quoteName('#__extensions'))
+                        ->where($db->quoteName('extension_id') . ' = ' . $id);
+                    $db->setQuery($query);
+                    $db->execute();
+
+                    if (is_dir($pluginPath)) {
+                        Folder::delete($pluginPath);
+                    }
+                });
+                continue;
+            }
+
             $this->log("[INFO] Removing unsupported theme plugin contentbuilderng_themes/{$element} (id {$id}).");
             $this->safe(fn() => $installer->uninstall('plugin', $id, 1));
         }
