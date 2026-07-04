@@ -43,8 +43,21 @@ class HtmlView extends BaseHtmlView
         }
 
         if ($this->getLayout() === 'audit') {
+            $app = Factory::getApplication();
+            $formId = $app->getInput()->getInt('id', 0);
+            $identity = $app->getIdentity();
+            $formAsset = $formId > 0 ? 'com_contentbuilderng.form.' . $formId : 'com_contentbuilderng';
+
+            if (
+                !$identity->authorise('core.manage', 'com_contentbuilderng')
+                && !$identity->authorise('core.edit', $formAsset)
+                && !$identity->authorise('core.edit', 'com_contentbuilderng')
+            ) {
+                throw new \RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'), 403);
+            }
+
             $auditService = new FormAuditService(Factory::getContainer()->get(DatabaseInterface::class));
-            $this->audit = $auditService->audit(Factory::getApplication()->getInput()->getInt('id', 0));
+            $this->audit = $auditService->audit($formId);
             parent::display($tpl);
             return;
         }
@@ -166,60 +179,77 @@ class HtmlView extends BaseHtmlView
         $statusDropdown->icon('fa fa-ellipsis-h');
         $statusDropdown->buttonClass('btn btn-action');
         $statusDropdown->listCheck(true);
+        $statusDropdown->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_TOOLBAR_ACTIONS_TIP')]);
 
         $statusChildToolbar = $statusDropdown->getChildToolbar();
         $statusChildToolbar->standardButton('list_include')
             ->task('form.list_include')
             ->text('COM_CONTENTBUILDERNG_LIST_INCLUDE')
             ->icon('fa fa-list text-success')
-            ->listCheck(true);
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_LIST_INCLUDE_TIP')]);
         $statusChildToolbar->standardButton('no_list_include')
             ->task('form.no_list_include')
             ->text('COM_CONTENTBUILDERNG_NO_LIST_INCLUDE')
             ->icon('fa fa-list text-danger')
-            ->listCheck(true);
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_NO_LIST_INCLUDE_TIP')]);
         $statusChildToolbar->standardButton('search_include')
             ->task('form.search_include')
             ->text('COM_CONTENTBUILDERNG_SEARCH_INCLUDE')
             ->icon('fa fa-search text-success')
-            ->listCheck(true);
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_SEARCH_INCLUDE_TIP')]);
         $statusChildToolbar->standardButton('no_search_include')
             ->task('form.no_search_include')
             ->text('COM_CONTENTBUILDERNG_NO_SEARCH_INCLUDE')
             ->icon('fa fa-search text-danger')
-            ->listCheck(true);
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_NO_SEARCH_INCLUDE_TIP')]);
         $statusChildToolbar->standardButton('linkable')
             ->task('form.linkable')
             ->text('COM_CONTENTBUILDERNG_LINKABLE')
             ->icon('fa fa-link text-success')
-            ->listCheck(true);
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_LINKABLE_TIP')]);
         $statusChildToolbar->standardButton('not_linkable')
             ->task('form.not_linkable')
             ->text('COM_CONTENTBUILDERNG_NOT_LINKABLE')
             ->icon('fa fa-link text-danger')
-            ->listCheck(true);
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_NOT_LINKABLE_TIP')]);
         $statusChildToolbar->standardButton('api_allowed')
             ->task('form.api_allowed')
             ->text('COM_CONTENTBUILDERNG_API_ALLOWED')
             ->icon('fa fa-plug text-success')
-            ->listCheck(true);
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_API_ALLOWED_TIP')]);
         $statusChildToolbar->standardButton('not_api_allowed')
             ->task('form.not_api_allowed')
             ->text('COM_CONTENTBUILDERNG_NOT_API_ALLOWED')
             ->icon('fa fa-plug text-danger')
-            ->listCheck(true);
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_NOT_API_ALLOWED_TIP')]);
         $statusChildToolbar->standardButton('editable')
             ->task('form.editable')
             ->text('COM_CONTENTBUILDERNG_EDITABLE')
             ->icon('fa fa-pen text-success')
-            ->listCheck(true);
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_EDITABLE_TIP')]);
         $statusChildToolbar->standardButton('not_editable')
             ->task('form.not_editable')
             ->text('COM_CONTENTBUILDERNG_NOT_EDITABLE')
             ->icon('fa fa-pen text-danger')
-            ->listCheck(true);
-        $statusChildToolbar->publish('form.publish')->icon('fa-solid fa-check text-success')->listCheck(true);
-        $statusChildToolbar->unpublish('form.unpublish')->icon('fa-solid fa-circle-xmark text-danger')->listCheck(true);
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_NOT_EDITABLE_TIP')]);
+        $statusChildToolbar->publish('form.publish')
+            ->icon('fa-solid fa-check text-success')
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_PUBLISH_ELEMENTS_TIP')]);
+        $statusChildToolbar->unpublish('form.unpublish')
+            ->icon('fa-solid fa-circle-xmark text-danger')
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_UNPUBLISH_ELEMENTS_TIP')]);
 
         if ($formId > 0) {
             // Disabled by form-edit-init.js while the form is dirty: the audit
@@ -229,7 +259,8 @@ class HtmlView extends BaseHtmlView
                 ->url(Route::_('index.php?option=com_contentbuilderng&view=form&layout=audit&tmpl=component&id=' . $formId, false))
                 ->icon('fa fa-stethoscope')
                 ->iframeWidth(800)
-                ->iframeHeight(600);
+                ->iframeHeight(600)
+                ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_AUDIT_TIP')]);
         }
 
         ToolbarHelper::cancel('form.cancel', 'JTOOLBAR_CLOSE');
@@ -260,13 +291,10 @@ class HtmlView extends BaseHtmlView
                 Route::TLS_IGNORE,
                 true
             );
-            $toolbar->appendButton(
-                'Link',
-                'eye',
-                Text::_('COM_CONTENTBUILDERNG_PREVIEW'),
-                $previewUrl,
-                '_blank'
-            );
+            $toolbar->link(Text::_('COM_CONTENTBUILDERNG_PREVIEW'), $previewUrl)
+                ->icon('icon-eye')
+                ->target('_blank')
+                ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_PREVIEW_TIP')]);
         }
 
         ToolbarHelper::help(
