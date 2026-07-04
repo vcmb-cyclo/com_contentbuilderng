@@ -41,6 +41,8 @@ $cbStatsDebugSyntax = '{CBStats id=' . $formId . ' output=total debug=1}';
 $cbStatsFilterSyntax = '{CBStats id=' . $formId . ' filter[field]=NomDuChamp filter[value]="200 km* | 300 km*" output=total}';
 $cbStatsTableSyntax = '{CBStats id=' . $formId . ' field=NomDuChamp output=table}';
 $cbStatsSumSyntax   = '{CBStats id=' . $formId . ' field=NomDuChamp output=sum}';
+$cbStatsMinSyntax   = '{CBStats id=' . $formId . ' field=NomDuChamp output=min}';
+$cbStatsMaxSyntax   = '{CBStats id=' . $formId . ' field=NomDuChamp output=max}';
 $apiPermissionRequirements = new ApiPermissionRequirementService();
 $permissionLabelKeys = [
     'api' => 'COM_CONTENTBUILDERNG_PERM_API',
@@ -134,9 +136,22 @@ $wa->useStyle('com_contentbuilderng.admin-form-api');
                 <code><?php echo htmlspecialchars($cbStatsDebugSyntax, ENT_QUOTES, 'UTF-8'); ?></code><br>
                 <code><?php echo htmlspecialchars($cbStatsFilterSyntax, ENT_QUOTES, 'UTF-8'); ?></code><br>
                 <code><?php echo htmlspecialchars($cbStatsTableSyntax, ENT_QUOTES, 'UTF-8'); ?></code><br>
-                <code><?php echo htmlspecialchars($cbStatsSumSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
+                <code><?php echo htmlspecialchars($cbStatsSumSyntax, ENT_QUOTES, 'UTF-8'); ?></code><br>
+                <code><?php echo htmlspecialchars($cbStatsMinSyntax, ENT_QUOTES, 'UTF-8'); ?></code><br>
+                <code><?php echo htmlspecialchars($cbStatsMaxSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
             </td>
-            <td><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_STATS_DESC'); ?></td>
+            <td>
+                <?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_INTRO'); ?>
+                <ul class="mb-2 ps-3 small">
+                    <li><code>output=total</code> &mdash; <?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_OUTPUT_TOTAL'); ?></li>
+                    <li><code>output=form_name</code> &mdash; <?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_OUTPUT_FORM_NAME'); ?></li>
+                    <li><code>output=table</code> &mdash; <?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_OUTPUT_TABLE'); ?></li>
+                    <li><code>output=sum</code> &mdash; <?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_OUTPUT_SUM'); ?></li>
+                    <li><code>output=min</code> / <code>output=max</code> &mdash; <?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_OUTPUT_MINMAX'); ?></li>
+                </ul>
+                <p class="small text-muted mb-1"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_FILTER_HINT'); ?></p>
+                <p class="small text-muted mb-0"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_ERROR_HINT'); ?></p>
+            </td>
             <td><?php echo $renderPermissions($apiPermissionRequirements->getRequiredPermissions('GET', 'stats', 0)); ?></td>
         </tr>
         <tr>

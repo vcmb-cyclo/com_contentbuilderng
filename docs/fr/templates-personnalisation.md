@@ -122,9 +122,18 @@ Exemple de statistiques :
 
 ```text
 {CBStats id=25 output=total}
+{CBStats id=25 output=form_name}
 {CBStats id=25 field=Parcours output=table}
+{CBStats id=25 field=Parcours output=sum}
+{CBStats id=25 field=Parcours output=min}
+{CBStats id=25 field=Parcours output=max}
 {CBStats id=25 filter[field]=Parcours filter[value]="200 km*" output=total}
 ```
+
+Les valeurs `output` prises en charge par `CBStats` sont `total`, `table`, `form_name`,
+`sum`, `min` et `max`. `sum`, `min` et `max` nécessitent `field=NomDuChamp` et ne
+considèrent que les enregistrements dont la valeur du champ est numérique ; elles
+retournent `0` dès qu'une valeur correspondante n'est pas numérique.
 
 La syntaxe complète des plugins Download, ImageScale et Verify n'est pas documentée
 de façon exhaustive dans les guides du dépôt : **À vérifier** à partir des templates
