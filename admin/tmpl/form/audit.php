@@ -22,6 +22,10 @@ $statusBadges = [
 ];
 ?>
 <div class="p-3">
+    <div class="alert alert-info">
+        <?php echo Text::_('COM_CONTENTBUILDERNG_AUDIT_SAVED_CONFIGURATION_NOTICE'); ?>
+    </div>
+
     <?php if (!empty($audit['info'])) : ?>
         <h2 class="h5"><?php echo Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_HEADING'); ?></h2>
         <table class="table table-sm">
