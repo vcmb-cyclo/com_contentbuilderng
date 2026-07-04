@@ -58,7 +58,7 @@ if (!function_exists('mb_wordwrap')) {
             }
 
             // It's time to wrap
-            if ($count > $width) {
+            if ($count >= $width) {
                 // There are no spaces to break on!  Going to truncate :(
                 if (!$last_space) {
                     $return .= $break;
