@@ -47,7 +47,18 @@
     border-color:rgba(var(--bs-primary-rgb,13,110,253),.65);
     box-shadow:0 0 0 .25rem rgba(var(--bs-primary-rgb,13,110,253),.15)
 }
+.cbPreviewBanner.alert.alert-warning{
+    border:1px solid rgba(var(--bs-warning-rgb,255,193,7),.5);
+    border-left-width:.35rem;
+    border-radius:.8rem;
+    background:rgba(var(--bs-warning-rgb,255,193,7),.14)
+}
 @media (prefers-color-scheme: dark){
+    html:not([data-bs-theme="light"]) .cbPreviewBanner.alert.alert-warning{
+        border-color:rgba(255,193,7,.55);
+        background:linear-gradient(90deg,rgba(255,193,7,.18) 0%,rgba(255,193,7,.1) 100%);
+        color:#ffe79b
+    }
     body{
         background-color:#0f1722;
         color:#e7edf6;

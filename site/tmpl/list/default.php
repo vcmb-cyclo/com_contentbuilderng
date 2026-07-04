@@ -444,7 +444,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 		?>
 	<?php endif; ?>
 	<?php if ($isAdminPreview || $directStorageMode): ?>
-			<div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+			<div class="alert alert-warning cbPreviewBanner d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
 				<span>
 					<strong><?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE'); ?></strong>
 					<?php if ($directStorageMode) : ?>
