@@ -82,7 +82,7 @@ class HtmlView extends BaseHtmlView
         // Barre d'outils
         $this->addToolbar();
 
-        HTMLHelper::_('behavior.keepalive');
+        $this->document->getWebAssetManager()->useScript('keepalive');
         parent::display($tpl);
     }
 

@@ -947,6 +947,7 @@ var contentbuilderng = new function(){
 
                         if ($noneditable_fields == null || !in_array($id, $noneditable_fields)) {
                             $value = '';
+                            $missingFromPost = false;
                             $isGroupField = $data->form->isGroup($id);
                             if ($isGroupField) {
                                 $groupValue = $this->app->getInput()->post->get('cb_' . $id, [], 'array');
@@ -955,13 +956,28 @@ var contentbuilderng = new function(){
                                 }
                                 $value = array_values(array_filter($groupValue, static fn($v) => $v !== null && $v !== '' && $v !== 'cbGroupMark'));
                             } elseif (isset($the_fields[$id]['options']->allow_raw) && $the_fields[$id]['options']->allow_raw) {
-                                $value = $this->app->getInput()->post->get('cb_' . $id, '', 'raw');
+                                $value = $this->app->getInput()->post->get('cb_' . $id, null, 'raw');
                             } else if (isset($the_fields[$id]['options']->allow_html) && $the_fields[$id]['options']->allow_html) {
-                                $value = $this->app->getInput()->post->get('cb_' . $id, '', 'html');
+                                $value = $this->app->getInput()->post->get('cb_' . $id, null, 'html');
                             } else {
-                                $value = $this->app->getInput()->post->get('cb_' . $id, '', 'raw');
+                                $value = $this->app->getInput()->post->get('cb_' . $id, null, 'raw');
                             }
-                            if (!$isGroupField && isset($the_fields[$id]['options']->transfer_format)) {
+
+                            // A non-group field entirely absent from the POST was not
+                            // rendered as an input (e.g. stale {name:value} marker in the
+                            // editable template): keep the stored value instead of wiping
+                            // it. A rendered but emptied input still posts ''.
+                            if (!$isGroupField && $value === null) {
+                                $missingFromPost = true;
+                                $value = '';
+                                foreach ($_items as $_item) {
+                                    if ((string) $_item->recElementId === (string) $id) {
+                                        $value = (string) $_item->recValue;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!$isGroupField && !$missingFromPost && isset($the_fields[$id]['options']->transfer_format)) {
                                 $value = ContentbuilderngHelper::convertDate($value, $the_fields[$id]['options']->format, $the_fields[$id]['options']->transfer_format);
                             }
 

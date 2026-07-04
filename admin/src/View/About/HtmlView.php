@@ -100,7 +100,7 @@ class HtmlView extends BaseHtmlView
             $maintenanceChildToolbar->standardButton('about_audit')
                 ->task('about.runAudit')
                 ->text('COM_CONTENTBUILDERNG_ABOUT_AUDIT')
-                ->icon('fa fa-search')
+                ->icon('fa fa-stethoscope')
                 ->listCheck(false);
 
             $maintenanceChildToolbar->standardButton('about_migrate_packed_data')

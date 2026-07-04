@@ -180,13 +180,14 @@ class HtmlView extends BaseHtmlView
                 Route::TLS_IGNORE,
                 true
             );
-            $toolbar->appendButton(
-                'Link',
-                'eye',
-                Text::_('COM_CONTENTBUILDERNG_PREVIEW'),
-                $previewUrl,
-                '_blank'
-            );
+            $toolbar->linkButton('link', '')
+                ->url($previewUrl)
+                ->icon('icon-eye')
+                ->target('_blank')
+                ->attributes([
+                    'title' => Text::_('COM_CONTENTBUILDERNG_PREVIEW_TIP'),
+                    'aria-label' => Text::_('COM_CONTENTBUILDERNG_PREVIEW'),
+                ]);
 
             ToolbarHelper::custom('datatable.sync', 'refresh', '', Text::_('COM_CONTENTBUILDERNG_DATATABLE_SYNC'), false);
         }

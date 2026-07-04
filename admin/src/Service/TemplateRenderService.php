@@ -276,6 +276,21 @@ class TemplateRenderService
         }
     }
 
+    private function addEditableItemMarkerWarnings(int $formId, string $template, string $fieldName): void
+    {
+        $quotedName = preg_quote($fieldName, '/');
+
+        if (
+            preg_match('/\\{' . $quotedName . ':(label|value)\\}/i', $template)
+            && !preg_match('/\\{' . $quotedName . ':item\\}/i', $template)
+        ) {
+            $this->addDebugTemplateWarning(
+                $formId,
+                Text::sprintf('COM_CONTENTBUILDERNG_DEBUG_WARNING_TEMPLATE_EDITABLE_WITHOUT_ITEM', $fieldName)
+            );
+        }
+    }
+
     private function addUnclosedHideIfEmptyWarnings(int $formId, string $template): void
     {
         if (!preg_match_all('/\\{hide-if-empty\\s+([^}]+)\\}|\\{\\/hide\\}/i', $template, $matches, PREG_SET_ORDER)) {
@@ -1116,6 +1131,10 @@ class TemplateRenderService
             $elementCustomInit = $element['custom_init_script'] ?? '';
             $elementHint = $element['hint'] ?? '';
             $isEditable = (int) ($element['editable'] ?? 1) === 1;
+
+            if ($isEditable) {
+                $this->addEditableItemMarkerWarnings((int) $contentbuilderngFormId, $template, (string) $key);
+            }
 
             if ($elementType === 'text' && isset($sourceEditableTypes[(string) $elementReferenceId])) {
                 $elementType = (string) $sourceEditableTypes[(string) $elementReferenceId];
