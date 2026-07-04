@@ -24,16 +24,27 @@ use Joomla\Registry\Registry;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Administrator\Model\FormModel;
+use CB\Component\Contentbuilderng\Administrator\Service\FormAuditService;
 use CB\Component\Contentbuilderng\Administrator\Model\ElementsModel;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\View\Contentbuilderng\HtmlView as BaseHtmlView;
 
 class HtmlView extends BaseHtmlView
 {
+    /** @var array{info: array<string,string>, checks: array<int,array{status:string,message:string}>} */
+    public array $audit = ['info' => [], 'checks' => []];
+
     #[\Override]
     public function display($tpl = null)
     {
         if ($this->getLayout() === 'help') {
+            parent::display($tpl);
+            return;
+        }
+
+        if ($this->getLayout() === 'audit') {
+            $auditService = new FormAuditService(Factory::getContainer()->get(DatabaseInterface::class));
+            $this->audit = $auditService->audit(Factory::getApplication()->getInput()->getInt('id', 0));
             parent::display($tpl);
             return;
         }
@@ -209,6 +220,17 @@ class HtmlView extends BaseHtmlView
             ->listCheck(true);
         $statusChildToolbar->publish('form.publish')->icon('fa-solid fa-check text-success')->listCheck(true);
         $statusChildToolbar->unpublish('form.unpublish')->icon('fa-solid fa-circle-xmark text-danger')->listCheck(true);
+
+        if ($formId > 0) {
+            // Disabled by form-edit-init.js while the form is dirty: the audit
+            // reads the saved configuration, not the unsaved editor state.
+            $toolbar->popupButton('audit', 'COM_CONTENTBUILDERNG_AUDIT')
+                ->popupType('iframe')
+                ->url(Route::_('index.php?option=com_contentbuilderng&view=form&layout=audit&tmpl=component&id=' . $formId, false))
+                ->icon('fa fa-stethoscope')
+                ->iframeWidth(800)
+                ->iframeHeight(600);
+        }
 
         ToolbarHelper::cancel('form.cancel', 'JTOOLBAR_CLOSE');
 

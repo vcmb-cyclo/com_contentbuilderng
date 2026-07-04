@@ -2297,9 +2297,21 @@
         });
     }
 
+    function cbSetAuditButtonEnabled(enabled) {
+        var button = document.querySelector('#toolbar-audit button, joomla-toolbar-button[id="toolbar-audit"] button');
+        if (!button) {
+            return;
+        }
+        button.disabled = !enabled;
+        button.classList.toggle('disabled', !enabled);
+    }
+
     function cbSetDirtyState(isDirty) {
         cbDirtyState = !!isDirty;
         cbSetSaveButtonsEnabled(cbDirtyState);
+        // The audit reads the saved configuration: keep it out of reach while
+        // unsaved changes could contradict its report.
+        cbSetAuditButtonEnabled(!cbDirtyState);
     }
 
     function cbBypassDirtyBeforeUnload() {
