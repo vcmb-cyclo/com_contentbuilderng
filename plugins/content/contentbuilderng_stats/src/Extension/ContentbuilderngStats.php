@@ -127,7 +127,7 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
             if ((int) $exception->getCode() === 403) {
                 return $debug
                     ? 'CBStats DEBUG: field not allowed for API/Stats.'
-                    : 'Statistics unavailable';
+                    : Text::_('PLG_CONTENT_CONTENTBUILDERNG_STATS_UNAVAILABLE');
             }
 
             return $debug

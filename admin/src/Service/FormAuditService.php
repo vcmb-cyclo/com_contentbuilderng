@@ -75,6 +75,7 @@ final class FormAuditService
         }
 
         $recordsTotal = 0;
+        $recordsCountUnavailable = false;
         try {
             $query = $db->getQuery(true)
                 ->select('COUNT(*)')
@@ -84,7 +85,9 @@ final class FormAuditService
             $db->setQuery($query);
             $recordsTotal = (int) $db->loadResult();
         } catch (\Throwable $e) {
-            // Records table unavailable: keep the count at zero, the audit stays usable.
+            // Records table unavailable: keep the count at zero, the audit stays usable,
+            // but surface the failure instead of silently reporting zero records.
+            $recordsCountUnavailable = true;
         }
 
         $published = array_values(array_filter($elements, static fn(array $row): bool => (int) $row['published'] === 1));
@@ -103,6 +106,10 @@ final class FormAuditService
         ];
 
         $checks = array_merge(
+            $recordsCountUnavailable ? [[
+                'status' => self::STATUS_WARNING,
+                'message' => Text::_('COM_CONTENTBUILDERNG_AUDIT_CHECK_RECORDS_COUNT_UNAVAILABLE'),
+            ]] : [],
             $this->checkTheme((string) ($form['theme_plugin'] ?? '')),
             $this->checkSourceSync($elements, $sourceNames, $sourceAvailable, (string) $form['type'], (string) $form['reference_id']),
             $this->checkElementReferences($elements),
