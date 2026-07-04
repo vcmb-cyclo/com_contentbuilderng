@@ -342,7 +342,7 @@ class HtmlView extends BaseHtmlView
         $this->verification_plugins       = $model->getVerificationPlugins();
         $this->theme_plugins              = $model->getThemePlugins();
 
-        HTMLHelper::_('behavior.keepalive');
+        $document->getWebAssetManager()->useScript('keepalive');
         $this->setLayout('edit');
         parent::display($tpl);
     }
