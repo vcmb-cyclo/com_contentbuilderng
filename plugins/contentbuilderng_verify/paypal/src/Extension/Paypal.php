@@ -20,12 +20,15 @@ namespace CB\Plugin\ContentbuilderngVerify\Paypal\Extension;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Event\GenericEvent as Event;
+use Joomla\CMS\Language\Text;
 use Joomla\Event\SubscriberInterface;
 use Joomla\Registry\Registry;
 use Joomla\CMS\Factory;
 
 final class Paypal extends CMSPlugin implements SubscriberInterface
 {
+    protected $autoloadLanguage = true;
+
     private $test = false;
     private $url = 'https://www.paypal.com';
     private $business = '';
@@ -111,7 +114,7 @@ final class Paypal extends CMSPlugin implements SubscriberInterface
             $this->cancel_url = htmlspecialchars(isset($options['plugin_options']['cancel-url']) && $options['plugin_options']['cancel-url'] ? $options['plugin_options']['cancel-url'] : str_replace('&verify=1', '', $return_url), ENT_QUOTES, 'UTF-8');
 
         } else {
-            return 'Please specify an amount (price) for PayPal payment';
+            return Text::_('PLG_CONTENTBUILDERNG_VERIFY_PAYPAL_AMOUNT_REQUIRED');
         }
         return '';
     }
