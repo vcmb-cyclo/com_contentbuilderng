@@ -146,10 +146,17 @@ class HtmlView extends BaseHtmlView
         $dropdown->icon('fa fa-ellipsis-h');
         $dropdown->buttonClass('btn btn-action');
         $dropdown->listCheck(true);
+        $dropdown->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_TOOLBAR_ACTIONS_TIP')]);
 
         $childToolbar = $dropdown->getChildToolbar();
-        $childToolbar->publish('storage.publish')->icon('fa-solid fa-check text-success')->listCheck(true);
-        $childToolbar->unpublish('storage.unpublish')->icon('fa-solid fa-circle-xmark text-danger')->listCheck(true);
+        $childToolbar->publish('storage.publish')
+            ->icon('fa-solid fa-check text-success')
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_PUBLISH_ELEMENTS_TIP')]);
+        $childToolbar->unpublish('storage.unpublish')
+            ->icon('fa-solid fa-circle-xmark text-danger')
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_UNPUBLISH_ELEMENTS_TIP')]);
 
         $id = (int) ($this->item->id ?? 0);
         $isExternalTable = ((int) ($this->item->bytable ?? 0) === 1);
@@ -180,23 +187,23 @@ class HtmlView extends BaseHtmlView
                 Route::TLS_IGNORE,
                 true
             );
-            $toolbar->linkButton('link', '')
-                ->url($previewUrl)
+            $toolbar->link(Text::_('COM_CONTENTBUILDERNG_PREVIEW'), $previewUrl)
                 ->icon('icon-eye')
                 ->target('_blank')
-                ->attributes([
-                    'title' => Text::_('COM_CONTENTBUILDERNG_PREVIEW_TIP'),
-                    'aria-label' => Text::_('COM_CONTENTBUILDERNG_PREVIEW'),
-                ]);
+                ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_PREVIEW_TIP')]);
 
-            ToolbarHelper::custom('datatable.sync', 'refresh', '', Text::_('COM_CONTENTBUILDERNG_DATATABLE_SYNC'), false);
+            $toolbar->standardButton('datatable.sync')
+                ->task('datatable.sync')
+                ->text('COM_CONTENTBUILDERNG_DATATABLE_SYNC')
+                ->icon('fa fa-sync')
+                ->listCheck(false)
+                ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_DATATABLE_SYNC_TIP')]);
         }
-        
-        ToolbarHelper::deleteList(
-            Text::_('COM_CONTENTBUILDERNG_DELETE_FIELDS_CONFIRM'),
-            'storage.listDelete',
-            Text::_('COM_CONTENTBUILDERNG_DELETE_FIELDS')
-        );
+
+        $toolbar->delete('storage.listDelete', 'COM_CONTENTBUILDERNG_DELETE_FIELDS')
+            ->message('COM_CONTENTBUILDERNG_DELETE_FIELDS_CONFIRM')
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_DELETE_FIELDS_TIP')]);
 
         ToolbarHelper::cancel('storage.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
         ToolbarHelper::help(
