@@ -66,6 +66,15 @@
         color: #f6cdd3;
         background: rgba(234, 134, 143, .12);
     }
+
+    .cb-debug-details .table {
+        --bs-table-bg: transparent;
+        --bs-table-striped-bg: rgba(234, 134, 143, .07);
+        --bs-table-striped-color: #e7edf6;
+        --bs-table-color: #e7edf6;
+        --bs-table-border-color: rgba(234, 134, 143, .25);
+        color: #e7edf6;
+    }
 }
 
 html[data-bs-theme="dark"] .cb-debug-details {
@@ -83,4 +92,13 @@ html[data-bs-theme="dark"] .cb-debug-details[open] > summary {
 html[data-bs-theme="dark"] .cb-debug-details code {
     color: #f6cdd3;
     background: rgba(234, 134, 143, .12);
+}
+
+html[data-bs-theme="dark"] .cb-debug-details .table {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: rgba(234, 134, 143, .07);
+    --bs-table-striped-color: #e7edf6;
+    --bs-table-color: #e7edf6;
+    --bs-table-border-color: rgba(234, 134, 143, .25);
+    color: #e7edf6;
 }
