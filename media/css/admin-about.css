@@ -260,6 +260,15 @@
         align-items: center;
         gap: .45rem;
     }
+    /* Bootstrap's own .table > :not(caption) > * > * rule forces the
+       theme's default body text color on every cell, overriding
+       .table-warning's intended readable text color on its own row - most
+       visible in dark mode, where the row background stays a light warning
+       tint but the text turns light-on-light. Restore a readable, theme-
+       aware color for every audit table row flagged with issues. */
+    #cb-audit-section .table-warning > * {
+        color: var(--bs-warning-text-emphasis) !important;
+    }
     .cb-audit-detail-sections {
         display: flex;
         flex-direction: column;
