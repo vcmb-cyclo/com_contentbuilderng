@@ -16,6 +16,7 @@
 use CB\Component\Contentbuilderng\Administrator\Service\ApiPermissionRequirementService;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Router\Route;
 
 $apiExampleDetailUrl = (string) ($displayData['apiExampleDetailUrl'] ?? '');
 $apiExampleListUrl = (string) ($displayData['apiExampleListUrl'] ?? '');
@@ -165,6 +166,13 @@ $wa->useStyle('com_contentbuilderng.admin-form-api');
             <td><?php echo $renderPermissions($apiPermissionRequirements->getRequiredPermissions('PUT', '', 1)); ?></td>
         </tr>
     </table>
+</div>
+<div class="alert alert-secondary py-2 mb-3">
+    <strong><?php echo Text::_('COM_CONTENTBUILDERNG_API_OPENAPI_SPEC_TITLE'); ?></strong>
+    <?php echo Text::_('COM_CONTENTBUILDERNG_API_OPENAPI_SPEC_TEXT'); ?>
+    <a href="<?php echo htmlspecialchars(Route::_('index.php?option=com_contentbuilderng&view=about&layout=openapi', false), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
+        <code class="cb-form-api-inline-code">openapi.json</code>
+    </a>
 </div>
 <div class="alert alert-secondary py-2 mb-3">
     <strong><?php echo Text::_('COM_CONTENTBUILDERNG_API_VERBOSE_OPTION_TITLE'); ?></strong>
