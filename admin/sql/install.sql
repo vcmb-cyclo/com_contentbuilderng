@@ -612,6 +612,7 @@ CREATE TABLE IF NOT EXISTS `#__contentbuilderng_storages`
 --   storage_id       Parent storage (#__contentbuilderng_storages.id).
 --   name             Column name in the underlying data table.
 --   title            Human-readable column label.
+--   sql_type         Controlled SQL type used when creating internal storage columns.
 --   is_group         1 = this row defines a repeating group of columns.
 --   group_definition JSON schema describing the group's sub-columns.
 --   ordering         Display order within the storage.
@@ -623,6 +624,7 @@ CREATE TABLE IF NOT EXISTS `#__contentbuilderng_storage_fields`
     `storage_id`       int          NOT NULL DEFAULT '0',
     `name`             varchar(255) COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
     `title`            varchar(255) COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+    `sql_type`         varchar(32)  COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'text',
     `is_group`         tinyint(1)   NOT NULL DEFAULT '0',
     `group_definition` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
     `ordering`         int          NOT NULL DEFAULT '0',

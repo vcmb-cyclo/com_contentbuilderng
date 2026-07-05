@@ -27,6 +27,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\Audit\InvalidDatetimeSort
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\MenuViewAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StaleInstallerTempAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StaleLanguageFilesAuditHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StorageColumnTypeAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormDisplayColumnsHelper;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
@@ -249,6 +250,8 @@ final class DatabaseAuditHelper
         $errors = array_merge($errors, $elementReferenceErrors);
         [$invalidDatetimeSortIssues, $invalidDatetimeSortErrors] = InvalidDatetimeSortAuditHelper::inspect($db);
         $errors = array_merge($errors, $invalidDatetimeSortErrors);
+        [$storageColumnTypeIssues, $storageColumnTypeErrors] = StorageColumnTypeAuditHelper::inspect($db);
+        $errors = array_merge($errors, $storageColumnTypeErrors);
         [$generatedArticleCategoryIssues, $generatedArticleCategoryErrors] = GeneratedArticleCategoryAuditHelper::inspect($db);
         $errors = array_merge($errors, $generatedArticleCategoryErrors);
         [$staleLanguageFiles, $staleLanguageErrors] = StaleLanguageFilesAuditHelper::inspect();
@@ -278,6 +281,7 @@ final class DatabaseAuditHelper
             'frontend_permission_issues' => $frontendPermissionIssues,
             'element_reference_issues' => $elementReferenceIssues,
             'invalid_datetime_sort_issues' => $invalidDatetimeSortIssues,
+            'storage_column_type_issues' => $storageColumnTypeIssues,
             'generated_article_category_issues' => $generatedArticleCategoryIssues,
             'stale_language_files' => $staleLanguageFiles,
             'stale_installer_temp_dirs' => $staleInstallerTempDirs,

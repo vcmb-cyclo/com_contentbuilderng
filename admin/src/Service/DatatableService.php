@@ -20,12 +20,24 @@ use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Database\ParameterType;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
+use CB\Component\Contentbuilderng\Administrator\Helper\StorageColumnTypeHelper;
 
 class DatatableService
 {
+    /** @var array<int,string> */
+    private array $lastSyncWarnings = [];
+
     public function __construct(
         private readonly DatabaseInterface $db
     ) {
+    }
+
+    /**
+     * @return array<int,string>
+     */
+    public function getLastSyncWarnings(): array
+    {
+        return $this->lastSyncWarnings;
     }
 
     /** Valide un identifiant SQL simple (table/col) */
@@ -519,6 +531,7 @@ class DatatableService
      */
     public function syncColumnsFromFields(int $storageId): void
     {
+        $this->lastSyncWarnings = [];
         $db = $this->db;
         $storage = $this->loadStorage($storageId);
 
@@ -556,15 +569,15 @@ class DatatableService
 
         // ✅ Query Joomla standard
         $query = $db->getQuery(true)
-            ->select($db->quoteName('name'))
+            ->select($db->quoteName(['name', 'sql_type']))
             ->from($db->quoteName('#__contentbuilderng_storage_fields'))
             ->where($db->quoteName('storage_id') . ' = :sid')
             ->bind(':sid', $storageId, ParameterType::INTEGER);
 
         $db->setQuery($query);
-        $fieldNames = $db->loadColumn() ?: [];
+        $fields = $db->loadAssocList() ?: [];
 
-        if (!$fieldNames) {
+        if (!$fields) {
             return;
         }
 
@@ -579,8 +592,8 @@ class DatatableService
 
         $tableQN = $db->quoteName('#__' . $tableName);
 
-        foreach ($fieldNames as $field) {
-            $field = $this->assertSafeIdentifier((string) $field, 'Nom de champ');
+        foreach ($fields as $fieldRow) {
+            $field = $this->assertSafeIdentifier((string) ($fieldRow['name'] ?? ''), 'Nom de champ');
 
             // ✅ Ignore les colonnes système
             if (in_array($field, $systemColumns, true)) {
@@ -589,10 +602,21 @@ class DatatableService
 
             // Déjà existante
             if (isset($cols[$field])) {
+                $sqlType = StorageColumnTypeHelper::normalize((string) ($fieldRow['sql_type'] ?? StorageColumnTypeHelper::DEFAULT_TYPE));
+                if (!StorageColumnTypeHelper::physicalTypeMatches($sqlType, $cols[$field])) {
+                    $physicalType = StorageColumnTypeHelper::extractPhysicalType($cols[$field]);
+                    $this->lastSyncWarnings[] = Text::sprintf(
+                        'COM_CONTENTBUILDERNG_DATATABLE_SYNC_TYPE_MISMATCH',
+                        $field,
+                        StorageColumnTypeHelper::label($sqlType),
+                        $physicalType !== '' ? $physicalType : '-'
+                    );
+                }
                 continue;
             }
 
-            $db->setQuery("ALTER TABLE $tableQN ADD " . $db->quoteName($field) . " TEXT NULL");
+            $sqlType = StorageColumnTypeHelper::normalize((string) ($fieldRow['sql_type'] ?? StorageColumnTypeHelper::DEFAULT_TYPE));
+            $db->setQuery("ALTER TABLE $tableQN ADD " . $db->quoteName($field) . ' ' . StorageColumnTypeHelper::sqlDefinition($sqlType));
             $db->execute();
         }
     }

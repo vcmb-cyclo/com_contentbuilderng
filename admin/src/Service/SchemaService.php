@@ -277,6 +277,49 @@ final class SchemaService
         }
     }
 
+    public function ensureStorageFieldSqlTypeColumn(): void
+    {
+        $db = $this->db();
+
+        try {
+            $cols = $db->getTableColumns('#__contentbuilderng_storage_fields', false);
+
+            if (is_array($cols) && array_key_exists('sql_type', $cols)) {
+                $db->setQuery(
+                    'ALTER TABLE ' . $db->quoteName('#__contentbuilderng_storage_fields')
+                    . ' MODIFY ' . $db->quoteName('sql_type') . " VARCHAR(32) NOT NULL DEFAULT 'text'"
+                );
+                $db->execute();
+
+                $db->setQuery(
+                    $db->getQuery(true)
+                        ->update($db->quoteName('#__contentbuilderng_storage_fields'))
+                        ->set($db->quoteName('sql_type') . ' = ' . $db->quote('text'))
+                        ->where('(' . $db->quoteName('sql_type') . ' IS NULL OR ' . $db->quoteName('sql_type') . " = '')")
+                );
+                $db->execute();
+                $this->log('[OK] Ensured #__contentbuilderng_storage_fields.sql_type default is text.');
+
+                return;
+            }
+        } catch (\Throwable $e) {
+            $this->log('[WARNING] Could not inspect #__contentbuilderng_storage_fields columns: ' . $e->getMessage(), Log::WARNING);
+
+            return;
+        }
+
+        try {
+            $db->setQuery(
+                'ALTER TABLE ' . $db->quoteName('#__contentbuilderng_storage_fields')
+                . ' ADD ' . $db->quoteName('sql_type') . " VARCHAR(32) NOT NULL DEFAULT 'text' AFTER " . $db->quoteName('title')
+            );
+            $db->execute();
+            $this->log('[OK] Added #__contentbuilderng_storage_fields.sql_type.');
+        } catch (\Throwable $e) {
+            $this->log('[WARNING] Failed to add #__contentbuilderng_storage_fields.sql_type: ' . $e->getMessage(), Log::WARNING);
+        }
+    }
+
     public function normalizeStoragesOrdering(): void
     {
         $db = $this->db();

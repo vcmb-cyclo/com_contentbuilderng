@@ -33,6 +33,7 @@ use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
+use CB\Component\Contentbuilderng\Administrator\Helper\StorageColumnTypeHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\VendorHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\DatatableService;
 
@@ -238,6 +239,7 @@ class StorageModel extends AdminModel
         }
 
         $fieldtitle = trim((string) ($jform['fieldtitle'] ?? ''));
+        $sqlType = StorageColumnTypeHelper::normalize((string) ($jform['sql_type'] ?? StorageColumnTypeHelper::DEFAULT_TYPE));
         $isGroup    = (int) ($jform['is_group'] ?? 0);
         $groupDef   = (string) ($jform['group_definition'] ?? '');
 
@@ -271,12 +273,13 @@ class StorageModel extends AdminModel
         // Insert field
         $query = $db->getQuery(true)
             ->insert($db->quoteName('#__contentbuilderng_storage_fields'))
-            ->columns($db->quoteName(['ordering', 'storage_id', 'name', 'title', 'is_group', 'group_definition']))
+            ->columns($db->quoteName(['ordering', 'storage_id', 'name', 'title', 'sql_type', 'is_group', 'group_definition']))
             ->values(
                 (int) $max . ', '
                 . (int) $storageId . ', '
                 . $db->quote($newfieldname) . ', '
                 . $db->quote($newfieldtitle) . ', '
+                . $db->quote($sqlType) . ', '
                 . (int) $isGroup . ', '
                 . $db->quote($groupDef)
             );
@@ -287,7 +290,7 @@ class StorageModel extends AdminModel
         // (si ta table data existe toujours, tu peux garder juste l’ALTER)
         if (!empty($storage->name)) {
             try {
-                $db->setQuery('ALTER TABLE ' . $db->quoteName('#__' . $storage->name) . ' ADD ' . $db->quoteName($newfieldname) . ' TEXT NULL');
+                $db->setQuery('ALTER TABLE ' . $db->quoteName('#__' . $storage->name) . ' ADD ' . $db->quoteName($newfieldname) . ' ' . StorageColumnTypeHelper::sqlDefinition($sqlType));
                 $db->execute();
             } catch (\Throwable $e) {
                 // Si la colonne existe déjà ou table absente, on log et on renvoie false
@@ -446,6 +449,7 @@ class StorageModel extends AdminModel
         }
 
         $fieldtitle = trim((string)($jform['fieldtitle'] ?? ''));
+        $sqlType = StorageColumnTypeHelper::normalize((string) ($jform['sql_type'] ?? StorageColumnTypeHelper::DEFAULT_TYPE));
         $isGroup    = (int)($jform['is_group'] ?? 0);
         $groupDef   = (string)($jform['group_definition'] ?? '');
 
@@ -488,12 +492,13 @@ class StorageModel extends AdminModel
 
         $query = $db->getQuery(true)
             ->insert($db->quoteName('#__contentbuilderng_storage_fields'))
-            ->columns($db->quoteName(['ordering', 'storage_id', 'name', 'title', 'is_group', 'group_definition']))
+            ->columns($db->quoteName(['ordering', 'storage_id', 'name', 'title', 'sql_type', 'is_group', 'group_definition']))
             ->values(
                 (int) $max . ', '
                 . (int) $storageId . ', '
                 . $db->quote($newfieldname) . ', '
                 . $db->quote($newfieldtitle) . ', '
+                . $db->quote($sqlType) . ', '
                 . (int) $isGroup . ', '
                 . $db->quote($groupDef)
             );
@@ -504,7 +509,7 @@ class StorageModel extends AdminModel
         $storage = $this->getItem($storageId);
         if (!empty($storage->name)) {
             try {
-                $db->setQuery('ALTER TABLE ' . $db->quoteName('#__' . $storage->name) . ' ADD ' . $db->quoteName($newfieldname) . ' TEXT NULL');
+                $db->setQuery('ALTER TABLE ' . $db->quoteName('#__' . $storage->name) . ' ADD ' . $db->quoteName($newfieldname) . ' ' . StorageColumnTypeHelper::sqlDefinition($sqlType));
                 $db->execute();
             } catch (\Throwable $e) {
                 Logger::exception($e);
@@ -676,12 +681,13 @@ class StorageModel extends AdminModel
                 if (!in_array($field, $existingNames, true) && !in_array($field, $system_fields, true)) {
                     $query = $db->getQuery(true)
                         ->insert($db->quoteName('#__contentbuilderng_storage_fields'))
-                        ->columns($db->quoteName(['ordering', 'storage_id', 'name', 'title', 'is_group', 'group_definition']))
+                        ->columns($db->quoteName(['ordering', 'storage_id', 'name', 'title', 'sql_type', 'is_group', 'group_definition']))
                         ->values(
                             (int) $max . ', '
                             . (int) $storageId . ', '
                             . $db->quote($field) . ', '
                             . $db->quote($field) . ', '
+                            . $db->quote(StorageColumnTypeHelper::DEFAULT_TYPE) . ', '
                             . '0, ' . $db->quote('')
                         );
                     $db->setQuery($query);
@@ -823,11 +829,13 @@ class StorageModel extends AdminModel
             if (!$bytable) {
                 // old name
                 $query = $db->getQuery(true)
-                    ->select($db->quoteName('name'))
+                    ->select($db->quoteName(['name', 'sql_type']))
                     ->from($db->quoteName('#__contentbuilderng_storage_fields'))
                     ->where($db->quoteName('id') . ' = ' . (int) $field_id);
                 $db->setQuery($query);
-                $old_name = (string) $db->loadResult();
+                $oldField = $db->loadAssoc() ?: [];
+                $old_name = (string) ($oldField['name'] ?? '');
+                $oldSqlType = StorageColumnTypeHelper::normalize((string) ($oldField['sql_type'] ?? StorageColumnTypeHelper::DEFAULT_TYPE));
 
                 // update storage_fields
                 $query = $db->getQuery(true)
@@ -845,7 +853,7 @@ class StorageModel extends AdminModel
                 // rename column if needed
                 if ($old_name !== '' && $old_name !== $name) {
                     try {
-                        $db->setQuery('ALTER TABLE ' . $db->quoteName('#__' . $storageTable->name) . ' CHANGE ' . $db->quoteName($old_name) . ' ' . $db->quoteName($name) . ' TEXT');
+                        $db->setQuery('ALTER TABLE ' . $db->quoteName('#__' . $storageTable->name) . ' CHANGE ' . $db->quoteName($old_name) . ' ' . $db->quoteName($name) . ' ' . StorageColumnTypeHelper::sqlDefinition($oldSqlType));
                         $db->execute();
                     } catch (\Throwable $e) {
                         Logger::exception($e);
@@ -907,11 +915,11 @@ class StorageModel extends AdminModel
 
         // Liste des champs définis
         $query = $db->getQuery(true)
-            ->select($db->quoteName('name'))
+            ->select($db->quoteName(['name', 'sql_type']))
             ->from($db->quoteName('#__contentbuilderng_storage_fields'))
             ->where($db->quoteName('storage_id') . ' = ' . (int) $storageId);
         $db->setQuery($query);
-        $fieldNames = $db->loadColumn() ?: [];
+        $fields = $db->loadAssocList() ?: [];
 
         // Colonnes existantes
         try {
@@ -921,15 +929,18 @@ class StorageModel extends AdminModel
             return;
         }
 
-        foreach ($fieldNames as $fieldname) {
+        foreach ($fields as $field) {
+            $fieldname = (string) ($field['name'] ?? '');
             if ($fieldname === '' || isset($cols[$fieldname])) {
                 continue;
             }
 
+            $sqlType = StorageColumnTypeHelper::normalize((string) ($field['sql_type'] ?? StorageColumnTypeHelper::DEFAULT_TYPE));
+
             try {
                 $db->setQuery(
                     'ALTER TABLE ' . $db->quoteName('#__' . $dataTableName)
-                    . ' ADD ' . $db->quoteName((string) $fieldname) . ' TEXT NULL'
+                    . ' ADD ' . $db->quoteName($fieldname) . ' ' . StorageColumnTypeHelper::sqlDefinition($sqlType)
                 );
                 $db->execute();
             } catch (\Throwable $e) {
@@ -1147,12 +1158,13 @@ class StorageModel extends AdminModel
 
             $db->setQuery(
                 "INSERT INTO #__contentbuilderng_storage_fields"
-                . " (ordering, storage_id, `name`, `title`, `is_group`, `group_definition`)"
+                . " (ordering, storage_id, `name`, `title`, `sql_type`, `is_group`, `group_definition`)"
                 . " VALUES ("
                 . (int) $ordering . ", "
                 . (int) $storageId . ", "
                 . $db->quote($newfieldname) . ", "
                 . $db->quote($newfieldtitle) . ", "
+                . $db->quote(StorageColumnTypeHelper::DEFAULT_TYPE) . ", "
                 . (int) $isGroup . ", "
                 . $db->quote($groupDef)
                 . ")"
@@ -1183,7 +1195,7 @@ class StorageModel extends AdminModel
             if (!$columnExists) {
                 $db->setQuery(
                     'ALTER TABLE ' . $db->quoteName('#__' . $this->target_table)
-                    . ' ADD ' . $db->quoteName($newfieldname) . ' TEXT NULL'
+                    . ' ADD ' . $db->quoteName($newfieldname) . ' ' . StorageColumnTypeHelper::sqlDefinition(StorageColumnTypeHelper::DEFAULT_TYPE)
                 );
                 $db->execute();
             }

@@ -40,6 +40,7 @@ class StoragefieldsModel extends ListModel
             'id',
             'name',
             'title',
+            'sql_type',
             'group_definition',
             'published',
             'ordering'
@@ -137,6 +138,7 @@ class StoragefieldsModel extends ListModel
             'storage_id',
             'name',
             'title',
+            'sql_type',
             'is_group',
             'group_definition',
             'ordering',

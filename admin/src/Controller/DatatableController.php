@@ -101,7 +101,12 @@ class DatatableController extends BaseController
                 throw new \RuntimeException('Unexpected component instance');
             }
 
-            $component->getContainer()->get(DatatableService::class)->syncColumnsFromFields($storageId);
+            $service = $component->getContainer()->get(DatatableService::class);
+            $service->syncColumnsFromFields($storageId);
+
+            foreach ($service->getLastSyncWarnings() as $warning) {
+                Factory::getApplication()->enqueueMessage($warning, 'warning');
+            }
 
             $this->setRedirect(
                 Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . $storageId, false),
