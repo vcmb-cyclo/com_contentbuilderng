@@ -88,6 +88,64 @@ final class InstallerService
         $this->log('[OK] Installed missing media list template: images/list/tmpl/default.php.');
     }
 
+    public function ensureComponentLanguageDirectories(?string $sourceRoot): void
+    {
+        $sourceRoot = $sourceRoot !== null ? rtrim($sourceRoot, '/\\') : '';
+
+        $languageSets = [
+            [
+                'source' => $sourceRoot . '/admin/language',
+                'target' => JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/language',
+                'label' => 'administrator component language directory',
+            ],
+            [
+                'source' => $sourceRoot . '/site/language',
+                'target' => JPATH_SITE . '/components/com_contentbuilderng/language',
+                'label' => 'site component language directory',
+            ],
+        ];
+
+        foreach ($languageSets as $set) {
+            $source = (string) $set['source'];
+            $target = (string) $set['target'];
+            $label = (string) $set['label'];
+
+            if ($sourceRoot === '' || !is_dir($source)) {
+                $this->log("[WARNING] Missing package {$label} source: {$source}.", Log::WARNING);
+                continue;
+            }
+
+            try {
+                if (is_dir($target) && !Folder::delete($target)) {
+                    $this->log("[WARNING] Could not refresh {$label}: {$target}.", Log::WARNING);
+                    continue;
+                }
+
+                if (!Folder::copy($source, $target, '', true)) {
+                    $this->log("[WARNING] Could not install {$label}: {$target}.", Log::WARNING);
+                    continue;
+                }
+
+                $this->log("[OK] Installed {$label}.");
+            } catch (\Throwable $e) {
+                $this->log("[WARNING] Error installing {$label}: " . $e->getMessage(), Log::WARNING);
+            }
+        }
+
+        $staleAdminDir = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/languages';
+        if (is_dir($staleAdminDir)) {
+            try {
+                if (Folder::delete($staleAdminDir)) {
+                    $this->log('[OK] Removed stale administrator component language directory (languages/ -> language/).');
+                } else {
+                    $this->log('[WARNING] Could not remove stale administrator component language directory: ' . $staleAdminDir, Log::WARNING);
+                }
+            } catch (\Throwable $e) {
+                $this->log('[WARNING] Error removing stale administrator component language directory: ' . $e->getMessage(), Log::WARNING);
+            }
+        }
+    }
+
     public function removeOldDirectories(): void
     {
         $paths = [
