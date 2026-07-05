@@ -404,22 +404,22 @@ Label 3;value3</textarea>
                         <th width="20" data-cb-storage-col="check">
                             <input class="form-check-input" type="checkbox" name="checkall-toggle" value="" onclick="Joomla.checkAll(this);" aria-label="<?php echo htmlspecialchars(Text::_('JGLOBAL_CHECK_ALL'), ENT_QUOTES, 'UTF-8'); ?>">
                         </th>
-                        <th data-cb-storage-col="name">
+                        <th data-cb-storage-col="name" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGE_FIELD_NAME_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_NAME'), 'name') : Text::_('COM_CONTENTBUILDERNG_NAME'); ?>
                         </th>
-                        <th data-cb-storage-col="title">
+                        <th data-cb-storage-col="title" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGE_FIELD_TITLE_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_LIST_STATES_TITLE'), 'title') : Text::_('COM_CONTENTBUILDERNG_LIST_STATES_TITLE'); ?>
                         </th>
-                        <th data-cb-storage-col="sql_type">
+                        <th data-cb-storage-col="sql_type" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGE_SQL_TYPE_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_STORAGE_SQL_TYPE'), 'sql_type') : Text::_('COM_CONTENTBUILDERNG_STORAGE_SQL_TYPE'); ?>
                         </th>
-                        <th data-cb-storage-col="group">
+                        <th data-cb-storage-col="group" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGE_GROUP_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_STORAGE_GROUP'), 'group_definition') : Text::_('COM_CONTENTBUILDERNG_STORAGE_GROUP'); ?>
                         </th>
-                        <th class="cb-order-col" data-cb-storage-col="order">
+                        <th class="cb-order-col" data-cb-storage-col="order" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGE_FIELD_ORDER_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_ORDERBY'), 'ordering') : Text::_('COM_CONTENTBUILDERNG_ORDERBY'); ?>
                         </th>
-                        <th data-cb-storage-col="publish">
+                        <th data-cb-storage-col="publish" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_STORAGE_FIELD_PUBLISHED_TIP'), ENT_QUOTES, 'UTF-8'); ?>">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'), 'published') : Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'); ?>
                         </th>
                     </tr>
