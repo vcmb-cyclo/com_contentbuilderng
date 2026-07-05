@@ -17,6 +17,15 @@
     </files>
     <config>
         <fields name="params">
+            <fieldset name="description">
+                <field
+                    name="cbstats_syntax_note"
+                    type="note"
+                    label="PLG_CONTENT_CONTENTBUILDERNG_STATS_HELP_LABEL"
+                    description="PLG_CONTENT_CONTENTBUILDERNG_STATS_HELP_TEXT"
+                    class="alert alert-info"
+                />
+            </fieldset>
         </fields>
     </config>
 </extension>
