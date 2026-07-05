@@ -5,6 +5,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 use Joomla\Database\DatabaseInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
+use CB\Component\Contentbuilderng\Administrator\Helper\StorageColumnTypeHelper;
 
 class StorageFieldService
 {
@@ -49,6 +50,7 @@ class StorageFieldService
 
         $title = trim((string) ($fieldData['title'] ?? ''));
         $title = ($title !== '') ? $title : $name;
+        $sqlType = StorageColumnTypeHelper::normalize((string) ($fieldData['sql_type'] ?? StorageColumnTypeHelper::DEFAULT_TYPE));
 
         $isGroup  = (int) ($fieldData['is_group'] ?? 0);
         $groupDef = (string) ($fieldData['group_definition'] ?? '');
@@ -77,12 +79,13 @@ class StorageFieldService
         // 5) Insert storage_fields
         $query = $db->getQuery(true)
             ->insert($db->quoteName('#__contentbuilderng_storage_fields'))
-            ->columns($db->quoteName(['ordering', 'storage_id', 'name', 'title', 'is_group', 'group_definition', 'published']))
+            ->columns($db->quoteName(['ordering', 'storage_id', 'name', 'title', 'sql_type', 'is_group', 'group_definition', 'published']))
             ->values(
                 (int) $ordering . ', '
                 . (int) $storageId . ', '
                 . $db->quote($name) . ', '
                 . $db->quote($title) . ', '
+                . $db->quote($sqlType) . ', '
                 . (int) $isGroup . ', '
                 . $db->quote($groupDef) . ', '
                 . '1'
@@ -106,8 +109,7 @@ class StorageFieldService
             return;
         }
 
-        // 8) ALTER TABLE (TEXT NULL column, matching the established storage format)
-        $db->setQuery('ALTER TABLE ' . $db->quoteName('#__' . $storageName) . ' ADD ' . $db->quoteName($name) . ' TEXT NULL');
+        $db->setQuery('ALTER TABLE ' . $db->quoteName('#__' . $storageName) . ' ADD ' . $db->quoteName($name) . ' ' . StorageColumnTypeHelper::sqlDefinition($sqlType));
         $db->execute();
     }
 }

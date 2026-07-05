@@ -65,6 +65,7 @@ final class DatabaseAuditReportBuilder
         $frontendPermissionIssues = (array) ($data['frontend_permission_issues'] ?? []);
         $elementReferenceIssues = (array) ($data['element_reference_issues'] ?? []);
         $invalidDatetimeSortIssues = (array) ($data['invalid_datetime_sort_issues'] ?? []);
+        $storageColumnTypeIssues = (array) ($data['storage_column_type_issues'] ?? []);
         $generatedArticleCategoryIssues = (array) ($data['generated_article_category_issues'] ?? []);
         $staleLanguageFiles = (array) ($data['stale_language_files'] ?? []);
         $staleInstallerTempDirs = (array) ($data['stale_installer_temp_dirs'] ?? []);
@@ -147,6 +148,7 @@ final class DatabaseAuditReportBuilder
             + count($frontendPermissionIssues)
             + count($elementReferenceIssues)
             + count($invalidDatetimeSortIssues)
+            + count($storageColumnTypeIssues)
             + count($generatedArticleCategoryIssues)
             + count($staleLanguageFiles)
             + count($staleInstallerTempDirs);
@@ -175,6 +177,7 @@ final class DatabaseAuditReportBuilder
             'frontend_permission_issues' => $frontendPermissionIssues,
             'element_reference_issues' => $elementReferenceIssues,
             'invalid_datetime_sort_issues' => $invalidDatetimeSortIssues,
+            'storage_column_type_issues' => $storageColumnTypeIssues,
             'generated_article_category_issues' => $generatedArticleCategoryIssues,
             'stale_language_files' => $staleLanguageFiles,
             'stale_installer_temp_dirs' => $staleInstallerTempDirs,
@@ -202,6 +205,7 @@ final class DatabaseAuditReportBuilder
                 'element_reference_issues' => count($elementReferenceIssues),
                 'invalid_datetime_sort_issues' => count($invalidDatetimeSortIssues),
                 'invalid_datetime_sort_rows' => $invalidDatetimeSortRows,
+                'storage_column_type_issues' => count($storageColumnTypeIssues),
                 'generated_article_category_issues' => count($generatedArticleCategoryIssues),
                 'generated_article_category_rows' => $invalidGeneratedArticleCategoryRows,
                 'stale_language_files' => count($staleLanguageFiles),

@@ -17,6 +17,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Session\Session;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\StorageColumnTypeHelper;
 
 $item = $displayData['item'] ?? null;
 $tables = is_array($displayData['tables'] ?? null) ? $displayData['tables'] : [];
@@ -29,9 +30,11 @@ $fields = is_iterable($displayData['fields'] ?? null) ? $displayData['fields'] :
 $fieldsCount = (int) ($displayData['fieldsCount'] ?? 0);
 $pagination = $displayData['pagination'] ?? null;
 $ordering = !empty($displayData['ordering']);
+$storageSqlTypeOptions = StorageColumnTypeHelper::options();
 $storageFieldColumns = [
     'name' => Text::_('COM_CONTENTBUILDERNG_NAME'),
     'title' => Text::_('COM_CONTENTBUILDERNG_LIST_STATES_TITLE'),
+    'sql_type' => Text::_('COM_CONTENTBUILDERNG_STORAGE_SQL_TYPE'),
     'group' => Text::_('COM_CONTENTBUILDERNG_STORAGE_GROUP'),
     'order' => Text::_('COM_CONTENTBUILDERNG_ORDERBY'),
     'publish' => Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'),
@@ -285,6 +288,29 @@ $storageFieldColumns = [
                             </tr>
                             <tr>
                                 <td style="width: 100px;">
+                                    <label for="sql_type">
+                                        <b>
+                                            <?php echo Text::_('COM_CONTENTBUILDERNG_STORAGE_SQL_TYPE'); ?>
+                                        </b>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <select class="form-select form-select-sm w-100" id="sql_type" name="jform[sql_type]">
+                                        <?php foreach ($storageSqlTypeOptions as $sqlTypeValue => $sqlTypeLabel) : ?>
+                                            <option value="<?php echo htmlspecialchars($sqlTypeValue, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $sqlTypeValue === StorageColumnTypeHelper::DEFAULT_TYPE ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($sqlTypeLabel, ENT_QUOTES, 'UTF-8'); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="form-text">
+                                        <?php echo Text::_('COM_CONTENTBUILDERNG_STORAGE_SQL_TYPE_CREATE_ONLY_HINT'); ?>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 100px;">
                                     <label for="fieldtitle">
                                         <b>
                                             <?php echo Text::_('COM_CONTENTBUILDERNG_LIST_STATES_TITLE'); ?>
@@ -384,6 +410,9 @@ Label 3;value3</textarea>
                         <th data-cb-storage-col="title">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_LIST_STATES_TITLE'), 'title') : Text::_('COM_CONTENTBUILDERNG_LIST_STATES_TITLE'); ?>
                         </th>
+                        <th data-cb-storage-col="sql_type">
+                            <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_STORAGE_SQL_TYPE'), 'sql_type') : Text::_('COM_CONTENTBUILDERNG_STORAGE_SQL_TYPE'); ?>
+                        </th>
                         <th data-cb-storage-col="group">
                             <?php echo is_callable($sortLink) ? $sortLink(Text::_('COM_CONTENTBUILDERNG_STORAGE_GROUP'), 'group_definition') : Text::_('COM_CONTENTBUILDERNG_STORAGE_GROUP'); ?>
                         </th>
@@ -400,6 +429,8 @@ Label 3;value3</textarea>
                     $id = (int) ($row->id ?? 0);
                     $name = htmlspecialchars((string) ($row->name ?? ''), ENT_QUOTES, 'UTF-8');
                     $title = htmlspecialchars((string) ($row->title ?? ''), ENT_QUOTES, 'UTF-8');
+                    $sqlType = StorageColumnTypeHelper::normalize((string) ($row->sql_type ?? StorageColumnTypeHelper::DEFAULT_TYPE));
+                    $sqlTypeLabel = htmlspecialchars(StorageColumnTypeHelper::label($sqlType), ENT_QUOTES, 'UTF-8');
                     $groupDefinition = htmlspecialchars((string) ($row->group_definition ?? ''), ENT_QUOTES, 'UTF-8');
                     $isGroup = !empty($row->is_group);
                     $checked = '<input class="form-check-input" type="checkbox" id="cb' . (int) $i . '" name="cid[]" value="' . $id . '" onclick="Joomla.isChecked(this.checked);">';
@@ -409,6 +440,11 @@ Label 3;value3</textarea>
                         <td class="text-center" data-cb-storage-col="check"><?php echo $checked; ?></td>
                         <td data-cb-storage-col="name"><?php echo $name; ?></td>
                         <td data-cb-storage-col="title"><?php echo $title; ?></td>
+                        <td data-cb-storage-col="sql_type">
+                            <span title="<?php echo htmlspecialchars(StorageColumnTypeHelper::sqlDefinition($sqlType), ENT_QUOTES, 'UTF-8'); ?>">
+                                <?php echo $sqlTypeLabel; ?>
+                            </span>
+                        </td>
                         <td data-cb-storage-col="group">
                             <input type="hidden" name="itemNames[<?php echo $id; ?>]" value="<?php echo $name; ?>" />
                             <input type="hidden" name="itemTitles[<?php echo $id; ?>]" value="<?php echo $title; ?>" />
@@ -473,7 +509,7 @@ Label 3;value3</textarea>
 
                 <tfoot>
                     <tr>
-                        <td colspan="6">
+                            <td colspan="7">
                             <div class="cb-storage-pagination">
                                 <div class="cbPagesCounter d-flex flex-wrap align-items-center gap-2">
                                     <?php if ($pagination) {

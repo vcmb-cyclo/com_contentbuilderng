@@ -93,6 +93,7 @@ $menuViewIssues = (array) ($auditReport['menu_view_issues'] ?? []);
 $frontendPermissionIssues = (array) ($auditReport['frontend_permission_issues'] ?? []);
 $elementReferenceIssues = (array) ($auditReport['element_reference_issues'] ?? []);
 $invalidDatetimeSortIssues = (array) ($auditReport['invalid_datetime_sort_issues'] ?? []);
+$storageColumnTypeIssues = (array) ($auditReport['storage_column_type_issues'] ?? []);
 $generatedArticleCategoryIssues = (array) ($auditReport['generated_article_category_issues'] ?? []);
 $staleLanguageFiles = (array) ($auditReport['stale_language_files'] ?? []);
 $staleLanguageFilesCount = (int) ($auditSummary['stale_language_files'] ?? count($staleLanguageFiles));
@@ -341,6 +342,8 @@ if ($invalidDatetimeSortRowCount === 0 && $invalidDatetimeSortIssues !== []) {
     }
 }
 $hasInvalidDatetimeSortIssues = $invalidDatetimeSortIssueCount > 0 || $invalidDatetimeSortRowCount > 0;
+$storageColumnTypeIssueCount = (int) ($auditSummary['storage_column_type_issues'] ?? count($storageColumnTypeIssues));
+$hasStorageColumnTypeIssues = $storageColumnTypeIssueCount > 0;
 $formatBytes = static function (int $bytes): string {
     if ($bytes <= 0) {
         return '0 B';
@@ -411,23 +414,24 @@ $auditSectionNumbers = [
     'form_audit_columns_total' => 13,
     'invalid_datetime_sort' => 14,
     'invalid_datetime_sort_rows' => 15,
-    'plugin_duplicates' => 16,
-    'plugin_duplicate_rows' => 17,
-    'bf_field_sync' => 18,
-    'bf_field_sync_missing' => 19,
-    'bf_field_sync_orphan' => 20,
-    'menu_view_consistency' => 21,
-    'frontend_permission_consistency' => 22,
-    'element_reference_consistency' => 23,
-    'generated_article_categories' => 24,
-    'generated_article_category_rows' => 25,
-    'cb_table_stats' => 26,
-    'cb_tables_total' => 27,
-    'cb_ng_tables_expected' => 28,
-    'cb_ng_tables_missing' => 29,
-    'cb_storage_tables' => 30,
-    'cb_estimated_rows' => 31,
-    'cb_estimated_size' => 32,
+    'storage_column_types' => 16,
+    'plugin_duplicates' => 17,
+    'plugin_duplicate_rows' => 18,
+    'bf_field_sync' => 19,
+    'bf_field_sync_missing' => 20,
+    'bf_field_sync_orphan' => 21,
+    'menu_view_consistency' => 22,
+    'frontend_permission_consistency' => 23,
+    'element_reference_consistency' => 24,
+    'generated_article_categories' => 25,
+    'generated_article_category_rows' => 26,
+    'cb_table_stats' => 27,
+    'cb_tables_total' => 28,
+    'cb_ng_tables_expected' => 29,
+    'cb_ng_tables_missing' => 30,
+    'cb_storage_tables' => 31,
+    'cb_estimated_rows' => 32,
+    'cb_estimated_size' => 33,
 ];
 $getAuditSectionNumber = static function (string $sectionId) use ($auditSectionNumbers): int {
     return (int) ($auditSectionNumbers[$sectionId] ?? 0);

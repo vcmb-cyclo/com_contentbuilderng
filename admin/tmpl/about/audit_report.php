@@ -109,6 +109,11 @@ use Joomla\CMS\Router\Route;
                         <th scope="row"><?php echo $renderAuditSummaryLink('invalid_datetime_sort', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_INVALID_DATETIME_SORT_ROWS')); ?></th>
                         <td><?php echo $invalidDatetimeSortRowCount; ?></td>
                     </tr>
+                    <tr class="<?php echo $hasStorageColumnTypeIssues ? 'table-warning' : ''; ?>">
+                        <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('storage_column_types'); ?></td>
+                        <th scope="row"><?php echo $renderAuditSummaryLink('storage_column_types', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STORAGE_COLUMN_TYPES')); ?></th>
+                        <td><?php echo $storageColumnTypeIssueCount; ?></td>
+                    </tr>
                     <tr class="<?php echo $hasPluginDuplicateIssues ? 'table-warning' : ''; ?>">
                         <td class="text-muted text-end pe-2"><?php echo $auditSummaryRowNumber('plugin_duplicates'); ?></td>
                         <th scope="row"><?php echo $renderAuditSummaryLink('plugin_duplicates', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_PLUGIN_DUPLICATE_GROUPS')); ?></th>
@@ -508,6 +513,56 @@ use Joomla\CMS\Router\Route;
                                     <td><?php echo htmlspecialchars((string) ($invalidDatetimeSortIssue['column'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td><?php echo (int) ($invalidDatetimeSortIssue['invalid_count'] ?? 0); ?></td>
                                     <td><?php echo htmlspecialchars($sampleValues === [] ? '-' : implode(', ', $sampleValues), ENT_QUOTES, 'UTF-8'); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <div id="<?php echo htmlspecialchars($getAuditSectionHeadingId('storage_column_types'), ENT_QUOTES, 'UTF-8'); ?>" class="cb-audit-section-block" style="order: 14;">
+                <h4 class="h6 mt-3<?php echo $hasStorageColumnTypeIssues ? ' text-warning' : ''; ?>"><?php echo $renderNumberedAuditTitle('storage_column_types', Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STORAGE_COLUMN_TYPES'), $hasStorageColumnTypeIssues); ?></h4>
+                <?php if (empty($storageColumnTypeIssues)) : ?>
+                    <div class="alert cb-audit-ok-alert">
+                        <span class="cb-audit-section-title">
+                            <span class="cb-audit-ok-check icon-check-circle" aria-hidden="true"></span>
+                            <span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STORAGE_COLUMN_TYPES_OK'); ?></span>
+                        </span>
+                    </div>
+                <?php else : ?>
+                    <div class="table-responsive">
+                        <table id="cb-audit-storage-column-types-table" class="table table-sm table-striped align-middle">
+                            <thead>
+                            <tr>
+                                <th scope="col"><?php echo $auditRowNumberLabel; ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_STORAGE'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TABLE'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_COLUMN'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_EXPECTED_TYPE'); ?></th>
+                                <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_PHYSICAL_TYPE'); ?></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php $storageColumnTypeRowNumber = 1; ?>
+                            <?php foreach ($storageColumnTypeIssues as $storageColumnTypeIssue) : ?>
+                                <?php
+                                $fieldLabel = trim((string) ($storageColumnTypeIssue['field_title'] ?? ''));
+                                $columnName = trim((string) ($storageColumnTypeIssue['column'] ?? ''));
+                                $columnDisplay = $fieldLabel !== '' && $fieldLabel !== $columnName ? ($fieldLabel . ' (' . $columnName . ')') : $columnName;
+                                $expectedDisplay = trim((string) ($storageColumnTypeIssue['expected_label'] ?? ''));
+                                $expectedSql = trim((string) ($storageColumnTypeIssue['expected_sql'] ?? ''));
+                                if ($expectedSql !== '') {
+                                    $expectedDisplay .= ' (' . $expectedSql . ')';
+                                }
+                                ?>
+                                <tr>
+                                    <td><?php echo $storageColumnTypeRowNumber++; ?></td>
+                                    <td><?php echo htmlspecialchars((string) ($storageColumnTypeIssue['storage_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars((string) ($storageColumnTypeIssue['table'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars($columnDisplay, ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars($expectedDisplay, ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars((string) ($storageColumnTypeIssue['physical_type'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>

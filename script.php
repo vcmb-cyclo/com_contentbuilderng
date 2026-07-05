@@ -331,6 +331,7 @@ class com_contentbuilderngInstallerScript
                 $this->ensureElementsApiAllowedColumn();
                 $this->ensureElementsListIncludeDefault();
                 $this->ensureElementsSearchIncludeDefault();
+                $this->ensureStorageFieldSqlTypeColumn();
 
                 // Normalize menu links and titles
                 $this->updateMenuLinks('contentbuilder', 'com_contentbuilderng');
@@ -1014,6 +1015,11 @@ class com_contentbuilderngInstallerScript
     private function ensureElementsSearchIncludeDefault(): void
     {
         $this->schemaService->ensureElementsSearchIncludeDefault();
+    }
+
+    private function ensureStorageFieldSqlTypeColumn(): void
+    {
+        $this->schemaService->ensureStorageFieldSqlTypeColumn();
     }
 
     private function buildMenuLinkOptionWhereClauses(DatabaseInterface $db, string $option): array
