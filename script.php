@@ -350,6 +350,8 @@ class com_contentbuilderngInstallerScript
                     $this->log('[WARNING] Plugin install source not resolved; missing plugins may not be installable in this run.', Log::WARNING);
                 }
 
+                $this->installerService->ensureComponentLanguageDirectories($source);
+
                 // Refresh plugins on update (keeps manifest_cache aligned)
                 $this->ensurePluginsInstalled($source, $type === 'update');
                 $this->activatePlugins();
@@ -707,21 +709,12 @@ class com_contentbuilderngInstallerScript
         try {
             $language = Factory::getApplication()->getLanguage();
 
-            // 1) Component's own language directory (current installed location)
-            // 2) Package source paths (available during install before files are copied)
+            // 1) Component language directory in the current installed location
+            // 2) Package source path available during install before files are copied
             $basePaths = [
                 JPATH_ADMINISTRATOR . '/components/com_contentbuilderng',
             ];
 
-            if (is_dir(__DIR__ . '/administrator/languages')) {
-                $basePaths[] = __DIR__ . '/administrator';
-            }
-
-            if (is_dir(__DIR__ . '/languages')) {
-                $basePaths[] = __DIR__;
-            }
-
-            // Package layout: admin/language/ (source during install)
             if (is_dir(__DIR__ . '/admin/language')) {
                 $basePaths[] = __DIR__ . '/admin';
             }
