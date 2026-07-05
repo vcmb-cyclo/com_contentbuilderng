@@ -64,6 +64,8 @@ $tooltipDbRepair = Text::_('COM_CONTENTBUILDERNG_ABOUT_TOOLTIP_DB_REPAIR');
 $tooltipShowLog = Text::_('COM_CONTENTBUILDERNG_ABOUT_TOOLTIP_SHOW_LOG');
 $tooltipLinkVcmb = Text::_('COM_CONTENTBUILDERNG_ABOUT_TOOLTIP_LINK_VCMB');
 $tooltipLinkLicense = Text::_('COM_CONTENTBUILDERNG_ABOUT_TOOLTIP_LINK_LICENSE');
+$tooltipLinkOpenApi = Text::_('COM_CONTENTBUILDERNG_ABOUT_TOOLTIP_LINK_OPENAPI');
+$openApiSpecUrl = Route::_('index.php?option=com_contentbuilderng&view=about&layout=openapi', false);
 $labelAuditButton = Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT');
 $labelDbRepairButton = Text::_('COM_CONTENTBUILDERNG_ABOUT_MIGRATE_PACKED_DATA');
 $labelShowLogButton = Text::_('COM_CONTENTBUILDERNG_ABOUT_LAST_LOG');
@@ -499,6 +501,14 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
                 title="<?php echo htmlspecialchars($tooltipLinkLicense, ENT_QUOTES, 'UTF-8'); ?>"
                 aria-label="<?php echo htmlspecialchars($tooltipLinkLicense, ENT_QUOTES, 'UTF-8'); ?>"
             ><?php echo Text::_('COM_CONTENTBUILDERNG_LICENSE_LINK'); ?></a>
+            <a
+                class="cb-about-intro-link cb-about-intro-link--openapi"
+                href="<?php echo htmlspecialchars($openApiSpecUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="<?php echo htmlspecialchars($tooltipLinkOpenApi, ENT_QUOTES, 'UTF-8'); ?>"
+                aria-label="<?php echo htmlspecialchars($tooltipLinkOpenApi, ENT_QUOTES, 'UTF-8'); ?>"
+            ><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_OPENAPI_LINK'); ?></a>
         </div>
     </div>
 </div>

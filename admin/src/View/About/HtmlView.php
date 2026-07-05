@@ -21,6 +21,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseInterface;
+use CB\Component\Contentbuilderng\Administrator\Service\OpenApiSpecService;
 
 class HtmlView extends BaseHtmlView
 {
@@ -48,6 +49,20 @@ class HtmlView extends BaseHtmlView
         if ($this->getLayout() === 'help') {
             parent::display($tpl);
             return;
+        }
+
+        if ($this->getLayout() === 'openapi') {
+            if (!$app->getIdentity()->authorise('core.manage', 'com_contentbuilderng')) {
+                throw new \RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'), 403);
+            }
+
+            $spec = (new OpenApiSpecService())->build($this->getVersionInformation()['version'] ?? '');
+            $json = json_encode($spec, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+            $app->setHeader('Content-Type', 'application/json; charset=utf-8', true);
+            $app->sendHeaders();
+            echo $json !== false ? $json : '{}';
+            $app->close();
         }
 
         // 1️⃣ Récupération du WebAssetManager
