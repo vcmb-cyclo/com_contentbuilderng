@@ -698,6 +698,29 @@
         color: #102034;
     }
 
+    /* Radio/checkbox group fields (readonly Details display and Edit form):
+       Bootstrap's own .form-check-input only themes for dark under the
+       data-bs-theme attribute, so under a plain OS-level dark preference it
+       stayed at its light default, appearing pale/flat on the dark panel. */
+    html:not([data-bs-theme="light"]) .cbGroupField .form-check-input {
+        background-color: #111a24;
+        border-color: rgba(173, 193, 216, 0.45);
+    }
+
+    html:not([data-bs-theme="light"]) .cbGroupField .form-check-input:checked {
+        background-color: #66a3ff;
+        border-color: #66a3ff;
+    }
+
+    html:not([data-bs-theme="light"]) .cbGroupField .form-check-input:focus {
+        border-color: #66a3ff;
+        box-shadow: 0 0 0 0.2rem rgba(102, 163, 255, 0.25);
+    }
+
+    html:not([data-bs-theme="light"]) .cbGroupField .form-check-label {
+        color: #e7edf6;
+    }
+
 }
 
 @media (max-width: 767.98px) {
