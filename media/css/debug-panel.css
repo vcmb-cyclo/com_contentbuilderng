@@ -50,24 +50,24 @@
     }
 
 @media (prefers-color-scheme: dark) {
-    .cb-debug-details {
+    html:not([data-bs-theme="light"]) .cb-debug-details {
         color: #e7edf6;
         background: #111a24 !important;
         border-color: rgba(234, 134, 143, .55) !important;
     }
 
-    .cb-debug-details[open] > summary {
+    html:not([data-bs-theme="light"]) .cb-debug-details[open] > summary {
         color: #ffd7dc;
         background: #3a1720;
         border-bottom-color: rgba(234, 134, 143, .45);
     }
 
-    .cb-debug-details code {
+    html:not([data-bs-theme="light"]) .cb-debug-details code {
         color: #f6cdd3;
         background: rgba(234, 134, 143, .12);
     }
 
-    .cb-debug-details .table {
+    html:not([data-bs-theme="light"]) .cb-debug-details .table {
         --bs-table-bg: transparent;
         --bs-table-striped-bg: rgba(234, 134, 143, .07);
         --bs-table-striped-color: #e7edf6;

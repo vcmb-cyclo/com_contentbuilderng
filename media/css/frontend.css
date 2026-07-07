@@ -88,6 +88,36 @@
     }
 }
 
+/* ── Aide de configuration preview (List, Details, Edit) ─────────*/
+.cb-preview-config-help {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.55rem;
+    height: 1.55rem;
+    margin-left: .25rem;
+    border-radius: 999px;
+    color: #7a4c07;
+    background: rgba(255,255,255,.45);
+    text-decoration: none;
+    vertical-align: middle;
+}
+.cb-preview-config-help:hover,
+.cb-preview-config-help:focus {
+    color: #5f3b00;
+    background: rgba(255,255,255,.62);
+    outline: none;
+}
+
+/* ── Fil d'Ariane du titre (liste > écran courant) ───────────────*/
+.cbPageBreadcrumb .cbPageBreadcrumbLink {
+    color: inherit;
+}
+.cbPageBreadcrumb .cbPageBreadcrumbLink:hover,
+.cbPageBreadcrumb .cbPageBreadcrumbLink:focus {
+    text-decoration: underline;
+}
+
 /* ── Utilitaires ─────────────────────────────────────────────────*/
 .cb-clear-right { clear: right; }
 
@@ -126,69 +156,87 @@
    --bs-success et --bs-danger ne sont pas redéfinis par Bootstrap en
    dark mode : on bascule sur les variantes -text-emphasis adaptées.  */
 @media (prefers-color-scheme: dark) {
-    html {
+    html:not([data-bs-theme="light"]) {
         --link-color:           #6ea8fe;
         --link-color-rgb:       110, 168, 254;
         --link-hover-color:     #8bb9fe;
         --link-hover-color-rgb: 139, 185, 254;
     }
-    .cb-list-filters .form-select,
-    .cb-list-toolbar-actions .form-select {
+    html:not([data-bs-theme="light"]) .cb-list-filters .form-select,
+    html:not([data-bs-theme="light"]) .cb-list-toolbar-actions .form-select {
         color: #ffffff !important;
         background-color: #0f1824 !important;
         border-color: rgba(190, 213, 241, .42) !important;
         color-scheme: dark;
     }
-    .cb-list-filters .form-select:disabled,
-    .cb-list-toolbar-actions .form-select:disabled {
+    html:not([data-bs-theme="light"]) .cb-list-filters .form-select:disabled,
+    html:not([data-bs-theme="light"]) .cb-list-toolbar-actions .form-select:disabled {
         color: #ffffff !important;
         background-color: #172638 !important;
         border-color: rgba(190, 213, 241, .34) !important;
         opacity: 1;
     }
-    .cb-list-filters .form-select:focus,
-    .cb-list-toolbar-actions .form-select:focus {
+    html:not([data-bs-theme="light"]) .cb-list-filters .form-select:focus,
+    html:not([data-bs-theme="light"]) .cb-list-toolbar-actions .form-select:focus {
         color: #ffffff !important;
         background-color: #111d2b !important;
         border-color: #78a6dd !important;
         box-shadow: 0 0 0 .18rem rgba(120, 166, 221, .2) !important;
     }
-    .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success-text-emphasis, #75b798); }
-    .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger-text-emphasis,  #ea868f); }
+    html:not([data-bs-theme="light"]) .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success-text-emphasis, #75b798); }
+    html:not([data-bs-theme="light"]) .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger-text-emphasis,  #ea868f); }
+    html:not([data-bs-theme="light"]) .cb-preview-config-help {
+        color: #f5d38f;
+        background: rgba(255,255,255,.08);
+    }
+    html:not([data-bs-theme="light"]) .cb-preview-config-help:hover,
+    html:not([data-bs-theme="light"]) .cb-preview-config-help:focus {
+        color: #ffe8b3;
+        background: rgba(255,255,255,.14);
+    }
     /* joomla-alert.css (Cassiopeia) impose un fond blanc, illisible avec
        le texte clair du mode sombre : palette alerte sombre Bootstrap.
        L'id #system-message-container prime sur joomla-alert.css chargé après. */
-    html #system-message-container joomla-alert {
+    html:not([data-bs-theme="light"]) #system-message-container joomla-alert {
         background-color: #101924;
         border-color: rgba(148, 163, 184, .3);
         color: #e7edf6;
     }
-    html #system-message-container joomla-alert[type="success"] {
+    html:not([data-bs-theme="light"]) #system-message-container joomla-alert[type="success"] {
         background-color: #0f2a1d;
         border-color: #2f6a4f;
         color: var(--bs-success-text-emphasis, #75b798);
     }
-    html #system-message-container joomla-alert[type="danger"] {
+    html:not([data-bs-theme="light"]) #system-message-container joomla-alert[type="danger"] {
         background-color: #2c1215;
         border-color: #842029;
         color: var(--bs-danger-text-emphasis, #ea868f);
     }
-    html #system-message-container joomla-alert[type="warning"] {
+    html:not([data-bs-theme="light"]) #system-message-container joomla-alert[type="warning"] {
         background-color: #2a2005;
         border-color: #997404;
         color: var(--bs-warning-text-emphasis, #ffda6a);
     }
-    html #system-message-container joomla-alert[type="info"] {
+    html:not([data-bs-theme="light"]) #system-message-container joomla-alert[type="info"] {
         background-color: #092c38;
         border-color: #087990;
         color: var(--bs-info-text-emphasis, #6edff6);
     }
-    html #system-message-container joomla-alert .joomla-alert--close {
+    html:not([data-bs-theme="light"]) #system-message-container joomla-alert .joomla-alert--close {
         color: inherit;
     }
 }
 [data-bs-theme="dark"] .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success-text-emphasis, #75b798); }
 [data-bs-theme="dark"] .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger-text-emphasis,  #ea868f); }
+html[data-bs-theme="dark"] .cb-preview-config-help {
+    color: #f5d38f;
+    background: rgba(255,255,255,.08);
+}
+html[data-bs-theme="dark"] .cb-preview-config-help:hover,
+html[data-bs-theme="dark"] .cb-preview-config-help:focus {
+    color: #ffe8b3;
+    background: rgba(255,255,255,.14);
+}
 html[data-bs-theme="dark"] {
     --link-color:           #6ea8fe;
     --link-color-rgb:       110, 168, 254;

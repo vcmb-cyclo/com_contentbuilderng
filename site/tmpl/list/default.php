@@ -240,11 +240,12 @@ if ($isAdminPreview && !$directStorageMode) {
 
     foreach ($previewLayoutOptions as $layoutName => $layoutLabel) {
         $params = $previewLayoutBaseParams;
-        if ($layoutName === 'default') {
-            unset($params['layout']);
-        } else {
-            $params['layout'] = $layoutName;
-        }
+        // Explicitly set "default" rather than removing the key: a menu item
+        // for this view/id can carry its own preset layout, which Joomla's
+        // SEF router silently backfills into any generated link that omits
+        // "layout" entirely, making "Default" resolve to the same URL as
+        // whichever layout the menu item happens to default to.
+        $params['layout'] = $layoutName;
         $previewLayoutSelectOptions[] = [
             'value' => Route::_('index.php?' . http_build_query($params), false),
             'label' => $layoutLabel,
@@ -456,11 +457,11 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 						<?php echo ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CURRENT_STORAGE', $previewFormName); ?>
 					<?php elseif (!empty($previewLayoutSelectOptions)) : ?>
 						<span class="d-inline-flex align-items-center gap-2 ms-2">
-							<span><?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_LIST_LAYOUT'); ?></span>
+							<label for="cb-preview-layout-select"><?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_LIST_LAYOUT'); ?></label>
 							<select
+								id="cb-preview-layout-select"
 								class="form-select form-select-sm w-auto cb-preview-layout-select"
 								title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_PREVIEW_LIST_LAYOUT_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>"
-								aria-label="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_PREVIEW_LIST_LAYOUT_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>"
 								onchange="if (this.value) { window.location.href = this.value; }">
 								<?php foreach ($previewLayoutSelectOptions as $layoutOption) : ?>
 									<option value="<?php echo htmlspecialchars($layoutOption['value'], ENT_QUOTES, 'UTF-8'); ?>"<?php echo $layoutOption['selected'] ? ' selected' : ''; ?>>
@@ -625,12 +626,13 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 									<select class="form-select form-select-sm cb-filter-select-state" disabled
 										name="list_state" id="list_state" title="<?php echo Text::_('COM_CONTENTBUILDERNG_BULK_OPTIONS'); ?>: <?php echo Text::_('COM_CONTENTBUILDERNG_STATE_CHANGER'); ?>"
 										aria-label="<?php echo Text::_('COM_CONTENTBUILDERNG_STATE_CHANGER'); ?>"
+										data-cb-state-select
 										onchange="if (this.value !== '-1') { contentbuilderng_state(); }">
 										<option value="-1"> - <?php echo Text::_('COM_CONTENTBUILDERNG_STATE_CHANGER'); ?> -</option>
 										<option value="0">-</option>
 										<?php foreach ($this->states as $state) : ?>
-											<option value="<?php echo $state['id']; ?>">
-												<?php echo $state['title']; ?>
+											<option value="<?php echo (int) $state['id']; ?>" data-state-color="<?php echo htmlspecialchars((string) ($state['color'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+												<?php echo htmlspecialchars((string) $state['title'], ENT_QUOTES, 'UTF-8'); ?>
 										</option>
 									<?php endforeach; ?>
 								</select>
@@ -685,11 +687,12 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 									name="list_state_filter" id="list_state_filter"
 									title="<?php echo Text::_('COM_CONTENTBUILDERNG_STATE_FILTER'); ?>"
 									aria-label="<?php echo Text::_('COM_CONTENTBUILDERNG_STATE_FILTER'); ?>"
+									data-cb-state-select
 									onchange="document.adminForm.submit();">
 									<option value="0"> - <?php echo Text::_('COM_CONTENTBUILDERNG_STATE_FILTER'); ?> -</option>
 									<?php foreach ($this->states as $state) : ?>
-										<option value="<?php echo $state['id'] ?>" <?php echo $this->lists['filter_state'] == $state['id'] ? 'selected' : ''; ?>>
-											<?php echo $state['title'] ?>
+										<option value="<?php echo (int) $state['id']; ?>" data-state-color="<?php echo htmlspecialchars((string) ($state['color'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" <?php echo $this->lists['filter_state'] == $state['id'] ? 'selected' : ''; ?>>
+											<?php echo htmlspecialchars((string) $state['title'], ENT_QUOTES, 'UTF-8'); ?>
 										</option>
 									<?php endforeach; ?>
 								</select>

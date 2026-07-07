@@ -631,6 +631,40 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
         cbAttachEditNavigationWarning();
     }
 
+    function cbColourStateSelectOptions() {
+        var select = document.getElementById("cb-edit-state-select-<?php echo (int) $this->id; ?>");
+        if (!select) {
+            return;
+        }
+
+        for (var i = 0; i < select.options.length; i++) {
+            var option = select.options[i];
+            var stateColor = String(option.getAttribute("data-state-color") || "");
+
+            if (!/^[0-9a-f]{6}$/i.test(stateColor.replace(/^#/, ""))) {
+                continue;
+            }
+
+            var color = stateColor.replace(/^#/, "");
+            var r = parseInt(color.substring(0, 2), 16);
+            var g = parseInt(color.substring(2, 4), 16);
+            var b = parseInt(color.substring(4, 6), 16);
+            var brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            var textColor = brightness >= 150 ? "#16324F" : "#FFFFFF";
+
+            // !important: Firefox drops a plain inline value on <option>,
+            // overridden by its own UA stylesheet; Chrome honours it either way.
+            option.style.setProperty("background-color", "#" + color, "important");
+            option.style.setProperty("color", textColor, "important");
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", cbColourStateSelectOptions);
+    } else {
+        cbColourStateSelectOptions();
+    }
+
     function contentbuilderng_edit_state_single(select) {
         var form = document.getElementById("adminForm");
         if (!form || !select) {

@@ -1,24 +1,5 @@
 /* ContentBuilderNG - styles frontend de la vue edit. */
 
-.cb-preview-config-help{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:1.55rem;
-    height:1.55rem;
-    margin-left:.25rem;
-    border-radius:999px;
-    color:#7a4c07;
-    background:rgba(255,255,255,.45);
-    text-decoration:none;
-    vertical-align:middle;
-}
-.cb-preview-config-help:hover,
-.cb-preview-config-help:focus{
-    color:#5f3b00;
-    background:rgba(255,255,255,.62);
-    outline:none;
-}
 .cbEditStateControlRow{
     display:flex;
     flex-wrap:wrap;
@@ -39,20 +20,12 @@
     margin-bottom:1rem;
 }
 @media (prefers-color-scheme: dark){
-    html:not([data-bs-theme="light"]) .cb-preview-config-help{
-        color:#f5d38f;
-        background:rgba(255,255,255,.08);
-    }
-    html:not([data-bs-theme="light"]) .cb-preview-config-help:hover,
-    html:not([data-bs-theme="light"]) .cb-preview-config-help:focus{
-        color:#ffe8b3;
-        background:rgba(255,255,255,.14);
-    }
     html:not([data-bs-theme="light"]) .cbEditStateControl .form-label,
     html:not([data-bs-theme="light"]) .cbEditRatingControl .form-label{
         color:#c5d7ec;
     }
-    html:not([data-bs-theme="light"]) .cbEditStateControlRow .form-select{
+    html:not([data-bs-theme="light"]) .cbEditStateControlRow .form-select,
+    html:not([data-bs-theme="light"]) .cbSelectField .form-select{
         color:#ffffff!important;
         background-color:#0f1824!important;
         border-color:rgba(190,213,241,.42)!important;
@@ -69,13 +42,15 @@
         border-color:rgba(190,213,241,.34)!important;
         opacity:1;
     }
-    html:not([data-bs-theme="light"]) .cbEditStateControlRow .form-select:focus{
+    html:not([data-bs-theme="light"]) .cbEditStateControlRow .form-select:focus,
+    html:not([data-bs-theme="light"]) .cbSelectField .form-select:focus{
         color:#ffffff!important;
         background-color:#111d2b!important;
         border-color:#78a6dd!important;
         box-shadow:0 0 0 .18rem rgba(120,166,221,.2)!important;
     }
-    html:not([data-bs-theme="light"]) .cbEditStateControlRow .form-select option{
+    html:not([data-bs-theme="light"]) .cbEditStateControlRow .form-select option,
+    html:not([data-bs-theme="light"]) .cbSelectField .form-select option{
         color:#ffffff;
         background-color:#0f1824;
     }
@@ -91,7 +66,8 @@ html[data-bs-theme="dark"] .cbEditStateControl .form-label,
 html[data-bs-theme="dark"] .cbEditRatingControl .form-label{
     color:#c5d7ec;
 }
-html[data-bs-theme="dark"] .cbEditStateControlRow .form-select{
+html[data-bs-theme="dark"] .cbEditStateControlRow .form-select,
+html[data-bs-theme="dark"] .cbSelectField .form-select{
     color:#ffffff!important;
     background-color:#0f1824!important;
     border-color:rgba(190,213,241,.42)!important;
@@ -108,13 +84,15 @@ html[data-bs-theme="dark"] .cbEditStateControlRow .form-select:disabled{
     border-color:rgba(190,213,241,.34)!important;
     opacity:1;
 }
-html[data-bs-theme="dark"] .cbEditStateControlRow .form-select:focus{
+html[data-bs-theme="dark"] .cbEditStateControlRow .form-select:focus,
+html[data-bs-theme="dark"] .cbSelectField .form-select:focus{
     color:#ffffff!important;
     background-color:#111d2b!important;
     border-color:#78a6dd!important;
     box-shadow:0 0 0 .18rem rgba(120,166,221,.2)!important;
 }
-html[data-bs-theme="dark"] .cbEditStateControlRow .form-select option{
+html[data-bs-theme="dark"] .cbEditStateControlRow .form-select option,
+html[data-bs-theme="dark"] .cbSelectField .form-select option{
     color:#ffffff;
     background-color:#0f1824;
 }
@@ -133,13 +111,4 @@ html[data-bs-theme="dark"] .cbEditRatingControl .cbVotingDisplay{
         width:100%;
         max-width:none;
     }
-}
-
-/* Fil d'Ariane du titre (liste > écran courant). */
-.cbPageBreadcrumb .cbPageBreadcrumbLink{
-    color:inherit;
-}
-.cbPageBreadcrumb .cbPageBreadcrumbLink:hover,
-.cbPageBreadcrumb .cbPageBreadcrumbLink:focus{
-    text-decoration:underline;
 }
