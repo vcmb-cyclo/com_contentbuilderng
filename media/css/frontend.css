@@ -88,6 +88,36 @@
     }
 }
 
+/* ── Aide de configuration preview (List, Details, Edit) ─────────*/
+.cb-preview-config-help {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.55rem;
+    height: 1.55rem;
+    margin-left: .25rem;
+    border-radius: 999px;
+    color: #7a4c07;
+    background: rgba(255,255,255,.45);
+    text-decoration: none;
+    vertical-align: middle;
+}
+.cb-preview-config-help:hover,
+.cb-preview-config-help:focus {
+    color: #5f3b00;
+    background: rgba(255,255,255,.62);
+    outline: none;
+}
+
+/* ── Fil d'Ariane du titre (liste > écran courant) ───────────────*/
+.cbPageBreadcrumb .cbPageBreadcrumbLink {
+    color: inherit;
+}
+.cbPageBreadcrumb .cbPageBreadcrumbLink:hover,
+.cbPageBreadcrumb .cbPageBreadcrumbLink:focus {
+    text-decoration: underline;
+}
+
 /* ── Utilitaires ─────────────────────────────────────────────────*/
 .cb-clear-right { clear: right; }
 
@@ -155,6 +185,15 @@
     }
     html:not([data-bs-theme="light"]) .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success-text-emphasis, #75b798); }
     html:not([data-bs-theme="light"]) .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger-text-emphasis,  #ea868f); }
+    html:not([data-bs-theme="light"]) .cb-preview-config-help {
+        color: #f5d38f;
+        background: rgba(255,255,255,.08);
+    }
+    html:not([data-bs-theme="light"]) .cb-preview-config-help:hover,
+    html:not([data-bs-theme="light"]) .cb-preview-config-help:focus {
+        color: #ffe8b3;
+        background: rgba(255,255,255,.14);
+    }
     /* joomla-alert.css (Cassiopeia) impose un fond blanc, illisible avec
        le texte clair du mode sombre : palette alerte sombre Bootstrap.
        L'id #system-message-container prime sur joomla-alert.css chargé après. */
@@ -189,6 +228,15 @@
 }
 [data-bs-theme="dark"] .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success-text-emphasis, #75b798); }
 [data-bs-theme="dark"] .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger-text-emphasis,  #ea868f); }
+html[data-bs-theme="dark"] .cb-preview-config-help {
+    color: #f5d38f;
+    background: rgba(255,255,255,.08);
+}
+html[data-bs-theme="dark"] .cb-preview-config-help:hover,
+html[data-bs-theme="dark"] .cb-preview-config-help:focus {
+    color: #ffe8b3;
+    background: rgba(255,255,255,.14);
+}
 html[data-bs-theme="dark"] {
     --link-color:           #6ea8fe;
     --link-color-rgb:       110, 168, 254;

@@ -124,25 +124,6 @@
 .cb-list-title::after{
 	display:none!important;
 }
-.cb-preview-config-help{
-	display:inline-flex;
-	align-items:center;
-	justify-content:center;
-	width:1.55rem;
-	height:1.55rem;
-	margin-left:.25rem;
-	border-radius:999px;
-	color:#7a4c07;
-	background:rgba(255,255,255,.45);
-	text-decoration:none;
-	vertical-align:middle;
-}
-.cb-preview-config-help:hover,
-.cb-preview-config-help:focus{
-	color:#5f3b00;
-	background:rgba(255,255,255,.62);
-	outline:none;
-}
 .cb-preview-layout-select{
 	min-width:160px;
 	appearance:none;
@@ -176,15 +157,6 @@
 	html:not([data-bs-theme="light"]) .cb-list-titlebar{
 		border-bottom-color:rgba(255,255,255,.16);
 	}
-	html:not([data-bs-theme="light"]) .cb-preview-config-help{
-		color:#f5d38f;
-		background:rgba(255,255,255,.08);
-	}
-	html:not([data-bs-theme="light"]) .cb-preview-config-help:hover,
-	html:not([data-bs-theme="light"]) .cb-preview-config-help:focus{
-		color:#ffe8b3;
-		background:rgba(255,255,255,.14);
-	}
 	html:not([data-bs-theme="light"]) .cb-list-has-sticky-header .cb-list-table thead th,
 	html:not([data-bs-theme="light"]) .cb-list-has-sticky-header .cb-list-table thead th.table-light{
 		background:linear-gradient(180deg, rgba(16,25,36,.98), rgba(20,32,46,.98))!important;
@@ -197,16 +169,6 @@
 	html:not([data-bs-theme="light"]) .cb-list-table a.text-primary,
 	html:not([data-bs-theme="light"]) .cb-list-table span.text-primary{
 		color:#9ec5fe!important;
-	}
-	html:not([data-bs-theme="light"]) .cb-list-template-cards .cb-list-card{
-		border-color:rgba(148,163,184,.18);
-		background:linear-gradient(180deg, rgba(20,32,46,.98), rgba(16,25,36,.98));
-	}
-	html:not([data-bs-theme="light"]) .cb-list-template-cards .cb-list-card-header{
-		border-bottom-color:rgba(148,163,184,.14);
-	}
-	html:not([data-bs-theme="light"]) .cb-list-template-cards .cb-list-card-badge{
-		background:rgba(148,163,184,.14);
 	}
 	html:not([data-bs-theme="light"]) .cb-list-template-cards .cb-list-card-badge-select{
 		background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23e7edf6' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='m3.5 6 4.5 4.5L12.5 6'/%3E%3C/svg%3E")!important;
