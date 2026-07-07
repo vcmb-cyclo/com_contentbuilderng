@@ -631,8 +631,8 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 										<option value="-1"> - <?php echo Text::_('COM_CONTENTBUILDERNG_STATE_CHANGER'); ?> -</option>
 										<option value="0">-</option>
 										<?php foreach ($this->states as $state) : ?>
-											<option value="<?php echo $state['id']; ?>" data-state-color="<?php echo htmlspecialchars((string) ($state['color'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-												<?php echo $state['title']; ?>
+											<option value="<?php echo (int) $state['id']; ?>" data-state-color="<?php echo htmlspecialchars((string) ($state['color'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+												<?php echo htmlspecialchars((string) $state['title'], ENT_QUOTES, 'UTF-8'); ?>
 										</option>
 									<?php endforeach; ?>
 								</select>
@@ -691,8 +691,8 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 									onchange="document.adminForm.submit();">
 									<option value="0"> - <?php echo Text::_('COM_CONTENTBUILDERNG_STATE_FILTER'); ?> -</option>
 									<?php foreach ($this->states as $state) : ?>
-										<option value="<?php echo $state['id'] ?>" data-state-color="<?php echo htmlspecialchars((string) ($state['color'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" <?php echo $this->lists['filter_state'] == $state['id'] ? 'selected' : ''; ?>>
-											<?php echo $state['title'] ?>
+										<option value="<?php echo (int) $state['id']; ?>" data-state-color="<?php echo htmlspecialchars((string) ($state['color'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" <?php echo $this->lists['filter_state'] == $state['id'] ? 'selected' : ''; ?>>
+											<?php echo htmlspecialchars((string) $state['title'], ENT_QUOTES, 'UTF-8'); ?>
 										</option>
 									<?php endforeach; ?>
 								</select>
