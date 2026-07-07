@@ -618,15 +618,18 @@
         color: #d8e5f5;
     }
 
+    /* Form/detail rows: a subtle single-step surface with a faint border is
+       enough to separate rows - the previous heavier border + drop shadow on
+       every row made the whole panel look visually dense. */
     html:not([data-bs-theme="light"]) .cbEditableWrapper #cbArticleOptions,
     html:not([data-bs-theme="light"]) .cbEditableWrapper fieldset,
     html:not([data-bs-theme="light"]) .cbEditableWrapper .cbEditableBody > .mb-3,
     html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbDetailsBody ul.category.list-striped.list-condensed > li,
     html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbDetailsBody .list-group.list-group-flush > .list-group-item {
-        border-color: rgba(173, 193, 216, 0.24) !important;
-        background: #1f2d3d;
+        border-color: rgba(173, 193, 216, 0.14) !important;
+        background: #1c2836;
         color: #e7edf6;
-        box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.22);
+        box-shadow: none;
     }
 
     html:not([data-bs-theme="light"]) .cbEditableWrapper .form-label,
@@ -643,6 +646,10 @@
         color: #e7edf6;
     }
 
+    /* Editable fields sit one step darker than their row (a "recessed" input
+       look) instead of matching the outer card's tone - reusing that tone
+       here broke the background ramp (card / surface / row / field) and
+       added to the visual noise. */
     html:not([data-bs-theme="light"]) .cbEditableWrapper :is(
         input[type="text"],
         input[type="email"],
@@ -655,9 +662,17 @@
         textarea,
         select
     ) {
-        border-color: rgba(173, 193, 216, 0.3);
-        background-color: #111a24;
+        border-color: rgba(173, 193, 216, 0.28);
+        background-color: #0d1620;
         color: #e7edf6;
+    }
+
+    /* Readonly fields (editable=0): flat, borderless text inline in the row,
+       clearly distinct from the boxed look of editable inputs above. */
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .form-control-plaintext {
+        color: #c5d7ec;
+        background: transparent;
+        border: 0;
     }
 
     html:not([data-bs-theme="light"]) .cbEditableWrapper :is(
@@ -696,6 +711,36 @@
         border-color: #66a3ff;
         background: #66a3ff;
         color: #102034;
+    }
+
+    /* Prev/Next/Back/Close (shared action_toolbar layout, Details and Edit):
+       Bootstrap's plain .btn-outline-secondary relies on its own dark-theme
+       variables, so under an OS-only dark preference it stayed at a
+       low-contrast mid-grey on the dark panel. */
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .cbButton.btn-outline-secondary,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar .cbButton.btn-outline-secondary,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbTitleRecordNav .cbButton.btn-outline-secondary {
+        border-color: rgba(173, 193, 216, 0.45);
+        color: #e7edf6;
+        background: transparent;
+    }
+
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .cbButton.btn-outline-secondary:hover,
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .cbButton.btn-outline-secondary:focus,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar .cbButton.btn-outline-secondary:hover,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar .cbButton.btn-outline-secondary:focus,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbTitleRecordNav .cbButton.btn-outline-secondary:hover,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbTitleRecordNav .cbButton.btn-outline-secondary:focus {
+        border-color: rgba(173, 193, 216, 0.7);
+        background: #22344a;
+        color: #f2f7ff;
+    }
+
+    html:not([data-bs-theme="light"]) .cbEditableWrapper .cbButton.btn-outline-secondary:disabled,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbToolBar .cbButton.btn-outline-secondary:disabled,
+    html:not([data-bs-theme="light"]) .cbDetailsWrapper .cbTitleRecordNav .cbButton.btn-outline-secondary:disabled {
+        border-color: rgba(173, 193, 216, 0.22);
+        color: rgba(231, 237, 246, 0.45);
     }
 
     /* Radio/checkbox group fields (readonly Details display and Edit form):

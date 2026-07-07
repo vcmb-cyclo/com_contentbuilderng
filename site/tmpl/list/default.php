@@ -240,11 +240,12 @@ if ($isAdminPreview && !$directStorageMode) {
 
     foreach ($previewLayoutOptions as $layoutName => $layoutLabel) {
         $params = $previewLayoutBaseParams;
-        if ($layoutName === 'default') {
-            unset($params['layout']);
-        } else {
-            $params['layout'] = $layoutName;
-        }
+        // Explicitly set "default" rather than removing the key: a menu item
+        // for this view/id can carry its own preset layout, which Joomla's
+        // SEF router silently backfills into any generated link that omits
+        // "layout" entirely, making "Default" resolve to the same URL as
+        // whichever layout the menu item happens to default to.
+        $params['layout'] = $layoutName;
         $previewLayoutSelectOptions[] = [
             'value' => Route::_('index.php?' . http_build_query($params), false),
             'label' => $layoutLabel,
@@ -456,11 +457,11 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 						<?php echo ' - ' . Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CURRENT_STORAGE', $previewFormName); ?>
 					<?php elseif (!empty($previewLayoutSelectOptions)) : ?>
 						<span class="d-inline-flex align-items-center gap-2 ms-2">
-							<span><?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_LIST_LAYOUT'); ?></span>
+							<label for="cb-preview-layout-select"><?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_LIST_LAYOUT'); ?></label>
 							<select
+								id="cb-preview-layout-select"
 								class="form-select form-select-sm w-auto cb-preview-layout-select"
 								title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_PREVIEW_LIST_LAYOUT_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>"
-								aria-label="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_PREVIEW_LIST_LAYOUT_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>"
 								onchange="if (this.value) { window.location.href = this.value; }">
 								<?php foreach ($previewLayoutSelectOptions as $layoutOption) : ?>
 									<option value="<?php echo htmlspecialchars($layoutOption['value'], ENT_QUOTES, 'UTF-8'); ?>"<?php echo $layoutOption['selected'] ? ' selected' : ''; ?>>

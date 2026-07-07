@@ -41,4 +41,8 @@
         border-color:rgba(173,193,216,.3);
         color:#e7edf6;
     }
+    html:not([data-bs-theme="light"]) .cbEditableWrapper select:not([multiple]):not([size]){
+        color-scheme:dark;
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23e7edf6' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='m3.5 6 4.5 4.5L12.5 6'/%3E%3C/svg%3E");
+    }
 }
