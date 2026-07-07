@@ -294,6 +294,28 @@
 		select.style.removeProperty('padding-right');
 	}
 
+	function contentbuilderngApplyStateOptionColors(select) {
+		if (!select) {
+			return;
+		}
+
+		Array.prototype.forEach.call(select.options, function(option) {
+			var colors = contentbuilderngGetStateSelectColors(option.getAttribute('data-state-color'));
+
+			if (!colors) {
+				option.style.removeProperty('background-color');
+				option.style.removeProperty('color');
+				return;
+			}
+
+			// Firefox needs !important to win over its own UA stylesheet for
+			// <option>; a plain inline value is silently dropped there, even
+			// though Chrome honours it without !important.
+			option.style.setProperty('background-color', colors.background, 'important');
+			option.style.setProperty('color', colors.foreground, 'important');
+		});
+	}
+
 	function contentbuilderngApplyInitialStateSelectStyles(root) {
 		var scope = root || document;
 		scope.querySelectorAll('[data-cb-state-select]').forEach(function(select) {
@@ -305,6 +327,8 @@
 			} else {
 				contentbuilderngClearStateSelectStyle(select);
 			}
+
+			contentbuilderngApplyStateOptionColors(select);
 		});
 	}
 
@@ -355,6 +379,7 @@
 			} else {
 				contentbuilderngClearStateSelectStyle(select);
 			}
+			contentbuilderngApplyStateOptionColors(select);
 		});
 
 		stateCells.forEach(function(stateCell) {
