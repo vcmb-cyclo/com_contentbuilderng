@@ -59,79 +59,79 @@
         background:linear-gradient(90deg,rgba(255,193,7,.18) 0%,rgba(255,193,7,.1) 100%);
         color:#ffe79b
     }
-    body{
+    html:not([data-bs-theme="light"]) body{
         background-color:#0f1722;
         color:#e7edf6;
     }
-    body .site-grid,
-    body .container-component,
-    body .component-content{
+    html:not([data-bs-theme="light"]) body .site-grid,
+    html:not([data-bs-theme="light"]) body .container-component,
+    html:not([data-bs-theme="light"]) body .component-content{
         background:transparent;
     }
-    .cb-scroll-x{box-shadow:inset 0 -1px 0 rgba(255,255,255,.16)}
-    .cb-scroll-x::-webkit-scrollbar-track{background:rgba(255,255,255,.12)}
-    .cb-scroll-x::-webkit-scrollbar-thumb{background:rgba(102,163,255,.75)}
-    .cb-scroll-x::-webkit-scrollbar-thumb:hover{background:rgba(143,190,255,.92)}
-    .cb-list-panel{border-color:rgba(173,193,216,.24);background:#1a2431;box-shadow:0 .45rem 1rem rgba(0,0,0,.32)}
-    .cb-list-sticky .cb-list-sticky-panel{
+    html:not([data-bs-theme="light"]) .cb-scroll-x{box-shadow:inset 0 -1px 0 rgba(255,255,255,.16)}
+    html:not([data-bs-theme="light"]) .cb-scroll-x::-webkit-scrollbar-track{background:rgba(255,255,255,.12)}
+    html:not([data-bs-theme="light"]) .cb-scroll-x::-webkit-scrollbar-thumb{background:rgba(102,163,255,.75)}
+    html:not([data-bs-theme="light"]) .cb-scroll-x::-webkit-scrollbar-thumb:hover{background:rgba(143,190,255,.92)}
+    html:not([data-bs-theme="light"]) .cb-list-panel{border-color:rgba(173,193,216,.24);background:#1a2431;box-shadow:0 .45rem 1rem rgba(0,0,0,.32)}
+    html:not([data-bs-theme="light"]) .cb-list-sticky .cb-list-sticky-panel{
         border-color:rgba(102,163,255,.36)!important;
         background:linear-gradient(180deg,rgba(26,36,49,.95) 0%,rgba(17,26,36,.92) 100%)!important;
         box-shadow:0 .35rem .9rem rgba(0,0,0,.42)!important
     }
-    .cb-list-sticky .cb-list-filters td,
-    .cb-list-filters td{color:#d8e5f5}
-    .cb-list-filters .form-select,
-    .cb-list-filters .form-control,
-    .cb-list-toolbar-actions .form-select{
+    html:not([data-bs-theme="light"]) .cb-list-sticky .cb-list-filters td,
+    html:not([data-bs-theme="light"]) .cb-list-filters td{color:#d8e5f5}
+    html:not([data-bs-theme="light"]) .cb-list-filters .form-select,
+    html:not([data-bs-theme="light"]) .cb-list-filters .form-control,
+    html:not([data-bs-theme="light"]) .cb-list-toolbar-actions .form-select{
         color:#e7edf6;
         background-color:#111a24;
         border-color:rgba(173,193,216,.3);
         color-scheme:dark
     }
-    .cb-list-filters .form-select:disabled,
-    .cb-list-filters .form-control:disabled,
-    .cb-list-toolbar-actions .form-select:disabled{
+    html:not([data-bs-theme="light"]) .cb-list-filters .form-select:disabled,
+    html:not([data-bs-theme="light"]) .cb-list-filters .form-control:disabled,
+    html:not([data-bs-theme="light"]) .cb-list-toolbar-actions .form-select:disabled{
         color:#e7edf6;
         background-color:#233142;
         border-color:rgba(173,193,216,.24);
         opacity:1
     }
-    .cb-list-filters .input-group-text{background:#1f2d3d;color:#d8e5f5;border-color:rgba(173,193,216,.24)}
-    .cb-list-filters .btn-outline-primary{
+    html:not([data-bs-theme="light"]) .cb-list-filters .input-group-text{background:#1f2d3d;color:#d8e5f5;border-color:rgba(173,193,216,.24)}
+    html:not([data-bs-theme="light"]) .cb-list-filters .btn-outline-primary{
         border-color:#66a3ff;
         color:#8fbeff;
     }
-    .cb-list-filters .btn-outline-primary:hover,
-    .cb-list-filters .btn-outline-primary:focus{
+    html:not([data-bs-theme="light"]) .cb-list-filters .btn-outline-primary:hover,
+    html:not([data-bs-theme="light"]) .cb-list-filters .btn-outline-primary:focus{
         border-color:#66a3ff;
         background:#66a3ff;
         color:#102034;
     }
-    .cb-list-filters .btn-outline-secondary{
+    html:not([data-bs-theme="light"]) .cb-list-filters .btn-outline-secondary{
         border-color:rgba(173,193,216,.34);
         color:#c5d7ec;
     }
-    .cb-list-filters .btn-outline-secondary:hover,
-    .cb-list-filters .btn-outline-secondary:focus{
+    html:not([data-bs-theme="light"]) .cb-list-filters .btn-outline-secondary:hover,
+    html:not([data-bs-theme="light"]) .cb-list-filters .btn-outline-secondary:focus{
         border-color:rgba(173,193,216,.45);
         background:#22344a;
         color:#e7edf6;
     }
-    .cb-list-titlebar{
+    html:not([data-bs-theme="light"]) .cb-list-titlebar{
         border-color:rgba(102,163,255,.38);
         border-left-color:#66a3ff;
         background:linear-gradient(90deg,rgba(102,163,255,.24),rgba(102,163,255,.06));
         box-shadow:0 .35rem .9rem rgba(0,0,0,.35)
     }
-    .cb-list-title,
-    .cb-list-titlebar .h3,
-    .cb-list-titlebar h3{
+    html:not([data-bs-theme="light"]) .cb-list-title,
+    html:not([data-bs-theme="light"]) .cb-list-titlebar .h3,
+    html:not([data-bs-theme="light"]) .cb-list-titlebar h3{
         color:#d8e5f5!important
     }
-    .cb-list-data-panel{
+    html:not([data-bs-theme="light"]) .cb-list-data-panel{
         background:#111a24;
     }
-    .cb-list-table{
+    html:not([data-bs-theme="light"]) .cb-list-table{
         --bs-table-color:#e7edf6;
         --bs-table-bg:#111a24;
         --bs-table-border-color:rgba(173,193,216,.22);
@@ -141,66 +141,66 @@
         --bs-table-hover-color:#f2f7ff;
         background-color:#111a24;
     }
-    .cb-list-table,
-    .cb-list-table td,
-    .cb-list-table th,
-    .cb-list-table .form-control,
-    .cb-list-table .form-select{
+    html:not([data-bs-theme="light"]) .cb-list-table,
+    html:not([data-bs-theme="light"]) .cb-list-table td,
+    html:not([data-bs-theme="light"]) .cb-list-table th,
+    html:not([data-bs-theme="light"]) .cb-list-table .form-control,
+    html:not([data-bs-theme="light"]) .cb-list-table .form-select{
         color:#e7edf6
     }
-    .cb-list-table th.table-light,
-    .cb-list-table td.table-light,
-    .cb-list-table .table-light{
+    html:not([data-bs-theme="light"]) .cb-list-table th.table-light,
+    html:not([data-bs-theme="light"]) .cb-list-table td.table-light,
+    html:not([data-bs-theme="light"]) .cb-list-table .table-light{
         color:#d8e5f5;
         background-color:#22344a!important;
         border-color:rgba(173,193,216,.28)!important;
     }
-    .cb-list-table .form-control,
-    .cb-list-table .form-select{
+    html:not([data-bs-theme="light"]) .cb-list-table .form-control,
+    html:not([data-bs-theme="light"]) .cb-list-table .form-select{
         background-color:#111a24;
         border-color:rgba(173,193,216,.3)
     }
-    .cb-list-table > tbody > tr > *{
+    html:not([data-bs-theme="light"]) .cb-list-table > tbody > tr > *{
         background-color:#111a24!important;
         color:#e7edf6;
         border-color:rgba(173,193,216,.22)!important;
     }
-    .cb-list-table.table-striped > tbody > tr:nth-of-type(odd) > *{
+    html:not([data-bs-theme="light"]) .cb-list-table.table-striped > tbody > tr:nth-of-type(odd) > *{
         background-color:#1b2a3a!important;
     }
-    .cb-list-table.table-striped > tbody > tr:nth-of-type(even) > *{
+    html:not([data-bs-theme="light"]) .cb-list-table.table-striped > tbody > tr:nth-of-type(even) > *{
         background-color:#111a24!important;
     }
-    .cb-list-table.table-hover > tbody > tr:hover > *{
+    html:not([data-bs-theme="light"]) .cb-list-table.table-hover > tbody > tr:hover > *{
         background-color:#23364a!important;
         color:#f2f7ff!important;
     }
-    .cb-list-table td[data-cb-state-cell][style*="#FFFFFF"],
-    .cb-list-table td[data-cb-state-cell][style*="#ffffff"]{
+    html:not([data-bs-theme="light"]) .cb-list-table td[data-cb-state-cell][style*="#FFFFFF"],
+    html:not([data-bs-theme="light"]) .cb-list-table td[data-cb-state-cell][style*="#ffffff"]{
         background-color:#111a24!important;
         color:#e7edf6!important;
     }
     /* Reapply the per-record state colour set as inline custom properties;
        the generic !important cell backgrounds above would otherwise hide it. */
-    .cb-list-table > tbody > tr > td[data-cb-state-cell][style*="--cb-state-bg"]{
+    html:not([data-bs-theme="light"]) .cb-list-table > tbody > tr > td[data-cb-state-cell][style*="--cb-state-bg"]{
         background-color:var(--cb-state-bg)!important;
         color:var(--cb-state-fg, #e7edf6)!important;
     }
-    .cb-debug-details{
+    html:not([data-bs-theme="light"]) .cb-debug-details{
         color:#e7edf6;
         background:#111a24!important;
         border-color:rgba(234,134,143,.55)!important;
     }
-    .cb-debug-details[open] > summary{
+    html:not([data-bs-theme="light"]) .cb-debug-details[open] > summary{
         color:#ffd7dc;
         background:#3a1720;
         border-bottom-color:rgba(234,134,143,.45);
     }
-    .cb-debug-details code{
+    html:not([data-bs-theme="light"]) .cb-debug-details code{
         color:#f6cdd3;
         background:rgba(234,134,143,.12);
     }
-    .cb-pagination-summary{color:#c5d7ec}
+    html:not([data-bs-theme="light"]) .cb-pagination-summary{color:#c5d7ec}
 }
 @media (max-width:767.98px){.cb-list-actions{width:100%;justify-content:flex-end}.cb-list-panel{padding:.55rem .45rem}}
 @media (max-width:767.98px){.cb-list-titlebar{padding:.55rem .65rem;margin-bottom:.75rem}.cb-list-title{font-size:1.18rem}}
