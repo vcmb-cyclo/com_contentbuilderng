@@ -626,11 +626,12 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 									<select class="form-select form-select-sm cb-filter-select-state" disabled
 										name="list_state" id="list_state" title="<?php echo Text::_('COM_CONTENTBUILDERNG_BULK_OPTIONS'); ?>: <?php echo Text::_('COM_CONTENTBUILDERNG_STATE_CHANGER'); ?>"
 										aria-label="<?php echo Text::_('COM_CONTENTBUILDERNG_STATE_CHANGER'); ?>"
+										data-cb-state-select
 										onchange="if (this.value !== '-1') { contentbuilderng_state(); }">
 										<option value="-1"> - <?php echo Text::_('COM_CONTENTBUILDERNG_STATE_CHANGER'); ?> -</option>
 										<option value="0">-</option>
 										<?php foreach ($this->states as $state) : ?>
-											<option value="<?php echo $state['id']; ?>">
+											<option value="<?php echo $state['id']; ?>" data-state-color="<?php echo htmlspecialchars((string) ($state['color'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
 												<?php echo $state['title']; ?>
 										</option>
 									<?php endforeach; ?>
@@ -686,10 +687,11 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 									name="list_state_filter" id="list_state_filter"
 									title="<?php echo Text::_('COM_CONTENTBUILDERNG_STATE_FILTER'); ?>"
 									aria-label="<?php echo Text::_('COM_CONTENTBUILDERNG_STATE_FILTER'); ?>"
+									data-cb-state-select
 									onchange="document.adminForm.submit();">
 									<option value="0"> - <?php echo Text::_('COM_CONTENTBUILDERNG_STATE_FILTER'); ?> -</option>
 									<?php foreach ($this->states as $state) : ?>
-										<option value="<?php echo $state['id'] ?>" <?php echo $this->lists['filter_state'] == $state['id'] ? 'selected' : ''; ?>>
+										<option value="<?php echo $state['id'] ?>" data-state-color="<?php echo htmlspecialchars((string) ($state['color'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" <?php echo $this->lists['filter_state'] == $state['id'] ? 'selected' : ''; ?>>
 											<?php echo $state['title'] ?>
 										</option>
 									<?php endforeach; ?>
