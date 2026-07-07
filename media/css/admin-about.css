@@ -220,20 +220,25 @@
         flex: 0 0 auto;
     }
     .cb-audit-warning-alert {
-        position: relative;
-        padding-left: 2.6rem;
+        display: flex;
+        align-items: flex-start;
+        gap: .6rem;
         border-color: var(--bs-warning-border-subtle);
         background-color: var(--bs-warning-bg-subtle);
         color: var(--bs-warning-text-emphasis);
     }
+    /* \FE0E force la présentation texte : le glyphe suit la couleur du
+       thème au lieu de l'emoji couleur, illisible sur fond sombre. */
     .cb-audit-warning-alert::before {
-        content: "\26A0";
-        position: absolute;
-        top: .9rem;
-        left: 1rem;
+        content: "\26A0\FE0E";
+        flex: 0 0 auto;
         color: var(--bs-warning-text-emphasis);
         font-size: 1rem;
-        line-height: 1;
+        line-height: 1.4;
+    }
+    .cb-audit-warning-alert .cb-audit-warning-content {
+        flex: 1 1 auto;
+        min-width: 0;
     }
     .cb-audit-warning-alert .cb-audit-warning-title {
         font-weight: 600;

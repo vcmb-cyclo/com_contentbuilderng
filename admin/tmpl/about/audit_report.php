@@ -1341,6 +1341,7 @@ use Joomla\CMS\Router\Route;
                 <div class="d-flex flex-column gap-2">
                     <?php foreach ($auditWarnings as $auditWarning) : ?>
                         <div class="alert alert-warning cb-audit-warning-alert mb-0">
+                            <div class="cb-audit-warning-content">
                             <span class="cb-audit-warning-title"><?php echo htmlspecialchars((string) ($auditWarning['summary'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></span>
                             <?php if (!empty($auditWarning['detail']) || !empty($auditWarning['link_url'])) : ?>
                                 <span class="cb-audit-warning-help">
@@ -1355,6 +1356,7 @@ use Joomla\CMS\Router\Route;
                                     <?php endif; ?>
                                 </span>
                             <?php endif; ?>
+                            </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
