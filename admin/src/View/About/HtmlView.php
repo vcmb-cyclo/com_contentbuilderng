@@ -35,6 +35,7 @@ class HtmlView extends BaseHtmlView
     protected array $phpLibraries = [];
     protected array $javascriptLibraries = [];
     protected array $plugins = [];
+    protected string $pluginNameFilter = '';
     protected array $auditReport = [];
     protected array $logReport = [];
     protected array $packedPayloadReport = [];
@@ -166,7 +167,8 @@ class HtmlView extends BaseHtmlView
         $this->componentBuildTimestamp = (string) ($versionInformation['buildTimestamp'] ?? '');
         $this->phpLibraries = $this->getInstalledPhpLibraries();
         $this->javascriptLibraries = $this->getInstalledJavascriptLibraries();
-        $this->plugins = $this->getInstalledPlugins();
+        $this->pluginNameFilter = trim((string) $app->getInput()->getString('filter_plugin_name', ''));
+        $this->plugins = $this->filterPluginsByName($this->getInstalledPlugins(), $this->pluginNameFilter);
         $auditReport = $app->getUserState('com_contentbuilderng.about.audit', []);
         $this->auditReport = is_array($auditReport) ? $auditReport : [];
         $app->setUserState('com_contentbuilderng.about.audit', []);
@@ -418,6 +420,18 @@ class HtmlView extends BaseHtmlView
         }
 
         return $plugins;
+    }
+
+    private function filterPluginsByName(array $plugins, string $filter): array
+    {
+        if ($filter === '') {
+            return $plugins;
+        }
+
+        return array_values(array_filter(
+            $plugins,
+            static fn(array $plugin): bool => stripos((string) ($plugin['name'] ?? ''), $filter) !== false
+        ));
     }
 
     private function getPluginUsageInfo(string $group, string $element): array

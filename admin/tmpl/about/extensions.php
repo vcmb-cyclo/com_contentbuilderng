@@ -51,9 +51,21 @@ $plugins = is_array($this->plugins ?? null) ? $this->plugins : [];
                     </thead>
                     <tbody>
                     <?php foreach ($plugins as $plugin) : ?>
+                        <?php
+                        $pluginId = (int) ($plugin['id'] ?? 0);
+                        $pluginEditUrl = $pluginId > 0
+                            ? Route::_('index.php?option=com_plugins&view=plugin&layout=edit&extension_id=' . $pluginId, false)
+                            : '';
+                        ?>
                         <tr>
                             <th scope="row">
-                                <strong><?php echo htmlspecialchars((string) ($plugin['name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></strong>
+                                <?php if ($pluginEditUrl !== '') : ?>
+                                    <a href="<?php echo htmlspecialchars($pluginEditUrl, ENT_QUOTES, 'UTF-8'); ?>">
+                                        <strong><?php echo htmlspecialchars((string) ($plugin['name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></strong>
+                                    </a>
+                                <?php else : ?>
+                                    <strong><?php echo htmlspecialchars((string) ($plugin['name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></strong>
+                                <?php endif; ?>
                                 <span class="text-muted small d-block">
                                     <?php echo htmlspecialchars((string) ($plugin['group'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
                                     /
