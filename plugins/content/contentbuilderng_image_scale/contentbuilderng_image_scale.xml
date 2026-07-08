@@ -9,11 +9,7 @@
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
 	<version>6.1.7-RC76</version>
 
-	<description>
-	<![CDATA[
-        Displays images out of uploads
-        ]]>
-    </description>
+	<description>PLG_CONTENT_CONTENTBUILDERNG_IMAGE_SCALE_XML_DESCRIPTION</description>
     <namespace path="src">CB\Plugin\Content\ContentbuilderngImageScale</namespace>
             <files>
         <filename plugin="contentbuilderng_image_scale">services/provider.php</filename>
@@ -23,7 +19,16 @@
     <config>
         <fields name="params">
             <fieldset name="basic">
-                <field name="max_filesize" type="text" default="4" label="Max. Filesize (MB)"/>
+                <field name="max_filesize" type="text" default="4" label="PLG_CONTENT_CONTENTBUILDERNG_IMAGE_SCALE_FIELD_MAX_FILESIZE_LABEL"/>
+            </fieldset>
+            <fieldset name="description">
+                <field
+                    name="cbimagescale_syntax_note"
+                    type="note"
+                    label="PLG_CONTENT_CONTENTBUILDERNG_IMAGE_SCALE_HELP_LABEL"
+                    description="PLG_CONTENT_CONTENTBUILDERNG_IMAGE_SCALE_HELP_TEXT"
+                    class="alert alert-info"
+                />
             </fieldset>
         </fields>
     </config>

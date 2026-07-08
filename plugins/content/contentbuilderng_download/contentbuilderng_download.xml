@@ -9,11 +9,7 @@
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
 	<version>6.1.7-RC76</version>
 
-	<description>
-	<![CDATA[
-        Transforms uploaded files into download link, preserving permissions
-        ]]>
-    </description>
+	<description>PLG_CONTENT_CONTENTBUILDERNG_DOWNLOAD_XML_DESCRIPTION</description>
     <namespace path="src">CB\Plugin\Content\ContentbuilderngDownload</namespace>
             <files>
         <filename plugin="contentbuilderng_download">services/provider.php</filename>
@@ -22,6 +18,15 @@
     </files>
     <config>
         <fields name="params">
+            <fieldset name="description">
+                <field
+                    name="cbdownload_syntax_note"
+                    type="note"
+                    label="PLG_CONTENT_CONTENTBUILDERNG_DOWNLOAD_HELP_LABEL"
+                    description="PLG_CONTENT_CONTENTBUILDERNG_DOWNLOAD_HELP_TEXT"
+                    class="alert alert-info"
+                />
+            </fieldset>
         </fields>
     </config>
 </extension>

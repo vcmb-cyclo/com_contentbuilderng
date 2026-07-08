@@ -9,11 +9,7 @@
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
 	<version>6.1.7-RC76</version>
 
-	<description>
-	<![CDATA[
-        Shows a rating bar in records/articles
-        ]]>
-    </description>
+	<description>PLG_CONTENT_CONTENTBUILDERNG_RATING_XML_DESCRIPTION</description>
     <namespace path="src">CB\Plugin\Content\ContentbuilderngRating</namespace>
             <files>
         <filename plugin="contentbuilderng_rating">services/provider.php</filename>
@@ -22,6 +18,15 @@
     </files>
     <config>
         <fields name="params">
+            <fieldset name="description">
+                <field
+                    name="cbrating_syntax_note"
+                    type="note"
+                    label="PLG_CONTENT_CONTENTBUILDERNG_RATING_HELP_LABEL"
+                    description="PLG_CONTENT_CONTENTBUILDERNG_RATING_HELP_TEXT"
+                    class="alert alert-info"
+                />
+            </fieldset>
         </fields>
     </config>
 </extension>

@@ -9,11 +9,7 @@
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
 	<version>6.1.7-RC76</version>
 
-	<description>
-	<![CDATA[
-        Observes content items' permissions
-        ]]>
-    </description>
+	<description>PLG_CONTENT_CONTENTBUILDERNG_PERMISSION_OBSERVER_XML_DESCRIPTION</description>
     <namespace path="src">CB\Plugin\Content\ContentbuilderngPermissionObserver</namespace>
             <files>
         <filename plugin="contentbuilderng_permission_observer">services/provider.php</filename>

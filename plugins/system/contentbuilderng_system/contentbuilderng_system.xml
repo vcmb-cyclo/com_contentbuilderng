@@ -9,11 +9,7 @@
 	<authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
 	<version>6.1.7-RC76</version>
 
-	<description>
-	<![CDATA[
-        Manages important system related aspects
-        ]]>
-    </description>
+	<description>PLG_SYSTEM_CONTENTBUILDERNG_SYSTEM_XML_DESCRIPTION</description>
     <namespace path="src">CB\Plugin\System\ContentbuilderngSystem</namespace>
             <files>
         <filename plugin="contentbuilderng_system">services/provider.php</filename>
@@ -23,21 +19,21 @@
     <config>
         <fields name="params">
             <fieldset name="basic">
-                <field name="limit_per_turn" type="text" default="50" label="Synch Limit Per Turn"/>
-                <field name="disable_new_articles" type="radio" default="1" label="Disable Joomla built-in article submission" description="">
-                    <option value="0">No</option>
-                    <option value="1">Yes</option>
+                <field name="limit_per_turn" type="text" default="50" label="PLG_SYSTEM_CONTENTBUILDERNG_SYSTEM_FIELD_LIMIT_PER_TURN_LABEL"/>
+                <field name="disable_new_articles" type="radio" default="1" label="PLG_SYSTEM_CONTENTBUILDERNG_SYSTEM_FIELD_DISABLE_NEW_ARTICLES_LABEL">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
-                <field name="nocache" type="radio" default="1" label="Disable Joomla Cache for com_content" description="WARNING: If you set this to no, many plugins like ImageScale won't work anymore because Joomla! does not call plugins with cached content.">
-                    <option value="0">No</option>
-                    <option value="1">Yes</option>
+                <field name="nocache" type="radio" default="1" label="PLG_SYSTEM_CONTENTBUILDERNG_SYSTEM_FIELD_NOCACHE_LABEL" description="PLG_SYSTEM_CONTENTBUILDERNG_SYSTEM_FIELD_NOCACHE_DESC">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
-                <field name="is_auto_groups" type="radio" default="0" label="Auto Groups Assignment" description="If a verification succeeds (manual user verification or plugins like paypal, passthrough, etc.), the users will be automatically added to the Joomla! groups selected below. Please activate this only if you made sure the settings below are correct, as this will add the desired groups for EVERY verified user. If you are not sure, limit to the desired views below.">
-                    <option value="0">No</option>
-                    <option value="1">Yes</option>
+                <field name="is_auto_groups" type="radio" default="0" label="PLG_SYSTEM_CONTENTBUILDERNG_SYSTEM_FIELD_IS_AUTO_GROUPS_LABEL" description="PLG_SYSTEM_CONTENTBUILDERNG_SYSTEM_FIELD_IS_AUTO_GROUPS_DESC">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
-                <field name="auto_groups" multiple="true" type="usergroup" default="" label="Select user groups" description="If auto groups is above is enabled, any user will be added to the groups selected if a verification succeeds. If the verification is not valid no longer, the groups will be automatically removed from the users." />
-                <field name="auto_groups_limit_views" type="text" default="" label="Limit Groups on Views" description="Add a comma separated list of view IDs to operate auto groups on these views. If left blank, the groups will be assigned across all users that are verified for at least one of your views."/>
+                <field name="auto_groups" multiple="true" type="usergroup" default="" label="PLG_SYSTEM_CONTENTBUILDERNG_SYSTEM_FIELD_AUTO_GROUPS_LABEL" description="PLG_SYSTEM_CONTENTBUILDERNG_SYSTEM_FIELD_AUTO_GROUPS_DESC" />
+                <field name="auto_groups_limit_views" type="text" default="" label="PLG_SYSTEM_CONTENTBUILDERNG_SYSTEM_FIELD_AUTO_GROUPS_LIMIT_VIEWS_LABEL" description="PLG_SYSTEM_CONTENTBUILDERNG_SYSTEM_FIELD_AUTO_GROUPS_LIMIT_VIEWS_DESC"/>
             </fieldset>
         </fields>
     </config>
