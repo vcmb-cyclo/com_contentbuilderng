@@ -362,6 +362,53 @@ final class InstallerService
         }
     }
 
+    /**
+     * Removes legacy plugin language files sitting flat in the plugin element
+     * folder (e.g. plugins/content/contentbuilderng_download/en-GB.plg_....ini),
+     * a naming convention superseded by language/<lang>/plg_....ini. Joomla's
+     * Language::load() never reads the flat location, so these files are inert,
+     * but leftover copies are misleading during troubleshooting and are removed
+     * on every install/update.
+     */
+    public function removeLegacyPluginLanguageFiles(): void
+    {
+        $languageTags = ['en-GB', 'fr-FR', 'de-DE'];
+        $pluginRoot = JPATH_PLUGINS;
+
+        if (!is_dir($pluginRoot)) {
+            return;
+        }
+
+        $globPatterns = [];
+        foreach ($languageTags as $tag) {
+            // plugins/<folder>/<element>/<lang>.plg_....ini (all shipped plugins are one level deep)
+            $globPatterns[] = $pluginRoot . '/*/*/' . $tag . '.plg_*contentbuilderng*.ini';
+            // Defensive: cover a hypothetical flat single-level plugin too.
+            $globPatterns[] = $pluginRoot . '/*/' . $tag . '.plg_*contentbuilderng*.ini';
+        }
+
+        $matches = [];
+        foreach ($globPatterns as $pattern) {
+            $matches = array_merge($matches, glob($pattern) ?: []);
+        }
+
+        foreach (array_unique($matches) as $match) {
+            try {
+                if (!is_file($match)) {
+                    continue;
+                }
+
+                if (File::delete($match)) {
+                    $this->log("[OK] Removed legacy plugin language file {$match}.");
+                } else {
+                    $this->log("[WARNING] Failed to remove legacy plugin language file {$match}.", Log::WARNING);
+                }
+            } catch (\Throwable $e) {
+                $this->log("[WARNING] Failed removing legacy plugin language file {$match}: " . $e->getMessage(), Log::WARNING);
+            }
+        }
+    }
+
     public function ensureAdminMenuRootNodeExists(): void
     {
         $db = $this->db();

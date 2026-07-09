@@ -762,12 +762,26 @@ class contentbuilderng_com_breezingforms
 
         /////////////
         // Swapping rows to columns
+        $groupTypes = ['Radio Group', 'Radio Button', 'Checkbox Group', 'Checkbox', 'Select List'];
         $selectors = '';
         foreach ($elements as $element) {
+            $isGroupType = in_array($element['type'], $groupTypes, true);
+
             if ($element['type'] == 'Radio Button' || $element['type'] == 'Checkbox') {
                 $selectors .= "GROUP_CONCAT( ( Case When s.`name` = '{$element['name']}' Then s.`value` End ) Order By s.`id` SEPARATOR ', ' ) As `col{$element['id']}Value`,";
             } else {
                 $selectors .= "GROUP_CONCAT( ( Case When s.`element` = '{$element['id']}' Then s.`value` End ) Order By s.`id` SEPARATOR ', ' ) As `col{$element['id']}Value`,";
+            }
+
+            // Group-type elements also get a raw, unambiguously-separated value:
+            // the display column above joins multiple selections with ', ', which
+            // collides with option values that themselves contain a comma.
+            if ($isGroupType) {
+                if ($element['type'] == 'Radio Button' || $element['type'] == 'Checkbox') {
+                    $selectors .= "GROUP_CONCAT( ( Case When s.`name` = '{$element['name']}' Then s.`value` End ) Order By s.`id` SEPARATOR CHAR(31) ) As `col{$element['id']}Raw`,";
+                } else {
+                    $selectors .= "GROUP_CONCAT( ( Case When s.`element` = '{$element['id']}' Then s.`value` End ) Order By s.`id` SEPARATOR CHAR(31) ) As `col{$element['id']}Raw`,";
+                }
             }
         }
         $selectors = rtrim($selectors, ',');
@@ -821,6 +835,13 @@ class contentbuilderng_com_breezingforms
                 $out[$i]->recValue = '';
                 if (isset($colValues['col' . $element['id'] . 'Value'])) {
                     $out[$i]->recValue = $colValues['col' . $element['id'] . 'Value'];
+                }
+                if (isset($colValues['col' . $element['id'] . 'Raw'])) {
+                    $rawValue = (string) $colValues['col' . $element['id'] . 'Raw'];
+                    $out[$i]->recValues = $rawValue === '' ? [] : array_values(array_filter(
+                        array_map('trim', explode("\x1F", $rawValue)),
+                        static fn(string $v): bool => $v !== ''
+                    ));
                 }
                 $i++;
             }

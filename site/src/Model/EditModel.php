@@ -237,6 +237,22 @@ class EditModel extends BaseDatabaseModel
         $this->_data = null;
     }
 
+    /**
+     * Strips control bytes that must never be persisted in a group field value:
+     * NUL and the ASCII unit separator (0x1F). The latter is used internally by
+     * the BreezingForms source (com_breezingforms.php::getRecord()) as the
+     * unambiguous delimiter between multi-select values; a raw POST (the
+     * 'array' input filter applies no sanitisation) could otherwise smuggle a
+     * stray 0x1F into a stored value and corrupt that reconstruction later.
+     */
+    private function sanitizeGroupSubmissionValues(array $values): array
+    {
+        return array_map(
+            static fn($value): string => str_replace(["\x00", "\x1F"], '', (string) $value),
+            $values
+        );
+    }
+
     private function _buildQuery()
     {
         $isAdminPreview = $this->app->getInput()->getBool('cb_preview_ok', false);
@@ -954,6 +970,7 @@ var contentbuilderng = new function(){
                                 if (!is_array($groupValue)) {
                                     $groupValue = array($groupValue);
                                 }
+                                $groupValue = $this->sanitizeGroupSubmissionValues($groupValue);
                                 $value = array_values(array_filter($groupValue, static fn($v) => $v !== null && $v !== '' && $v !== 'cbGroupMark'));
                             } elseif (isset($the_fields[$id]['options']->allow_raw) && $the_fields[$id]['options']->allow_raw) {
                                 $value = $this->app->getInput()->post->get('cb_' . $id, null, 'raw');
@@ -1234,6 +1251,7 @@ var contentbuilderng = new function(){
                                         if (!is_array($groupValue)) {
                                             $groupValue = array($groupValue);
                                         }
+                                        $groupValue = $this->sanitizeGroupSubmissionValues($groupValue);
                                         $value = array_values(array_filter($groupValue, static fn($v) => $v !== null && $v !== '' && $v !== 'cbGroupMark'));
                                     } elseif (isset($the_fields[$id]['options']->allow_raw) && $the_fields[$id]['options']->allow_raw) {
                                         $value = $this->app->getInput()->post->get('cb_' . $id, '', 'raw');

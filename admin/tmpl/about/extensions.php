@@ -54,7 +54,7 @@ $plugins = is_array($this->plugins ?? null) ? $this->plugins : [];
                         <?php
                         $pluginId = (int) ($plugin['id'] ?? 0);
                         $pluginEditUrl = $pluginId > 0
-                            ? Route::_('index.php?option=com_plugins&view=plugin&layout=edit&extension_id=' . $pluginId, false)
+                            ? Route::_('index.php?option=com_plugins&task=plugin.edit&extension_id=' . $pluginId, false)
                             : '';
                         ?>
                         <tr>

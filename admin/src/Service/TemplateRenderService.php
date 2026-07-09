@@ -430,7 +430,94 @@ class TemplateRenderService
         ];
     }
 
-    private function renderReadonlyGroupField(object $form, string $elementId, string $elementType, string $value): string
+    private function normalizeGroupComparisonValue(string $value): string
+    {
+        $value = str_replace(["\r\n", "\r", "\u{00A0}"], ["\n", "\n", ' '], $value);
+
+        return trim(preg_replace('/\s+/u', ' ', $value) ?? $value);
+    }
+
+    /**
+     * Resolves which group option values are selected in a stored record value.
+     * Options are matched greedily (longest first) against the whole value, so
+     * option values containing the separator (commas) or line breaks are
+     * recognised as a whole instead of being split apart.
+     */
+    private function matchSelectedGroupValues(array $optionValues, string $storedValue): array
+    {
+        $normalizedOptions = [];
+
+        foreach ($optionValues as $optionValue) {
+            $optionValue = trim((string) $optionValue);
+            $normalized = $this->normalizeGroupComparisonValue($optionValue);
+
+            if ($normalized !== '') {
+                $normalizedOptions[$normalized] = $optionValue;
+            }
+        }
+
+        if ($normalizedOptions === []) {
+            return [];
+        }
+
+        uksort($normalizedOptions, static fn(string $a, string $b): int => mb_strlen($b) <=> mb_strlen($a));
+
+        $remaining = $this->normalizeGroupComparisonValue($storedValue);
+        $selected = [];
+
+        while ($remaining !== '') {
+            foreach ($normalizedOptions as $normalized => $original) {
+                $length = mb_strlen($normalized);
+
+                if (mb_substr($remaining, 0, $length) === $normalized) {
+                    $selected[] = $original;
+                    $remaining = ltrim(mb_substr($remaining, $length), " \t\n,");
+                    continue 2;
+                }
+            }
+
+            $nextSeparator = strpos($remaining, ',');
+
+            if ($nextSeparator === false) {
+                break;
+            }
+
+            $remaining = ltrim(substr($remaining, $nextSeparator + 1));
+        }
+
+        return array_values(array_unique($selected));
+    }
+
+    /**
+     * Resolves which options are selected for an editable group/select field.
+     * Order of precedence: values re-posted after a failed validation, then
+     * the exact recValues array from the record source (when the source can
+     * provide one, e.g. BreezingForms), then a best-effort match against the
+     * flattened, comma-joined stored value.
+     */
+    private function resolveEditableGroupValues(
+        array $groupDefinition,
+        ?array $failedValues,
+        $elementReferenceId,
+        array $item,
+        bool $hasRecords,
+        $defaultValue
+    ): array {
+        if ($failedValues !== null && isset($failedValues[$elementReferenceId]) && is_array($failedValues[$elementReferenceId])) {
+            return array_map(static fn($failedValue): string => trim((string) $failedValue), $failedValues[$elementReferenceId]);
+        }
+
+        if ($hasRecords && isset($item['values']) && is_array($item['values'])) {
+            return array_map(static fn($v): string => trim((string) $v), $item['values']);
+        }
+
+        return $this->matchSelectedGroupValues(
+            array_map('strval', array_keys($groupDefinition)),
+            (string) ($hasRecords ? $item['value'] : $defaultValue)
+        );
+    }
+
+    private function renderReadonlyGroupField(object $form, string $elementId, string $elementType, string $value, ?array $exactValues = null): string
     {
         if (!method_exists($form, 'isGroup') || !method_exists($form, 'getGroupDefinition') || !$form->isGroup($elementId)) {
             return '';
@@ -441,7 +528,9 @@ class TemplateRenderService
             return '';
         }
 
-        $selectedValues = array_map('trim', explode(',', $value));
+        $selectedValues = $exactValues !== null
+            ? array_values(array_unique(array_map(static fn($v): string => trim((string) $v), $exactValues)))
+            : $this->matchSelectedGroupValues(array_map('strval', array_keys($groupDefinition)), $value);
         if ($elementType === 'select') {
             $selectedLabels = [];
 
@@ -750,7 +839,7 @@ class TemplateRenderService
                     && $item->recValue != ''
                     && in_array($elementType, ['radiogroup', 'checkboxgroup', 'select'], true)
                 ) {
-                    $renderedGroupValue = $this->renderReadonlyGroupField($form, (string) $item->recElementId, $elementType, (string) $item->recValue);
+                    $renderedGroupValue = $this->renderReadonlyGroupField($form, (string) $item->recElementId, $elementType, (string) $item->recValue, property_exists($item, 'recValues') ? $item->recValues : null);
 
                     if ($renderedGroupValue !== '') {
                         $itemValue = $renderedGroupValue;
@@ -1020,6 +1109,7 @@ class TemplateRenderService
                 }
             }
             $items[$item->recName]['value'] = ($item->recValue ? $item->recValue : '');
+            $items[$item->recName]['values'] = property_exists($item, 'recValues') ? $item->recValues : null;
         }
 
         $hasRecords = true;
@@ -1036,6 +1126,7 @@ class TemplateRenderService
                 $items[$name]['id'] = $elementId;
                 $items[$name]['label'] = $labels[$elementId];
                 $items[$name]['value'] = '';
+                $items[$name]['values'] = null;
             }
         }
 
@@ -1214,19 +1305,12 @@ class TemplateRenderService
                     if ($form->isGroup($item['id'])) {
                         $groupdef = $form->getGroupDefinition($item['id']);
                         $i = 0;
-                        $sep = $options->seperator;
-                        $group = explode($sep, $failedValues !== null && isset($failedValues[$element['reference_id']]) && is_array($failedValues[$element['reference_id']]) ? implode($sep, $failedValues[$element['reference_id']]) : ($hasRecords ? $item['value'] : $element['default_value']));
+                        $group = $this->resolveEditableGroupValues($groupdef, $failedValues, $element['reference_id'], $item, $hasRecords, $element['default_value']);
                         $theItem = '<input name="cb_' . $item['id'] . '[]" type="hidden" value="cbGroupMark"/>';
                         $theItem .= '<div class="cbFormField cbGroupFields d-flex flex-wrap align-items-center gap-3">';
                         foreach ($groupdef as $value => $label) {
-                            $checked = '';
+                            $checked = in_array(trim((string) $value), $group, true) ? ' checked="checked"' : '';
                             $for = $i != 0 ? '_' . $i : '';
-                            foreach ($group as $selectedValue) {
-                                if (trim($value) == trim($selectedValue)) {
-                                    $checked = ' checked="checked"';
-                                    break;
-                                }
-                            }
                             $theItem .= '<div style="' . ($options->horizontal_length ? 'width: ' . $options->horizontal_length . ';' : '') . '" class="cbGroupField form-check form-check-inline d-inline-flex align-items-center gap-1 mb-0"><input class="form-check-input mt-0" id="cb_' . $item['id'] . $for . '" name="cb_' . $item['id'] . '[]" type="' . ($elementType == 'checkboxgroup' ? 'checkbox' : 'radio') . '" value="' . htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8') . '"' . $checked . '/> <label class="form-check-label" for="cb_' . $item['id'] . $for . '">' . htmlspecialchars(trim($label), ENT_QUOTES, 'UTF-8') . '</label> </div>';
                             $i++;
                         }
@@ -1241,19 +1325,12 @@ class TemplateRenderService
                     $options->length = $options->length ?? '';
                     if ($form->isGroup($item['id'])) {
                         $groupdef = $form->getGroupDefinition($item['id']);
-                        $sep = $options->seperator;
                         $multi = $options->multiple;
-                        $group = explode($sep, $failedValues !== null && isset($failedValues[$element['reference_id']]) && is_array($failedValues[$element['reference_id']]) ? implode($sep, $failedValues[$element['reference_id']]) : ($hasRecords ? $item['value'] : $element['default_value']));
+                        $group = $this->resolveEditableGroupValues($groupdef, $failedValues, $element['reference_id'], $item, $hasRecords, $element['default_value']);
                         $theItem = '<input name="cb_' . $item['id'] . '[]" type="hidden" value="cbGroupMark"/>';
                         $theItem .= '<div class="cbFormField cbSelectField"><select class="form-select form-select-sm" id="cb_' . $item['id'] . '" ' . ($options->length ? 'style="width:' . $options->length . ';" ' : '') . 'name="cb_' . $item['id'] . '[]"' . ($multi ? ' multiple="multiple"' : '') . '>';
                         foreach ($groupdef as $value => $label) {
-                            $checked = '';
-                            foreach ($group as $selectedValue) {
-                                if (trim($value) == trim($selectedValue)) {
-                                    $checked = ' selected="selected"';
-                                    break;
-                                }
-                            }
+                            $checked = in_array(trim((string) $value), $group, true) ? ' selected="selected"' : '';
                             $theItem .= '<option value="' . htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8') . '"' . $checked . '>' . htmlspecialchars(trim($label), ENT_QUOTES, 'UTF-8') . '</option>';
                         }
                         $theItem .= '</select></div>';

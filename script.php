@@ -318,6 +318,7 @@ class com_contentbuilderngInstallerScript
                 // Cleanup old directories/files (best-effort)
                 $this->removeOldDirectories();
                 $this->removeObsoleteFiles();
+                $this->removeLegacyPluginLanguageFiles();
 
                 // Ensure media templates / upload dir
                 $this->ensureMediaListTemplateInstalled();
@@ -953,6 +954,11 @@ class com_contentbuilderngInstallerScript
     private function removeObsoleteFiles(): void
     {
         $this->installerService->removeObsoleteFiles();
+    }
+
+    private function removeLegacyPluginLanguageFiles(): void
+    {
+        $this->installerService->removeLegacyPluginLanguageFiles();
     }
 
     private function purgeStaleLanguageFiles(): void
