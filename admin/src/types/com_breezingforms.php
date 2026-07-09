@@ -777,10 +777,14 @@ class contentbuilderng_com_breezingforms
             // the display column above joins multiple selections with ', ', which
             // collides with option values that themselves contain a comma.
             if ($isGroupType) {
+                // SEPARATOR requires a string literal, not an expression like CHAR(31):
+                // quote() renders it as a proper escaped literal containing the byte.
+                $rawSeparator = $db->quote(chr(31));
+
                 if ($element['type'] == 'Radio Button' || $element['type'] == 'Checkbox') {
-                    $selectors .= "GROUP_CONCAT( ( Case When s.`name` = '{$element['name']}' Then s.`value` End ) Order By s.`id` SEPARATOR CHAR(31) ) As `col{$element['id']}Raw`,";
+                    $selectors .= "GROUP_CONCAT( ( Case When s.`name` = '{$element['name']}' Then s.`value` End ) Order By s.`id` SEPARATOR {$rawSeparator} ) As `col{$element['id']}Raw`,";
                 } else {
-                    $selectors .= "GROUP_CONCAT( ( Case When s.`element` = '{$element['id']}' Then s.`value` End ) Order By s.`id` SEPARATOR CHAR(31) ) As `col{$element['id']}Raw`,";
+                    $selectors .= "GROUP_CONCAT( ( Case When s.`element` = '{$element['id']}' Then s.`value` End ) Order By s.`id` SEPARATOR {$rawSeparator} ) As `col{$element['id']}Raw`,";
                 }
             }
         }
