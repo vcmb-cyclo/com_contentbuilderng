@@ -84,7 +84,7 @@ $pluginNameFilter = (string) ($this->pluginNameFilter ?? '');
                                     <?php foreach ($this->plugins as $plugin) : ?>
                                         <?php
                                         $pluginId = (int) ($plugin['id'] ?? 0);
-                                        $pluginEditUrl = Route::_('index.php?option=com_plugins&view=plugin&layout=edit&extension_id=' . $pluginId, false);
+                                        $pluginEditUrl = Route::_('index.php?option=com_plugins&task=plugin.edit&extension_id=' . $pluginId, false);
                                         ?>
                                         <tr>
                                             <td>
