@@ -1571,6 +1571,11 @@ class com_contentbuilderngInstallerScript
             $this->log("[INFO] No autoload cache file needed clearing during {$context}.", Log::INFO);
         }
 
+        // Rebuild and load the map immediately. Otherwise the installer
+        // request keeps its stale in-memory map until a later HTTP request.
+        Factory::getApplication()->createExtensionNamespaceMap();
+        $this->log("[OK] Extension namespace map rebuilt during {$context}.");
+
         // 2) Joomla caches
         try {
             $cacheFactory = Factory::getContainer()->get(CacheControllerFactoryInterface::class);
