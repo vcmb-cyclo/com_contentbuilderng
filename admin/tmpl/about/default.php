@@ -483,12 +483,12 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
                 rel="noopener noreferrer"
                 title="<?php echo htmlspecialchars($tooltipLinkVcmb, ENT_QUOTES, 'UTF-8'); ?>"
                 aria-label="<?php echo htmlspecialchars($tooltipLinkVcmb, ENT_QUOTES, 'UTF-8'); ?>"
-            >VCMB migration</a>
+            ><?php echo Text::_('COM_CONTENTBUILDERNG_BREEZINGFORMS_NG_LINK'); ?></a>
             <iframe
                 src="https://ghbtns.com/github-btn.html?user=vcmb-cyclo&amp;repo=com_contentbuilderng&amp;type=star&amp;count=true&amp;size=large"
                 frameborder="0"
                 scrolling="0"
-                width="170"
+                width="125"
                 height="30"
                 title="GitHub Stars"
                 style="display:block;align-self:center;"

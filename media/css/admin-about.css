@@ -69,8 +69,29 @@
         overflow: hidden;
     }
     .cb-about-version-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 5fr);
+        align-items: center;
+        gap: .5rem 1rem;
         border-bottom: 1px dashed var(--bs-border-color);
         padding-bottom: .75rem;
+    }
+    .cb-about-version-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: .5rem;
+        min-width: 0;
+    }
+    @media (max-width: 767.98px) {
+        .cb-about-version-header {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .cb-about-version-meta {
+            flex-basis: 100%;
+        }
     }
     .cb-about-version-title {
         color: var(--bs-emphasis-color);
@@ -433,4 +454,55 @@
         margin: 0 0 .75rem;
         font-size: .95rem;
         font-weight: 600;
+    }
+    #cb-plugins-table {
+        min-width: 82rem;
+        table-layout: fixed;
+    }
+    .cb-about-plugins-card,
+    .cb-about-plugins-card .accordion,
+    .cb-about-plugins-card .accordion-item,
+    .cb-about-plugins-card .accordion-collapse,
+    .cb-about-plugins-card .accordion-body {
+        min-width: 0;
+        max-width: 100%;
+    }
+    .cb-about-plugins-card .table-responsive {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+    #cb-plugins-table .cb-plugins-col-plugin {
+        width: 22rem;
+    }
+    #cb-plugins-table .cb-plugins-col-group {
+        width: 8rem;
+    }
+    #cb-plugins-table .cb-plugins-col-element {
+        width: 8rem;
+    }
+    #cb-plugins-table .cb-plugins-col-version {
+        width: 7rem;
+    }
+    #cb-plugins-table .cb-plugins-col-status {
+        width: 7rem;
+    }
+    #cb-plugins-table .cb-plugins-col-description {
+        width: 30rem;
+    }
+    #cb-plugins-table > :not(caption) > * > * {
+        padding-right: .75rem;
+        padding-left: .75rem;
+    }
+    #cb-plugins-table .cb-plugins-plugin,
+    #cb-plugins-table .cb-plugins-description {
+        overflow-wrap: break-word;
+    }
+    #cb-plugins-table .cb-plugins-technical {
+        overflow-wrap: normal;
+        word-break: normal;
+    }
+    #cb-plugins-table .cb-plugins-version,
+    #cb-plugins-table .cb-plugins-status {
+        white-space: nowrap;
     }

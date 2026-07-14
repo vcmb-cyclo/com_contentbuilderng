@@ -397,7 +397,11 @@ class HtmlView extends BaseHtmlView
             $group = (string) ($row['folder'] ?? '');
             $element = (string) ($row['element'] ?? '');
             $languageExtension = 'plg_' . $group . '_' . $element;
-            $language->load($languageExtension, JPATH_ADMINISTRATOR) || $language->load($languageExtension, JPATH_SITE);
+            $pluginPath = JPATH_PLUGINS . '/' . $group . '/' . $element;
+            $language->load($languageExtension . '.sys', $pluginPath)
+                || $language->load($languageExtension, $pluginPath)
+                || $language->load($languageExtension, JPATH_ADMINISTRATOR)
+                || $language->load($languageExtension, JPATH_SITE);
 
             $name = trim((string) ($manifest['name'] ?? $row['name'] ?? ''));
             $description = trim((string) ($manifest['description'] ?? ''));

@@ -7,9 +7,9 @@ use Joomla\CMS\Language\Text;
 
 <div class="card mt-3 cb-about-version-card">
     <div class="card-body p-3 p-lg-4">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 cb-about-version-header">
+        <div class="mb-3 cb-about-version-header">
             <h3 class="h5 mb-0 cb-about-version-title"><?php echo Text::_('COM_CONTENTBUILDERNG_VERSION_INFORMATION'); ?></h3>
-            <span class="d-flex flex-wrap gap-2">
+            <span class="cb-about-version-meta">
                 <span class="cb-about-version-badge">ContentBuilder NG</span>
                 <span class="cb-about-version-badge <?php echo $isProductionBuild ? 'cb-about-version-badge--production' : 'cb-about-version-badge--dev'; ?>"><?php echo $buildTypeDisplay; ?></span>
                 <span class="cb-about-platform-badges" aria-label="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ABOUT_PLATFORM_BADGES_LABEL'), ENT_QUOTES, 'UTF-8'); ?>">

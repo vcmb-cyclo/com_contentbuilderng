@@ -6,9 +6,17 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 
 $pluginNameFilter = (string) ($this->pluginNameFilter ?? '');
+$renderTechnicalName = static function (string $value): string {
+    $parts = explode('_', $value);
+
+    return implode('_<wbr>', array_map(
+        static fn(string $part): string => htmlspecialchars($part, ENT_QUOTES, 'UTF-8'),
+        $parts
+    ));
+};
 ?>
 
-<div class="card mt-3">
+<div class="card mt-3 cb-about-plugins-card">
     <div class="card-body p-0">
         <div class="accordion accordion-flush" id="cb-about-plugins-accordion">
             <div class="accordion-item">
@@ -70,6 +78,14 @@ $pluginNameFilter = (string) ($this->pluginNameFilter ?? '');
                         <?php else : ?>
                             <div class="table-responsive">
                                 <table id="cb-plugins-table" class="table table-sm table-striped align-middle mb-0">
+                                    <colgroup>
+                                        <col class="cb-plugins-col-plugin">
+                                        <col class="cb-plugins-col-group">
+                                        <col class="cb-plugins-col-element">
+                                        <col class="cb-plugins-col-version">
+                                        <col class="cb-plugins-col-status">
+                                        <col class="cb-plugins-col-description">
+                                    </colgroup>
                                     <thead>
                                     <tr>
                                         <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_PLUGIN'); ?></th>
@@ -87,21 +103,21 @@ $pluginNameFilter = (string) ($this->pluginNameFilter ?? '');
                                         $pluginEditUrl = Route::_('index.php?option=com_plugins&task=plugin.edit&extension_id=' . $pluginId, false);
                                         ?>
                                         <tr>
-                                            <td>
+                                            <td class="cb-plugins-plugin">
                                                 <a href="<?php echo htmlspecialchars($pluginEditUrl, ENT_QUOTES, 'UTF-8'); ?>">
                                                     <strong><?php echo htmlspecialchars((string) ($plugin['name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></strong>
                                                 </a>
                                                 <span class="text-muted small d-block">#<?php echo $pluginId; ?></span>
                                             </td>
-                                            <td><code><?php echo htmlspecialchars((string) ($plugin['group'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></code></td>
-                                            <td><code><?php echo htmlspecialchars((string) ($plugin['element'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></code></td>
-                                            <td><?php echo htmlspecialchars((string) (($plugin['version'] ?? '') !== '' ? $plugin['version'] : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE')), ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td>
+                                            <td class="cb-plugins-technical"><code><?php echo $renderTechnicalName((string) ($plugin['group'] ?? '')); ?></code></td>
+                                            <td class="cb-plugins-technical"><code><?php echo $renderTechnicalName((string) ($plugin['element'] ?? '')); ?></code></td>
+                                            <td class="cb-plugins-version"><?php echo htmlspecialchars((string) (($plugin['version'] ?? '') !== '' ? $plugin['version'] : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE')), ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="cb-plugins-status">
                                                 <span class="badge <?php echo !empty($plugin['enabled']) ? 'bg-success' : 'bg-secondary'; ?>">
                                                     <?php echo Text::_(!empty($plugin['enabled']) ? 'COM_CONTENTBUILDERNG_PUBLISHED' : 'COM_CONTENTBUILDERNG_UNPUBLISHED'); ?>
                                                 </span>
                                             </td>
-                                            <td><?php echo htmlspecialchars((string) ($plugin['description'] ?? Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE')), ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="cb-plugins-description"><?php echo htmlspecialchars((string) ($plugin['purpose'] ?? Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE')), ENT_QUOTES, 'UTF-8'); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                     </tbody>
