@@ -420,24 +420,12 @@ final class ContentbuilderngDownload extends CMSPlugin implements SubscriberInte
 
                                         if ($exists) {
 
-                                            $phpversion = explode('-', phpversion());
-                                            $phpversion = $phpversion[0];
-                                            // because of mime_content_type deprecation
-                                            if (version_compare($phpversion, '5.3', '<')) {
-                                                if (function_exists('mime_content_type')) {
-                                                    $mime = mime_content_type($the_value);
-                                                } else {
-                                                    // fallback if not even that one exists
-                                                    $mime = $this->mime_content_type($the_value);
-                                                }
+                                            if (function_exists('finfo_open')) {
+                                                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                                                $mime = finfo_file($finfo, $the_value);
+                                                // finfo_close($finfo);
                                             } else {
-                                                if (function_exists('finfo_open')) {
-                                                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                                                    $mime = finfo_file($finfo, $the_value);
-                                                    // finfo_close($finfo);
-                                                } else {
-                                                    $mime = $this->mime_content_type($the_value);
-                                                }
+                                                $mime = $this->mime_content_type($the_value);
                                             }
 
                                             if ($this->app->getInput()->get->getString('contentbuilderng_download_file', '') == sha1($field . $the_value)) {
