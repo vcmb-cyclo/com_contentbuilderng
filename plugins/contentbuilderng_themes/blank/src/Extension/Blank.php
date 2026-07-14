@@ -213,11 +213,17 @@ final class Blank extends CMSPlugin implements SubscriberInterface
         }
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
-        $out = '<table border="0" width="100%" class="blanktable_content"><tbody>' . "\n";
-        $names = $form->getElementNames();
-        foreach ($names as $reference_id => $name) {
-            $db->setQuery("Select id, `type` From #__contentbuilderng_elements Where published = 1 And form_id = " . intval($contentbuilderng_form_id) . " And reference_id = " . $db->Quote($reference_id));
-            $result = $db->loadAssoc();
+		$out = '<table border="0" width="100%" class="blanktable_content"><tbody>' . "\n";
+		$names = $form->getElementNames();
+		foreach ($names as $reference_id => $name) {
+			$query = $db->getQuery(true)
+				->select([$db->quoteName('id'), $db->quoteName('type')])
+				->from($db->quoteName('#__contentbuilderng_elements'))
+				->where($db->quoteName('published') . ' = 1')
+				->where($db->quoteName('form_id') . ' = ' . (int) $contentbuilderng_form_id)
+				->where($db->quoteName('reference_id') . ' = ' . $db->quote($reference_id));
+			$db->setQuery($query);
+			$result = $db->loadAssoc();
             if (is_array($result)) {
                 if ($result['type'] != 'hidden') {
                     $out .= '{hide-if-empty ' . $name . '}' . "\n\n";
@@ -280,10 +286,18 @@ final class Blank extends CMSPlugin implements SubscriberInterface
         $out = '<table border="0" width="100%" class="blanktable_edit"><tbody>' . "\n";
         $names = $form->getElementNames();
         $hidden = array();
-        foreach ($names as $reference_id => $name) {
-            $whereEditable = $hasEditable ? " And editable = 1" : "";
-            $db->setQuery("Select id, `type` From #__contentbuilderng_elements Where published = 1" . $whereEditable . " And form_id = " . intval($contentbuilderng_form_id) . " And reference_id = " . $db->Quote($reference_id));
-            $result = $db->loadAssoc();
+		foreach ($names as $reference_id => $name) {
+			$query = $db->getQuery(true)
+				->select([$db->quoteName('id'), $db->quoteName('type')])
+				->from($db->quoteName('#__contentbuilderng_elements'))
+				->where($db->quoteName('published') . ' = 1')
+				->where($db->quoteName('form_id') . ' = ' . (int) $contentbuilderng_form_id)
+				->where($db->quoteName('reference_id') . ' = ' . $db->quote($reference_id));
+			if ($hasEditable) {
+				$query->where($db->quoteName('editable') . ' = 1');
+			}
+			$db->setQuery($query);
+			$result = $db->loadAssoc();
             if (is_array($result)) {
                 if ($result['type'] != 'hidden') {
                     $out .= '<tr class="blanktable_edit_row"><td width="20%" class="key align-top">{' . $name . ':label}</td><td>{' . $name . ':item}</td></tr>' . "\n";

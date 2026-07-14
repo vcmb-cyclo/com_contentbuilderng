@@ -162,21 +162,22 @@ class FormModel extends AdminModel
             $ord     = isset($order[$elementId]) ? (int) $order[$elementId] : 0;
 
             $set = [
-                '`order_type` = ' . $db->quote((string) $otype),
-                '`label` = ' . $db->quote((string) $label),
-                '`wordwrap` = ' . (int) $wrap,
-                '`ordering` = ' . (int) $ord,
+                $db->quoteName('order_type') . ' = ' . $db->quote((string) $otype),
+                $db->quoteName('label') . ' = ' . $db->quote((string) $label),
+                $db->quoteName('wordwrap') . ' = ' . (int) $wrap,
+                $db->quoteName('ordering') . ' = ' . (int) $ord,
             ];
 
             if (array_key_exists($elementId, $itemWrapper)) {
-                $set[] = '`item_wrapper` = ' . $db->quote(trim((string) $itemWrapper[$elementId]));
+                $set[] = $db->quoteName('item_wrapper') . ' = ' . $db->quote(trim((string) $itemWrapper[$elementId]));
             }
 
-            $db->setQuery(
-                "UPDATE #__contentbuilderng_elements
-                 SET " . implode(', ', $set) . "
-                 WHERE form_id = " . (int) $formId . " AND id = " . (int) $elementId
-            );
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__contentbuilderng_elements'))
+                ->set($set)
+                ->where($db->quoteName('form_id') . ' = ' . (int) $formId)
+                ->where($db->quoteName('id') . ' = ' . (int) $elementId);
+            $db->setQuery($query);
             $db->execute();
         }
     }
@@ -325,8 +326,12 @@ class FormModel extends AdminModel
         $db = $this->getDatabase();
         $items = $this->getSelectedElementIdsFromRequest();
         if (count($items)) {
-            $db->setQuery(' Update #__contentbuilderng_elements ' .
-                '  Set editable = 1 Where form_id = ' . $formId . ' And id In ( ' . implode(',', $items) . ')');
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__contentbuilderng_elements'))
+                ->set($db->quoteName('editable') . ' = 1')
+                ->where($db->quoteName('form_id') . ' = ' . $formId)
+                ->where($db->quoteName('id') . ' IN (' . implode(',', $items) . ')');
+            $db->setQuery($query);
             $db->execute();
         }
     }
@@ -341,8 +346,12 @@ class FormModel extends AdminModel
         $db = $this->getDatabase();
         $items = $this->getSelectedElementIdsFromRequest();
         if (count($items)) {
-            $db->setQuery(' Update #__contentbuilderng_elements ' .
-                '  Set list_include = 1 Where form_id = ' . $formId . ' And id In ( ' . implode(',', $items) . ')');
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__contentbuilderng_elements'))
+                ->set($db->quoteName('list_include') . ' = 1')
+                ->where($db->quoteName('form_id') . ' = ' . $formId)
+                ->where($db->quoteName('id') . ' IN (' . implode(',', $items) . ')');
+            $db->setQuery($query);
             $db->execute();
         }
     }
@@ -357,8 +366,12 @@ class FormModel extends AdminModel
         $db = $this->getDatabase();
         $items = $this->getSelectedElementIdsFromRequest();
         if (count($items)) {
-            $db->setQuery(' Update #__contentbuilderng_elements ' .
-                '  Set search_include = 1 Where form_id = ' . $formId . ' And id In ( ' . implode(',', $items) . ')');
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__contentbuilderng_elements'))
+                ->set($db->quoteName('search_include') . ' = 1')
+                ->where($db->quoteName('form_id') . ' = ' . $formId)
+                ->where($db->quoteName('id') . ' IN (' . implode(',', $items) . ')');
+            $db->setQuery($query);
             $db->execute();
         }
     }
@@ -373,8 +386,12 @@ class FormModel extends AdminModel
         $db = $this->getDatabase();
         $items = $this->getSelectedElementIdsFromRequest();
         if (count($items)) {
-            $db->setQuery(' Update #__contentbuilderng_elements ' .
-                '  Set linkable = 0 Where form_id = ' . $formId . ' And id In ( ' . implode(',', $items) . ')');
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__contentbuilderng_elements'))
+                ->set($db->quoteName('linkable') . ' = 0')
+                ->where($db->quoteName('form_id') . ' = ' . $formId)
+                ->where($db->quoteName('id') . ' IN (' . implode(',', $items) . ')');
+            $db->setQuery($query);
             $db->execute();
         }
     }
@@ -389,8 +406,12 @@ class FormModel extends AdminModel
         $db = $this->getDatabase();
         $items = $this->getSelectedElementIdsFromRequest();
         if (count($items)) {
-            $db->setQuery(' Update #__contentbuilderng_elements ' .
-                '  Set editable = 0 Where form_id = ' . $formId . ' And id In ( ' . implode(',', $items) . ')');
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__contentbuilderng_elements'))
+                ->set($db->quoteName('editable') . ' = 0')
+                ->where($db->quoteName('form_id') . ' = ' . $formId)
+                ->where($db->quoteName('id') . ' IN (' . implode(',', $items) . ')');
+            $db->setQuery($query);
             $db->execute();
         }
     }
@@ -405,8 +426,12 @@ class FormModel extends AdminModel
         $db = $this->getDatabase();
         $items = $this->getSelectedElementIdsFromRequest();
         if (count($items)) {
-            $db->setQuery(' Update #__contentbuilderng_elements ' .
-                '  Set list_include = 0 Where form_id = ' . $formId . ' And id In ( ' . implode(',', $items) . ')');
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__contentbuilderng_elements'))
+                ->set($db->quoteName('list_include') . ' = 0')
+                ->where($db->quoteName('form_id') . ' = ' . $formId)
+                ->where($db->quoteName('id') . ' IN (' . implode(',', $items) . ')');
+            $db->setQuery($query);
             $db->execute();
         }
     }
@@ -421,8 +446,12 @@ class FormModel extends AdminModel
         $db = $this->getDatabase();
         $items = $this->getSelectedElementIdsFromRequest();
         if (count($items)) {
-            $db->setQuery(' Update #__contentbuilderng_elements ' .
-                '  Set search_include = 0 Where form_id = ' . $formId . ' And id In ( ' . implode(',', $items) . ')');
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__contentbuilderng_elements'))
+                ->set($db->quoteName('search_include') . ' = 0')
+                ->where($db->quoteName('form_id') . ' = ' . $formId)
+                ->where($db->quoteName('id') . ' IN (' . implode(',', $items) . ')');
+            $db->setQuery($query);
             $db->execute();
         }
     }
@@ -430,7 +459,12 @@ class FormModel extends AdminModel
     function getListStatesActionPlugins()
     {
         $db = $this->getDatabase();
-        $db->setQuery("Select `element` From #__extensions Where `folder` = 'contentbuilderng_listaction' And `enabled` = 1");
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('element'))
+            ->from($db->quoteName('#__extensions'))
+            ->where($db->quoteName('folder') . ' = ' . $db->quote('contentbuilderng_listaction'))
+            ->where($db->quoteName('enabled') . ' = 1');
+        $db->setQuery($query);
         $res = $db->loadColumn();
         return $res;
     }
@@ -475,7 +509,12 @@ class FormModel extends AdminModel
     function getVerificationPlugins()
     {
         $db = $this->getDatabase();
-        $db->setQuery("Select `element` From #__extensions Where `folder` = 'contentbuilderng_verify' And `enabled` = 1");
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('element'))
+            ->from($db->quoteName('#__extensions'))
+            ->where($db->quoteName('folder') . ' = ' . $db->quote('contentbuilderng_verify'))
+            ->where($db->quoteName('enabled') . ' = 1');
+        $db->setQuery($query);
         $res = $db->loadColumn();
         return $res;
     }
@@ -1323,41 +1362,62 @@ class FormModel extends AdminModel
             foreach ($list_states as $state_id => $item) {
                 $sid = (int) $state_id;
                 if ($sid > 0) {
-                    $db->setQuery(
-                        "UPDATE #__contentbuilderng_list_states
-                     SET published = " . (isset($item['published']) && $item['published'] ? 1 : 0) . ",
-                         `title`    = " . $db->quote(stripslashes(strip_tags((string) ($item['title'] ?? '')))) . ",
-                         color      = " . $db->quote($this->normalizeListStateColor($item['color'] ?? 'FFFFFF')) . ",
-                         action     = " . $db->quote((string) ($item['action'] ?? '')) . "
-                     WHERE form_id = " . (int) $formId . " AND id = " . (int) $sid
-                    );
+                    $query = $db->getQuery(true)
+                        ->update($db->quoteName('#__contentbuilderng_list_states'))
+                        ->set($db->quoteName('published') . ' = ' . (isset($item['published']) && $item['published'] ? 1 : 0))
+                        ->set($db->quoteName('title') . ' = ' . $db->quote(stripslashes(strip_tags((string) ($item['title'] ?? '')))))
+                        ->set($db->quoteName('color') . ' = ' . $db->quote($this->normalizeListStateColor($item['color'] ?? 'FFFFFF')))
+                        ->set($db->quoteName('action') . ' = ' . $db->quote((string) ($item['action'] ?? '')))
+                        ->where($db->quoteName('form_id') . ' = ' . (int) $formId)
+                        ->where($db->quoteName('id') . ' = ' . (int) $sid);
+                    $db->setQuery($query);
                     $db->execute();
                 }
             }
         }
 
         // Fallback: si pas assez d'états, on complète
-        $db->setQuery("SELECT COUNT(id) FROM #__contentbuilderng_list_states WHERE form_id = " . (int) $formId);
+        $query = $db->getQuery(true)
+            ->select('COUNT(' . $db->quoteName('id') . ')')
+            ->from($db->quoteName('#__contentbuilderng_list_states'))
+            ->where($db->quoteName('form_id') . ' = ' . (int) $formId);
+        $db->setQuery($query);
         $existingCount = (int) $db->loadResult();
 
         $defaultCount = count($this->_default_list_states);
         if ($existingCount < 1) {
             // rien du tout -> on insert tout
             for ($i = 0; $i < $defaultCount; $i++) {
-                $db->setQuery(
-                    "INSERT INTO #__contentbuilderng_list_states (form_id, `title`, color, action)
-                 VALUES (" . (int) $formId . ", " . $db->quote('State') . ", " . $db->quote('FFFFFF') . ", " . $db->quote('') . ")"
-                );
+                $query = $db->getQuery(true)
+                    ->insert($db->quoteName('#__contentbuilderng_list_states'))
+                    ->columns($db->quoteName(['form_id', 'title', 'color', 'action']))
+                    ->values(
+                        implode(', ', [
+                            (int) $formId,
+                            $db->quote('State'),
+                            $db->quote('FFFFFF'),
+                            $db->quote(''),
+                        ])
+                    );
+                $db->setQuery($query);
                 $db->execute();
             }
         } elseif ($existingCount < $defaultCount) {
             // on complète le delta
             $add = $defaultCount - $existingCount;
             for ($i = 0; $i < $add; $i++) {
-                $db->setQuery(
-                    "INSERT INTO #__contentbuilderng_list_states (form_id, `title`, color, action)
-                 VALUES (" . (int) $formId . ", " . $db->quote('State') . ", " . $db->quote('FFFFFF') . ", " . $db->quote('') . ")"
-                );
+                $query = $db->getQuery(true)
+                    ->insert($db->quoteName('#__contentbuilderng_list_states'))
+                    ->columns($db->quoteName(['form_id', 'title', 'color', 'action']))
+                    ->values(
+                        implode(', ', [
+                            (int) $formId,
+                            $db->quote('State'),
+                            $db->quote('FFFFFF'),
+                            $db->quote(''),
+                        ])
+                    );
+                $db->setQuery($query);
                 $db->execute();
             }
         }
@@ -1411,7 +1471,17 @@ class FormModel extends AdminModel
         $db = $this->getDatabase();
 
         foreach ($cids as $cid) {
-            $db->setQuery("Select article.article_id From #__contentbuilderng_articles As article, #__contentbuilderng_forms As form Where form.delete_articles > 0 And form.id = article.form_id And article.form_id = " . intval($cid));
+            $query = $db->getQuery(true)
+                ->select($db->quoteName('article.article_id'))
+                ->from($db->quoteName('#__contentbuilderng_articles', 'article'))
+                ->join(
+                    'INNER',
+                    $db->quoteName('#__contentbuilderng_forms', 'form')
+                    . ' ON ' . $db->quoteName('form.id') . ' = ' . $db->quoteName('article.form_id')
+                )
+                ->where($db->quoteName('form.delete_articles') . ' > 0')
+                ->where($db->quoteName('article.form_id') . ' = ' . (int) $cid);
+            $db->setQuery($query);
             $articles = $db->loadColumn();
             if (count($articles)) {
                 $article_items = array();
@@ -1428,7 +1498,10 @@ class FormModel extends AdminModel
                         ]);
                         $dispatcher->dispatch('onContentBeforeDelete', $eventObj);
                     }
-                    $db->setQuery("Delete From #__content Where id = " . intval($article));
+                    $query = $db->getQuery(true)
+                        ->delete($db->quoteName('#__content'))
+                        ->where($db->quoteName('id') . ' = ' . (int) $article);
+                    $db->setQuery($query);
                     $db->execute();
 
                     // Trigger the onContentAfterDelete event.
@@ -1440,79 +1513,68 @@ class FormModel extends AdminModel
                     ]);
                     $dispatcher->dispatch('onContentAfterDelete', $eventObj);
                 }
-                $db->setQuery("Delete From #__assets Where `name` In (" . implode(',', $article_items) . ")");
+                $query = $db->getQuery(true)
+                    ->delete($db->quoteName('#__assets'))
+                    ->where($db->quoteName('name') . ' IN (' . implode(',', $article_items) . ')');
+                $db->setQuery($query);
                 $db->execute();
             }
 
 
-            $db->setQuery("
-                Delete
-                    `elements`.*
-                From
-                    #__contentbuilderng_elements As `elements`
-                Where
-                    `elements`.form_id = " . $cid);
-
+            $query = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $cid);
+            $db->setQuery($query);
             $db->execute();
 
-            $db->setQuery("
-                Delete
-                    `states`.*
-                From
-                    #__contentbuilderng_list_states As `states`
-                Where
-                    `states`.form_id = " . $cid);
-
+            $query = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_list_states'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $cid);
+            $db->setQuery($query);
             $db->execute();
 
-            $db->setQuery("
-                Delete
-                    `records`.*
-                From
-                    #__contentbuilderng_list_records As `records`
-                Where
-                    `records`.form_id = " . $cid);
-
+            $query = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_list_records'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $cid);
+            $db->setQuery($query);
             $db->execute();
 
-            $db->setQuery("
-                Delete
-                    `access`.*
-                From
-                    #__contentbuilderng_resource_access As `access`
-                Where
-                    `access`.form_id = " . $cid);
-
+            $query = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_resource_access'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $cid);
+            $db->setQuery($query);
             $db->execute();
 
-            $db->setQuery("
-                Delete
-                    `users`.*
-                From
-                    #__contentbuilderng_users As `users`
-                Where
-                    `users`.form_id = " . $cid);
-
+            $query = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_users'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $cid);
+            $db->setQuery($query);
             $db->execute();
 
-            $db->setQuery("
-                Delete
-                    `users`.*
-                From
-                    #__contentbuilderng_registered_users As `users`
-                Where
-                    `users`.form_id = " . $cid);
-
+            $query = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_registered_users'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $cid);
+            $db->setQuery($query);
             $db->execute();
 
             $this->getTable('Elementoptions')->reorder('form_id = ' . $cid);
 
-            $db->setQuery("Delete From #__menu Where `link` = 'index.php?option=com_contentbuilderng&task=list.display&id=" . intval($cid) . "'");
+            $query = $db->getQuery(true)
+                ->delete($db->quoteName('#__menu'))
+                ->where($db->quoteName('link') . ' = ' . $db->quote('index.php?option=com_contentbuilderng&task=list.display&id=' . (int) $cid));
+            $db->setQuery($query);
             $db->execute();
-            $db->setQuery("Select count(id) From #__menu Where `link` Like 'index.php?option=com_contentbuilderng&task=list.display&id=%'");
+            $query = $db->getQuery(true)
+                ->select('COUNT(' . $db->quoteName('id') . ')')
+                ->from($db->quoteName('#__menu'))
+                ->where($db->quoteName('link') . ' LIKE ' . $db->quote('index.php?option=com_contentbuilderng&task=list.display&id=%'));
+            $db->setQuery($query);
             $amount = $db->loadResult();
             if (!$amount) {
-                $db->setQuery("Delete From #__menu Where `link` = 'index.php?option=com_contentbuilderng&viewcontainer=true'");
+                $query = $db->getQuery(true)
+                    ->delete($db->quoteName('#__menu'))
+                    ->where($db->quoteName('link') . ' = ' . $db->quote('index.php?option=com_contentbuilderng&viewcontainer=true'));
+                $db->setQuery($query);
                 $db->execute();
             }
 
@@ -1524,7 +1586,10 @@ class FormModel extends AdminModel
         $row->reorder();
 
         // article deletion if required
-        $db->setQuery("Select `id` From #__contentbuilderng_forms");
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('id'))
+            ->from($db->quoteName('#__contentbuilderng_forms'));
+        $db->setQuery($query);
         $references = $db->loadColumn();
 
         $cnt = count($references);
@@ -1533,10 +1598,15 @@ class FormModel extends AdminModel
             for ($i = 0; $i < $cnt; $i++) {
                 $new_items[] = $db->quote($references[$i]);
             }
-            $db->setQuery("Delete From #__contentbuilderng_articles Where `form_id` Not In (" . implode(',', $new_items) . ") ");
+            $query = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_articles'))
+                ->where($db->quoteName('form_id') . ' NOT IN (' . implode(',', $new_items) . ')');
+            $db->setQuery($query);
             $db->execute();
         } else {
-            $db->setQuery("Delete From #__contentbuilderng_articles");
+            $query = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_articles'));
+            $db->setQuery($query);
             $db->execute();
         }
 
@@ -1585,8 +1655,11 @@ class FormModel extends AdminModel
 
         $db = $this->getDatabase();
         $table = $this->getTable('Form', '');
-        $db->setQuery(' Select * From #__contentbuilderng_forms ' .
-            '  Where id In ( ' . implode(',', $cids) . ')');
+        $query = $db->getQuery(true)
+            ->select('*')
+            ->from($db->quoteName('#__contentbuilderng_forms'))
+            ->where($db->quoteName('id') . ' IN (' . implode(',', $cids) . ')');
+        $db->setQuery($query);
         $result = $db->loadObjectList();
 
         foreach ($result as $obj) {
@@ -1605,8 +1678,11 @@ class FormModel extends AdminModel
             $insertId = $db->insertid();
 
             // Elements
-            $db->setQuery(' Select * From #__contentbuilderng_elements ' .
-                '  Where form_id = ' . $origId);
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $origId);
+            $db->setQuery($query);
             $elements = $db->loadObjectList();
             foreach ($elements as $element) {
                 unset($element->id);
@@ -1615,8 +1691,11 @@ class FormModel extends AdminModel
             }
 
             // list states
-            $db->setQuery(' Select * From #__contentbuilderng_list_states ' .
-                '  Where form_id = ' . $origId);
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from($db->quoteName('#__contentbuilderng_list_states'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $origId);
+            $db->setQuery($query);
             $elements = $db->loadObjectList();
             foreach ($elements as $element) {
                 unset($element->id);

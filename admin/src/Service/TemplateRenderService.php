@@ -575,7 +575,18 @@ class TemplateRenderService
         $registry->loadString('{}');
         $onContentPrepare = 'onContentPrepare';
 
-        $db->setQuery("Select reference_id, item_wrapper, wordwrap, `label`, `options` From #__contentbuilderng_elements Where published = 1 And form_id = " . (int) $contentbuilderngFormId);
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('reference_id'),
+                $db->quoteName('item_wrapper'),
+                $db->quoteName('wordwrap'),
+                $db->quoteName('label'),
+                $db->quoteName('options'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('published') . ' = 1')
+            ->where($db->quoteName('form_id') . ' = ' . (int) $contentbuilderngFormId);
+        $db->setQuery($query);
         $wrappers = $db->loadAssocList();
         $wrapperMap = [];
 
@@ -771,7 +782,24 @@ class TemplateRenderService
         }
 
         $db = $this->db;
-        $db->setQuery("Select `type`,reference_id,details_template, details_prepare, edit_by_type, act_as_registration, registration_name_field, registration_username_field, registration_email_field, registration_email_repeat_field, registration_password_field, registration_password_repeat_field From #__contentbuilderng_forms Where id = " . (int) $contentbuilderngFormId);
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('type'),
+                $db->quoteName('reference_id'),
+                $db->quoteName('details_template'),
+                $db->quoteName('details_prepare'),
+                $db->quoteName('edit_by_type'),
+                $db->quoteName('act_as_registration'),
+                $db->quoteName('registration_name_field'),
+                $db->quoteName('registration_username_field'),
+                $db->quoteName('registration_email_field'),
+                $db->quoteName('registration_email_repeat_field'),
+                $db->quoteName('registration_password_field'),
+                $db->quoteName('registration_password_repeat_field'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_forms'))
+            ->where($db->quoteName('id') . ' = ' . (int) $contentbuilderngFormId);
+        $db->setQuery($query);
         $result = $db->loadAssoc();
 
         if (is_array($result) && $result['details_template']) {
@@ -782,7 +810,11 @@ class TemplateRenderService
             $user = null;
             if ($result['act_as_registration']) {
                 $meta = $form->getRecordMetadata($recordId);
-                $db->setQuery("Select * From #__users Where id = " . $meta->created_id);
+                $query = $db->getQuery(true)
+                    ->select('*')
+                    ->from($db->quoteName('#__users'))
+                    ->where($db->quoteName('id') . ' = ' . (int) $meta->created_id);
+                $db->setQuery($query);
                 $user = $db->loadObject();
             }
 
@@ -791,7 +823,15 @@ class TemplateRenderService
             $allowHtml = array();
             $renderedGroupFields = array();
 
-            $db->setQuery("Select `label`,`reference_id`,`options` From #__contentbuilderng_elements Where form_id = " . (int) $contentbuilderngFormId);
+            $query = $db->getQuery(true)
+                ->select([
+                    $db->quoteName('label'),
+                    $db->quoteName('reference_id'),
+                    $db->quoteName('options'),
+                ])
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $contentbuilderngFormId);
+            $db->setQuery($query);
             $labels_ = $db->loadAssocList();
 
             foreach ($labels_ as $label_) {
@@ -939,7 +979,23 @@ class TemplateRenderService
         }
 
         $db = $this->db;
-        $db->setQuery("Select `name`,`type`,reference_id,email_template, email_admin_template, email_html, email_admin_html, act_as_registration, registration_name_field, registration_username_field, registration_email_field  From #__contentbuilderng_forms Where id = " . (int) $contentbuilderngFormId);
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('name'),
+                $db->quoteName('type'),
+                $db->quoteName('reference_id'),
+                $db->quoteName('email_template'),
+                $db->quoteName('email_admin_template'),
+                $db->quoteName('email_html'),
+                $db->quoteName('email_admin_html'),
+                $db->quoteName('act_as_registration'),
+                $db->quoteName('registration_name_field'),
+                $db->quoteName('registration_username_field'),
+                $db->quoteName('registration_email_field'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_forms'))
+            ->where($db->quoteName('id') . ' = ' . (int) $contentbuilderngFormId);
+        $db->setQuery($query);
         $result = $db->loadAssoc();
 
         if (is_array($result)) {
@@ -947,7 +1003,11 @@ class TemplateRenderService
             if ($result['act_as_registration']) {
                 $form = $this->getForm($result['type'], $result['reference_id']);
                 $meta = $form->getRecordMetadata($recordId);
-                $db->setQuery("Select * From #__users Where id = " . $meta->created_id);
+                $query = $db->getQuery(true)
+                    ->select('*')
+                    ->from($db->quoteName('#__users'))
+                    ->where($db->quoteName('id') . ' = ' . (int) $meta->created_id);
+                $db->setQuery($query);
                 $user = $db->loadObject();
             }
 
@@ -955,7 +1015,15 @@ class TemplateRenderService
             $labels = array();
             $allowHtml = array();
 
-            $db->setQuery("Select `label`,`reference_id`,`options` From #__contentbuilderng_elements Where form_id = " . (int) $contentbuilderngFormId);
+            $query = $db->getQuery(true)
+                ->select([
+                    $db->quoteName('label'),
+                    $db->quoteName('reference_id'),
+                    $db->quoteName('options'),
+                ])
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $contentbuilderngFormId);
+            $db->setQuery($query);
             $labels_ = $db->loadAssocList();
 
             foreach ($labels_ as $label_) {
@@ -1045,7 +1113,24 @@ class TemplateRenderService
         }
 
         $db = $this->db;
-        $db->setQuery("Select `type`, reference_id, editable_template, editable_prepare, edit_by_type, act_as_registration, registration_name_field, registration_username_field, registration_email_field, registration_email_repeat_field, registration_password_field, registration_password_repeat_field From #__contentbuilderng_forms Where id = " . (int) $contentbuilderngFormId);
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('type'),
+                $db->quoteName('reference_id'),
+                $db->quoteName('editable_template'),
+                $db->quoteName('editable_prepare'),
+                $db->quoteName('edit_by_type'),
+                $db->quoteName('act_as_registration'),
+                $db->quoteName('registration_name_field'),
+                $db->quoteName('registration_username_field'),
+                $db->quoteName('registration_email_field'),
+                $db->quoteName('registration_email_repeat_field'),
+                $db->quoteName('registration_password_field'),
+                $db->quoteName('registration_password_repeat_field'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_forms'))
+            ->where($db->quoteName('id') . ' = ' . (int) $contentbuilderngFormId);
+        $db->setQuery($query);
         $result = $db->loadAssoc();
 
         if (!is_array($result) || trim((string) ($result['editable_template'] ?? '')) === '') {
@@ -1063,10 +1148,18 @@ class TemplateRenderService
             if ($recordId) {
                 $form = $this->getForm($result['type'], $result['reference_id']);
                 $meta = $form->getRecordMetadata($recordId);
-                $db->setQuery("Select * From #__users Where id = " . $meta->created_id);
+                $query = $db->getQuery(true)
+                    ->select('*')
+                    ->from($db->quoteName('#__users'))
+                    ->where($db->quoteName('id') . ' = ' . (int) $meta->created_id);
+                $db->setQuery($query);
                 $user = $db->loadObject();
             } elseif ($this->getCurrentUserId()) {
-                $db->setQuery("Select * From #__users Where id = " . $this->getCurrentUserId());
+                $query = $db->getQuery(true)
+                    ->select('*')
+                    ->from($db->quoteName('#__users'))
+                    ->where($db->quoteName('id') . ' = ' . (int) $this->getCurrentUserId());
+                $db->setQuery($query);
                 $user = $db->loadObject();
             }
         }
@@ -1075,7 +1168,15 @@ class TemplateRenderService
         $validations = array();
 
         if (!$result['edit_by_type']) {
-            $db->setQuery("Select `label`,`reference_id`,`validations` From #__contentbuilderng_elements Where form_id = " . (int) $contentbuilderngFormId);
+            $query = $db->getQuery(true)
+                ->select([
+                    $db->quoteName('label'),
+                    $db->quoteName('reference_id'),
+                    $db->quoteName('validations'),
+                ])
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $contentbuilderngFormId);
+            $db->setQuery($query);
             $labels_ = $db->loadAssocList();
             foreach ($labels_ as $label_) {
                 $labels[$label_['reference_id']] = $label_['label'];
@@ -1159,13 +1260,14 @@ class TemplateRenderService
             $template = $this->applyEditableHideIfEmpty($template, (string) $key, (string) $hideIfEmptyValue);
             $template = $this->applyEditableHideIfMatches($template, (string) $key, (string) $hideIfEmptyValue);
 
-            $db->setQuery(
-                "Select * From #__contentbuilderng_elements"
-                . " Where published = 1"
-                . " And reference_id = " . $db->quote($item['id'])
-                . " And form_id = " . (int) $contentbuilderngFormId
-                . " Order By ordering"
-            );
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('published') . ' = 1')
+                ->where($db->quoteName('reference_id') . ' = ' . $db->quote($item['id']))
+                ->where($db->quoteName('form_id') . ' = ' . (int) $contentbuilderngFormId)
+                ->order($db->quoteName('ordering'));
+            $db->setQuery($query);
             $element = $db->loadAssoc();
 
             if (!is_array($element) || !$element) {

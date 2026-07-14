@@ -77,11 +77,16 @@ class TemplateSampleService
         $names = $form->getElementNames();
 
         foreach ($names as $referenceId => $name) {
-            $db->setQuery(
-                'Select id, `type` From #__contentbuilderng_elements'
-                . ' Where published = 1 And form_id = ' . (int) $formId
-                . ' And reference_id = ' . $db->quote($referenceId)
-            );
+            $query = $db->getQuery(true)
+                ->select([
+                    $db->quoteName('id'),
+                    $db->quoteName('type'),
+                ])
+                ->from($db->quoteName('#__contentbuilderng_elements'))
+                ->where($db->quoteName('published') . ' = 1')
+                ->where($db->quoteName('form_id') . ' = ' . (int) $formId)
+                ->where($db->quoteName('reference_id') . ' = ' . $db->quote($referenceId));
+            $db->setQuery($query);
             $result = $db->loadAssoc();
 
             if (is_array($result) && $result['type'] !== 'hidden') {

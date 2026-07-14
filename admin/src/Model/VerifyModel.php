@@ -115,7 +115,14 @@ class VerifyModel extends BaseDatabaseModel
             $user_id = (int) ($this->app->getIdentity()->id ?? 0);
             $setup = $this->app->getSession()->get('com_contentbuilderng.verify.' . $plugin . $verification_name, '');
         } else {
-            $this->getDatabase()->setQuery("Select `setup`,`user_id` From #__contentbuilderng_verifications Where `verification_hash` = " . $this->getDatabase()->quote($verification_id));
+            $query = $this->getDatabase()->getQuery(true)
+                ->select([
+                    $this->getDatabase()->quoteName('setup'),
+                    $this->getDatabase()->quoteName('user_id'),
+                ])
+                ->from($this->getDatabase()->quoteName('#__contentbuilderng_verifications'))
+                ->where($this->getDatabase()->quoteName('verification_hash') . ' = ' . $this->getDatabase()->quote($verification_id));
+            $this->getDatabase()->setQuery($query);
             $setup = $this->getDatabase()->loadAssoc();
             if (is_array($setup)) {
                 $user_id = $setup['user_id'];
@@ -166,7 +173,16 @@ class VerifyModel extends BaseDatabaseModel
 
             $id = intval($out['require_view']);
 
-            $this->getDatabase()->setQuery("Select `type`, `reference_id`, `show_all_languages_fe` From #__contentbuilderng_forms Where published = 1 And id = " . $id);
+            $query = $this->getDatabase()->getQuery(true)
+                ->select([
+                    $this->getDatabase()->quoteName('type'),
+                    $this->getDatabase()->quoteName('reference_id'),
+                    $this->getDatabase()->quoteName('show_all_languages_fe'),
+                ])
+                ->from($this->getDatabase()->quoteName('#__contentbuilderng_forms'))
+                ->where($this->getDatabase()->quoteName('published') . ' = 1')
+                ->where($this->getDatabase()->quoteName('id') . ' = ' . $id);
+            $this->getDatabase()->setQuery($query);
             $formsettings = $this->getDatabase()->loadAssoc();
 
             if (!is_array($formsettings)) {
@@ -213,30 +229,29 @@ class VerifyModel extends BaseDatabaseModel
             $___now = $_now->toSql();
 
             $verification_id = md5(uniqid("", true) . mt_rand(0, mt_getrandmax()) . $user_id);
-            $this->getDatabase()->setQuery("
-                    Insert Into #__contentbuilderng_verifications
-                    (
-                    `verification_hash`,
-                    `start_date`,
-                    `verification_data`,
-                    `user_id`,
-                    `plugin`,
-                    `ip`,
-                    `setup`,
-                    `client`
-                    )
-                    Values
-                    (
-                    " . $this->getDatabase()->quote($verification_id) . ",
-                    " . $this->getDatabase()->quote($___now) . ",
-                    " . $this->getDatabase()->quote('type=normal&' . $verification_data) . ",
-                    " . $user_id . ",
-                    " . $this->getDatabase()->quote($plugin) . ",
-                    " . $this->getDatabase()->quote($_SERVER['REMOTE_ADDR']) . ",
-                    " . $this->getDatabase()->quote($setup) . ",
-                    " . intval($out['client']) . "
-                    )
-            ");
+            $query = $this->getDatabase()->getQuery(true)
+                ->insert($this->getDatabase()->quoteName('#__contentbuilderng_verifications'))
+                ->columns($this->getDatabase()->quoteName([
+                    'verification_hash',
+                    'start_date',
+                    'verification_data',
+                    'user_id',
+                    'plugin',
+                    'ip',
+                    'setup',
+                    'client',
+                ]))
+                ->values(implode(', ', [
+                    $this->getDatabase()->quote($verification_id),
+                    $this->getDatabase()->quote($___now),
+                    $this->getDatabase()->quote('type=normal&' . $verification_data),
+                    (int) $user_id,
+                    $this->getDatabase()->quote($plugin),
+                    $this->getDatabase()->quote($_SERVER['REMOTE_ADDR']),
+                    $this->getDatabase()->quote($setup),
+                    (int) ($out['client'] ?? 0),
+                ]));
+            $this->getDatabase()->setQuery($query);
             $this->getDatabase()->execute();
         }
 
@@ -318,42 +333,57 @@ class VerifyModel extends BaseDatabaseModel
                                 }
                             }
 
-                            $this->getDatabase()->setQuery("Select id From #__contentbuilderng_users Where userid = " . $this->getDatabase()->quote($user_id) . " And form_id = " . intval($out['verify_view']));
+                            $query = $this->getDatabase()->getQuery(true)
+                                ->select($this->getDatabase()->quoteName('id'))
+                                ->from($this->getDatabase()->quoteName('#__contentbuilderng_users'))
+                                ->where($this->getDatabase()->quoteName('userid') . ' = ' . $this->getDatabase()->quote($user_id))
+                                ->where($this->getDatabase()->quoteName('form_id') . ' = ' . (int) $out['verify_view']);
+                            $this->getDatabase()->setQuery($query);
                             $usertableid = $this->getDatabase()->loadResult();
 
                             $levels = explode(',', $out['verify_levels']);
                             $___now = $_now->toSql();
                             if ($usertableid) {
-                                $this->getDatabase()->setQuery("Update #__contentbuilderng_users
-                                Set
-                                " . (in_array('view', $levels) ? ' verified_view=1, verification_date_view=' . $this->getDatabase()->quote($___now) . ", " : '') . "
-                                " . (in_array('new', $levels) ? ' verified_new=1, verification_date_new=' . $this->getDatabase()->quote($___now) . ", " : '') . "
-                                " . (in_array('edit', $levels) ? ' verified_edit=1, verification_date_edit=' . $this->getDatabase()->quote($___now) . ", " : '') . "
-                                published = 1
-                                Where id = $usertableid
-                                ");
+                                $query = $this->getDatabase()->getQuery(true)
+                                    ->update($this->getDatabase()->quoteName('#__contentbuilderng_users'))
+                                    ->set($this->getDatabase()->quoteName('published') . ' = 1')
+                                    ->where($this->getDatabase()->quoteName('id') . ' = ' . (int) $usertableid);
+                                if (in_array('view', $levels)) {
+                                    $query->set($this->getDatabase()->quoteName('verified_view') . ' = 1')
+                                        ->set($this->getDatabase()->quoteName('verification_date_view') . ' = ' . $this->getDatabase()->quote($___now));
+                                }
+                                if (in_array('new', $levels)) {
+                                    $query->set($this->getDatabase()->quoteName('verified_new') . ' = 1')
+                                        ->set($this->getDatabase()->quoteName('verification_date_new') . ' = ' . $this->getDatabase()->quote($___now));
+                                }
+                                if (in_array('edit', $levels)) {
+                                    $query->set($this->getDatabase()->quoteName('verified_edit') . ' = 1')
+                                        ->set($this->getDatabase()->quoteName('verification_date_edit') . ' = ' . $this->getDatabase()->quote($___now));
+                                }
+                                $this->getDatabase()->setQuery($query);
                                 $this->getDatabase()->execute();
                             } else {
-                                $this->getDatabase()->setQuery("
-                                Insert Into #__contentbuilderng_users
-                                (
-                                " . (in_array('view', $levels) ? 'verified_view, verification_date_view,' : '') . "
-                                " . (in_array('new', $levels) ? 'verified_new, verification_date_new,' : '') . "
-                                " . (in_array('edit', $levels) ? 'verified_edit, verification_date_edit,' : '') . "
-                                published,
-                                userid,
-                                form_id
-                                )
-                                Values
-                                (
-                                " . (in_array('view', $levels) ? '1, ' . $this->getDatabase()->quote($___now) . ',' : '') . "
-                                " . (in_array('new', $levels) ? '1, ' . $this->getDatabase()->quote($___now) . ',' : '') . "
-                                " . (in_array('edit', $levels) ? '1, ' . $this->getDatabase()->quote($___now) . ',' : '') . "
-                                1,
-                                " . $this->getDatabase()->quote($user_id) . ",
-                                " . intval($out['verify_view']) . "
-                                )
-                                ");
+                                $columns = ['published', 'userid', 'form_id'];
+                                $values = ['1', $this->getDatabase()->quote($user_id), (int) $out['verify_view']];
+                                if (in_array('view', $levels)) {
+                                    array_unshift($columns, 'verification_date_view');
+                                    array_unshift($columns, 'verified_view');
+                                    array_unshift($values, $this->getDatabase()->quote($___now));
+                                    array_unshift($values, '1');
+                                }
+                                if (in_array('new', $levels)) {
+                                    array_splice($columns, count($columns) - 3, 0, ['verified_new', 'verification_date_new']);
+                                    array_splice($values, count($values) - 3, 0, ['1', $this->getDatabase()->quote($___now)]);
+                                }
+                                if (in_array('edit', $levels)) {
+                                    array_splice($columns, count($columns) - 3, 0, ['verified_edit', 'verification_date_edit']);
+                                    array_splice($values, count($values) - 3, 0, ['1', $this->getDatabase()->quote($___now)]);
+                                }
+                                $query = $this->getDatabase()->getQuery(true)
+                                    ->insert($this->getDatabase()->quoteName('#__contentbuilderng_users'))
+                                    ->columns($this->getDatabase()->quoteName($columns))
+                                    ->values(implode(', ', $values));
+                                $this->getDatabase()->setQuery($query);
                                 $this->getDatabase()->execute();
                             }
 
@@ -365,21 +395,18 @@ class VerifyModel extends BaseDatabaseModel
                                 $verification_data = rtrim($verification_data, '&');
                             }
 
-                            $this->getDatabase()->setQuery("
-                                Update #__contentbuilderng_verifications
-                                Set
-                                `verification_hash` = '',
-                                `is_test` = " . (isset($verify_result[0]['is_test']) ? intval(isset($verify_result[0]['is_test'])) : 0) . ",
-                                `verification_date` = " . $this->getDatabase()->quote($___now) . " 
-                                " . ($verification_data ? ',verification_data = concat(verification_data, ' . $this->getDatabase()->quote($verification_data) . ') ' : '') . "
-                                Where
-                                verification_hash = " . $this->getDatabase()->quote($verification_id) . "
-                                And
-                                verification_hash <> ''
-                                And
-                                `verification_date` IS NULL
-                                
-                            ");
+                            $query = $this->getDatabase()->getQuery(true)
+                                ->update($this->getDatabase()->quoteName('#__contentbuilderng_verifications'))
+                                ->set($this->getDatabase()->quoteName('verification_hash') . " = ''")
+                                ->set($this->getDatabase()->quoteName('is_test') . ' = ' . (isset($verify_result[0]['is_test']) ? (int) isset($verify_result[0]['is_test']) : 0))
+                                ->set($this->getDatabase()->quoteName('verification_date') . ' = ' . $this->getDatabase()->quote($___now))
+                                ->where($this->getDatabase()->quoteName('verification_hash') . ' = ' . $this->getDatabase()->quote($verification_id))
+                                ->where($this->getDatabase()->quoteName('verification_hash') . " <> ''")
+                                ->where($this->getDatabase()->quoteName('verification_date') . ' IS NULL');
+                            if ($verification_data) {
+                                $query->set($this->getDatabase()->quoteName('verification_data') . ' = concat(' . $this->getDatabase()->quoteName('verification_data') . ', ' . $this->getDatabase()->quote($verification_data) . ')');
+                            }
+                            $this->getDatabase()->setQuery($query);
                             $this->getDatabase()->execute();
 
                             // token check if given
@@ -438,12 +465,13 @@ class VerifyModel extends BaseDatabaseModel
         $db = $this->getDatabase();
 
         // Get the user id based on the token.
-        $db->setQuery(
-            'SELECT `id` FROM `#__users`' .
-            ' WHERE `activation` = ' . $db->quote($token) .
-            ' AND `block` = 1' .
-            ' AND `lastvisitDate` = ' . $db->quote($db->getNullDate())
-        );
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('id'))
+            ->from($db->quoteName('#__users'))
+            ->where($db->quoteName('activation') . ' = ' . $db->quote($token))
+            ->where($db->quoteName('block') . ' = 1')
+            ->where($db->quoteName('lastvisitDate') . ' = ' . $db->quote($db->getNullDate()));
+        $db->setQuery($query);
         $userId = (int) $db->loadResult();
 
         // Check for a valid user id.
@@ -522,12 +550,13 @@ class VerifyModel extends BaseDatabaseModel
         $db = $this->getDatabase();
 
         // Get the user id based on the token.
-        $db->setQuery(
-            'SELECT `id` FROM `#__users`' .
-            ' WHERE `activation` = ' . $db->quote($token) .
-            ' AND `block` = 1' .
-            ' AND `lastvisitDate` = ' . $db->quote($db->getNullDate())
-        );
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('id'))
+            ->from($db->quoteName('#__users'))
+            ->where($db->quoteName('activation') . ' = ' . $db->quote($token))
+            ->where($db->quoteName('block') . ' = 1')
+            ->where($db->quoteName('lastvisitDate') . ' = ' . $db->quote($db->getNullDate()));
+        $db->setQuery($query);
         $userId = (int) $db->loadResult();
 
         // Check for a valid user id.

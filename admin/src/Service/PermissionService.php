@@ -52,7 +52,13 @@ class PermissionService
 
         if ($parentByGroupId === null) {
             $db = Factory::getContainer()->get(DatabaseInterface::class);
-            $db->setQuery('Select id, parent_id From #__usergroups');
+            $query = $db->getQuery(true)
+                ->select([
+                    $db->quoteName('id'),
+                    $db->quoteName('parent_id'),
+                ])
+                ->from($db->quoteName('#__usergroups'));
+            $db->setQuery($query);
             $rows = $db->loadAssocList() ?: [];
 
             $parentByGroupId = [];
@@ -90,7 +96,17 @@ class PermissionService
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
 
-        $db->setQuery('Select `type`, `reference_id` From #__contentbuilderng_forms Where id = ' . (int) $formId . $formPublishedClause);
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('type'),
+                $db->quoteName('reference_id'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_forms'))
+            ->where($db->quoteName('id') . ' = ' . (int) $formId);
+        if (!$isAdminPreview) {
+            $query->where($db->quoteName('published') . ' = 1');
+        }
+        $db->setQuery($query);
         $type = $db->loadAssoc();
 
         $numRecordsQuery = '';
@@ -117,46 +133,54 @@ class PermissionService
             }
         }
 
-        $db->setQuery(
-            "
-            Select
-                forms.config,
-                forms.verification_required_view,
-                forms.verification_required_new,
-                forms.verification_required_edit,
-                forms.verification_days_view,
-                forms.verification_days_new,
-                forms.verification_days_edit,
-                forms.verification_url_view,
-                forms.verification_url_new,
-                forms.verification_url_edit,
-                contentbuilderng_users.userid,
-                forms.limit_add,
-                forms.limit_edit,
-                " . ($numRecordsQuery ? '(' . $numRecordsQuery . ') ' : "'0'") . " As amount_records,
-                contentbuilderng_users.verified_view,
-                contentbuilderng_users.verified_new,
-                contentbuilderng_users.verified_edit,
-                contentbuilderng_users.verification_date_view,
-                contentbuilderng_users.verification_date_new,
-                contentbuilderng_users.verification_date_edit,
-                contentbuilderng_users.limit_add As user_limit_add,
-                contentbuilderng_users.limit_edit As user_limit_edit,
-                contentbuilderng_users.published
-                " . ($recordId && !is_array($recordId) ? ',contentbuilderng_records.edited' : ",'0' As edited") . "
-            From
-                #__contentbuilderng_forms As forms
-                Left Join
-                    #__contentbuilderng_users As contentbuilderng_users
-                On ( contentbuilderng_users.form_id = forms.id And contentbuilderng_users.userid = " . $this->getCurrentUserId() . " )
-                " . ($recordId && !is_array($recordId) ? "Left Join
-                    #__contentbuilderng_records As contentbuilderng_records
-                On ( contentbuilderng_records.`type` = " . $db->quote(isset($_type) ? $_type : '') . " And contentbuilderng_records.reference_id = forms.reference_id And contentbuilderng_records.record_id = " . $db->quote($recordId) . " )
-                " : '') . "
-            Where
-                forms.id = " . (int) $formId . "
-            " . (!$isAdminPreview ? 'And forms.published = 1' : '')
-        );
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('forms.config'),
+                $db->quoteName('forms.verification_required_view'),
+                $db->quoteName('forms.verification_required_new'),
+                $db->quoteName('forms.verification_required_edit'),
+                $db->quoteName('forms.verification_days_view'),
+                $db->quoteName('forms.verification_days_new'),
+                $db->quoteName('forms.verification_days_edit'),
+                $db->quoteName('forms.verification_url_view'),
+                $db->quoteName('forms.verification_url_new'),
+                $db->quoteName('forms.verification_url_edit'),
+                $db->quoteName('contentbuilderng_users.userid'),
+                $db->quoteName('forms.limit_add'),
+                $db->quoteName('forms.limit_edit'),
+                ($numRecordsQuery ? '(' . $numRecordsQuery . ')' : "'0'") . ' AS ' . $db->quoteName('amount_records'),
+                $db->quoteName('contentbuilderng_users.verified_view'),
+                $db->quoteName('contentbuilderng_users.verified_new'),
+                $db->quoteName('contentbuilderng_users.verified_edit'),
+                $db->quoteName('contentbuilderng_users.verification_date_view'),
+                $db->quoteName('contentbuilderng_users.verification_date_new'),
+                $db->quoteName('contentbuilderng_users.verification_date_edit'),
+                $db->quoteName('contentbuilderng_users.limit_add', 'user_limit_add'),
+                $db->quoteName('contentbuilderng_users.limit_edit', 'user_limit_edit'),
+                $db->quoteName('contentbuilderng_users.published'),
+                ($recordId && !is_array($recordId)) ? $db->quoteName('contentbuilderng_records.edited') : "'0' AS " . $db->quoteName('edited'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_forms', 'forms'))
+            ->join(
+                'LEFT',
+                $db->quoteName('#__contentbuilderng_users', 'contentbuilderng_users')
+                . ' ON (' . $db->quoteName('contentbuilderng_users.form_id') . ' = ' . $db->quoteName('forms.id')
+                . ' AND ' . $db->quoteName('contentbuilderng_users.userid') . ' = ' . $this->getCurrentUserId() . ')'
+            )
+            ->where($db->quoteName('forms.id') . ' = ' . (int) $formId);
+        if ($recordId && !is_array($recordId)) {
+            $query->join(
+                'LEFT',
+                $db->quoteName('#__contentbuilderng_records', 'contentbuilderng_records')
+                . ' ON (' . $db->quoteName('contentbuilderng_records.type') . ' = ' . $db->quote(isset($_type) ? $_type : '')
+                . ' AND ' . $db->quoteName('contentbuilderng_records.reference_id') . ' = ' . $db->quoteName('forms.reference_id')
+                . ' AND ' . $db->quoteName('contentbuilderng_records.record_id') . ' = ' . $db->quote($recordId) . ')'
+            );
+        }
+        if (!$isAdminPreview) {
+            $query->where($db->quoteName('forms.published') . ' = 1');
+        }
+        $db->setQuery($query);
         $result = $db->loadAssoc();
 
         if (!is_array($result)) {
@@ -289,7 +313,14 @@ class PermissionService
                 if (isset($typeref[(int) $userReturn['form_id']]) && is_array($typeref[(int) $userReturn['form_id']])) {
                     $typerefid = $typeref[(int) $userReturn['form_id']];
                 } else {
-                    $db->setQuery('Select `type`, `reference_id` From #__contentbuilderng_forms Where id = ' . (int) $userReturn['form_id']);
+                    $query = $db->getQuery(true)
+                        ->select([
+                            $db->quoteName('type'),
+                            $db->quoteName('reference_id'),
+                        ])
+                        ->from($db->quoteName('#__contentbuilderng_forms'))
+                        ->where($db->quoteName('id') . ' = ' . (int) $userReturn['form_id']);
+                    $db->setQuery($query);
                     $typerefid = $db->loadAssoc();
                     $typeref[(int) $userReturn['form_id']] = $typerefid;
                 }
@@ -301,11 +332,13 @@ class PermissionService
                         $allowed = in_array($action, ['new', 'listaccess'], true);
                     } elseif (is_array($userReturn['record_id'])) {
                         foreach ($userReturn['record_id'] as $recid) {
-                            $db->setQuery(
-                                'Select session_id From #__contentbuilderng_records Where `record_id` = ' . $db->quote($recid)
-                                . ' And `type` = ' . $db->quote($typerefid['type'])
-                                . ' And `reference_id` = ' . $db->quote($typerefid['reference_id'])
-                            );
+                            $query = $db->getQuery(true)
+                                ->select($db->quoteName('session_id'))
+                                ->from($db->quoteName('#__contentbuilderng_records'))
+                                ->where($db->quoteName('record_id') . ' = ' . $db->quote($recid))
+                                ->where($db->quoteName('type') . ' = ' . $db->quote($typerefid['type']))
+                                ->where($db->quoteName('reference_id') . ' = ' . $db->quote($typerefid['reference_id']));
+                            $db->setQuery($query);
                             $sessionId = $db->loadResult();
 
                             if ($form && $sessionId != $currentSessionId && !$form->isOwner($this->getCurrentUserId(), $recid)) {
@@ -316,11 +349,13 @@ class PermissionService
                             $allowed = true;
                         }
                     } else {
-                        $db->setQuery(
-                            'Select session_id From #__contentbuilderng_records Where `record_id` = ' . $db->quote($userReturn['record_id'])
-                            . ' And `type` = ' . $db->quote($typerefid['type'])
-                            . ' And `reference_id` = ' . $db->quote($typerefid['reference_id'])
-                        );
+                        $query = $db->getQuery(true)
+                            ->select($db->quoteName('session_id'))
+                            ->from($db->quoteName('#__contentbuilderng_records'))
+                            ->where($db->quoteName('record_id') . ' = ' . $db->quote($userReturn['record_id']))
+                            ->where($db->quoteName('type') . ' = ' . $db->quote($typerefid['type']))
+                            ->where($db->quoteName('reference_id') . ' = ' . $db->quote($typerefid['reference_id']));
+                        $db->setQuery($query);
                         $sessionId = $db->loadResult();
 
                         if (

@@ -29,7 +29,6 @@ class ListSupportService
         }
 
         $db = $this->db;
-        $quotedIds = array_map([$db, 'quote'], $recordIds);
         $meta = [
             'state_ids' => [],
             'state_colors' => [],
@@ -39,15 +38,24 @@ class ListSupportService
             'cb_record_ids' => [],
         ];
 
-        $db->setQuery(
-            'Select states.id As state_id, states.color, states.title, records.record_id'
-            . ' From #__contentbuilderng_list_records As records'
-            . ' Inner Join #__contentbuilderng_list_states As states On states.id = records.state_id'
-            . ' Where states.published = 1'
-            . ' And records.record_id In (' . implode(',', $quotedIds) . ')'
-            . ' And records.form_id = ' . (int) $formId
-            . ' And states.form_id = ' . (int) $formId
-        );
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('states.id', 'state_id'),
+                $db->quoteName('states.color'),
+                $db->quoteName('states.title'),
+                $db->quoteName('records.record_id'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_list_records', 'records'))
+            ->join(
+                'INNER',
+                $db->quoteName('#__contentbuilderng_list_states', 'states')
+                . ' ON ' . $db->quoteName('states.id') . ' = ' . $db->quoteName('records.state_id')
+            )
+            ->where($db->quoteName('states.published') . ' = 1')
+            ->where($db->quoteName('records.record_id') . ' IN (' . implode(',', array_map([$db, 'quote'], $recordIds)) . ')')
+            ->where($db->quoteName('records.form_id') . ' = ' . (int) $formId)
+            ->where($db->quoteName('states.form_id') . ' = ' . (int) $formId);
+        $db->setQuery($query);
 
         foreach ((array) $db->loadAssocList() as $row) {
             $meta['state_ids'][$row['record_id']] = (int) $row['state_id'];
@@ -56,13 +64,18 @@ class ListSupportService
         }
 
         if ($referenceId) {
-            $db->setQuery(
-                'Select records.id, records.published, records.lang_code, records.record_id'
-                . ' From #__contentbuilderng_records As records'
-                . ' Where `type` = ' . $db->quote($type)
-                . ' And reference_id = ' . $db->quote($referenceId)
-                . ' And records.record_id In (' . implode(',', $quotedIds) . ')'
-            );
+            $query = $db->getQuery(true)
+                ->select([
+                    $db->quoteName('records.id'),
+                    $db->quoteName('records.published'),
+                    $db->quoteName('records.lang_code'),
+                    $db->quoteName('records.record_id'),
+                ])
+                ->from($db->quoteName('#__contentbuilderng_records', 'records'))
+                ->where($db->quoteName('type') . ' = ' . $db->quote($type))
+                ->where($db->quoteName('reference_id') . ' = ' . $db->quote($referenceId))
+                ->where($db->quoteName('records.record_id') . ' IN (' . implode(',', array_map([$db, 'quote'], $recordIds)) . ')');
+            $db->setQuery($query);
 
             foreach ((array) $db->loadAssocList() as $row) {
                 $meta['published_items'][$row['record_id']] = $row['published'];
@@ -95,10 +108,14 @@ class ListSupportService
     public function getListSearchableElements(int $formId): array
     {
         $db = $this->db;
-        $db->setQuery(
-            'Select reference_id From #__contentbuilderng_elements'
-            . ' Where search_include = 1 And published = 1 And reference_id >= 0 And form_id = ' . (int) $formId
-        );
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('reference_id'))
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('search_include') . ' = 1')
+            ->where($db->quoteName('published') . ' = 1')
+            ->where($db->quoteName('reference_id') . ' >= 0')
+            ->where($db->quoteName('form_id') . ' = ' . (int) $formId);
+        $db->setQuery($query);
 
         return (array) $db->loadColumn();
     }
@@ -106,10 +123,13 @@ class ListSupportService
     public function getListLinkableElements(int $formId): array
     {
         $db = $this->db;
-        $db->setQuery(
-            'Select reference_id From #__contentbuilderng_elements'
-            . ' Where linkable = 1 And published = 1 And form_id = ' . (int) $formId
-        );
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('reference_id'))
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('linkable') . ' = 1')
+            ->where($db->quoteName('published') . ' = 1')
+            ->where($db->quoteName('form_id') . ' = ' . (int) $formId);
+        $db->setQuery($query);
 
         return (array) $db->loadColumn();
     }
@@ -117,10 +137,14 @@ class ListSupportService
     public function getListEditableElements(int $formId): array
     {
         $db = $this->db;
-        $db->setQuery(
-            'Select reference_id From #__contentbuilderng_elements'
-            . ' Where editable = 1 And published = 1 And reference_id >= 0 And form_id = ' . (int) $formId
-        );
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('reference_id'))
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('editable') . ' = 1')
+            ->where($db->quoteName('published') . ' = 1')
+            ->where($db->quoteName('reference_id') . ' >= 0')
+            ->where($db->quoteName('form_id') . ' = ' . (int) $formId);
+        $db->setQuery($query);
 
         return (array) $db->loadColumn();
     }
@@ -128,10 +152,12 @@ class ListSupportService
     public function getListNonEditableElements(int $formId): array
     {
         $db = $this->db;
-        $db->setQuery(
-            'Select reference_id From #__contentbuilderng_elements'
-            . ' Where ( editable = 0 Or published = 0 ) And form_id = ' . (int) $formId
-        );
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('reference_id'))
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where('(' . $db->quoteName('editable') . ' = 0 OR ' . $db->quoteName('published') . ' = 0)')
+            ->where($db->quoteName('form_id') . ' = ' . (int) $formId);
+        $db->setQuery($query);
 
         return (array) $db->loadColumn();
     }
@@ -139,11 +165,13 @@ class ListSupportService
     public function getListStates(int $formId): array
     {
         $db = $this->db;
-        $db->setQuery(
-            'Select * From #__contentbuilderng_list_states'
-            . ' where form_id = ' . (int) $formId
-            . ' And published = 1 Order By id'
-        );
+        $query = $db->getQuery(true)
+            ->select('*')
+            ->from($db->quoteName('#__contentbuilderng_list_states'))
+            ->where($db->quoteName('form_id') . ' = ' . (int) $formId)
+            ->where($db->quoteName('published') . ' = 1')
+            ->order($db->quoteName('id'));
+        $db->setQuery($query);
 
         return (array) $db->loadAssocList();
     }
@@ -157,17 +185,22 @@ class ListSupportService
         }
 
         $db = $this->db;
-        $quotedIds = array_map([$db, 'quote'], $recordIds);
-
-        $db->setQuery(
-            'Select states.color, records.record_id'
-            . ' From #__contentbuilderng_list_states As states, #__contentbuilderng_list_records As records'
-            . ' Where states.published = 1'
-            . ' And states.id = records.state_id'
-            . ' And records.record_id In (' . implode(',', $quotedIds) . ')'
-            . ' And records.form_id = ' . (int) $formId
-            . ' And states.form_id = ' . (int) $formId
-        );
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('states.color'),
+                $db->quoteName('records.record_id'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_list_states', 'states'))
+            ->join(
+                'INNER',
+                $db->quoteName('#__contentbuilderng_list_records', 'records')
+                . ' ON ' . $db->quoteName('states.id') . ' = ' . $db->quoteName('records.state_id')
+            )
+            ->where($db->quoteName('states.published') . ' = 1')
+            ->where($db->quoteName('records.record_id') . ' IN (' . implode(',', array_map([$db, 'quote'], $recordIds)) . ')')
+            ->where($db->quoteName('records.form_id') . ' = ' . (int) $formId)
+            ->where($db->quoteName('states.form_id') . ' = ' . (int) $formId);
+        $db->setQuery($query);
 
         $out = [];
         foreach ((array) $db->loadAssocList() as $row) {
@@ -186,17 +219,22 @@ class ListSupportService
         }
 
         $db = $this->db;
-        $quotedIds = array_map([$db, 'quote'], $recordIds);
-
-        $db->setQuery(
-            'Select states.id As state_id, records.record_id'
-            . ' From #__contentbuilderng_list_states As states, #__contentbuilderng_list_records As records'
-            . ' Where states.published = 1'
-            . ' And states.id = records.state_id'
-            . ' And records.record_id In (' . implode(',', $quotedIds) . ')'
-            . ' And records.form_id = ' . (int) $formId
-            . ' And states.form_id = ' . (int) $formId
-        );
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('states.id', 'state_id'),
+                $db->quoteName('records.record_id'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_list_states', 'states'))
+            ->join(
+                'INNER',
+                $db->quoteName('#__contentbuilderng_list_records', 'records')
+                . ' ON ' . $db->quoteName('states.id') . ' = ' . $db->quoteName('records.state_id')
+            )
+            ->where($db->quoteName('states.published') . ' = 1')
+            ->where($db->quoteName('records.record_id') . ' IN (' . implode(',', array_map([$db, 'quote'], $recordIds)) . ')')
+            ->where($db->quoteName('records.form_id') . ' = ' . (int) $formId)
+            ->where($db->quoteName('states.form_id') . ' = ' . (int) $formId);
+        $db->setQuery($query);
 
         $out = [];
         foreach ((array) $db->loadAssocList() as $row) {
@@ -215,17 +253,22 @@ class ListSupportService
         }
 
         $db = $this->db;
-        $quotedIds = array_map([$db, 'quote'], $recordIds);
-
-        $db->setQuery(
-            'Select states.title, records.record_id'
-            . ' From #__contentbuilderng_list_states As states, #__contentbuilderng_list_records As records'
-            . ' Where states.published = 1'
-            . ' And states.id = records.state_id'
-            . ' And records.record_id In (' . implode(',', $quotedIds) . ')'
-            . ' And records.form_id = ' . (int) $formId
-            . ' And states.form_id = ' . (int) $formId
-        );
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('states.title'),
+                $db->quoteName('records.record_id'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_list_states', 'states'))
+            ->join(
+                'INNER',
+                $db->quoteName('#__contentbuilderng_list_records', 'records')
+                . ' ON ' . $db->quoteName('states.id') . ' = ' . $db->quoteName('records.state_id')
+            )
+            ->where($db->quoteName('states.published') . ' = 1')
+            ->where($db->quoteName('records.record_id') . ' IN (' . implode(',', array_map([$db, 'quote'], $recordIds)) . ')')
+            ->where($db->quoteName('records.form_id') . ' = ' . (int) $formId)
+            ->where($db->quoteName('states.form_id') . ' = ' . (int) $formId);
+        $db->setQuery($query);
 
         $out = [];
         foreach ((array) $db->loadAssocList() as $row) {
@@ -248,14 +291,16 @@ class ListSupportService
         }
 
         $db = $this->db;
-        $quotedIds = array_map([$db, 'quote'], $recordIds);
-        $db->setQuery(
-            'Select records.published, records.record_id'
-            . ' From #__contentbuilderng_records As records'
-            . ' Where `type` = ' . $db->quote($type)
-            . ' And reference_id = ' . $db->quote($referenceId)
-            . ' And records.record_id In (' . implode(',', $quotedIds) . ')'
-        );
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('records.published'),
+                $db->quoteName('records.record_id'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_records', 'records'))
+            ->where($db->quoteName('type') . ' = ' . $db->quote($type))
+            ->where($db->quoteName('reference_id') . ' = ' . $db->quote($referenceId))
+            ->where($db->quoteName('records.record_id') . ' IN (' . implode(',', array_map([$db, 'quote'], $recordIds)) . ')');
+        $db->setQuery($query);
 
         $out = [];
         foreach ((array) $db->loadAssocList() as $row) {
@@ -278,13 +323,15 @@ class ListSupportService
         }
 
         $db = $this->db;
-        $quotedIds = array_map([$db, 'quote'], $recordIds);
-        $db->setQuery(
-            'Select records.lang_code, records.record_id'
-            . ' From #__contentbuilderng_records As records'
-            . ' Where reference_id = ' . $db->quote($referenceId)
-            . ' And records.record_id In (' . implode(',', $quotedIds) . ')'
-        );
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('records.lang_code'),
+                $db->quoteName('records.record_id'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_records', 'records'))
+            ->where($db->quoteName('reference_id') . ' = ' . $db->quote($referenceId))
+            ->where($db->quoteName('records.record_id') . ' IN (' . implode(',', array_map([$db, 'quote'], $recordIds)) . ')');
+        $db->setQuery($query);
 
         $out = [];
         foreach ((array) $db->loadAssocList() as $row) {

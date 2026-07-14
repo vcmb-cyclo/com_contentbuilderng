@@ -301,11 +301,16 @@ final class Thoth extends CMSPlugin implements SubscriberInterface
 
     private function fetchElementDefinitions(DatabaseInterface $db, int $contentbuilderng_form_id): array
     {
-        $db->setQuery(
-            "SELECT reference_id, `type`, editable
-             FROM #__contentbuilderng_elements
-             WHERE published = 1 AND form_id = " . (int) $contentbuilderng_form_id
-        );
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('reference_id'),
+                $db->quoteName('type'),
+                $db->quoteName('editable'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('published') . ' = 1')
+            ->where($db->quoteName('form_id') . ' = ' . (int) $contentbuilderng_form_id);
+        $db->setQuery($query);
 
         $rows = $db->loadAssocList();
         if (!is_array($rows) || $rows === []) {
@@ -328,17 +333,18 @@ final class Thoth extends CMSPlugin implements SubscriberInterface
 
     private function fetchElementTypes(DatabaseInterface $db, int $contentbuilderng_form_id, bool $editableOnly): array
     {
-        $where = "published = 1 AND form_id = " . (int) $contentbuilderng_form_id;
-
+        $query = $db->getQuery(true)
+            ->select([
+                $db->quoteName('reference_id'),
+                $db->quoteName('type'),
+            ])
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('published') . ' = 1')
+            ->where($db->quoteName('form_id') . ' = ' . (int) $contentbuilderng_form_id);
         if ($editableOnly) {
-            $where .= " AND editable = 1";
+            $query->where($db->quoteName('editable') . ' = 1');
         }
-
-        $db->setQuery(
-            "SELECT reference_id, `type`
-             FROM #__contentbuilderng_elements
-             WHERE " . $where
-        );
+        $db->setQuery($query);
 
         $rows = $db->loadAssocList();
         if (!is_array($rows) || $rows === []) {
