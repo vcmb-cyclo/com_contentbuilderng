@@ -443,7 +443,7 @@ class HtmlView extends BaseHtmlView
             'content.contentbuilderng_image_scale' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_CONTENT_IMAGE_SCALE',
             'content.contentbuilderng_permission_observer' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_CONTENT_PERMISSION_OBSERVER',
             'content.contentbuilderng_rating' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_CONTENT_RATING',
-            'content.contentbuilderng_stats' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_CONTENT_STATS',
+            'content.contentbuilderng_cbstats' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_CONTENT_STATS',
             'content.contentbuilderng_verify' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_CONTENT_VERIFY',
             'contentbuilderng_listaction.trash' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_LISTACTION_TRASH',
             'contentbuilderng_listaction.untrash' => 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_LISTACTION_UNTRASH',

@@ -55,7 +55,7 @@ final class PluginNamespaceMigrationTest extends TestCase
             'content/image_scale'         => ['content', 'contentbuilderng_image_scale',         'ContentbuilderngImageScale',         'CB\Plugin\Content\ContentbuilderngImageScale\Extension'],
             'content/permission_observer' => ['content', 'contentbuilderng_permission_observer', 'ContentbuilderngPermissionObserver', 'CB\Plugin\Content\ContentbuilderngPermissionObserver\Extension'],
             'content/rating'              => ['content', 'contentbuilderng_rating',              'ContentbuilderngRating',             'CB\Plugin\Content\ContentbuilderngRating\Extension'],
-            'content/stats'               => ['content', 'contentbuilderng_stats',               'ContentbuilderngStats',              'CB\Plugin\Content\ContentbuilderngStats\Extension'],
+            'content/cbstats'             => ['content', 'contentbuilderng_cbstats',             'ContentbuilderngStats',              'CB\Plugin\Content\ContentbuilderngStats\Extension'],
             'content/verify'              => ['content', 'contentbuilderng_verify',              'ContentbuilderngVerify',             'CB\Plugin\Content\ContentbuilderngVerify\Extension'],
 
             'system/contentbuilderng_system' => ['system', 'contentbuilderng_system', 'ContentbuilderngSystem', 'CB\Plugin\System\ContentbuilderngSystem\Extension'],

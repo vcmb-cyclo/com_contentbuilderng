@@ -149,7 +149,7 @@ final class PluginInstallerService
                     $needsUpdate = !$installedVersion || !$manifestVersion
                         || version_compare((string) $installedVersion, (string) $manifestVersion, '<')
                         || ((string) $installedVersion !== (string) $manifestVersion)
-                        || ($folder === 'content' && $element === 'contentbuilderng_stats');
+                        || ($folder === 'content' && $element === 'contentbuilderng_cbstats');
 
                     if (!$needsUpdate) {
                         $this->log("[INFO] Plugin already installed: {$folder}/{$element} (version {$installedVersion})");
@@ -175,6 +175,8 @@ final class PluginInstallerService
                 }
             }
         }
+
+        $this->migrateRenamedPlugin('content', 'contentbuilderng_stats', 'contentbuilderng_cbstats');
     }
 
     public function activatePlugins(): void
@@ -590,8 +592,65 @@ final class PluginInstallerService
             'system' => ['contentbuilderng_system'],
             'contentbuilderng_submit' => ['submit_sample'],
             'contentbuilderng_listaction' => ['trash', 'untrash'],
-            'content' => ['contentbuilderng_verify', 'contentbuilderng_permission_observer', 'contentbuilderng_image_scale', 'contentbuilderng_download', 'contentbuilderng_rating', 'contentbuilderng_stats'],
+            'content' => ['contentbuilderng_verify', 'contentbuilderng_permission_observer', 'contentbuilderng_image_scale', 'contentbuilderng_download', 'contentbuilderng_rating', 'contentbuilderng_cbstats'],
         ];
+    }
+
+    private function migrateRenamedPlugin(string $folder, string $oldElement, string $newElement): void
+    {
+        $db = $this->db();
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['extension_id', 'element', 'enabled', 'access', 'ordering', 'params']))
+            ->from($db->quoteName('#__extensions'))
+            ->where($db->quoteName('type') . ' = ' . $db->quote('plugin'))
+            ->where($db->quoteName('folder') . ' = ' . $db->quote($folder))
+            ->whereIn($db->quoteName('element'), [$oldElement, $newElement], ParameterType::STRING);
+
+        try {
+            $db->setQuery($query);
+            $rows = $db->loadAssocList('element') ?: [];
+        } catch (\Throwable $e) {
+            $this->log("[WARNING] Failed reading {$folder}/{$oldElement} migration state: " . $e->getMessage(), Log::WARNING);
+            return;
+        }
+
+        if (!isset($rows[$oldElement], $rows[$newElement])) {
+            return;
+        }
+
+        $old = $rows[$oldElement];
+        $oldId = (int) ($old['extension_id'] ?? 0);
+        $newId = (int) ($rows[$newElement]['extension_id'] ?? 0);
+
+        if ($oldId < 1 || $newId < 1) {
+            return;
+        }
+
+        try {
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__extensions'))
+                ->set($db->quoteName('enabled') . ' = ' . (int) ($old['enabled'] ?? 0))
+                ->set($db->quoteName('access') . ' = ' . (int) ($old['access'] ?? 1))
+                ->set($db->quoteName('ordering') . ' = ' . (int) ($old['ordering'] ?? 0))
+                ->set($db->quoteName('params') . ' = ' . $db->quote((string) ($old['params'] ?? '')))
+                ->where($db->quoteName('extension_id') . ' = ' . $newId);
+            $db->setQuery($query);
+            $db->execute();
+
+            $installer = new Installer();
+            $installer->setDatabase(Factory::getContainer()->get(DatabaseInterface::class));
+
+            if (!$installer->uninstall('plugin', $oldId, 1)) {
+                $this->log("[WARNING] Installed {$folder}/{$newElement}, but could not remove {$folder}/{$oldElement}.", Log::WARNING);
+                return;
+            }
+
+            $this->log("[OK] Migrated plugin {$folder}/{$oldElement} to {$folder}/{$newElement}.");
+            $this->addUpdateHighlight("Plugin renamed: {$folder}/{$oldElement} -> {$folder}/{$newElement}");
+            $this->purgeCaches('migrateRenamedPlugin');
+        } catch (\Throwable $e) {
+            $this->log("[WARNING] Failed migrating {$folder}/{$oldElement} to {$folder}/{$newElement}: " . $e->getMessage(), Log::WARNING);
+        }
     }
 
     private function resolvePluginSourcePath(?string $source, string $folder, string $element): string

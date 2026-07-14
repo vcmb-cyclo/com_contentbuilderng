@@ -21,6 +21,29 @@ use Joomla\Database\DatabaseInterface;
 
 final class StatsService
 {
+    public const CBSTATS_ERROR_INVALID_ADD = 1001;
+    public const CBSTATS_ERROR_INVALID_TITLES = 1004;
+
+    public static function isFormDebugEnabled(int $formId): bool
+    {
+        if ($formId < 1) {
+            return false;
+        }
+
+        try {
+            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $query = $db->getQuery(true)
+                ->select($db->quoteName('debug_mode'))
+                ->from($db->quoteName('#__contentbuilderng_forms'))
+                ->where($db->quoteName('id') . ' = ' . $formId);
+            $db->setQuery($query, 0, 1);
+
+            return (int) $db->loadResult() === 1;
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
     public function getStatsPayload(int $formId, array $options = []): array
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
@@ -100,7 +123,7 @@ final class StatsService
             $languages[(string) ($languageRow['lang_code'] ?? '*')] = (int) ($languageRow['total'] ?? 0);
         }
 
-        $fieldStats = $this->getStatsFieldPayload($formId, $formRow, $options);
+        $fieldStats = $this->getStatsFieldPayload($formId, $formRow, $options, $statsFilter['field_where'] ?? null);
 
         return [
             'form' => [
@@ -143,6 +166,7 @@ final class StatsService
 
         return [
             'where' => $this->getStatsFilterWhere($formRow, $field, $filter['value']),
+            'field_where' => $this->getStatsFilterWhere($formRow, $field, $filter['value'], 'records'),
             'payload' => [
                 'field' => $filter['field'],
                 'value' => implode(' | ', $filter['value']),
@@ -169,18 +193,19 @@ final class StatsService
         return null;
     }
 
-    private function getStatsFilterWhere(array $formRow, array $field, array $values): string
+    private function getStatsFilterWhere(array $formRow, array $field, array $values, string $recordAlias = ''): string
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $recordIdColumn = $db->quoteName(($recordAlias !== '' ? $recordAlias . '.' : '') . 'record_id');
 
         return match ((string) $formRow['type']) {
-            'com_contentbuilderng' => $this->getContentbuilderngStatsFilterWhere($formRow, $field, $values),
-            'com_breezingforms' => $db->quoteName('record_id') . ' IN (' . $this->getBreezingFormsStatsFilterRecordQuery($formRow, $field, $values) . ')',
+            'com_contentbuilderng' => $this->getContentbuilderngStatsFilterWhere($formRow, $field, $values, $recordIdColumn),
+            'com_breezingforms' => $recordIdColumn . ' IN (' . $this->getBreezingFormsStatsFilterRecordQuery($formRow, $field, $values) . ')',
             default => '1 = 0',
         };
     }
 
-    private function getContentbuilderngStatsFilterWhere(array $formRow, array $field, array $values): string
+    private function getContentbuilderngStatsFilterWhere(array $formRow, array $field, array $values, string $recordIdColumn): string
     {
         $form = FormSourceFactory::getForm((string) $formRow['type'], (string) $formRow['reference_id']);
         $properties = is_object($form) && isset($form->properties) && is_object($form->properties) ? $form->properties : null;
@@ -197,7 +222,7 @@ final class StatsService
             ->from($db->quoteName($tableName, 'source'))
             ->where($this->buildStatsValueCondition($valueColumn, $values));
 
-        return $db->quoteName('record_id') . ' IN (' . (string) $query . ')';
+        return $recordIdColumn . ' IN (' . (string) $query . ')';
     }
 
     private function getBreezingFormsStatsFilterRecordQuery(array $formRow, array $field, array $values): string
@@ -235,7 +260,7 @@ final class StatsService
         return '(' . implode(' OR ', $conditions) . ')';
     }
 
-    private function getStatsFieldPayload(int $formId, array $formRow, array $options): ?array
+    private function getStatsFieldPayload(int $formId, array $formRow, array $options, ?string $statsFilterWhere): ?array
     {
         $requestedField = trim((string) ($options['field'] ?? ''));
 
@@ -249,8 +274,8 @@ final class StatsService
         }
 
         $values = match ((string) $formRow['type']) {
-            'com_contentbuilderng' => $this->getContentbuilderngStatsFieldValues($formRow, $field),
-            'com_breezingforms' => $this->getBreezingFormsStatsFieldValues($formRow, $field),
+            'com_contentbuilderng' => $this->getContentbuilderngStatsFieldValues($formRow, $field, $statsFilterWhere),
+            'com_breezingforms' => $this->getBreezingFormsStatsFieldValues($formRow, $field, $statsFilterWhere),
             default => [],
         };
 
@@ -322,6 +347,168 @@ final class StatsService
         return ['sum' => null, 'min' => $dates[0], 'max' => $dates[count($dates) - 1]];
     }
 
+    public static function resolveCbstatsOutput(array $payload, string $output): int|float|string
+    {
+        return match ($output) {
+            'total' => (int) ($payload['records']['total'] ?? 0),
+            'form_name' => self::resolveFormName($payload),
+            'sum', 'min', 'max' => self::resolveFieldAggregate($payload, $output),
+            default => throw new \InvalidArgumentException('Unsupported CBStats scalar output.'),
+        };
+    }
+
+    private static function resolveFormName(array $payload): string
+    {
+        $form = (array) ($payload['form'] ?? []);
+        $title = trim((string) ($form['title'] ?? ''));
+
+        return $title !== '' ? $title : trim((string) ($form['name'] ?? ''));
+    }
+
+    private static function resolveFieldAggregate(array $payload, string $output): int|float|string
+    {
+        $value = $payload['field'][$output] ?? null;
+
+        return $value === null ? 0 : $value;
+    }
+
+    /**
+     * @param array<int|string,int> $values
+     * @param array<int|string,int> $additions
+     * @param array<int|string,string> $titles
+     * @return list<array{label: string, value: int}>
+     */
+    public static function normalizeFieldStats(
+        array $values,
+        string $sort = 'none',
+        string $dir = 'asc',
+        ?string $locale = null,
+        array $additions = [],
+        array $titles = []
+    ): array
+    {
+        foreach ($additions as $label => $value) {
+            $current = (int) ($values[$label] ?? 0);
+            $value = (int) $value;
+
+            if ($value > 0 && $current > PHP_INT_MAX - $value) {
+                throw new \InvalidArgumentException('', self::CBSTATS_ERROR_INVALID_ADD);
+            }
+
+            $rawAddResult = $current + $value;
+            $effectiveAddResult = $rawAddResult < 0 ? 0 : $rawAddResult;
+            $values[$label] = $effectiveAddResult;
+        }
+
+        $items = [];
+
+        foreach ($values as $label => $value) {
+            $items[] = [
+                'label' => array_key_exists($label, $titles) ? $titles[$label] : (string) $label,
+                'value' => (int) $value,
+            ];
+        }
+
+        $sort = strtolower(trim($sort));
+        $dir = strtolower(trim($dir));
+        $direction = $dir === 'desc' ? -1 : 1;
+
+        if ($sort === 'title') {
+            $collator = new \Collator($locale ?? \Locale::getDefault());
+            $collator->setAttribute(\Collator::NUMERIC_COLLATION, \Collator::ON);
+            usort(
+                $items,
+                static fn(array $left, array $right): int => $direction * $collator->compare($left['label'], $right['label'])
+            );
+        } elseif ($sort === 'value') {
+            usort(
+                $items,
+                static fn(array $left, array $right): int => $direction * ($left['value'] <=> $right['value'])
+            );
+        }
+
+        return $items;
+    }
+
+    /**
+     * @return array<int|string,int>
+     */
+    public static function parseFieldStatsAdditions(string $add): array
+    {
+        $add = trim($add);
+
+        if ($add === '') {
+            return [];
+        }
+
+        $additions = [];
+
+        foreach (explode(';', $add) as $entry) {
+            $parts = explode('=', $entry, 2);
+            $label = trim((string) ($parts[0] ?? ''));
+            $rawValue = trim((string) ($parts[1] ?? ''));
+
+            if ($label === '' || count($parts) !== 2 || !preg_match('/^[+-]?\d+$/D', $rawValue)) {
+                throw new \InvalidArgumentException('', self::CBSTATS_ERROR_INVALID_ADD);
+            }
+
+            $negative = str_starts_with($rawValue, '-');
+            $unsignedValue = ltrim($rawValue, '+-');
+            $normalizedValue = ltrim($unsignedValue, '0');
+            $normalizedValue = $normalizedValue === '' ? '0' : $normalizedValue;
+            $maxInteger = (string) PHP_INT_MAX;
+
+            if (
+                strlen($normalizedValue) > strlen($maxInteger)
+                || (strlen($normalizedValue) === strlen($maxInteger) && strcmp($normalizedValue, $maxInteger) > 0)
+            ) {
+                throw new \InvalidArgumentException('', self::CBSTATS_ERROR_INVALID_ADD);
+            }
+
+            $value = (int) $normalizedValue * ($negative ? -1 : 1);
+            $current = (int) ($additions[$label] ?? 0);
+
+            if (
+                ($value > 0 && $current > PHP_INT_MAX - $value)
+                || ($value < 0 && $current < -PHP_INT_MAX - $value)
+            ) {
+                throw new \InvalidArgumentException('', self::CBSTATS_ERROR_INVALID_ADD);
+            }
+
+            $additions[$label] = $current + $value;
+        }
+
+        return $additions;
+    }
+
+    /**
+     * @return array<int|string,string>
+     */
+    public static function parseFieldStatsTitles(string $titles): array
+    {
+        $titles = trim($titles);
+
+        if ($titles === '') {
+            return [];
+        }
+
+        $mappings = [];
+
+        foreach (explode(';', $titles) as $entry) {
+            $parts = explode('=', $entry, 2);
+            $original = trim((string) ($parts[0] ?? ''));
+            $display = trim((string) ($parts[1] ?? ''));
+
+            if ($original === '' || $display === '' || count($parts) !== 2) {
+                throw new \InvalidArgumentException('', self::CBSTATS_ERROR_INVALID_TITLES);
+            }
+
+            $mappings[$original] = $display;
+        }
+
+        return $mappings;
+    }
+
     private static function isIsoDateValue(string $value): bool
     {
         if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})( \d{2}:\d{2}(:\d{2})?)?$/', $value, $matches)) {
@@ -389,7 +576,7 @@ final class StatsService
         return function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
     }
 
-    private function getContentbuilderngStatsFieldValues(array $formRow, array $field): array
+    private function getContentbuilderngStatsFieldValues(array $formRow, array $field, ?string $statsFilterWhere): array
     {
         $form = FormSourceFactory::getForm((string) $formRow['type'], (string) $formRow['reference_id']);
         $properties = is_object($form) && isset($form->properties) && is_object($form->properties) ? $form->properties : null;
@@ -401,6 +588,12 @@ final class StatsService
         $db = Factory::getContainer()->get(DatabaseInterface::class);
         $tableName = ((int) ($properties->bytable ?? 0) === 1 ? '' : '#__') . (string) $properties->name;
         $valueColumn = $db->quoteName('source.' . (string) $field['name']);
+        $recordWhere = $this->getStatsRecordWhere($formRow, 'records');
+
+        if ($statsFilterWhere !== null) {
+            $recordWhere[] = $statsFilterWhere;
+        }
+
         $query = $db->getQuery(true)
             ->select([
                 'TRIM(' . $valueColumn . ') AS ' . $db->quoteName('value'),
@@ -408,7 +601,7 @@ final class StatsService
             ])
             ->from($db->quoteName('#__contentbuilderng_records', 'records'))
             ->join('INNER', $db->quoteName($tableName, 'source') . ' ON ' . $db->quoteName('source.id') . ' = ' . $db->quoteName('records.record_id'))
-            ->where($this->getStatsRecordWhere($formRow, 'records'))
+            ->where($recordWhere)
             ->where('TRIM(' . $valueColumn . ') <> ' . $db->quote(''))
             ->group('TRIM(' . $valueColumn . ')')
             ->order('TRIM(' . $valueColumn . ')');
@@ -417,10 +610,16 @@ final class StatsService
         return $this->formatStatsFieldRows($db->loadAssocList() ?: []);
     }
 
-    private function getBreezingFormsStatsFieldValues(array $formRow, array $field): array
+    private function getBreezingFormsStatsFieldValues(array $formRow, array $field, ?string $statsFilterWhere): array
     {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
         $valueColumn = $db->quoteName('subrecords.value');
+        $recordWhere = $this->getStatsRecordWhere($formRow, 'records');
+
+        if ($statsFilterWhere !== null) {
+            $recordWhere[] = $statsFilterWhere;
+        }
+
         $query = $db->getQuery(true)
             ->select([
                 'TRIM(' . $valueColumn . ') AS ' . $db->quoteName('value'),
@@ -429,7 +628,7 @@ final class StatsService
             ->from($db->quoteName('#__contentbuilderng_records', 'records'))
             ->join('INNER', $db->quoteName('#__facileforms_records', 'bf_records') . ' ON ' . $db->quoteName('bf_records.id') . ' = ' . $db->quoteName('records.record_id'))
             ->join('INNER', $db->quoteName('#__facileforms_subrecords', 'subrecords') . ' ON ' . $db->quoteName('subrecords.record') . ' = ' . $db->quoteName('bf_records.id'))
-            ->where($this->getStatsRecordWhere($formRow, 'records'))
+            ->where($recordWhere)
             ->where($db->quoteName('bf_records.form') . ' = ' . (int) $formRow['reference_id'])
             ->where('('
                 . $db->quoteName('subrecords.element') . ' = ' . (int) $field['reference_id']

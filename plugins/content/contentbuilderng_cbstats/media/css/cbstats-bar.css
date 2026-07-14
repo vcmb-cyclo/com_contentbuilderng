@@ -1,0 +1,31 @@
+.cbstats-bar {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    margin-block: 1rem;
+    color: inherit;
+}
+
+.cbstats-bar-chart {
+    width: min(100%, 760px);
+    height: clamp(240px, calc(var(--cbstats-bar-items) * 42px + 64px), 760px);
+    margin-inline: auto;
+}
+
+.cbstats-bar-canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.cbstats-bar-empty {
+    display: block;
+    margin-block: 0.75rem;
+    color: inherit;
+}
+
+@media (max-width: 30rem) {
+    .cbstats-bar-chart {
+        height: clamp(240px, calc(var(--cbstats-bar-items) * 46px + 64px), 800px);
+    }
+}

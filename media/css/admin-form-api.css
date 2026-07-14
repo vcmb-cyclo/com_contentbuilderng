@@ -28,3 +28,18 @@
         white-space: normal;
         word-break: break-word;
     }
+
+    .cb-form-api-cbstats-examples {
+        display: grid;
+        gap: .4rem;
+        margin-bottom: 1rem;
+    }
+
+    .cb-form-api-cbstats-examples a {
+        width: fit-content;
+        max-width: 100%;
+    }
+
+    .cb-form-api-cbstats-row td {
+        vertical-align: top;
+    }

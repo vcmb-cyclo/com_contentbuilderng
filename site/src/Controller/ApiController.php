@@ -22,6 +22,7 @@ use CB\Component\Contentbuilderng\Site\Model\DetailsModel;
 use CB\Component\Contentbuilderng\Site\Model\EditModel;
 use CB\Component\Contentbuilderng\Site\Model\ListModel;
 use CB\Component\Contentbuilderng\Site\Service\SparseFieldsetService;
+use CB\Component\Contentbuilderng\Site\Service\StatsFilterValueService;
 use CB\Component\Contentbuilderng\Site\Service\StatsService;
 use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
@@ -58,6 +59,8 @@ class ApiController extends BaseController
     #[\Override]
     public function display($cachable = false, $urlparams = []): void
     {
+        $formId = 0;
+
         try {
             $formId = (int) $this->input->getInt('id', 0);
             $recordId = (int) $this->input->getInt('record_id', 0);
@@ -97,6 +100,18 @@ class ApiController extends BaseController
             $this->assertApiPermissions((new ApiPermissionRequirementService())->getRequiredPermissions($method, $action, $recordId));
 
             if ($action !== '') {
+                if ($action === 'cbstats') {
+                    $output = $this->getCbstatsOutput();
+                    $payload = $this->getCbstatsPayload($formId, $output);
+
+                    if ($output === 'json') {
+                        $this->sendRawJson((array) $payload);
+                    } else {
+                        $this->sendJson($payload);
+                    }
+                    return;
+                }
+
                 $payload = $this->handleAction($action, $formId, $recordId);
                 $payload = $this->applySparseFieldsets($payload, $method);
                 $this->sendJson($payload);
@@ -134,7 +149,7 @@ class ApiController extends BaseController
 
             throw new \RuntimeException('Unsupported HTTP method', 405);
         } catch (\Throwable $e) {
-            $this->sendJsonError($e);
+            $this->sendJsonError($e, $formId);
         }
     }
 
@@ -159,6 +174,99 @@ class ApiController extends BaseController
                 'value' => trim((string) ($filter['value'] ?? '')),
             ],
         ]);
+    }
+
+    private function getCbstatsOutput(): string
+    {
+        $output = strtolower(trim((string) $this->input->getCmd('output', 'json')));
+        $supportedOutputs = ['json', 'total', 'sum', 'min', 'max', 'form_name'];
+
+        if (!in_array($output, $supportedOutputs, true)) {
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_INVALID_OUTPUT'), 400);
+        }
+
+        return $output;
+    }
+
+    private function getCbstatsPayload(int $formId, string $output): array|int|float|string
+    {
+        $fieldOutputs = ['json', 'sum', 'min', 'max'];
+
+        $field = trim((string) $this->input->getString('field', ''));
+
+        if (in_array($output, $fieldOutputs, true) && $field === '') {
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_FIELD_REQUIRED'), 400);
+        }
+
+        $filter = (array) $this->input->get('filter', [], 'array');
+        $rawFilterField = $filter['field'] ?? '';
+        $rawFilterValue = $filter['value'] ?? '';
+
+        if (!is_scalar($rawFilterField) || !is_scalar($rawFilterValue)) {
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_INVALID_FILTER'), 400);
+        }
+
+        $filterField = trim((string) $rawFilterField);
+        $filterValue = trim((string) $rawFilterValue);
+
+        if (($filterField === '') !== ($filterValue === '')) {
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_INVALID_FILTER'), 400);
+        }
+
+        $filterValues = (new StatsFilterValueService())->parseAlternatives($filterValue);
+
+        if ($filterValue !== '' && $filterValues === []) {
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_INVALID_FILTER'), 400);
+        }
+
+        $payload = (new StatsService())->getStatsPayload($formId, [
+            'field' => $field,
+            'filter' => [
+                'field' => $filterField,
+                'value' => $filterValue,
+                'values' => $filterValues,
+            ],
+        ]);
+
+        if ($output === 'json') {
+            $sort = strtolower(trim((string) $this->input->getCmd('sort', 'none')));
+            $dir = strtolower(trim((string) $this->input->getCmd('dir', 'asc')));
+            $add = trim((string) $this->input->getString('add', ''));
+            $titles = trim((string) $this->input->getString('titles', ''));
+
+            if (!in_array($sort, ['none', 'title', 'value'], true)) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_INVALID_SORT'), 400);
+            }
+
+            if (!in_array($dir, ['asc', 'desc'], true)) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_INVALID_DIR'), 400);
+            }
+
+            try {
+                return StatsService::normalizeFieldStats(
+                    (array) ($payload['field']['values'] ?? []),
+                    $sort,
+                    $dir,
+                    $this->siteApp->getLanguage()->getTag(),
+                    StatsService::parseFieldStatsAdditions($add),
+                    StatsService::parseFieldStatsTitles($titles)
+                );
+            } catch (\InvalidArgumentException $exception) {
+                throw new \RuntimeException($this->getCbstatsFieldStatsErrorMessage($exception), 400, $exception);
+            }
+        }
+
+        return StatsService::resolveCbstatsOutput($payload, $output);
+    }
+
+    private function getCbstatsFieldStatsErrorMessage(\InvalidArgumentException $exception): string
+    {
+        return match ($exception->getCode()) {
+            StatsService::CBSTATS_ERROR_INVALID_TITLES => Text::_(
+                'COM_CONTENTBUILDERNG_API_CBSTATS_INVALID_TITLES'
+            ),
+            default => Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_INVALID_ADD'),
+        };
     }
 
     private function applySparseFieldsets(array $payload, string $method): array
@@ -983,7 +1091,7 @@ class ApiController extends BaseController
         return $mapped > 0 ? $mapped : $requestedRecordId;
     }
 
-    private function sendJson(array $payload): void
+    private function sendJson(mixed $payload): void
     {
         $response = [
             'success' => true,
@@ -998,7 +1106,16 @@ class ApiController extends BaseController
         $this->siteApp->close();
     }
 
-    private function sendJsonError(\Throwable $e): void
+    private function sendRawJson(array $payload): void
+    {
+        $this->siteApp->setHeader('Content-Type', 'application/json; charset=utf-8', true);
+        $this->siteApp->sendHeaders();
+        $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+        echo $json === false ? '[]' : $json;
+        $this->siteApp->close();
+    }
+
+    private function sendJsonError(\Throwable $e, int $formId): void
     {
         $code = (int) $e->getCode();
         if ($code < 100 || $code > 599) {
@@ -1008,9 +1125,19 @@ class ApiController extends BaseController
             http_response_code($code);
         }
 
+        Logger::warning('API request failed', [
+            'form_id' => $formId,
+            'status' => $code,
+            'exception' => $e::class,
+            'message' => $e->getMessage(),
+        ]);
+
+        $showDetails = $code >= 400
+            && $code < 500
+            && StatsService::isFormDebugEnabled($formId);
         $response = [
             'success' => false,
-            'messages' => [$e->getMessage()],
+            'messages' => [$showDetails ? $e->getMessage() : $this->getPublicApiErrorMessage($code)],
             'data' => null,
         ];
 
@@ -1019,6 +1146,15 @@ class ApiController extends BaseController
         $json = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
         echo $json === false ? '{"success":false,"messages":["JSON encoding error"],"data":null}' : $json;
         $this->siteApp->close();
+    }
+
+    private function getPublicApiErrorMessage(int $code): string
+    {
+        return match (true) {
+            $code === 400, $code === 405 => Text::_('COM_CONTENTBUILDERNG_API_ERROR_INVALID_REQUEST'),
+            $code === 401, $code === 403 => Text::_('COM_CONTENTBUILDERNG_API_ERROR_ACCESS_DENIED'),
+            default => Text::_('COM_CONTENTBUILDERNG_API_ERROR_RESOURCE_UNAVAILABLE'),
+        };
     }
 
     /**

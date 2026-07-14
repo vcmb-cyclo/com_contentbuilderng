@@ -453,7 +453,7 @@ class com_contentbuilderngInstallerScript
                 $this->log($finishedMessage, Log::INFO);
                 $this->cleanupComponentLogFile();
             } else {
-                $auditUrl = Route::_('index.php?option=com_contentbuilderng&view=about#cb-audit-section', false);
+                $auditUrl = (string) Route::_('index.php?option=com_contentbuilderng&view=about#cb-audit-section', false);
                 $auditLink = '<a href="' . htmlspecialchars($auditUrl, ENT_QUOTES, 'UTF-8') . '">'
                     . '<strong>' . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT'), ENT_QUOTES, 'UTF-8') . '</strong>'
                     . '</a>';
@@ -557,7 +557,7 @@ class com_contentbuilderngInstallerScript
 
         $message = '[ERROR] ContentBuilder NG update cannot copy files because some installed files or directories are not writable by Joomla.'
             . '<br>Fix ownership/permissions before reinstalling. On the standard Docker container, run:'
-            . '<br><code>docker exec joomla6-joomla-1 chown -R www-data:www-data /var/www/html/administrator/components/com_contentbuilderng /var/www/html/components/com_contentbuilderng /var/www/html/media/com_contentbuilderng /var/www/html/plugins/system/contentbuilderng_system /var/www/html/plugins/content/contentbuilderng_verify /var/www/html/plugins/content/contentbuilderng_permission_observer /var/www/html/plugins/content/contentbuilderng_image_scale /var/www/html/plugins/content/contentbuilderng_download /var/www/html/plugins/content/contentbuilderng_rating /var/www/html/plugins/content/contentbuilderng_stats /var/www/html/plugins/contentbuilderng_listaction /var/www/html/plugins/contentbuilderng_validation /var/www/html/plugins/contentbuilderng_themes /var/www/html/plugins/contentbuilderng_submit /var/www/html/plugins/contentbuilderng_verify</code>'
+            . '<br><code>docker exec joomla6-joomla-1 chown -R www-data:www-data /var/www/html/administrator/components/com_contentbuilderng /var/www/html/components/com_contentbuilderng /var/www/html/media/com_contentbuilderng /var/www/html/media/plg_content_contentbuilderng_cbstats /var/www/html/media/plg_content_contentbuilderng_stats /var/www/html/plugins/system/contentbuilderng_system /var/www/html/plugins/content/contentbuilderng_verify /var/www/html/plugins/content/contentbuilderng_permission_observer /var/www/html/plugins/content/contentbuilderng_image_scale /var/www/html/plugins/content/contentbuilderng_download /var/www/html/plugins/content/contentbuilderng_rating /var/www/html/plugins/content/contentbuilderng_cbstats /var/www/html/plugins/content/contentbuilderng_stats /var/www/html/plugins/contentbuilderng_listaction /var/www/html/plugins/contentbuilderng_validation /var/www/html/plugins/contentbuilderng_themes /var/www/html/plugins/contentbuilderng_submit /var/www/html/plugins/contentbuilderng_verify</code>'
             . '<br>Examples of blocked paths:<ul>' . implode('', $lines) . '</ul>';
 
         $this->log($message, Log::ERROR);
@@ -570,12 +570,15 @@ class com_contentbuilderngInstallerScript
             JPATH_ADMINISTRATOR . '/components/com_contentbuilderng',
             JPATH_ROOT . '/components/com_contentbuilderng',
             JPATH_ROOT . '/media/com_contentbuilderng',
+            JPATH_ROOT . '/media/plg_content_contentbuilderng_cbstats',
+            JPATH_ROOT . '/media/plg_content_contentbuilderng_stats',
             JPATH_ROOT . '/plugins/system/contentbuilderng_system',
             JPATH_ROOT . '/plugins/content/contentbuilderng_verify',
             JPATH_ROOT . '/plugins/content/contentbuilderng_permission_observer',
             JPATH_ROOT . '/plugins/content/contentbuilderng_image_scale',
             JPATH_ROOT . '/plugins/content/contentbuilderng_download',
             JPATH_ROOT . '/plugins/content/contentbuilderng_rating',
+            JPATH_ROOT . '/plugins/content/contentbuilderng_cbstats',
             JPATH_ROOT . '/plugins/content/contentbuilderng_stats',
             JPATH_ROOT . '/plugins/contentbuilderng_listaction',
             JPATH_ROOT . '/plugins/contentbuilderng_validation',

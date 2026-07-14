@@ -91,4 +91,34 @@ final class StatsServiceAggregatesTest extends TestCase
         $this->assertSame(7.0, $aggregates['max']);
         $this->assertSame(207.0, $aggregates['sum']);
     }
+
+    public function testResolvesCbstatsScalarOutputsFromTheSharedPayload(): void
+    {
+        $payload = [
+            'form' => ['name' => 'Internal name', 'title' => 'Public title'],
+            'records' => ['total' => 31],
+            'field' => ['sum' => 48.5, 'min' => -2.5, 'max' => 12.0],
+        ];
+
+        self::assertSame(31, StatsService::resolveCbstatsOutput($payload, 'total'));
+        self::assertSame('Public title', StatsService::resolveCbstatsOutput($payload, 'form_name'));
+        self::assertSame(48.5, StatsService::resolveCbstatsOutput($payload, 'sum'));
+        self::assertSame(-2.5, StatsService::resolveCbstatsOutput($payload, 'min'));
+        self::assertSame(12.0, StatsService::resolveCbstatsOutput($payload, 'max'));
+    }
+
+    public function testCbstatsScalarOutputsPreserveHistoricalFallbacks(): void
+    {
+        $payload = [
+            'form' => ['name' => 'Internal name', 'title' => ''],
+            'records' => [],
+            'field' => ['sum' => null, 'min' => '2026-01-02', 'max' => '2026-03-04'],
+        ];
+
+        self::assertSame(0, StatsService::resolveCbstatsOutput($payload, 'total'));
+        self::assertSame('Internal name', StatsService::resolveCbstatsOutput($payload, 'form_name'));
+        self::assertSame(0, StatsService::resolveCbstatsOutput($payload, 'sum'));
+        self::assertSame('2026-01-02', StatsService::resolveCbstatsOutput($payload, 'min'));
+        self::assertSame('2026-03-04', StatsService::resolveCbstatsOutput($payload, 'max'));
+    }
 }

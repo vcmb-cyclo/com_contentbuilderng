@@ -265,6 +265,103 @@ Exemple :
 filter[value]=200 km* | 300 km*
 ```
 
+### Plugin de contenu et API URL CBStats
+
+Le plugin de contenu CBStats utilise une source normalisée unique pour ses sorties
+Table, JSON, Pie et Bar. Son contrat JSON est un tableau brut contenant des
+libellés sous forme de chaînes et des valeurs entières :
+
+```text
+{CBStats id=3 field=NomDuChamp output=json sort=title dir=asc}
+```
+
+```json
+[
+  {"label":"Valeur A","value":12},
+  {"label":"Valeur B","value":7}
+]
+```
+
+Le même moteur est disponible via ce point d'entrée ContentBuilder NG existant :
+
+```text
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&field=NomDuChamp&output=json
+```
+
+#### Sorties URL prises en charge
+
+| `output` | Réponse | `field` obligatoire |
+| --- | --- | --- |
+| `json` | Tableau normalisé brut | Oui |
+| `total` | Nombre d'enregistrements correspondants | Non |
+| `sum` | Somme numérique pondérée | Oui |
+| `min`, `max` | Minimum/maximum numérique, ou borne chronologique d'une date ISO | Oui |
+| `form_name` | Titre ou nom de la vue | Non |
+
+En l'absence de `output`, le point d'accès utilise `json` par défaut ; `field` est
+donc obligatoire. `table`, `pie` et `bar` restent réservés au contenu et sont
+refusés par l'API URL. JSON réutilise le traitement commun de `add` signé et de
+`titles`.
+
+#### Paramètres
+
+- `id` : identifiant positif obligatoire de la vue ContentBuilder NG ;
+- `field` : obligatoire pour `json`, `sum`, `min` et `max` ;
+- `filter[field]` et `filter[value]` : facultatifs, mais obligatoirement fournis ensemble ;
+- `sort=none|title|value` : facultatif et lu uniquement pour `json`, défaut `none` ;
+- `dir=asc|desc` : facultatif et lu uniquement pour `json`, défaut `asc`.
+- `add=Libellé=EntierSigné;...` : facultatif et lu uniquement pour `json` ;
+- `titles=Original=Titre affiché;...` : facultatif et lu uniquement pour `json`.
+
+Les sorties scalaires ignorent `sort` et `dir`.
+
+Les valeurs de filtre sont nettoyées de leurs espaces de début et de fin. `*`
+représente une suite quelconque de caractères et `|` sépare les alternatives. Un
+filtre fourni doit contenir au moins une alternative non vide.
+`sort=none` conserve l'ordre naturel du moteur, `sort=title` applique un ordre
+naturel des titres affichés finaux selon la langue active et `sort=value` compare
+les nombres finaux. Si un résultat de `add` est négatif, CBStats utilise
+temporairement `0` pour ce libellé avant les titres, le tri, les pourcentages et
+l'output. Les données sources restent inchangées et un résultat ultérieur nul ou
+positif est utilisé normalement. Cette règle s'applique aussi à un libellé absent
+recevant un delta négatif. Les mappings de titres ne modifient que l'affichage et
+ne fusionnent jamais les catégories.
+
+Exemples complets :
+
+```text
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&output=total
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&output=form_name
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&field=Montant&output=sum
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&field=Montant&output=min
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&field=Montant&output=max
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&field=Catégorie&output=json&filter[field]=Statut&filter[value]=Ouvert*%20%7C%20En%20attente&sort=value&dir=desc
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&field=Catégorie&output=json&add=1%3D-2%3B2%3D3&titles=1%3DGroupe%201%3B2%3DGroupe%202
+```
+
+#### Réponses, permissions et DEBUG
+
+`output=json` retourne le tableau brut présenté ci-dessus, directement comparable
+à la sortie JSON d'une balise d'article. Les sorties scalaires utilisent
+l'enveloppe de succès API standard :
+
+
+```json
+{"success":true,"messages":[],"data":31}
+```
+
+`action=cbstats` exige la permission **Stats** de la vue. Il n'ajoute volontairement
+pas la permission API générale utilisée par les points d'accès aux listes et aux
+détails d'enregistrements. Un champ demandé doit néanmoins être publié et autorisé
+pour API/Stats. La requête utilise l'identité et la session Joomla courantes ;
+DEBUG ne modifie jamais ces permissions.
+
+Lorsque DEBUG est désactivé sur la vue, les erreurs utilisent l'enveloppe API sobre
+et n'énumèrent ni les sorties prises en charge, ni les vues ou champs inaccessibles.
+Lorsque DEBUG est activé, les diagnostics 4xx sûrs peuvent être plus précis. Les
+erreurs serveur restent génériques. L'API n'exige et n'utilise aucun paramètre de
+requête `debug=1` supplémentaire.
+
 ## Sparse fieldsets
 
 Sur les requêtes `GET` :

@@ -513,13 +513,13 @@ $renderNumberedAuditTitle = static function (string $sectionId, string $label, b
     </div>
 </div>
 
-<?php require __DIR__ . '/repair_workflow.php'; ?>
+<?php require __DIR__ . '/version_summary.php'; ?>
 
 <?php require __DIR__ . '/audit_report.php'; ?>
 
 <?php require __DIR__ . '/log.php'; ?>
 
-<?php require __DIR__ . '/version_summary.php'; ?>
+<?php require __DIR__ . '/repair_workflow.php'; ?>
 
 <?php require __DIR__ . '/php_libraries.php'; ?>
 

@@ -1,0 +1,74 @@
+{
+    "$schema": "https://developer.joomla.org/schemas/json-schema/web_assets.json",
+    "name": "plg_content_contentbuilderng_cbstats",
+    "version": "6.1.7",
+    "description": "ContentBuilder NG Stats frontend assets",
+    "license": "GPL-2.0-or-later",
+    "assets": [
+        {
+            "name": "plg_content_contentbuilderng_cbstats.data",
+            "type": "style",
+            "uri": "plg_content_contentbuilderng_cbstats/cbstats-data.css"
+        },
+        {
+            "name": "plg_content_contentbuilderng_cbstats.chartjs",
+            "type": "script",
+            "uri": "plg_content_contentbuilderng_cbstats/vendor/chart.umd.min.js",
+            "version": "4.5.1"
+        },
+        {
+            "name": "plg_content_contentbuilderng_cbstats.pie",
+            "type": "script",
+            "uri": "plg_content_contentbuilderng_cbstats/cbstats-pie.js",
+            "dependencies": [
+                "plg_content_contentbuilderng_cbstats.chartjs"
+            ],
+            "attributes": {
+                "defer": true
+            }
+        },
+        {
+            "name": "plg_content_contentbuilderng_cbstats.pie",
+            "type": "style",
+            "uri": "plg_content_contentbuilderng_cbstats/cbstats-pie.css",
+            "dependencies": [
+                "plg_content_contentbuilderng_cbstats.data"
+            ]
+        },
+        {
+            "name": "plg_content_contentbuilderng_cbstats.pie",
+            "type": "preset",
+            "dependencies": [
+                "plg_content_contentbuilderng_cbstats.pie#script",
+                "plg_content_contentbuilderng_cbstats.pie#style"
+            ]
+        },
+        {
+            "name": "plg_content_contentbuilderng_cbstats.bar",
+            "type": "script",
+            "uri": "plg_content_contentbuilderng_cbstats/cbstats-bar.js",
+            "dependencies": [
+                "plg_content_contentbuilderng_cbstats.chartjs"
+            ],
+            "attributes": {
+                "defer": true
+            }
+        },
+        {
+            "name": "plg_content_contentbuilderng_cbstats.bar",
+            "type": "style",
+            "uri": "plg_content_contentbuilderng_cbstats/cbstats-bar.css",
+            "dependencies": [
+                "plg_content_contentbuilderng_cbstats.pie"
+            ]
+        },
+        {
+            "name": "plg_content_contentbuilderng_cbstats.bar",
+            "type": "preset",
+            "dependencies": [
+                "plg_content_contentbuilderng_cbstats.bar#script",
+                "plg_content_contentbuilderng_cbstats.bar#style"
+            ]
+        }
+    ]
+}

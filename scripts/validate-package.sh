@@ -19,6 +19,9 @@ required=(
     "site/src/Controller/ApiController.php"
     "media/joomla.asset.json"
     "plugins/system/contentbuilderng_system/contentbuilderng_system.xml"
+    "plugins/content/contentbuilderng_cbstats/contentbuilderng_cbstats.xml"
+    "plugins/content/contentbuilderng_cbstats/services/provider.php"
+    "plugins/content/contentbuilderng_cbstats/media/joomla.asset.json"
 )
 
 for path in "${required[@]}"; do
@@ -35,6 +38,7 @@ forbidden_patterns=(
     '^admin/vendor/sebastian/'
     '^admin/\.phpunit'
     '/\.git/'
+    '^plugins/content/contentbuilderng_stats/'
 )
 
 for pattern in "${forbidden_patterns[@]}"; do

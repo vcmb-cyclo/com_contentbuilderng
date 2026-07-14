@@ -1,0 +1,81 @@
+.cbstats-pie {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    margin-block: 1rem;
+    color: inherit;
+}
+
+.cbstats-pie-chart {
+    width: min(100%, 320px);
+    aspect-ratio: 1;
+    margin-inline: auto;
+}
+
+.cbstats-pie-canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.cbstats-pie-legend {
+    width: fit-content;
+    max-width: min(100%, 42rem);
+    margin: 1rem auto 0;
+    border-block-start: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.cbstats-pie-legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+    border-block-end: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.cbstats-pie-swatch {
+    width: 0.7rem;
+    height: 0.7rem;
+    margin-block-start: 0.2rem;
+    border-radius: 50%;
+    background: var(--cbstats-color);
+}
+
+.cbstats-pie-label {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.cbstats-pie-value {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.cbstats-pie-total {
+    display: flex;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0.75rem auto 0;
+    padding: 0.35rem 0.75rem;
+    align-items: baseline;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+    border-radius: 6px;
+    background: color-mix(in srgb, currentColor 5%, transparent);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.cbstats-pie-empty {
+    display: block;
+    margin-block: 0.75rem;
+    color: inherit;
+}
+
+@media (max-width: 30rem) {
+    .cbstats-pie-value {
+        flex-basis: auto;
+        white-space: normal;
+    }
+}

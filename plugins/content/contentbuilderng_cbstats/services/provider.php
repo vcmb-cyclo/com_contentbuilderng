@@ -18,7 +18,7 @@ return new class implements ServiceProviderInterface {
             static function (Container $container) {
                 $plugin = new ContentbuilderngStats(
                     $container->get(DispatcherInterface::class),
-                    (array) PluginHelper::getPlugin('content', 'contentbuilderng_stats')
+                    (array) PluginHelper::getPlugin('content', 'contentbuilderng_cbstats')
                 );
                 $plugin->setApplication(Factory::getApplication());
 

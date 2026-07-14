@@ -68,6 +68,19 @@ final class OpenApiSpecService
                         'data' => ['type' => 'object'],
                     ],
                 ],
+                'CbstatsScalarSuccessEnvelope' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'success' => ['type' => 'boolean', 'example' => true],
+                        'messages' => ['type' => 'array', 'items' => ['type' => 'string']],
+                        'data' => [
+                            'oneOf' => [
+                                ['type' => 'number', 'example' => 31],
+                                ['type' => 'string', 'example' => 'Public contacts'],
+                            ],
+                        ],
+                    ],
+                ],
                 'ErrorEnvelope' => [
                     'type' => 'object',
                     'properties' => [
@@ -158,17 +171,45 @@ final class OpenApiSpecService
                     'description' => 'Group stats by this field (resolved by reference, name, or label; '
                         . 'must be published and API-authorized). Adds sum/min/max to the field payload '
                         . 'when every distinct value is numeric or an ISO date.',
-                    'schema' => ['type' => 'string'], 'example' => 'Route',
+                    'schema' => ['type' => 'string'], 'example' => 'Category',
                 ],
                 'StatsFilterFieldParam' => [
                     'name' => 'filter[field]', 'in' => 'query', 'required' => false,
-                    'schema' => ['type' => 'string'], 'example' => 'Route',
+                    'schema' => ['type' => 'string'], 'example' => 'Status',
                 ],
                 'StatsFilterValueParam' => [
                     'name' => 'filter[value]', 'in' => 'query', 'required' => false,
                     'description' => 'Leading/trailing spaces ignored. "*" matches any character sequence; '
-                        . '"|" separates alternatives, e.g. "200 km* | 300 km*".',
-                    'schema' => ['type' => 'string'], 'example' => '200 km*',
+                        . '"|" separates alternatives, e.g. "Open* | Pending".',
+                    'schema' => ['type' => 'string'], 'example' => 'Open* | Pending',
+                ],
+                'CbstatsOutputParam' => [
+                    'name' => 'output', 'in' => 'query', 'required' => false,
+                    'description' => 'CBStats URL data output. Defaults to json. HTML and chart outputs are not supported.',
+                    'schema' => ['type' => 'string', 'enum' => ['json', 'total', 'sum', 'min', 'max', 'form_name']],
+                    'example' => 'json',
+                ],
+                'CbstatsSortParam' => [
+                    'name' => 'sort', 'in' => 'query', 'required' => false,
+                    'description' => 'Sort normalized JSON field statistics. Defaults to none, which preserves natural order.',
+                    'schema' => ['type' => 'string', 'enum' => ['none', 'title', 'value']], 'example' => 'title',
+                ],
+                'CbstatsDirParam' => [
+                    'name' => 'dir', 'in' => 'query', 'required' => false,
+                    'description' => 'JSON sort direction. Defaults to asc.',
+                    'schema' => ['type' => 'string', 'enum' => ['asc', 'desc']], 'example' => 'asc',
+                ],
+                'CbstatsAddParam' => [
+                    'name' => 'add', 'in' => 'query', 'required' => false,
+                    'description' => 'Signed JSON count deltas as Label=SignedInteger entries separated by semicolons. '
+                        . 'A negative final result is temporarily normalized to zero before sorting and output.',
+                    'schema' => ['type' => 'string'], 'example' => '1=-2;2=3',
+                ],
+                'CbstatsTitlesParam' => [
+                    'name' => 'titles', 'in' => 'query', 'required' => false,
+                    'description' => 'JSON display-label mappings as Original=Display title entries separated by semicolons. '
+                        . 'Mappings apply after add and before sorting and do not merge categories.',
+                    'schema' => ['type' => 'string'], 'example' => '1=Group 1;2=Group 2',
                 ],
             ],
             'responses' => [
@@ -324,6 +365,59 @@ final class OpenApiSpecService
                                         'values' => ['200 km' => 12, '300 km' => 19],
                                     ],
                                 ],
+                            ]]],
+                        ],
+                        'default' => $errorResponse,
+                    ],
+                ],
+            ],
+            '/index.php?task=api.display&action=cbstats' => [
+                'get' => [
+                    'summary' => 'CBStats URL data outputs',
+                    'description' => 'Permission: Stats only; the general API permission is not additionally required. '
+                        . 'Requested fields must be published and API/Stats-enabled. output=json returns the same raw normalized array as '
+                        . '{CBStats id=ViewID field=FieldName output=json}. Scalar outputs use the standard success '
+                        . 'envelope. Errors stay concise unless view DEBUG enables safe 4xx diagnostics; DEBUG never changes permissions.',
+                    'parameters' => [
+                        $optionRef,
+                        ['name' => 'task', 'in' => 'query', 'required' => true, 'schema' => ['type' => 'string', 'enum' => ['api.display']]],
+                        $idRef,
+                        $formatRef,
+                        ['name' => 'action', 'in' => 'query', 'required' => true, 'schema' => ['type' => 'string', 'enum' => ['cbstats']]],
+                        [
+                            'name' => 'field', 'in' => 'query', 'required' => false,
+                            'description' => 'Required for json, sum, min and max; not required for total or form_name. '
+                                . 'Resolved by reference, name, or label; must be published and API-authorized.',
+                            'schema' => ['type' => 'string'], 'example' => 'FieldName',
+                        ],
+                        ['$ref' => '#/components/parameters/CbstatsOutputParam'],
+                        ['$ref' => '#/components/parameters/StatsFilterFieldParam'],
+                        ['$ref' => '#/components/parameters/StatsFilterValueParam'],
+                        ['$ref' => '#/components/parameters/CbstatsSortParam'],
+                        ['$ref' => '#/components/parameters/CbstatsDirParam'],
+                        ['$ref' => '#/components/parameters/CbstatsAddParam'],
+                        ['$ref' => '#/components/parameters/CbstatsTitlesParam'],
+                    ],
+                    'responses' => [
+                        '200' => [
+                            'description' => 'Raw normalized records for json, or a success envelope for scalar outputs.',
+                            'content' => ['application/json' => ['schema' => [
+                                'oneOf' => [
+                                    [
+                                        'type' => 'array',
+                                        'items' => [
+                                            'type' => 'object',
+                                            'properties' => [
+                                                'label' => ['type' => 'string'],
+                                                'value' => ['type' => 'integer'],
+                                            ],
+                                        ],
+                                    ],
+                                    ['$ref' => '#/components/schemas/CbstatsScalarSuccessEnvelope'],
+                                ],
+                            ], 'example' => [
+                                ['label' => 'Value A', 'value' => 12],
+                                ['label' => 'Value B', 'value' => 7],
                             ]]],
                         ],
                         'default' => $errorResponse,

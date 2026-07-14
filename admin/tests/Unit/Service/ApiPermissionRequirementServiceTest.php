@@ -37,6 +37,7 @@ final class ApiPermissionRequirementServiceTest extends TestCase
             'list GET requires API, View, and List Access' => ['GET', '', 0, ['api', 'view', 'listaccess']],
             'stats requires only Stats' => ['GET', 'stats', 0, ['stats']],
             'stats with record id still requires only Stats' => ['GET', 'stats', 238, ['stats']],
+            'cbstats requires only Stats' => ['GET', 'cbstats', 0, ['stats']],
             'update PUT requires API and Edit' => ['PUT', '', 238, ['api', 'edit']],
             'update PATCH requires API and Edit' => ['PATCH', '', 238, ['api', 'edit']],
             'update POST requires API and Edit' => ['POST', '', 238, ['api', 'edit']],

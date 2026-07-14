@@ -16,7 +16,7 @@ final class ApiPermissionRequirementService
         $method = strtoupper(trim($method));
         $action = trim($action);
 
-        if ($action === 'stats') {
+        if (in_array($action, ['stats', 'cbstats'], true)) {
             return ['stats'];
         }
 

@@ -118,22 +118,100 @@ Balises détectées :
 {CBStats ...}
 ```
 
-Exemple de statistiques :
+CBStats insère dans les contenus Joomla des statistiques dynamiques provenant
+d'une vue ContentBuilder NG. Sa syntaxe générale est :
+
+```text
+{CBStats id=IdVue ...}
+```
+
+Exemples :
 
 ```text
 {CBStats id=25 output=total}
 {CBStats id=25 output=form_name}
 {CBStats id=25 field=Parcours output=table}
+{CBStats id=25 field=Parcours output=json sort=title dir=asc}
+{CBStats id=25 field=Parcours output=pie sort=value dir=desc}
+{CBStats id=25 field=Parcours output=bar sort=value dir=desc}
+{CBStats id=25 field=Catégorie output=pie add="Existant=-2;Externe=3"}
+{CBStats id=25 field=Catégorie output=table titles="1=Groupe 1;2=Groupe 2"}
+{CBStats id=25 field=Catégorie output=bar add="1=-2;2=3" titles="1=Groupe 1;2=Groupe 2" sort=value dir=desc}
 {CBStats id=25 field=Parcours output=sum}
 {CBStats id=25 field=Parcours output=min}
 {CBStats id=25 field=Parcours output=max}
-{CBStats id=25 filter[field]=Parcours filter[value]="200 km*" output=total}
+{CBStats id=25 filter[field]=Statut filter[value]="Ouvert" output=total}
+{CBStats id=25 filter[field]=Statut filter[value]="Ouvert*" output=total}
+{CBStats id=25 filter[field]=Statut filter[value]="Ouvert* | En attente" output=total}
 ```
 
-Les valeurs `output` prises en charge par `CBStats` sont `total`, `table`, `form_name`,
-`sum`, `min` et `max`. `sum`, `min` et `max` nécessitent `field=NomDuChamp` et ne
-considèrent que les enregistrements dont la valeur du champ est numérique ; elles
-retournent `0` dès qu'une valeur correspondante n'est pas numérique.
+| Sortie | Résultat | `field` obligatoire |
+| --- | --- | --- |
+| `total` | Nombre d'enregistrements correspondants | Non |
+| `form_name` | Titre de la vue, ou son nom si le titre est vide | Non |
+| `table` | Tableau HTML statique valeur/nombre | Oui |
+| `json` | Tableau JSON brut d'objets `{label,value}` | Oui |
+| `pie` | Graphique Pie responsive | Oui |
+| `bar` | Graphique à barres horizontal responsive | Oui |
+| `sum` | Somme pondérée des valeurs numériques | Oui |
+| `min`, `max` | Plus petite et plus grande valeur numérique | Oui |
+
+`table`, `json`, `pie` et `bar` consomment les mêmes données PHP normalisées. Un
+tableau vide affiche `0` ; un graphique vide affiche un message localisé. JSON ne
+possède aucune enveloppe HTML ou JavaScript :
+
+```json
+[
+  {"label":"Valeur A","value":12},
+  {"label":"Valeur B","value":7}
+]
+```
+
+Utilisez ensemble `filter[field]=NomDuChamp` et `filter[value]="Valeur"`. Sans
+joker, `filter[value]="Ouvert"` correspond uniquement à la valeur exacte. Avec
+`filter[value]="Ouvert*"`, des valeurs comme `Ouvert` et `Ouvert (externe)`
+peuvent correspondre. Le caractère `|` sépare les alternatives et les espaces
+de début et de fin sont supprimés. Dans une balise d'article,
+`field=NomDuChamp value="Valeur"` sert aussi de raccourci de filtre lorsque
+`filter[field]` est absent.
+
+Les sorties de statistiques de champ acceptent `sort=none|title|value` et
+`dir=asc|desc`. Les valeurs par défaut sont `sort=none` et `dir=asc`.
+`sort=none` conserve l'ordre naturel du moteur ; `sort=title` applique un ordre
+naturel des libellés selon la langue active ; `sort=value` compare les nombres.
+`dir` modifie la direction du tri choisi.
+
+Pour `table`, `json`, `pie` et `bar`, `add="Libellé=EntierSigné"` applique des
+deltas cumulatifs : une valeur positive ajoute, zéro ne modifie rien et une
+valeur négative retire des occurrences. Si le résultat final calculé devient
+négatif, CBStats utilise temporairement `0` pour ce libellé avant le tri, le
+calcul des pourcentages et le rendu ; les données sources restent inchangées et
+un résultat ultérieur nul ou positif est utilisé normalement.
+`titles="Original=Titre affiché"` modifie uniquement l'affichage, sans changer
+les données sources ni fusionner les catégories. Les libellés non indiqués
+restent inchangés. L'ordre est données, filtres, regroupement, `add`, `titles`,
+tri, puis output ; `sort=title` utilise les titres affichés finaux. Les
+points-virgules séparent les entrées et le premier signe égal sépare chaque paire.
+
+Pie et Bar affichent des pourcentages localisés avec une décimale, des infobulles,
+une légende compacte détaillée et un total. Les graphiques sont responsives,
+peuvent coexister dans toute combinaison Pie/Bar sur une page et partagent les
+mêmes ressources graphiques locales.
+
+`sum`, `min` et `max` retournent `0` lorsque les valeurs correspondantes sont
+vides ou ne sont pas toutes numériques. Les champs de date peuvent fournir un
+`min` et un `max` chronologiques, tandis que `sum` reste à `0`. Toutes les sorties
+basées sur un champ vérifient sa disponibilité API/Stats.
+
+CBStats applique toujours la permission STATS de la vue. Pour l'URL/API, vérifiez
+les réglages **API + Droits**, la disponibilité API/Stats des champs et l'onglet
+**API** de la vue. Les outputs URL disponibles sont `json`, `total`, `sum`,
+`min`, `max` et `form_name` ; JSON accepte aussi `add`, `titles`, `sort` et `dir`,
+tandis que Table, Pie et Bar restent réservés aux contenus. Les erreurs publiques
+restent génériques. `debug=1` demande un
+diagnostic uniquement lorsque DEBUG est activé sur la vue ContentBuilder NG
+ciblée ; il n'accorde aucun accès et ne modifie jamais les permissions de vue, de
+champ ou STATS.
 
 La syntaxe complète des plugins Download, ImageScale et Verify n'est pas documentée
 de façon exhaustive dans les guides du dépôt : **À vérifier** à partir des templates

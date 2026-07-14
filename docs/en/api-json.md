@@ -258,6 +258,98 @@ Example:
 filter[value]=200 km* | 300 km*
 ```
 
+### CBStats content and URL API
+
+The CBStats content plugin uses one normalized field-statistics source for its
+HTML table, JSON, Pie and Bar outputs. Its JSON contract is a raw array containing
+string labels and integer values:
+
+```text
+{CBStats id=3 field=FieldName output=json sort=title dir=asc}
+```
+
+```json
+[
+  {"label":"Value A","value":12},
+  {"label":"Value B","value":7}
+]
+```
+
+The same engine is available through this existing ContentBuilder NG endpoint:
+
+```text
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&field=FieldName&output=json
+```
+
+#### Supported URL outputs
+
+| `output` | Response | `field` required |
+| --- | --- | --- |
+| `json` | Raw normalized array | Yes |
+| `total` | Matching record count | No |
+| `sum` | Count-weighted numeric sum | Yes |
+| `min`, `max` | Numeric minimum/maximum, or chronological ISO date boundary | Yes |
+| `form_name` | View title or name | No |
+
+When `output` is absent, the endpoint defaults to `json`, so `field` is then
+required. `table`, `pie` and `bar` are content-only renderers and are rejected by
+the URL endpoint. JSON reuses the common signed `add` and `titles` processing.
+
+#### Parameters
+
+- `id`: required positive ContentBuilder NG view ID;
+- `field`: required for `json`, `sum`, `min` and `max`;
+- `filter[field]` and `filter[value]`: optional, but must be provided together;
+- `sort=none|title|value`: optional and read only for `json`; default `none`;
+- `dir=asc|desc`: optional and read only for `json`; default `asc`.
+- `add=Label=SignedInteger;...`: optional and read only for `json`;
+- `titles=Original=Display title;...`: optional and read only for `json`.
+
+Scalar outputs ignore `sort` and `dir`.
+
+Filter values are trimmed. `*` matches any character sequence and `|` separates
+alternatives. A supplied filter must contain at least one non-empty alternative.
+`sort=none` preserves natural engine order, `sort=title` uses
+locale-aware final display-title order, and `sort=value` compares final counts.
+If an `add` result is negative, CBStats temporarily uses `0` for that label
+before titles, sorting, percentages and output. Source data is unchanged, and a
+later zero or positive result is used normally. This also applies to a missing
+label receiving a negative delta.
+Title mappings affect display only and never merge categories.
+
+Complete examples:
+
+```text
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&output=total
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&output=form_name
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&field=Amount&output=sum
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&field=Amount&output=min
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&field=Amount&output=max
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&field=Category&output=json&filter[field]=Status&filter[value]=Open*%20%7C%20Pending&sort=value&dir=desc
+GET /index.php?option=com_contentbuilderng&task=api.display&action=cbstats&id=3&field=Category&output=json&add=1%3D-2%3B2%3D3&titles=1%3DGroup%201%3B2%3DGroup%202
+```
+
+#### Responses, permissions and DEBUG
+
+`output=json` returns the raw array shown above, directly comparable to the
+article's `output=json`. Scalar outputs use the standard API success envelope:
+
+
+```json
+{"success":true,"messages":[],"data":31}
+```
+
+`action=cbstats` requires the view's **Stats** permission. It intentionally does
+not add the general API permission used by record-list/detail endpoints. A
+requested field must nevertheless be published and enabled for API/Stats. The
+request uses the current Joomla identity and session; DEBUG never changes these
+permissions.
+
+With view DEBUG disabled, errors use the standard concise API envelope and do not
+enumerate supported outputs, inaccessible views or fields. With view DEBUG
+enabled, safe 4xx diagnostics may be more specific. Server-side errors remain
+generic. The API does not require or use an additional `debug=1` query parameter.
+
 ## Sparse fieldsets
 
 For `GET` requests:

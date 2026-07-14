@@ -1,0 +1,35 @@
+.cbstats-table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.table.cbstats-table {
+    width: max-content;
+    max-width: 100%;
+    margin-inline: auto;
+    line-height: 1.2;
+}
+
+.table.cbstats-table > :not(caption) > * > * {
+    padding: 0.25rem 0.5rem;
+}
+
+.cbstats-table-label {
+    text-align: start;
+    overflow-wrap: anywhere;
+}
+
+.cbstats-table-number {
+    text-align: end;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.cbstats-pie-legend {
+    line-height: 1.2;
+}
+
+.cbstats-pie-legend-row {
+    gap: 0.4rem;
+    padding-block: 0.25rem;
+}

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" group="content" version="6.0" method="upgrade">
+    <name>PLG_CONTENT_CONTENTBUILDERNG_CBSTATS</name>
+    <creationDate>2026-07-14</creationDate>
+    <author>XDA+GIL</author>
+    <license>GNU/GPL v2 or later https://www.gnu.org/licenses/old-licenses/gpl-2.0.html</license>
+    <copyright>This Joomla! plugin is released under the GNU/GPL license</copyright>
+    <authorEmail>noreply@vcmb.fr</authorEmail>
+    <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
+    <version>6.1.7-RC80</version>
+    <description>PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_XML_DESCRIPTION</description>
+    <namespace path="src">CB\Plugin\Content\ContentbuilderngStats</namespace>
+            <files>
+        <filename plugin="contentbuilderng_cbstats">services/provider.php</filename>
+        <folder>src</folder>
+        <folder>language</folder>
+    </files>
+    <media destination="plg_content_contentbuilderng_cbstats" folder="media">
+        <filename>joomla.asset.json</filename>
+        <folder>css</folder>
+        <folder>js</folder>
+    </media>
+    <config>
+        <fields name="params">
+            <fieldset name="description">
+                <field
+                    name="cbstats_syntax_note"
+                    type="note"
+                    label="PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_HELP_LABEL"
+                    description="PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_HELP_TEXT"
+                    class="alert alert-info"
+                />
+                <field
+                    name="cbstats_add_note"
+                    type="note"
+                    label="PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_HELP_ADD_LABEL"
+                    description="PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_HELP_ADD_TEXT"
+                    class="alert alert-info"
+                />
+                <field
+                    name="cbstats_debug_note"
+                    type="note"
+                    label="PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_HELP_DEBUG_LABEL"
+                    description="PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_HELP_DEBUG_TEXT"
+                    class="alert alert-info"
+                />
+            </fieldset>
+        </fields>
+    </config>
+</extension>

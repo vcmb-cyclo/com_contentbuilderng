@@ -94,24 +94,97 @@ Bundled content plugins include:
 - `CBStats`;
 - verification and permission-related output.
 
-Confirmed statistics examples include:
+CBStats inserts dynamic statistics from a ContentBuilder NG view into Joomla
+content. Its general syntax is:
+
+```text
+{CBStats id=ViewID ...}
+```
+
+Examples:
 
 ```text
 {CBStats id=3 output=total}
 {CBStats id=3 output=form_name}
 {CBStats id=3 field=FieldName output=table}
+{CBStats id=3 field=FieldName output=json sort=title dir=asc}
+{CBStats id=3 field=FieldName output=pie sort=value dir=desc}
+{CBStats id=3 field=FieldName output=bar sort=value dir=desc}
+{CBStats id=3 field=Category output=pie add="Existing=-2;External=3"}
+{CBStats id=3 field=Category output=table titles="1=Group 1;2=Group 2"}
+{CBStats id=3 field=Category output=bar add="1=-2;2=3" titles="1=Group 1;2=Group 2" sort=value dir=desc}
 {CBStats id=3 field=FieldName output=sum}
 {CBStats id=3 field=FieldName output=min}
 {CBStats id=3 field=FieldName output=max}
-{CBStats id=3 filter[field]=Route filter[value]="200 km* | 300 km*" output=total}
+{CBStats id=3 filter[field]=Status filter[value]="Open" output=total}
+{CBStats id=3 filter[field]=Status filter[value]="Open*" output=total}
+{CBStats id=3 filter[field]=Status filter[value]="Open* | Pending" output=total}
 ```
 
-Supported `CBStats` outputs are `total`, `table`, `form_name`, `sum`, `min` and `max`.
-`sum`, `min` and `max` require `field=FieldName` and only consider records where that
-field's value is numeric; they return `0` as soon as any matching value is
-non-numeric. Field permissions for API/Stats are enforced. The complete syntax of
-every other content plugin is not exhaustively documented in the repository: **To verify** from its
-installed plugin help and templates.
+| Output | Result | `field` required |
+| --- | --- | --- |
+| `total` | Number of matching records | No |
+| `form_name` | View title, or its name when the title is empty | No |
+| `table` | Static HTML value/count table | Yes |
+| `json` | Raw JSON array of `{label,value}` objects | Yes |
+| `pie` | Responsive Pie chart | Yes |
+| `bar` | Responsive horizontal bar chart | Yes |
+| `sum` | Count-weighted sum of numeric field values | Yes |
+| `min`, `max` | Smallest and largest numeric value | Yes |
+
+`table`, `json`, `pie` and `bar` consume the same normalized PHP data. An empty
+table displays `0`; empty charts display a localized no-data message. JSON has no
+HTML or JavaScript wrapper:
+
+```json
+[
+  {"label":"Value A","value":12},
+  {"label":"Value B","value":7}
+]
+```
+
+Use `filter[field]=FieldName` and `filter[value]="Value"` together. Without a
+wildcard, `filter[value]="Open"` matches only the exact value. With
+`filter[value]="Open*"`, values such as `Open` and `Open (external)` can
+match. The `|` character separates alternatives and surrounding spaces are
+trimmed. In article tags, `field=FieldName value="Value"` is also accepted as a
+filter shorthand when `filter[field]` is absent.
+
+Field-statistics outputs support `sort=none|title|value` and `dir=asc|desc`.
+The defaults are `sort=none` and `dir=asc`. `sort=none` preserves the engine's
+natural order; `sort=title` uses locale-aware natural label ordering;
+`sort=value` compares counts numerically. `dir` changes the chosen sort direction.
+
+For `table`, `json`, `pie` and `bar`, `add="Label=SignedInteger"` applies
+cumulative deltas: positive adds, zero changes nothing and negative removes
+occurrences. If the final calculated result is negative, CBStats temporarily
+uses `0` for that label before sorting, percentage calculation and rendering;
+source data remains unchanged, and a later zero or positive result is used
+normally. `titles="Original=Display title"` changes display labels
+without changing source data or merging categories. Unmapped labels stay
+unchanged. Processing order is data, filters, grouping, `add`, `titles`, sorting,
+then output; `sort=title` uses final display titles. Semicolons delimit entries
+and the first equals sign separates each pair.
+
+Pie and Bar use localized percentages with one decimal, tooltips, a compact
+detailed legend and a total. Charts are responsive, can coexist in any Pie/Bar
+combination on one page, and reuse the same locally bundled chart assets.
+
+`sum`, `min` and `max` return `0` when the matching field values are empty or not
+all numeric. Date fields may provide chronological `min` and `max`, while `sum`
+remains `0`. All field-based outputs enforce the field's API/Stats availability.
+
+CBStats always enforces the view's STATS permission. For URL/API use, check the
+view's **API + Rights** settings, API/Stats field availability and the **API** tab.
+The supported URL outputs are `json`, `total`, `sum`, `min`, `max` and
+`form_name`; JSON also accepts `add`, `titles`, `sort` and `dir`, while Table,
+Pie and Bar remain content-only. Public errors
+remain generic. `debug=1` requests diagnostics only when DEBUG is enabled on the
+target ContentBuilder NG view; it never grants access or changes view, field or
+STATS permissions.
+
+The complete syntax of every other content plugin is not exhaustively documented
+in the repository: **To verify** from its installed plugin help and templates.
 
 ## Joomla overrides
 
