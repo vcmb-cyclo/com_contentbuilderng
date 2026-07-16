@@ -35,14 +35,6 @@
         margin-bottom: 1rem;
     }
 
-    .cb-form-api-cbstats-examples code,
-    .cb-form-api-cbstats-examples a code {
-        color: var(--bs-code-color);
-        font-family: var(--bs-font-monospace);
-        font-size: .875em;
-        font-weight: 400;
-    }
-
     .cb-form-api-cbstats-examples a {
         width: fit-content;
         max-width: 100%;
