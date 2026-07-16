@@ -4,7 +4,7 @@
 
 ## Recommended short description — French
 
-**ContentBuilder NG - CBStats - Content - Statistiques** permet d'afficher dans les contenus Joomla des statistiques dynamiques issues des vues ContentBuilder NG au moyen de balises `{CBStats ...}`, ou de publier les sorties de données prises en charge via URL/API. Le plugin gère les totaux, tableaux, agrégats, JSON, graphiques Pie et Bar, filtres, tris, deltas externes signés avec `add=` et libellés d'affichage avec `titles=`. Les réglages API de la vue ainsi que les permissions STATS et de champ restent appliqués.
+**ContentBuilder NG - CBStats - Content - Statistiques** permet d'afficher dans les contenus Joomla des statistiques dynamiques issues des vues ContentBuilder NG au moyen de balises `{CBStats ...}`, ou de publier les sorties de données prises en charge via URL/API. Le plugin gère les totaux, tableaux, agrégats, JSON, graphiques Pie et Bar, filtres, tris, deltas externes signés avec `add=`, titre du total avec `title=` et libellés d'affichage avec `titles=`. Exemple : `{CBStats id=25 field=Parcours output=pie title="👥 Total des inscrits :"}`. Les réglages API de la vue ainsi que les permissions STATS et de champ restent appliqués.
 
 ## Recommended long description — French
 
@@ -12,7 +12,7 @@ CBStats est le plugin de statistiques de ContentBuilder NG. Il interroge de faç
 
 ## Recommended short description — English
 
-**ContentBuilder NG - CBStats - Content statistics** displays dynamic statistics from ContentBuilder NG views in Joomla content through `{CBStats ...}` tags, or publishes supported data outputs through URL/API requests. It supports totals, tables, aggregates, JSON, Pie and Bar charts, filters, sorting, signed external deltas with `add=` and display labels with `titles=`. View API settings and STATS and field permissions remain enforced.
+**ContentBuilder NG - CBStats - Content statistics** displays dynamic statistics from ContentBuilder NG views in Joomla content through `{CBStats ...}` tags, or publishes supported data outputs through URL/API requests. It supports totals, tables, aggregates, JSON, Pie and Bar charts, filters, sorting, signed external deltas with `add=`, total labels with `title=` and category display labels with `titles=`. Example: `{CBStats id=25 field=Route output=pie title="👥 Total registrations:"}`. View API settings and STATS and field permissions remain enforced.
 
 ## Recommended long description — English
 
@@ -20,7 +20,7 @@ CBStats is the statistics plugin for ContentBuilder NG. It generically queries a
 
 ## Recommended short description — German
 
-**ContentBuilder NG - CBStats - Inhalt - Statistiken** zeigt dynamische Statistiken aus ContentBuilder-NG-Ansichten in Joomla-Inhalten über `{CBStats ...}`-Tags an oder veröffentlicht unterstützte Datenausgaben über URL/API-Anfragen. Das Plugin unterstützt Gesamtzahlen, Tabellen, Aggregate, JSON, Kreis- und Balkendiagramme, Filter, Sortierungen, vorzeichenbehaftete externe Deltas mit `add=` und Anzeigebezeichnungen mit `titles=`. API-Einstellungen der Ansicht sowie STATS- und Feldberechtigungen bleiben wirksam.
+**ContentBuilder NG - CBStats - Inhalt - Statistiken** zeigt dynamische Statistiken aus ContentBuilder-NG-Ansichten in Joomla-Inhalten über `{CBStats ...}`-Tags an oder veröffentlicht unterstützte Datenausgaben über URL/API-Anfragen. Das Plugin unterstützt Gesamtzahlen, Tabellen, Aggregate, JSON, Kreis- und Balkendiagramme, Filter, Sortierungen, vorzeichenbehaftete externe Deltas mit `add=`, Gesamtbezeichnungen mit `title=` und Kategoriebezeichnungen mit `titles=`. Beispiel: `{CBStats id=25 field=Strecke output=pie title="👥 Gesamtzahl der Anmeldungen:"}`. API-Einstellungen der Ansicht sowie STATS- und Feldberechtigungen bleiben wirksam.
 
 ## Application rules
 

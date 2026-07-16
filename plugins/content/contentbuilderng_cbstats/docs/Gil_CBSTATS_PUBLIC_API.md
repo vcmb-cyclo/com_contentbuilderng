@@ -159,6 +159,7 @@ preserved and all label text is HTML-escaped.
 
 ```text
 {CBStats id=25 field=Parcours output=pie title="👥 Total des inscrits :"}
+{CBStats id=25 field=Parcours output=table title="👥 Total des inscrits :"}
 {CBStats id=25 field=Parcours output=pie title="👥 Total des inscrits :" background="transparent"}
 ```
 
