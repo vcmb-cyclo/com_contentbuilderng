@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 6.1.7-RC83 — 2026-07-17
+
 ### Fixed
 
 - CBStats Help now keeps a single `title=` tag example and presents `title=`, `titles=`, localized separator handling and rendered examples in separate readable paragraphs; the plugin descriptions use the same concise distinction in EN, FR and DE.
