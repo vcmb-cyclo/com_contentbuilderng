@@ -31,7 +31,7 @@ final class VersionConsistencyTest extends TestCase
         );
 
         self::assertMatchesRegularExpression(
-            '/^\d+\.\d+\.\d+(?:-[A-Za-z0-9.]+)?$/',
+            '/^\d+\.\d+\.\d+(?:-[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*)?$/',
             $installVersion
         );
         self::assertSame($installVersion, $updateVersion);
