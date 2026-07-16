@@ -51,6 +51,8 @@ $cbStatsTitleLabel = Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_TITLE_EXAMPLE_LAB
 $cbStatsTitlePieSyntax = '{CBStats id=' . $formId . ' field=Parcours output=pie title="' . $cbStatsTitleLabel . '"}';
 $cbStatsTitlesSyntax = '{CBStats id=' . $formId . ' field=NomDuChamp output=table titles="1=Groupe 1;2=Groupe 2"}';
 $cbStatsAddSortSyntax = '{CBStats id=' . $formId . ' field=NomDuChamp output=bar add="1=-2;2=3" titles="1=Groupe 1;2=Groupe 2" sort=value dir=desc}';
+$cbStatsManualSyntax = '{CBStats source=manual output=pie values="100 km=45;150 km=47;200 km=38;200 km (Formule)=30" title="' . $cbStatsTitleLabel . '"}';
+$cbStatsManualBarSyntax = '{CBStats source=manual output=bar values="Ligne 1=10;Ligne 2=30;Ligne 3=22;Ligne 4=44" title="' . $cbStatsTitleLabel . '" sort=value dir=desc}';
 $cbStatsApiJsonUrl = 'index.php?option=com_contentbuilderng&task=api.display&id=' . $formId . '&action=cbstats&field=NomDuChamp&output=json';
 $cbStatsApiFilteredJsonUrl = $cbStatsApiJsonUrl . '&filter[field]=Statut&filter[value]=Ouvert*&sort=value&dir=desc';
 $cbStatsApiAdjustedJsonUrl = $cbStatsApiJsonUrl . '&add=1%3D-2%3B2%3D3&titles=1%3DGroupe%201%3B2%3DGroupe%202';
@@ -179,6 +181,11 @@ $wa->useStyle('com_contentbuilderng.admin-form-api');
                     <code><?php echo htmlspecialchars($cbStatsTitlePieSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
                     <code><?php echo htmlspecialchars($cbStatsTitlesSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
                     <code><?php echo htmlspecialchars($cbStatsAddSortSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
+                </div>
+                <span class="d-block mb-1"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_EXAMPLES_MANUAL'); ?></span>
+                <div class="cb-form-api-cbstats-examples">
+                    <code><?php echo htmlspecialchars($cbStatsManualSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
+                    <code><?php echo htmlspecialchars($cbStatsManualBarSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
                 </div>
                 <strong class="d-block mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_JSON_EXAMPLE'); ?></strong>
                 <div class="cb-form-api-cbstats-examples">

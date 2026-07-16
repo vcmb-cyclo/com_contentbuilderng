@@ -12,6 +12,7 @@
 
 ### Added
 
+- CBStats supports frozen manual statistics with `source=manual` and escaped `values=` pairs for Pie, Bar, Table and Total, while reusing `add=`, `title=`, `titles=`, sorting, percentages and the existing rendering pipeline without querying a ContentBuilder view.
 - CBStats now provides one normalized field-statistics engine shared by HTML tables, raw JSON, responsive Pie charts and horizontal Bar charts, with generic filters (`*`, `|`), locale-aware sorting, signed external `add=` deltas, display-label mappings through `titles=`, multi-chart pages and synchronized EN/FR/DE help.
 - CBStats now normalizes a negative final `add=` result to `0` in memory before sorting, percentage calculation and rendering, without changing source data or blocking independent statistics.
 - The ContentBuilder NG API now exposes CBStats data through `action=cbstats` with `json`, `total`, `sum`, `min`, `max` and `form_name` outputs, while preserving STATS and field permissions and concise production errors.

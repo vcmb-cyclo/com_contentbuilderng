@@ -7,10 +7,10 @@ namespace CB\Plugin\Content\ContentbuilderngStats\Service;
 final class PiePresentationService
 {
     /**
-     * @param list<array{label: string, value: int}> $fieldStats
+     * @param list<array{label: string, value: int|float}> $fieldStats
      * @return array{
-     *     total: int,
-     *     items: list<array{label: string, value: int, percentage: float, percentageLabel: string, color: string}>
+     *     total: int|float,
+     *     items: list<array{label: string, value: int|float, percentage: float, percentageLabel: string, color: string}>
      * }
      */
     public static function prepare(array $fieldStats, string $locale): array

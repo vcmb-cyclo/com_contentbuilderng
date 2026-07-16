@@ -373,10 +373,10 @@ final class StatsService
     }
 
     /**
-     * @param array<int|string,int> $values
+     * @param array<int|string,int|float> $values
      * @param array<int|string,int> $additions
      * @param array<int|string,string> $titles
-     * @return list<array{label: string, value: int}>
+     * @return list<array{label: string, value: int|float}>
      */
     public static function normalizeFieldStats(
         array $values,
@@ -388,16 +388,14 @@ final class StatsService
     ): array
     {
         foreach ($additions as $label => $value) {
-            $current = (int) ($values[$label] ?? 0);
+            $current = $values[$label] ?? 0;
             $value = (int) $value;
 
             if ($value > 0 && $current > PHP_INT_MAX - $value) {
                 throw new \InvalidArgumentException('', self::CBSTATS_ERROR_INVALID_ADD);
             }
 
-            $rawAddResult = $current + $value;
-            $effectiveAddResult = $rawAddResult < 0 ? 0 : $rawAddResult;
-            $values[$label] = $effectiveAddResult;
+            $values[$label] = $current + $value;
         }
 
         $items = [];
@@ -405,7 +403,7 @@ final class StatsService
         foreach ($values as $label => $value) {
             $items[] = [
                 'label' => array_key_exists($label, $titles) ? $titles[$label] : (string) $label,
-                'value' => (int) $value,
+                'value' => $value < 0 ? 0 : $value,
             ];
         }
 
