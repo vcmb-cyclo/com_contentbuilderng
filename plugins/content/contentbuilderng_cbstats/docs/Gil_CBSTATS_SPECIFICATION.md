@@ -151,6 +151,11 @@ output. `add` and `titles` apply only to `table`, `json`, `pie` and `bar`; they 
 not change scalar outputs. The URL/API JSON output reuses the same parsers and
 normalization path.
 
+The distinct `title=` parameter customizes the localized total label in Table,
+Pie and Bar. An empty value uses the translated default; a missing final colon is
+added with localized punctuation. `background=` optionally applies a validated
+background to those HTML containers. Unicode is preserved and HTML is escaped.
+
 ## 6. JSON output
 
 ### 6.1 Syntax

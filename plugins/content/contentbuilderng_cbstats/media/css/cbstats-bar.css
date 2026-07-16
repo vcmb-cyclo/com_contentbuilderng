@@ -4,6 +4,7 @@
     max-width: 100%;
     margin-block: 1rem;
     color: inherit;
+    background-color: var(--cbstats-background, var(--bs-body-bg, transparent));
 }
 
 .cbstats-bar-chart {

@@ -4,6 +4,7 @@
     max-width: 100%;
     margin-block: 1rem;
     color: inherit;
+    background-color: var(--cbstats-background, var(--bs-body-bg, transparent));
 }
 
 .cbstats-pie-chart {
@@ -52,19 +53,28 @@
     font-variant-numeric: tabular-nums;
 }
 
-.cbstats-pie-total {
+.cbstats-total-box {
     display: flex;
+    flex-wrap: wrap;
     width: fit-content;
     max-width: 100%;
-    margin: 0.75rem auto 0;
-    padding: 0.35rem 0.75rem;
+    margin: 1rem auto 0;
+    padding: 0.7rem 1rem;
     align-items: baseline;
     justify-content: center;
-    border: 1px solid color-mix(in srgb, currentColor 16%, transparent);
-    border-radius: 6px;
-    background: color-mix(in srgb, currentColor 5%, transparent);
+    gap: 0.25rem;
+    color: inherit;
+    background-color: var(--cbstats-background, rgba(127, 127, 127, 0.08));
+    background-color: var(--cbstats-background, color-mix(in srgb, currentColor 6%, transparent));
+    border: 1px solid rgba(127, 127, 127, 0.25);
+    border-color: color-mix(in srgb, currentColor 20%, transparent);
+    border-radius: 0.6rem;
     text-align: center;
     font-variant-numeric: tabular-nums;
+}
+
+.cbstats-total-label {
+    overflow-wrap: anywhere;
 }
 
 .cbstats-pie-empty {

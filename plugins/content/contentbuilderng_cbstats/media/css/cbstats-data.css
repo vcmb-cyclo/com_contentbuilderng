@@ -1,6 +1,8 @@
 .cbstats-table-wrapper {
     max-width: 100%;
     overflow-x: auto;
+    color: inherit;
+    background-color: var(--cbstats-background, var(--bs-body-bg, transparent));
 }
 
 .table.cbstats-table {
@@ -8,6 +10,7 @@
     max-width: 100%;
     margin-inline: auto;
     line-height: 1.2;
+    --bs-table-bg: transparent;
 }
 
 .table.cbstats-table > :not(caption) > * > * {

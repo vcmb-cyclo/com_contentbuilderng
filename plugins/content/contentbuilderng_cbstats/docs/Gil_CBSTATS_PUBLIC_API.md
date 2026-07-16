@@ -149,6 +149,26 @@ title. `sort=title` uses the final display titles.
 
 ## 9. Sorting
 
+### Total label and background
+
+`title=` customizes the total label for `table`, `pie` and `bar`, while
+`titles=` continues to map category labels. An empty `title` uses the translated
+default. When the custom title has no final colon, CBStats appends the localized
+separator; an existing colon is never duplicated. Unicode and emojis are
+preserved and all label text is HTML-escaped.
+
+```text
+{CBStats id=25 field=Parcours output=pie title="👥 Total des inscrits :"}
+{CBStats id=25 field=Parcours output=pie title="👥 Total des inscrits :" background="transparent"}
+```
+
+Without `background=`, the container uses Bootstrap/Joomla body and border
+variables with transparent/inherited fallbacks. Accepted custom backgrounds are
+`transparent`, 3/6/8-digit hexadecimal colours, `rgb()`, `rgba()`, and these safe
+named colours: `aliceblue`, `black`, `blue`, `currentcolor`, `gray`, `green`,
+`grey`, `red`, `white`, `yellow`. Invalid values, CSS variables and additional
+CSS declarations are ignored.
+
 Target generic syntax:
 
 ```text

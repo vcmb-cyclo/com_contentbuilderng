@@ -16,6 +16,7 @@ use CB\Component\Contentbuilderng\Site\Service\StatsService;
 use CB\Component\Contentbuilderng\Site\Service\StatsFilterValueService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Plugin\Content\ContentbuilderngStats\Service\PiePresentationService;
+use CB\Plugin\Content\ContentbuilderngStats\Service\TotalPresentationService;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
@@ -66,6 +67,8 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         $value = trim((string) ($attributes['value'] ?? ''));
         $add = trim((string) ($attributes['add'] ?? ''));
         $titles = trim((string) ($attributes['titles'] ?? ''));
+        $title = trim((string) ($attributes['title'] ?? ''));
+        $background = TotalPresentationService::validateBackground((string) ($attributes['background'] ?? ''));
         $sort = strtolower(trim((string) ($attributes['sort'] ?? 'none')));
         $dir = strtolower(trim((string) ($attributes['dir'] ?? 'asc')));
 
@@ -186,10 +189,10 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
 
             return match ($output) {
                 'form_name' => htmlspecialchars($this->getFormName($payload), ENT_QUOTES, 'UTF-8'),
-                'table' => $this->renderTable($payload, $fieldStats),
+                'table' => $this->renderTable($payload, $fieldStats, $title, $background),
                 'json' => $this->renderJson($fieldStats),
-                'pie' => $this->renderPie($payload, $fieldStats),
-                'bar' => $this->renderBar($payload, $fieldStats),
+                'pie' => $this->renderPie($payload, $fieldStats, $title, $background),
+                'bar' => $this->renderBar($payload, $fieldStats, $title, $background),
                 'total' => (string) StatsService::resolveCbstatsOutput($payload, 'total'),
                 'sum' => $this->renderSum($payload),
                 'min' => $this->renderNumericFieldValue($payload, 'min'),
@@ -364,7 +367,7 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
     /**
      * @param list<array{label: string, value: int}> $fieldStats
      */
-    private function renderTable(array $payload, array $fieldStats): string
+    private function renderTable(array $payload, array $fieldStats, string $title, string $background): string
     {
         $field = (array) ($payload['field'] ?? []);
 
@@ -375,7 +378,7 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         $this->loadDataTableAssets();
 
         $label = (string) ($field['label'] ?? $field['requested'] ?? Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_VALUE'));
-        $html = '<div class="cbstats-table-wrapper"><table class="table table-sm cbstats-table">'
+        $html = '<div class="cbstats-table-wrapper cbstats-card"' . $this->renderBackgroundStyle($background) . '><table class="table table-sm cbstats-table">'
             . '<thead><tr>'
             . '<th scope="col" class="cbstats-table-label">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</th>'
             . '<th scope="col" class="cbstats-table-number">' . htmlspecialchars(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_TOTAL'), ENT_QUOTES, 'UTF-8') . '</th>'
@@ -388,13 +391,17 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
                 . '</tr>';
         }
 
-        return $html . '</tbody></table></div>';
+        $total = array_sum(array_column($fieldStats, 'value'));
+
+        return $html . '</tbody><tfoot><tr class="cbstats-total-row"><th scope="row" class="cbstats-table-label cbstats-total-label">'
+            . $this->renderTotalLabel($title) . '</th><td class="cbstats-table-number cbstats-total-value"><strong>'
+            . $total . '</strong></td></tr></tfoot></table></div>';
     }
 
     /**
      * @param list<array{label: string, value: int}> $fieldStats
      */
-    private function renderPie(array $payload, array $fieldStats): string
+    private function renderPie(array $payload, array $fieldStats, string $title, string $background): string
     {
         if ($fieldStats === []) {
             return '<span class="cbstats-pie-empty">'
@@ -418,20 +425,21 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         );
         $encodedPayload = htmlspecialchars($json === false ? '{"items":[]}' : $json, ENT_QUOTES, 'UTF-8');
         $ariaLabel = Text::sprintf('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_PIE_ARIA_LABEL', $fieldLabel);
-        $html = '<section class="cbstats-pie" data-cbstats-pie="' . $encodedPayload . '">'
+        $html = '<section class="cbstats-pie cbstats-card" data-cbstats-pie="' . $encodedPayload . '"'
+            . $this->renderBackgroundStyle($background) . '>'
             . '<div class="cbstats-pie-chart">'
             . '<canvas id="' . $instanceId . '" class="cbstats-pie-canvas" role="img" aria-label="'
             . htmlspecialchars($ariaLabel, ENT_QUOTES, 'UTF-8') . '">'
             . htmlspecialchars(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_CHART_UNAVAILABLE'), ENT_QUOTES, 'UTF-8')
             . '</canvas></div>';
 
-        return $html . $this->renderChartDetails($items, $total);
+        return $html . $this->renderChartDetails($items, $total, $title);
     }
 
     /**
      * @param list<array{label: string, value: int}> $fieldStats
      */
-    private function renderBar(array $payload, array $fieldStats): string
+    private function renderBar(array $payload, array $fieldStats, string $title, string $background): string
     {
         if ($fieldStats === []) {
             return '<span class="cbstats-bar-empty">'
@@ -454,20 +462,21 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         );
         $encodedPayload = htmlspecialchars($json === false ? '{"items":[]}' : $json, ENT_QUOTES, 'UTF-8');
         $ariaLabel = Text::sprintf('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_BAR_ARIA_LABEL', $fieldLabel);
-        $html = '<section class="cbstats-bar" data-cbstats-bar="' . $encodedPayload . '">'
+        $html = '<section class="cbstats-bar cbstats-card" data-cbstats-bar="' . $encodedPayload . '"'
+            . $this->renderBackgroundStyle($background) . '>'
             . '<div class="cbstats-bar-chart" style="--cbstats-bar-items:' . count($items) . '">'
             . '<canvas id="' . $instanceId . '" class="cbstats-bar-canvas" role="img" aria-label="'
             . htmlspecialchars($ariaLabel, ENT_QUOTES, 'UTF-8') . '">'
             . htmlspecialchars(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_CHART_UNAVAILABLE'), ENT_QUOTES, 'UTF-8')
             . '</canvas></div>';
 
-        return $html . $this->renderChartDetails($items, $total);
+        return $html . $this->renderChartDetails($items, $total, $title);
     }
 
     /**
      * @param list<array{label: string, value: int, percentage: float, percentageLabel: string, color: string}> $items
      */
-    private function renderChartDetails(array $items, int $total): string
+    private function renderChartDetails(array $items, int $total, string $title): string
     {
         $html = '<div class="cbstats-pie-legend" role="list">';
 
@@ -481,9 +490,23 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
                 . '</div>';
         }
 
-        return $html . '</div><div class="cbstats-pie-total">'
-            . htmlspecialchars(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_TOTAL'), ENT_QUOTES, 'UTF-8')
-            . '&nbsp;: <strong>' . $total . '</strong></div></section>';
+        return $html . '</div><div class="cbstats-total-box"><span class="cbstats-total-label">'
+            . $this->renderTotalLabel($title) . '</span> <strong class="cbstats-total-value">'
+            . $total . '</strong></div></section>';
+    }
+
+    private function renderTotalLabel(string $title): string
+    {
+        return htmlspecialchars(TotalPresentationService::formatLabel(
+            $title,
+            Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_TOTAL'),
+            Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_TOTAL_SEPARATOR')
+        ), ENT_QUOTES, 'UTF-8');
+    }
+
+    private function renderBackgroundStyle(string $background): string
+    {
+        return $background === '' ? '' : ' style="--cbstats-background:' . $background . '"';
     }
 
     private function loadPieAssets(): void
