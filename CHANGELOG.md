@@ -4,6 +4,7 @@
 
 ### Fixed
 
+- CBStats Help now keeps a single `title=` tag example and presents `title=`, `titles=`, localized separator handling and rendered examples in separate readable paragraphs; the plugin descriptions use the same concise distinction in EN, FR and DE.
 - Restored the RC81 CBStats Help typography so article tags use the native burgundy monospace style while URL examples remain blue links, and expanded the EN/FR/DE documentation for the singular `title=` total-label option without changing the statistics engine.
 - CBStats total labels now use localized colon spacing and support a distinct Unicode-safe `title=` override across Table, Pie and Bar outputs; the total box uses a subtle theme-adaptive background and result containers accept a validated optional `background=` value.
 - CBStats tables now use compact intrinsic-width columns with aligned numeric values, while the shared Pie/Bar detail legend uses tighter readable row spacing.

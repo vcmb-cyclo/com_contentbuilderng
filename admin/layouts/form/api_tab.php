@@ -49,9 +49,6 @@ $cbStatsBarSyntax   = '{CBStats id=' . $formId . ' field=NomDuChamp output=bar s
 $cbStatsAddSyntax   = '{CBStats id=' . $formId . ' field=NomDuChamp output=pie add="Existant=-2;Externe=3"}';
 $cbStatsTitleLabel = Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_TITLE_EXAMPLE_LABEL');
 $cbStatsTitlePieSyntax = '{CBStats id=' . $formId . ' field=Parcours output=pie title="' . $cbStatsTitleLabel . '"}';
-$cbStatsTitleBarSyntax = '{CBStats id=' . $formId . ' field=Parcours output=bar title="' . $cbStatsTitleLabel . '"}';
-$cbStatsTitleTableSyntax = '{CBStats id=' . $formId . ' field=Parcours output=table title="' . $cbStatsTitleLabel . '"}';
-$cbStatsTitleColonSyntax = '{CBStats id=' . $formId . ' field=Parcours output=pie title="' . $cbStatsTitleLabel . ':"}';
 $cbStatsTitlesSyntax = '{CBStats id=' . $formId . ' field=NomDuChamp output=table titles="1=Groupe 1;2=Groupe 2"}';
 $cbStatsAddSortSyntax = '{CBStats id=' . $formId . ' field=NomDuChamp output=bar add="1=-2;2=3" titles="1=Groupe 1;2=Groupe 2" sort=value dir=desc}';
 $cbStatsApiJsonUrl = 'index.php?option=com_contentbuilderng&task=api.display&id=' . $formId . '&action=cbstats&field=NomDuChamp&output=json';
@@ -180,9 +177,6 @@ $wa->useStyle('com_contentbuilderng.admin-form-api');
                 <div class="cb-form-api-cbstats-examples">
                     <code><?php echo htmlspecialchars($cbStatsAddSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
                     <code><?php echo htmlspecialchars($cbStatsTitlePieSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
-                    <code><?php echo htmlspecialchars($cbStatsTitleBarSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
-                    <code><?php echo htmlspecialchars($cbStatsTitleTableSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
-                    <code><?php echo htmlspecialchars($cbStatsTitleColonSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
                     <code><?php echo htmlspecialchars($cbStatsTitlesSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
                     <code><?php echo htmlspecialchars($cbStatsAddSortSyntax, ENT_QUOTES, 'UTF-8'); ?></code>
                 </div>
@@ -213,7 +207,7 @@ $wa->useStyle('com_contentbuilderng.admin-form-api');
                 <p class="mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_FILTER_HINT'); ?></p>
                 <h5 class="h6 mt-3 mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_SORT_ADD_TITLE'); ?></h5>
                 <p class="mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_SORT_ADD_HINT'); ?></p>
-                <p class="mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_TITLE_HINT'); ?></p>
+                <div class="mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_TITLE_HINT'); ?></div>
                 <h5 class="h6 mt-3 mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_URL_TITLE'); ?></h5>
                 <p class="mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_URL_HINT'); ?></p>
                 <h5 class="h6 mt-3 mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_ACL_TITLE'); ?></h5>
