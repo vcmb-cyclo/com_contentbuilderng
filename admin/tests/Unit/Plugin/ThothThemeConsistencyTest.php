@@ -150,9 +150,10 @@ final class ThothThemeConsistencyTest extends TestCase
             $this->source
         );
         self::assertStringContainsString(
-            'SELECT reference_id, `type`, editable',
+            '$db->getQuery(true)',
             $this->source
         );
+        self::assertStringContainsString("\$db->quoteName('editable')", $this->source);
         self::assertStringContainsString(
             'if (!$editable) {',
             $this->source

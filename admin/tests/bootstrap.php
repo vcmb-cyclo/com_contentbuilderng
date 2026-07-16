@@ -178,13 +178,58 @@ namespace CB\Component\Contentbuilderng\Tests\Stubs {
         }
     }
 
+    final class Query
+    {
+        /** @var string[] */
+        private array $select = [];
+        private string $from = '';
+
+        public function select(array|string $columns): self
+        {
+            $this->select = array_merge($this->select, (array) $columns);
+
+            return $this;
+        }
+
+        public function from(string $table): self
+        {
+            $this->from = $table;
+
+            return $this;
+        }
+
+        public function where(string $condition): self
+        {
+            return $this;
+        }
+
+        public function __toString(): string
+        {
+            return 'SELECT ' . implode(', ', $this->select) . ' FROM ' . $this->from;
+        }
+    }
+
     final class Database
     {
         private string $query = '';
 
-        public function setQuery(string $query): void
+        public function getQuery(bool $new = false): Query
         {
-            $this->query = $query;
+            return new Query();
+        }
+
+        public function quoteName(array|string $name, array|string|null $as = null): array|string
+        {
+            if (is_array($name)) {
+                return array_map(fn(string $item): string => (string) $this->quoteName($item), $name);
+            }
+
+            return '`' . str_replace('`', '``', $name) . '`';
+        }
+
+        public function setQuery(Query|string $query): void
+        {
+            $this->query = (string) $query;
         }
 
         /**
@@ -192,7 +237,7 @@ namespace CB\Component\Contentbuilderng\Tests\Stubs {
          */
         public function loadAssocList(): array
         {
-            if ($this->query === 'Select id, parent_id From #__usergroups') {
+            if (str_contains($this->query, '#__usergroups')) {
                 return [
                     ['id' => 1, 'parent_id' => 0],
                     ['id' => 9, 'parent_id' => 1],
