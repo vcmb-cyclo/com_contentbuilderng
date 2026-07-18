@@ -30,13 +30,14 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use CB\Component\Contentbuilderng\Administrator\Model\FormModel;
 
 class FormsModel extends ListModel
 {
     private function getComponent(): ContentbuilderngComponent
     {
-        $component = parent::getComponent();
+        $component = RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng');
 
         if (!$component instanceof ContentbuilderngComponent) {
             throw new \RuntimeException('Unexpected component instance');

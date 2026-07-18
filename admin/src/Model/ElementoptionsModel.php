@@ -24,6 +24,7 @@ use Joomla\Filesystem\Folder;
 use Joomla\Filesystem\File;
 use Joomla\Utilities\ArrayHelper;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\PathService;
@@ -36,7 +37,7 @@ class ElementoptionsModel extends BaseDatabaseModel
 
     private function getComponent(): ContentbuilderngComponent
     {
-        $component = parent::getComponent();
+        $component = RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng');
 
         if (!$component instanceof ContentbuilderngComponent) {
             throw new \RuntimeException('Unexpected component instance');

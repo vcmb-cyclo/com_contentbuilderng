@@ -30,8 +30,11 @@ final class EditOwnerNavigationTest extends TestCase
             'private function canNavigateToEditableRecord(int $recordId): bool',
             $this->source
         );
+        // The view resolves the app through its local getApp() accessor (see
+        // testSiteViewsUseLocalApplicationAndDatabaseAccessors), not through
+        // the static RuntimeContextHelper.
         self::assertStringContainsString(
-            "\$permissions = (array) RuntimeContextHelper::getApplication()->getSession()->get('com_contentbuilderng.permissions_fe', []);",
+            "\$permissions = (array) \$this->getApp()->getSession()->get('com_contentbuilderng.permissions_fe', []);",
             $this->source
         );
         self::assertStringContainsString(

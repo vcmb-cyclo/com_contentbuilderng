@@ -22,6 +22,7 @@ use Joomla\CMS\Extension\Service\Provider\MVCFactory;
 use Joomla\CMS\Extension\Service\Provider\RouterFactory;
 use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Cache\CacheControllerFactoryInterface;
+use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Database\DatabaseInterface;
 use Joomla\DI\Container;
@@ -50,6 +51,15 @@ return new class implements ServiceProviderInterface
         $container->registerServiceProvider(new MVCFactory($namespace));
         $container->registerServiceProvider(new ComponentDispatcherFactory($namespace));
         $container->registerServiceProvider(new RouterFactory($namespace));
+
+        // Joomla's global container has no CMSApplicationInterface key (see the
+        // note in libraries/src/Service/Provider/Session.php): the running
+        // application only exists on the global Factory. Bind it here so every
+        // service factory below and the component's models can resolve it.
+        $container->set(
+            CMSApplicationInterface::class,
+            static fn() => Factory::getApplication()
+        );
 
         $container->set(
             DatatableService::class,

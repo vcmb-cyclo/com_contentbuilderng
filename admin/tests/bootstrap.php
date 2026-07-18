@@ -178,7 +178,7 @@ namespace CB\Component\Contentbuilderng\Tests\Stubs {
         }
     }
 
-    final class Query
+    final class Query implements \Joomla\Database\QueryInterface
     {
         /** @var string[] */
         private array $select = [];
@@ -209,13 +209,27 @@ namespace CB\Component\Contentbuilderng\Tests\Stubs {
         }
     }
 
-    final class Database
+    final class Database implements \Joomla\Database\DatabaseInterface
     {
         private string $query = '';
 
         public function getQuery(bool $new = false): Query
         {
             return new Query();
+        }
+
+        public function getPrefix(): string
+        {
+            return 'joom_';
+        }
+
+        public function getTableColumns(string $table, bool $type = true): array
+        {
+            return [];
+        }
+
+        public function execute(): void
+        {
         }
 
         public function quoteName(array|string $name, array|string|null $as = null): array|string
@@ -227,7 +241,7 @@ namespace CB\Component\Contentbuilderng\Tests\Stubs {
             return '`' . str_replace('`', '``', $name) . '`';
         }
 
-        public function setQuery(Query|string $query): void
+        public function setQuery(\Joomla\Database\QueryInterface|string $query): void
         {
             $this->query = (string) $query;
         }
@@ -486,6 +500,7 @@ namespace {
     require_once \dirname(__DIR__) . '/src/Model/StorageModel.php';
     require_once \dirname(__DIR__) . '/src/Model/VerifyModel.php';
     require_once \dirname(__DIR__) . '/src/Service/ApiPermissionRequirementService.php';
+    require_once \dirname(__DIR__) . '/src/Service/FormResolverService.php';
     require_once \dirname(__DIR__) . '/src/Service/PermissionService.php';
     require_once \dirname(__DIR__) . '/src/Helper/FormDisplayColumnsHelper.php';
     require_once \dirname(__DIR__) . '/src/Service/ConfigExportService.php';

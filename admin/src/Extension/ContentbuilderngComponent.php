@@ -26,7 +26,7 @@ use Joomla\CMS\Component\Router\RouterServiceInterface;
 use Joomla\CMS\Component\Router\RouterServiceTrait;
 use Joomla\CMS\Extension\MVCComponent;
 use Joomla\CMS\HTML\HTMLRegistryAwareTrait;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\Database\DatabaseInterface;
 use Psr\Container\ContainerInterface;
 use LogicException;
@@ -44,12 +44,12 @@ class ContentbuilderngComponent extends MVCComponent implements BootableExtensio
     public function boot(ContainerInterface $container): void
     {
         $this->container = $container;
-        // Note: $container here is the component's own service container (built by
-        // services/provider.php), not the application container — it never has
-        // CMSApplicationInterface bound. The running application and its database
-        // connection must come from the global Factory instead.
-        $app = Factory::getApplication();
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        // CMSApplicationInterface has no key in Joomla's global container (see the
+        // note in libraries/src/Service/Provider/Session.php); services/provider.php
+        // binds it in the component container before boot() runs, so it is
+        // resolvable here. DatabaseInterface delegates to the global container.
+        $app = $container->get(CMSApplicationInterface::class);
+        $db = $container->get(DatabaseInterface::class);
         RuntimeContextHelper::initialize($app, $db);
 
         // Charge les langues du core (lib_joomla) pour avoir les clés JLIB_*/J* traduites.
