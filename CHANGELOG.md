@@ -2,13 +2,11 @@
 
 ## Unreleased
 
-## 6.1.7-RC86-B02 — 2026-07-19
+## 6.1.7-RC87 — 2026-07-19
 
 ### Changed
 
-- Updated PhpSpreadsheet from 5.8.0 to 5.9.0 for XLSX import and export, retaining the RC86-B01 Joomla 6 source-loading fix.
-
-## 6.1.7-RC86-B01 — 2026-07-19
+- Updated PhpSpreadsheet from 5.8.0 to 5.9.0 for XLSX import and export.
 
 ### Fixed
 
