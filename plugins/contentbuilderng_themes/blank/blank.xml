@@ -7,7 +7,7 @@
   <license>GNU/GPL v2 or later</license>
   <authorEmail>noreply@vcmb.fr</authorEmail>
   <authorUrl>breezingforms-ng.vcmb.fr</authorUrl>
-  <version>6.1.7-RC86-B01</version>
+  <version>6.1.7-RC86-B02</version>
   <description><![CDATA[A blank theme without any style]]></description>
     <namespace path="src">CB\Plugin\ContentbuilderngThemes\Blank</namespace>
           <files>
