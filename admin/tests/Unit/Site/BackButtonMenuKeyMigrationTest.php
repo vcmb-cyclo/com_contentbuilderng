@@ -97,8 +97,18 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
 
         self::assertStringContainsString("updateBooleanField('cb_show_details_back_button'", $source);
         self::assertStringNotContainsString("updateBooleanField('show_back_button'", $source);
-        self::assertStringNotContainsString('#jform_params_', $source);
-        self::assertStringNotContainsString('[name="jform[params][', $source);
+        // Direct params targeting (#jform_params_<field>) is legacy; every
+        // occurrence must go through the params.settings group instead.
+        self::assertSame(
+            substr_count($source, '#jform_params_'),
+            substr_count($source, '#jform_params_settings_'),
+            'menu-options.js must only target #jform_params_settings_* ids'
+        );
+        self::assertSame(
+            substr_count($source, '[name="jform[params]['),
+            substr_count($source, '[name="jform[params][settings]['),
+            'menu-options.js must only target jform[params][settings] names'
+        );
     }
 
     public function testMenuFieldsReadOnlyFromParamsSettings(): void
@@ -130,7 +140,7 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
         self::assertStringNotContainsString('Factory::getContainer()->get(DatabaseInterface::class)', $statsService);
         self::assertStringContainsString('public function isFormDebugEnabled(int $formId): bool', $statsService);
 
-        self::assertStringContainsString('private function getDatabase(): DatabaseInterface', $editModel);
+        self::assertStringContainsString('protected function getDatabase(): DatabaseInterface', $editModel);
         self::assertStringContainsString('private function createMailer()', $editModel);
         self::assertStringContainsString('return $this->getComponent()->getContainer()->get(DatabaseInterface::class);', $editModel);
         self::assertStringContainsString('return $this->getComponent()->getContainer()->get(MailerFactoryInterface::class)->createMailer();', $editModel);
@@ -217,7 +227,7 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
 
         self::assertStringContainsString('private function getApp(): CMSApplicationInterface', $source);
         self::assertStringContainsString('private function getDatabase(): DatabaseInterface', $source);
-        self::assertStringContainsString('private function getDispatcher()', $source);
+        self::assertStringContainsString('public function getDispatcher()', $source);
         self::assertStringNotContainsString('Factory::getApplication()', $source);
         self::assertStringNotContainsString('Factory::getContainer()', $source);
     }
@@ -239,7 +249,9 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
 
         self::assertStringContainsString('private function getComponent(): ContentbuilderngComponent', $source);
         self::assertStringContainsString('private function getApp(): CMSApplication', $source);
-        self::assertStringContainsString('return $this->getDatabase();', $source);
+        // Core BaseDatabaseModel::getDatabase() (injected by the MVCFactory) is
+        // the sanctioned accessor; a local wrapper is not required.
+        self::assertStringContainsString('$this->getDatabase()', $source);
         self::assertStringNotContainsString('Factory::getApplication()', $source);
         self::assertStringNotContainsString('Factory::getContainer()', $source);
     }
@@ -343,7 +355,7 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
 
         $aboutView = $this->read('admin/src/View/About/HtmlView.php');
         self::assertStringContainsString('private function getDatabase(): DatabaseInterface', $aboutView);
-        self::assertStringContainsString('private function getLanguage(): Language', $aboutView);
+        self::assertStringContainsString('protected function getLanguage(): Language', $aboutView);
 
         $configtransferView = $this->read('admin/src/View/Configtransfer/HtmlView.php');
         self::assertStringContainsString('private function getDatabase(): DatabaseInterface', $configtransferView);
@@ -364,13 +376,15 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
 
         $formModel = $this->read('admin/src/Model/FormModel.php');
         self::assertStringContainsString('private function getComponent(): ContentbuilderngComponent', $formModel);
-        self::assertStringContainsString('private function getDispatcher()', $formModel);
+        self::assertStringContainsString('public function getDispatcher()', $formModel);
         self::assertStringContainsString('CMSApplicationInterface::class', $formModel);
         self::assertStringNotContainsString('Factory::getApplication()', $formModel);
         self::assertStringNotContainsString('Factory::getContainer()', $formModel);
 
         $categoryField = $this->read('admin/src/Model/Category_fields/categoryeditcb.php');
-        self::assertStringContainsString('private function getDatabase(): DatabaseInterface', $categoryField);
+        // protected: FormField (via ListField) uses DatabaseAwareTrait, whose
+        // getDatabase() is protected — private would narrow visibility (fatal).
+        self::assertStringContainsString('protected function getDatabase(): DatabaseInterface', $categoryField);
         self::assertStringNotContainsString('Factory::getApplication()', $categoryField);
         self::assertStringNotContainsString('Factory::getContainer()', $categoryField);
     }
@@ -441,7 +455,6 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
             'admin/src/Helper/Logger.php',
             'admin/src/Helper/PackedDataMigrationHelper.php',
             'admin/src/Helper/RatingHelper.php',
-            'admin/src/Service/PluginInstallerService.php',
             'admin/src/types/com_contentbuilderng.php',
             'admin/src/types/com_breezingformsng.php',
         ] as $relativePath) {
@@ -450,6 +463,13 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
             self::assertStringNotContainsString('Factory::getContainer()', $source, $relativePath);
             self::assertStringContainsString('RuntimeContextHelper', $source, $relativePath);
         }
+
+        // PluginInstallerService is fully closure-injected (db/logger/safe/cache
+        // provided by script.php) and also runs during installation, before the
+        // component boots — it must not depend on RuntimeContextHelper.
+        $pluginInstallerService = $this->read('admin/src/Service/PluginInstallerService.php');
+        self::assertStringNotContainsString('Factory::getApplication()', $pluginInstallerService);
+        self::assertStringNotContainsString('Factory::getContainer()', $pluginInstallerService);
 
         $permissionService = $this->read('admin/src/Service/PermissionService.php');
         self::assertStringContainsString('public static function createFromRuntimeContext(): self', $permissionService);

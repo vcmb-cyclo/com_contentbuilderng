@@ -23,12 +23,13 @@ use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Site\Model\EditModel;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 
 class ListController extends BaseController
 {
     private function getDatabase(): DatabaseInterface
     {
-        return $this->app->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+        return RuntimeContextHelper::getDatabase();
     }
 
     private function getPermissionService(): PermissionService

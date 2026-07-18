@@ -21,6 +21,7 @@ namespace CB\Component\Contentbuilderng\Site\View\Edit;
 
 \defined('_JEXEC') or die;
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Date\Date;
@@ -98,7 +99,7 @@ class HtmlView extends BaseHtmlView
 
     private function getApp(): SiteApplication
     {
-        $app = $this->getDocument()->getApplication();
+        $app = RuntimeContextHelper::getApplication();
 
         if (!$app instanceof SiteApplication) {
             throw new \RuntimeException('Unexpected application instance');

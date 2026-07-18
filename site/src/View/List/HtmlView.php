@@ -16,6 +16,7 @@ namespace CB\Component\Contentbuilderng\Site\View\List;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -40,7 +41,7 @@ class HtmlView extends BaseHtmlView
 
     private function getApp(): SiteApplication
     {
-        $app = $this->getDocument()->getApplication();
+        $app = RuntimeContextHelper::getApplication();
 
         if (!$app instanceof SiteApplication) {
             throw new \RuntimeException('Unexpected application instance');

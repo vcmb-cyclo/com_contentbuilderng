@@ -11,6 +11,7 @@ namespace CB\Component\Contentbuilderng\Administrator\View\About;
 
 \defined('_JEXEC') or die('Restricted access');
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Toolbar\ToolbarHelper;
@@ -44,7 +45,7 @@ class HtmlView extends BaseHtmlView
 
     private function getApp(): AdministratorApplication
     {
-        $app = $this->app;
+        $app = RuntimeContextHelper::getApplication();
 
         if (!$app instanceof AdministratorApplication) {
             throw new \RuntimeException('Unexpected application instance');
@@ -69,7 +70,7 @@ class HtmlView extends BaseHtmlView
         return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
     }
 
-    private function getLanguage(): Language
+    protected function getLanguage(): Language
     {
         return $this->getApp()->getLanguage();
     }

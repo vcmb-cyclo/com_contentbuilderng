@@ -769,7 +769,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
         }
         $debugFields = [];
         if ($id > 0) {
-            $debugDb = \Joomla\CMS\\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getDatabase();
+            $debugDb = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getDatabase();
             $debugFieldsQuery = $debugDb->getQuery(true)
                 ->select([$debugDb->quoteName('label'), $debugDb->quoteName('reference_id'), $debugDb->quoteName('type'), $debugDb->quoteName('editable'), $debugDb->quoteName('published')])
                 ->from($debugDb->quoteName('#__contentbuilderng_elements'))

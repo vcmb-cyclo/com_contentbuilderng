@@ -13,6 +13,8 @@
 
 namespace CB\Component\Contentbuilderng\Site\Field;
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
+
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
 use Joomla\CMS\Form\FormField;
@@ -41,9 +43,9 @@ class FormsField extends FormField
         'default_category',
     ];
 
-    private function getDatabase(): DatabaseInterface
+    protected function getDatabase(): DatabaseInterface
     {
-        return $this->getDocument()->getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+        return RuntimeContextHelper::getDatabase();
     }
 
     private function getSelectedFormId(): int
@@ -175,7 +177,7 @@ class FormsField extends FormField
             $defaultValueFormat = 'Default value: %s';
         }
 
-        $document = $this->getDocument();
+        $document = RuntimeContextHelper::getApplication()->getDocument();
         $wa = $document->getWebAssetManager();
         $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
         if (!$wa->assetExists('style', self::MENU_OPTIONS_STYLE)) {

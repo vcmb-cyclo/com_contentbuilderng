@@ -44,6 +44,10 @@ class ContentbuilderngComponent extends MVCComponent implements BootableExtensio
     public function boot(ContainerInterface $container): void
     {
         $this->container = $container;
+        // CMSApplicationInterface has no key in Joomla's global container (see the
+        // note in libraries/src/Service/Provider/Session.php); services/provider.php
+        // binds it in the component container before boot() runs, so it is
+        // resolvable here. DatabaseInterface delegates to the global container.
         $app = $container->get(CMSApplicationInterface::class);
         $db = $container->get(DatabaseInterface::class);
         RuntimeContextHelper::initialize($app, $db);

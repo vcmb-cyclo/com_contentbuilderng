@@ -34,6 +34,7 @@ use Joomla\Filesystem\File;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Helper\StorageColumnTypeHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\VendorHelper;
@@ -53,7 +54,7 @@ class StorageModel extends AdminModel
 
     private function getComponent(): ContentbuilderngComponent
     {
-        $component = parent::getComponent();
+        $component = RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng');
 
         if (!$component instanceof ContentbuilderngComponent) {
             throw new \RuntimeException('Unexpected component instance');

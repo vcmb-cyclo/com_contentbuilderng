@@ -67,7 +67,7 @@ final class CbStatsManualValuesParserTest extends TestCase
         $manualBranch = strpos($source, 'return $this->renderManualStats(');
 
         self::assertNotFalse($manualBranch);
-        self::assertGreaterThan($manualBranch, strpos($source, 'StatsService::isFormDebugEnabled('));
+        self::assertGreaterThan($manualBranch, strpos($source, '$statsService->isFormDebugEnabled('));
         self::assertGreaterThan($manualBranch, strpos($source, '$this->canViewStats('));
         self::assertGreaterThan($manualBranch, strpos($source, '->getStatsPayload('));
     }

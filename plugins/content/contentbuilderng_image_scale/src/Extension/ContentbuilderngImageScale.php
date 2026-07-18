@@ -265,10 +265,10 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 
 				// if it is a list, permissions will be handled by the list
 				if (!$is_list) {
-					(new PermissionService())->setPermissions($form_id, $record_id, $frontend ? '_fe' : '');
+					(PermissionService::createFromRuntimeContext())->setPermissions($form_id, $record_id, $frontend ? '_fe' : '');
 
 					if ($frontend) {
-						if (!(new PermissionService())->authorizeFe('view')) {
+						if (!(PermissionService::createFromRuntimeContext())->authorizeFe('view')) {
 							if (Factory::getApplication()->getInput()->getInt('contentbuilderng_display', 0) || ($protect && Factory::getApplication()->getInput()->getInt('contentbuilderng_display_detail', 0))) {
 								ob_end_clean();
 								die ('No Access');
@@ -277,7 +277,7 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 							}
 						}
 					} else {
-						if (!(new PermissionService())->authorize('view')) {
+						if (!(PermissionService::createFromRuntimeContext())->authorize('view')) {
 							if (Factory::getApplication()->getInput()->getInt('contentbuilderng_display', 0) || ($protect && Factory::getApplication()->getInput()->getInt('contentbuilderng_display_detail', 0))) {
 								ob_end_clean();
 								die ('No Access');

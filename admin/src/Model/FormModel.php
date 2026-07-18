@@ -33,6 +33,7 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\PathService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
@@ -57,7 +58,7 @@ class FormModel extends AdminModel
 
     private function getComponent(): ContentbuilderngComponent
     {
-        $component = parent::getComponent();
+        $component = RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng');
 
         if (!$component instanceof ContentbuilderngComponent) {
             throw new \RuntimeException('Unexpected component instance');
@@ -82,7 +83,7 @@ class FormModel extends AdminModel
         return $this->getApp()->getInput();
     }
 
-    private function getDispatcher()
+    public function getDispatcher()
     {
         return $this->getApp()->getDispatcher();
     }

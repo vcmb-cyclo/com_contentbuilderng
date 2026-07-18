@@ -25,6 +25,7 @@ use Joomla\Database\DatabaseInterface;
 use Joomla\Input\Input;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 
@@ -41,7 +42,7 @@ class DetailsController extends BaseController
 
     private function getDatabase(): DatabaseInterface
     {
-        return $this->siteApp->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+        return RuntimeContextHelper::getDatabase();
     }
 
     private function getPermissionService(): PermissionService

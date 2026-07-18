@@ -25,12 +25,13 @@ use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 
 class UsersModel extends ListModel
 {
     private function getComponent(): ContentbuilderngComponent
     {
-        $component = parent::getComponent();
+        $component = RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng');
 
         if (!$component instanceof ContentbuilderngComponent) {
             throw new \RuntimeException('Unexpected component instance');

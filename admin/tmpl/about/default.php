@@ -238,7 +238,9 @@ $repairWorkflowCurrentResult = is_array($repairWorkflowCurrentStep) ? (array) ($
 $repairWorkflowRequested = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('repair_workflow', 0) === 1;
 $repairWorkflowIsActive = $repairWorkflowRequested && !empty($repairWorkflow) && (bool) ($repairWorkflow['active'] ?? false);
 $repairWorkflowIsCompleted = (bool) ($repairWorkflow['completed'] ?? false);
-$repairWorkflowHasNext = $repairWorkflowIsActive && $repairWorkflowCurrentIndex < count($repairWorkflowSteps) - 1;
+$repairWorkflowHasNext = $repairWorkflowIsActive
+    && !$repairWorkflowIsCompleted
+    && $repairWorkflowCurrentIndex < count($repairWorkflowSteps) - 1;
 $repairWorkflowDisplayCurrentIndex = $repairWorkflowCurrentIndex;
 if ($repairWorkflowCurrentStatus !== 'pending' && $repairWorkflowHasNext) {
     $repairWorkflowDisplayCurrentIndex++;

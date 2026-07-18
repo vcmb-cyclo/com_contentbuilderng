@@ -42,6 +42,7 @@ use Joomla\CMS\User\UserHelper;
 use Joomla\CMS\Event\Model\PrepareFormEvent;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Contract\FormElementAfterValidationInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
@@ -61,6 +62,17 @@ use CB\Component\Contentbuilderng\Site\Model\Edit\VisibilityTrait;
 
 class EditModel extends BaseDatabaseModel
 {
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
     use ListStateAndRatingTrait;
     use OwnershipTrait;
     use PathHelpersTrait;
@@ -257,7 +269,7 @@ class EditModel extends BaseDatabaseModel
         );
     }
 
-    private function getDatabase(): DatabaseInterface
+    protected function getDatabase(): DatabaseInterface
     {
         return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
     }

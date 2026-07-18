@@ -25,6 +25,7 @@ use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\RuntimeUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
@@ -35,6 +36,17 @@ use CB\Component\Contentbuilderng\Site\Helper\PublishedRecordVisibilityHelper;
 
 class DetailsModel extends ListModel
 {
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
     private readonly TemplateRenderService $templateRenderService;
     private readonly RuntimeUtilityService $runtimeUtilityService;
     private readonly ListSupportService $listSupportService;

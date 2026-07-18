@@ -13,6 +13,7 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Storage;
 
 \defined('_JEXEC') or die;
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Toolbar\ToolbarHelper;
@@ -22,6 +23,7 @@ use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseInterface;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use CB\Component\Contentbuilderng\Administrator\Model\StoragefieldsModel;
 use CB\Component\Contentbuilderng\Administrator\View\Contentbuilderng\HtmlView as BaseHtmlView;
 
 class HtmlView extends BaseHtmlView
@@ -41,7 +43,7 @@ class HtmlView extends BaseHtmlView
 
     private function getApp(): CMSApplicationInterface
     {
-        $app = $this->app;
+        $app = RuntimeContextHelper::getApplication();
 
         if (!$app instanceof CMSApplicationInterface) {
             throw new \RuntimeException('Unexpected application instance');
@@ -125,7 +127,7 @@ class HtmlView extends BaseHtmlView
                 $factory = $this->getComponent()->getMVCFactory();
                 $fieldsModel = $factory->createModel('Storagefields', 'Administrator');
 
-                if (!$fieldsModel) {
+                if (!$fieldsModel instanceof StoragefieldsModel) {
                     throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_STORAGEFIELDS_MODEL_NOT_FOUND'));
                 }
 

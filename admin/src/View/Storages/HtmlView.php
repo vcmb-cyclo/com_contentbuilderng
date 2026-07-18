@@ -14,6 +14,7 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Storages;
 
 \defined('_JEXEC') or die('Restricted access');
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Application\CMSApplication;
@@ -40,7 +41,7 @@ class HtmlView extends BaseHtmlView
 
     private function getApp(): CMSApplication
     {
-        $app = $this->app;
+        $app = RuntimeContextHelper::getApplication();
 
         if (!$app instanceof CMSApplication) {
             throw new \RuntimeException('Unexpected application instance');

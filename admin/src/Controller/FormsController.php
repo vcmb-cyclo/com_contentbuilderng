@@ -33,6 +33,7 @@ use Joomla\Database\DatabaseInterface;
 use Joomla\Database\ParameterType;
 use Joomla\Utilities\ArrayHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use CB\Component\Contentbuilderng\Administrator\Model\FormModel;
 
 final class FormsController extends AdminController
@@ -56,7 +57,7 @@ final class FormsController extends AdminController
 
     private function getDatabase(): DatabaseInterface
     {
-        return $this->getApp()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+        return RuntimeContextHelper::getDatabase();
     }
 
     public function __construct(

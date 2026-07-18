@@ -16,6 +16,7 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Forms;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Toolbar\ToolbarHelper;
@@ -29,7 +30,7 @@ class HtmlView extends BaseHtmlView
 {
     private function getApp(): CMSApplicationInterface
     {
-        $app = $this->app;
+        $app = RuntimeContextHelper::getApplication();
 
         if (!$app instanceof CMSApplicationInterface) {
             throw new \RuntimeException('Unexpected application instance');

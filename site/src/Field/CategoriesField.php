@@ -13,6 +13,8 @@
 
 namespace CB\Component\Contentbuilderng\Site\Field;
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
+
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
 use Joomla\CMS\Form\FormField;
@@ -23,15 +25,15 @@ class CategoriesField extends FormField
 {
     protected $type = 'Categories';
 
-    private function getDatabase(): DatabaseInterface
+    protected function getDatabase(): DatabaseInterface
     {
-        return $this->getDocument()->getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+        return RuntimeContextHelper::getDatabase();
     }
 
     protected function getInput()
     {
         $options = [];
-        $app = $this->getDocument()->getApplication();
+        $app = RuntimeContextHelper::getApplication();
         $db = $this->getDatabase();
         $query = $db->getQuery(true);
 
