@@ -15,7 +15,7 @@ final class ApplicationAccessorRegressionTest extends TestCase
         $this->root = \dirname(__DIR__, 4);
     }
 
-    public function testAllViewsUseTheirInjectedApplication(): void
+    public function testAllViewsUseRuntimeApplicationContext(): void
     {
         $viewsWithAccessor = 0;
 
@@ -27,17 +27,17 @@ final class ApplicationAccessorRegressionTest extends TestCase
             }
 
             ++$viewsWithAccessor;
-            self::assertStringContainsString('$app = $this->app;', $source, $relativePath);
+            self::assertStringContainsString(
+                'RuntimeContextHelper::getApplication()',
+                $source,
+                $relativePath
+            );
             self::assertStringContainsString(
                 'throw new \RuntimeException(\'Unexpected application instance\');',
                 $source,
                 $relativePath
             );
-            self::assertStringNotContainsString(
-                'RuntimeContextHelper::getApplication()',
-                $source,
-                $relativePath
-            );
+            self::assertStringNotContainsString('$app = $this->app;', $source, $relativePath);
             self::assertStringNotContainsString('Factory::getApplication()', $source, $relativePath);
         }
 

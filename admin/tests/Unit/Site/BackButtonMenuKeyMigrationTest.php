@@ -227,7 +227,7 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
 
         self::assertStringContainsString('private function getApp(): CMSApplicationInterface', $source);
         self::assertStringContainsString('private function getDatabase(): DatabaseInterface', $source);
-        self::assertStringContainsString('private function getDispatcher()', $source);
+        self::assertStringContainsString('public function getDispatcher()', $source);
         self::assertStringNotContainsString('Factory::getApplication()', $source);
         self::assertStringNotContainsString('Factory::getContainer()', $source);
     }
@@ -376,7 +376,7 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
 
         $formModel = $this->read('admin/src/Model/FormModel.php');
         self::assertStringContainsString('private function getComponent(): ContentbuilderngComponent', $formModel);
-        self::assertStringContainsString('private function getDispatcher()', $formModel);
+        self::assertStringContainsString('public function getDispatcher()', $formModel);
         self::assertStringContainsString('CMSApplicationInterface::class', $formModel);
         self::assertStringNotContainsString('Factory::getApplication()', $formModel);
         self::assertStringNotContainsString('Factory::getContainer()', $formModel);

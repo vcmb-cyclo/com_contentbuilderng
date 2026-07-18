@@ -83,7 +83,7 @@ class FormModel extends AdminModel
         return $this->getApp()->getInput();
     }
 
-    private function getDispatcher()
+    public function getDispatcher()
     {
         return $this->getApp()->getDispatcher();
     }

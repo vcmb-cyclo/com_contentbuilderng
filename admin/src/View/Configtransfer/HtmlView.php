@@ -14,6 +14,7 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Configtransfer;
 
 \defined('_JEXEC') or die('Restricted access');
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\Document\HtmlDocument;
 use Joomla\CMS\Language\Text;
@@ -40,7 +41,7 @@ class HtmlView extends BaseHtmlView
 
     private function getApp(): AdministratorApplication
     {
-        $app = $this->app;
+        $app = RuntimeContextHelper::getApplication();
 
         if (!$app instanceof AdministratorApplication) {
             throw new \RuntimeException('Unexpected application instance');
