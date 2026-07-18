@@ -20,7 +20,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
 
-$app = Factory::getApplication();
+$app = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication();
 $formId = $app->getInput()->getInt('form_id', 0);
 
 $renderCheckbox = static function (string $name, string $id, bool $checked = false): string {
@@ -29,7 +29,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
         . '" value="1"' . ($checked ? ' checked="checked"' : '') . ' /></span>';
 };
 
-$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getDocument()->getWebAssetManager();
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 $wa->useStyle('com_contentbuilderng.admin-user');
 ?>

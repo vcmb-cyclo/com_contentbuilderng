@@ -31,9 +31,9 @@ use CB\Component\Contentbuilderng\Site\Helper\PreviewColorModeHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 
 /** @var SiteApplication $app */
-$app = Factory::getApplication();
+$app = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication();
 $frontend = $app->isClient('site');
-$permissionService = new PermissionService();
+$permissionService = PermissionService::createFromRuntimeContext();
 $new_allowed = $frontend ? $permissionService->authorizeFe('new') : $permissionService->authorize('new');
 $edit_allowed = $frontend ? $permissionService->authorizeFe('edit') : $permissionService->authorize('edit');
 $delete_allowed = $frontend ? $permissionService->authorizeFe('delete') : $permissionService->authorize('delete');
@@ -68,7 +68,7 @@ $showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_aut
 
 $editBackButtonToggle = -1;
 if ($frontend) {
-    $editBackButtonToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_details_back_button', (int) ($this->back_button ?? 1), 'show_back_button');
+    $editBackButtonToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_details_back_button', (int) ($this->back_button ?? 1));
     if ($editBackButtonToggle >= 0) {
         $showBack = $editBackButtonToggle === 1 && !$hasReturn;
     }
@@ -387,7 +387,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
     function contentbuilderng_delete() {
         var confirmed = confirm('<?php echo Text::_('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MESSAGE'); ?>');
         if (confirmed) {
-            location.href = '<?php echo Uri::root() . ltrim(Route::_('index.php?option=com_contentbuilderng&task=edit.delete' . (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->getInput()->get('tmpl', '', 'string') : '') . (Factory::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->getInput()->get('layout', '', 'string') : '') . '&id=' . Factory::getApplication()->getInput()->getInt('id', 0) . '&cid[]=' . Factory::getApplication()->getInput()->getCmd('record_id', 0) . '&Itemid=' . Factory::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : ''), false), '/'); ?>';
+            location.href = '<?php echo Uri::root() . ltrim(Route::_('index.php?option=com_contentbuilderng&task=edit.delete' . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') : '') . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') : '') . '&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&cid[]=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getCmd('record_id', 0) . '&Itemid=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : ''), false), '/'); ?>';
         }
     }
 
@@ -769,7 +769,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
         }
         $debugFields = [];
         if ($id > 0) {
-            $debugDb = \Joomla\CMS\Factory::getContainer()->get(\Joomla\Database\DatabaseInterface::class);
+            $debugDb = \Joomla\CMS\\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getDatabase();
             $debugFieldsQuery = $debugDb->getQuery(true)
                 ->select([$debugDb->quoteName('label'), $debugDb->quoteName('reference_id'), $debugDb->quoteName('type'), $debugDb->quoteName('editable'), $debugDb->quoteName('published')])
                 ->from($debugDb->quoteName('#__contentbuilderng_elements'))
@@ -923,14 +923,14 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
         <?php
         if (!$this->edit_by_type) {
         ?>
-            <form class="form-horizontal mt-5 mb-5" name="adminForm" id="adminForm" onsubmit="return false;" action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display' . (Factory::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->getInput()->get('layout', '', 'string') : '') . '&id=' . Factory::getApplication()->getInput()->getInt('id', 0) . '&record_id=' . Factory::getApplication()->getInput()->getCmd('record_id',  '') . (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . Factory::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '')); ?>" method="post" enctype="multipart/form-data">
+            <form class="form-horizontal mt-5 mb-5" name="adminForm" id="adminForm" onsubmit="return false;" action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display' . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') : '') . '&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&record_id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getCmd('record_id',  '') . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '')); ?>" method="post" enctype="multipart/form-data">
             <?php
         }
             ?>
             <?php
             if ($this->edit_by_type) {
             ?>
-                <form class="mt-5 mb-5" name="adminForm" id="adminForm" onsubmit="return false;" action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display' . (Factory::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->getInput()->get('layout', '', 'string') : '') . '&id=' . Factory::getApplication()->getInput()->getInt('id', 0) . '&record_id=' . Factory::getApplication()->getInput()->getCmd('record_id',  '') . (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . Factory::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '')); ?>" method="post" enctype="multipart/form-data">
+                <form class="mt-5 mb-5" name="adminForm" id="adminForm" onsubmit="return false;" action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display' . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') : '') . '&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&record_id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getCmd('record_id',  '') . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '')); ?>" method="post" enctype="multipart/form-data">
                 <?php
             }
                 ?>
@@ -969,7 +969,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
                         <ul class="list-unstyled mb-0">
 
                             <?php
-                            if (!$this->limited_options && Factory::getApplication()->isClient('administrator')) {
+                            if (!$this->limited_options && \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->isClient('administrator')) {
                             ?>
                                 <li><?php echo $this->article_options->getLabel('created_by'); ?>
                                     <?php echo $this->article_options->getInput('created_by'); ?></li>
@@ -1067,15 +1067,15 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
                 </div>
                 <?php
 
-                if (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '') {
+                if (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '') {
                 ?>
-                    <input type="hidden" name="tmpl" value="<?php echo Factory::getApplication()->getInput()->get('tmpl', '', 'string'); ?>" />
+                    <input type="hidden" name="tmpl" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string'); ?>" />
                 <?php
                 }
                 ?>
-                <input type="hidden" name="Itemid" value="<?php echo Factory::getApplication()->getInput()->getInt('Itemid', 0); ?>" />
+                <input type="hidden" name="Itemid" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0); ?>" />
                 <input type="hidden" name="task" id="contentbuilderng_task" value="edit.save" />
-                <input type="hidden" name="backtolist" value="<?php echo Factory::getApplication()->getInput()->getInt('backtolist', 0); ?>" />
+                <input type="hidden" name="backtolist" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('backtolist', 0); ?>" />
                 <input type="hidden" name="return" value="<?php echo htmlspecialchars($safeReturn, ENT_QUOTES, 'UTF-8'); ?>" />
                 <?php echo $listHiddenFields; ?>
                 <?php echo $previewHiddenFields; ?>
@@ -1115,17 +1115,17 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
     } else {
         if ($this->edit_by_type) {
         ?>
-            <form class="mt-5" name="adminForm" id="adminForm" onsubmit="return false;" action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display' . (Factory::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->getInput()->get('layout', '', 'string') : '') . '&id=' . Factory::getApplication()->getInput()->getInt('id', 0) . '&record_id=' . Factory::getApplication()->getInput()->getCmd('record_id',  '') . (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . Factory::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '')); ?>" method="post" enctype="multipart/form-data">
+            <form class="mt-5" name="adminForm" id="adminForm" onsubmit="return false;" action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display' . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') : '') . '&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&record_id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getCmd('record_id',  '') . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '')); ?>" method="post" enctype="multipart/form-data">
                 <?php
-                if (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '') {
+                if (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '') {
                 ?>
-                    <input type="hidden" name="tmpl" value="<?php echo Factory::getApplication()->getInput()->get('tmpl', '', 'string'); ?>" />
+                    <input type="hidden" name="tmpl" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string'); ?>" />
                 <?php
                 }
                 ?>
-                <input type="hidden" name="Itemid" value="<?php echo Factory::getApplication()->getInput()->getInt('Itemid', 0); ?>" />
+                <input type="hidden" name="Itemid" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0); ?>" />
                 <input type="hidden" name="task" id="contentbuilderng_task" value="edit.save" />
-                <input type="hidden" name="backtolist" value="<?php echo Factory::getApplication()->getInput()->getInt('backtolist', 0); ?>" />
+                <input type="hidden" name="backtolist" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('backtolist', 0); ?>" />
                 <input type="hidden" name="return" value="<?php echo htmlspecialchars($safeReturn, ENT_QUOTES, 'UTF-8'); ?>" />
                 <?php echo $listHiddenFields; ?>
                 <?php echo $previewHiddenFields; ?>
@@ -1151,7 +1151,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
         <?php
         } else {
         ?>
-            <form class="form-horizontal" name="adminForm" id="adminForm" onsubmit="return false;" action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display' . (Factory::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->getInput()->get('layout', '', 'string') : '') . '&id=' . Factory::getApplication()->getInput()->getInt('id', 0) . '&record_id=' . Factory::getApplication()->getInput()->getCmd('record_id',  '') . (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . Factory::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '')); ?>" method="post" enctype="multipart/form-data">
+            <form class="form-horizontal" name="adminForm" id="adminForm" onsubmit="return false;" action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display' . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') : '') . '&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&record_id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getCmd('record_id',  '') . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '')); ?>" method="post" enctype="multipart/form-data">
                 <?php echo $this->event->beforeDisplayContent; ?>
                 <?php echo $this->toc ?>
                 <?php echo $stateControlHtml; ?>
@@ -1162,15 +1162,15 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
                 <?php echo $this->event->afterDisplayContent; ?>
                 <?php echo $auditTrailHtml; ?>
                 <?php
-                if (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '') {
+                if (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '') {
                 ?>
-                    <input type="hidden" name="tmpl" value="<?php echo Factory::getApplication()->getInput()->get('tmpl', '', 'string'); ?>" />
+                    <input type="hidden" name="tmpl" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string'); ?>" />
                 <?php
                 }
                 ?>
-                <input type="hidden" name="Itemid" value="<?php echo Factory::getApplication()->getInput()->getInt('Itemid', 0); ?>" />
+                <input type="hidden" name="Itemid" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0); ?>" />
                 <input type="hidden" name="task" id="contentbuilderng_task" value="edit.save" />
-                <input type="hidden" name="backtolist" value="<?php echo Factory::getApplication()->getInput()->getInt('backtolist', 0); ?>" />
+                <input type="hidden" name="backtolist" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('backtolist', 0); ?>" />
                 <input type="hidden" name="return" value="<?php echo htmlspecialchars($safeReturn, ENT_QUOTES, 'UTF-8'); ?>" />
                 <?php echo $listHiddenFields; ?>
                 <?php echo $previewHiddenFields; ?>

@@ -24,7 +24,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Controller;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\FormController as BaseFormController;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Response\JsonResponse;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Filesystem\File;
@@ -43,7 +43,18 @@ class StorageController extends BaseFormController
 
     private function getApp()
     {
-        return Factory::getApplication();
+        $app = $this->app;
+
+        if (!$app instanceof CMSApplicationInterface) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getApp()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
     }
 
     private function closeApp(): void
@@ -59,7 +70,7 @@ class StorageController extends BaseFormController
             return false;
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $tableList = array_map('strtolower', (array) $db->getTableList());
         $resolvedName = strtolower($db->replacePrefix($tableName));
 
@@ -169,7 +180,7 @@ class StorageController extends BaseFormController
                     }
 
                     if ($lookupName !== '') {
-                        $db = Factory::getContainer()->get(DatabaseInterface::class);
+                        $db = $this->getDatabase();
                         $query = $db->getQuery(true)
                             ->select($db->quoteName('id'))
                             ->from($db->quoteName('#__contentbuilderng_storages'))
@@ -213,7 +224,7 @@ class StorageController extends BaseFormController
                 if ($externalTableName !== '') {
                     try {
                         if (!$this->externalStorageTableExists($externalTableName)) {
-                            $db = Factory::getContainer()->get(DatabaseInterface::class);
+                            $db = $this->getDatabase();
                             $missingTableMessage = Text::sprintf(
                                 'COM_CONTENTBUILDERNG_STORAGE_SAVE_EXTERNAL_TABLE_MISSING',
                                 $db->replacePrefix($externalTableName)
@@ -275,7 +286,7 @@ class StorageController extends BaseFormController
                     }
 
                     if ($lookupName !== '') {
-                        $db = Factory::getContainer()->get(DatabaseInterface::class);
+                        $db = $this->getDatabase();
                         $query = $db->getQuery(true)
                             ->select($db->quoteName('id'))
                             ->from($db->quoteName('#__contentbuilderng_storages'))
@@ -655,50 +666,6 @@ class StorageController extends BaseFormController
         return $this->setStorageItemPublished(0, 'COM_CONTENTBUILDERNG_UNPUBLISHED');
     }
 
-    /* 
-    #[\Override]
-    public function publish()
-    {
-        $app = Factory::getApplication();
-        $input = $app->getInput();
-        $cid = $input->get('cid', [], 'array');
-        ArrayHelper::toInteger($cid);
-
-        if (count($cid) == 1) {
-            $model = $this->getModel('Storage', 'Contentbuilderng');
-            $model->setPublished();
-        } else if (count($cid) > 1) {
-            $model = $this->getModel('Storage', 'Contentbuilderng');
-            $model->setPublished();
-        }
-
-        $this->setRedirect(
-            Route::_('index.php?option=com_contentbuilderng&task=storage.display&limitstart=' . $this->input->getInt('limitstart'), false),
-            Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED'));
-    }
-
-    #[\Override]
-    public function unpublish()
-    {
-        $app = Factory::getApplication();
-        $input = $app->getInput();
-        $cid = $input->get('cid', [], 'array');
-        ArrayHelper::toInteger($cid);
-
-        if (count($cid) == 1) {
-            $model = $this->getModel('Storage', 'Contentbuilderng');
-            $model->setUnpublished();
-        } else if (count($cid) > 1) {
-            $model = $this->getModel('Storage', 'Contentbuilderng');
-            $model->setUnpublished();
-        }
-
-        $this->setRedirect(
-            Route::_('index.php?option=com_contentbuilderng&task=storage.display&limitstart=' . $this->input->getInt('limitstart'), false),
-            Text::_('COM_CONTENTBUILDERNG_UNPUBLISHED'));
-    }
-*/
-
     // Passe par le modèle.
     private function storagesPublish(int $state, string $successMsgKey)
     {
@@ -862,7 +829,7 @@ class StorageController extends BaseFormController
                 throw new \RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'), 403);
             }
 
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->update($db->quoteName('#__contentbuilderng_storages'))
                 ->set($db->quoteName('published') . ' = ' . (int) $state)

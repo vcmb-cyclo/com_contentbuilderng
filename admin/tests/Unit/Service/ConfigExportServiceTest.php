@@ -24,7 +24,8 @@ final class ConfigExportServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->service = new ConfigExportService();
+        $reflection = new \ReflectionClass(ConfigExportService::class);
+        $this->service = $reflection->newInstanceWithoutConstructor();
     }
 
     /**

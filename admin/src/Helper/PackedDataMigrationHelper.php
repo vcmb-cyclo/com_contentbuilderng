@@ -14,7 +14,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Helper;
 
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\EncodingAuditHelper;
@@ -182,7 +181,7 @@ final class PackedDataMigrationHelper
      */
     public static function migrate(): array
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $summary = self::migratePackedPayloads($db);
         $summary['repair'] = self::repairTableCollations($db);
         $summary['audit_columns'] = StorageAuditColumnsHelper::repair($db);
@@ -220,7 +219,7 @@ final class PackedDataMigrationHelper
      */
     public static function migratePackedPayloadsStep(?DatabaseInterface $db = null): array
     {
-        return self::migratePackedPayloads($db ?? Factory::getContainer()->get(DatabaseInterface::class), true);
+        return self::migratePackedPayloads($db ?? RuntimeContextHelper::getDatabase(), true);
     }
 
     /**
@@ -251,7 +250,7 @@ final class PackedDataMigrationHelper
      */
     public static function auditPackedPayloadsStep(?DatabaseInterface $db = null): array
     {
-        return self::migratePackedPayloads($db ?? Factory::getContainer()->get(DatabaseInterface::class), false);
+        return self::migratePackedPayloads($db ?? RuntimeContextHelper::getDatabase(), false);
     }
 
     /**
@@ -269,7 +268,7 @@ final class PackedDataMigrationHelper
      */
     public static function repairTableCollationsStep(?DatabaseInterface $db = null): array
     {
-        return self::repairTableCollations($db ?? Factory::getContainer()->get(DatabaseInterface::class));
+        return self::repairTableCollations($db ?? RuntimeContextHelper::getDatabase());
     }
 
     /**
@@ -292,7 +291,7 @@ final class PackedDataMigrationHelper
      */
     public static function repairLegacyMenuEntriesStep(?DatabaseInterface $db = null): array
     {
-        return self::repairLegacyMenuEntries($db ?? Factory::getContainer()->get(DatabaseInterface::class));
+        return self::repairLegacyMenuEntries($db ?? RuntimeContextHelper::getDatabase());
     }
 
     /**
@@ -445,7 +444,7 @@ final class PackedDataMigrationHelper
                 $rowIndex = array_key_last($tableStats['rows']);
 
                 $sentinel = new \stdClass();
-                $decoded = PackedDataHelper::decodePackedData($raw, $sentinel, false);
+                $decoded = self::decodePackedPayloadForMigration($raw, $sentinel, false);
 
                 if ($decoded === $sentinel) {
                     $tableStats['errors']++;
@@ -503,6 +502,60 @@ final class PackedDataMigrationHelper
         }
 
         return $summary;
+    }
+
+    private static function decodePackedPayloadForMigration(string $raw, mixed $default = null, bool $assoc = false): mixed
+    {
+        if ($raw === '') {
+            return $default;
+        }
+
+        $decoded = base64_decode($raw, true);
+
+        if ($decoded === false) {
+            return $default;
+        }
+
+        $jsonPayload = null;
+
+        if (strpos($decoded, 'j:') === 0) {
+            $jsonPayload = substr($decoded, 2);
+        } elseif (strpos(ltrim($decoded), '{') === 0 || strpos(ltrim($decoded), '[') === 0) {
+            $jsonPayload = $decoded;
+        }
+
+        if ($jsonPayload !== null) {
+            try {
+                return json_decode($jsonPayload, $assoc, 512, JSON_THROW_ON_ERROR);
+            } catch (\Throwable) {
+                return $default;
+            }
+        }
+
+        try {
+            $legacyPayload = @unserialize($decoded, ['allowed_classes' => ['stdClass']]);
+
+            if ($legacyPayload === false && $decoded !== 'b:0;') {
+                return $default;
+            }
+
+            if ($assoc) {
+                return json_decode(
+                    json_encode($legacyPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                    true,
+                    512,
+                    JSON_THROW_ON_ERROR
+                );
+            }
+
+            if (is_array($legacyPayload)) {
+                return (object) $legacyPayload;
+            }
+
+            return $legacyPayload;
+        } catch (\Throwable) {
+            return $default;
+        }
     }
 
     /**

@@ -30,8 +30,8 @@ use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewColorModeHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 
-$frontend = Factory::getApplication()->isClient('site');
-$permissionService = new PermissionService();
+$frontend = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->isClient('site');
+$permissionService = PermissionService::createFromRuntimeContext();
 $getStateBadgeStyle = static function ($recordId, array $stateColors): string {
     $color = strtoupper(trim((string) ($stateColors[$recordId] ?? '')));
     $color = ltrim($color, '#');
@@ -53,17 +53,17 @@ $edit_allowed = $frontend ? $permissionService->authorizeFe('edit') : $permissio
 $delete_allowed = $frontend ? $permissionService->authorizeFe('delete') : $permissionService->authorize('delete');
 $rating_allowed = $frontend ? $permissionService->authorizeFe('rating') : $permissionService->authorize('rating');
 $view_allowed = $frontend ? $permissionService->authorizeFe('view') : $permissionService->authorize('view');
-$input = Factory::getApplication()->getInput();
-$runtimeApp = Factory::getApplication();
+$input = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput();
+$runtimeApp = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication();
 $detailsTopBarToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_top_bar', (int) ($this->cb_show_details_top_bar ?? 1));
-$detailsBackButtonToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_back_button', (int) ($this->show_back_button ?? 1), 'show_back_button');
+$detailsBackButtonToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_details_back_button', (int) ($this->show_back_button ?? 1));
 $showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($runtimeApp, 'cb_show_author', (int) ($this->cb_show_author ?? 1));
 $directStorageMode = !empty($this->direct_storage_mode);
 $directStorageId = (int) ($this->direct_storage_id ?? 0);
 
 $list = (array) $input->get('list', [], 'array');
 $listState = NavigationLinkHelper::resolveListState(
-    Factory::getApplication(),
+    \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication(),
     $list,
     (int) $input->getInt('id', 0),
     (string) $input->getCmd('layout', 'default'),
@@ -84,7 +84,7 @@ $previewActorId = $input->getInt('cb_preview_actor_id', 0);
 $previewActorName = (string) $input->getString('cb_preview_actor_name', '');
 $previewUserId = $input->getInt('cb_preview_user_id', 0);
 $isAdminPreview = $input->getBool('cb_preview_ok', false);
-$currentUser = Factory::getApplication()->getIdentity();
+$currentUser = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getIdentity();
 $currentSessionLabel = trim((string) ($currentUser->name ?? ''));
 if ($currentSessionLabel === '') {
     $currentSessionLabel = trim((string) ($currentUser->username ?? ''));
@@ -166,7 +166,7 @@ $printLink = Route::_('index.php?option=com_contentbuilderng&title=' . $input->g
     . $previewQuery);
 
 
-$app = Factory::getApplication();
+$app = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication();
 /** @var CMSApplication $app */
 
 $document = $app->getDocument();
@@ -216,7 +216,7 @@ if ($themeJs !== '') {
     function contentbuilderng_delete() {
         var confirmed = confirm('<?php echo Text::_('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MESSAGE'); ?>');
         if (confirmed) {
-            location.href = '<?php echo Uri::root() . ltrim(Route::_('index.php?option=com_contentbuilderng&title=' . Factory::getApplication()->getInput()->get('title', '', 'string') . (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->getInput()->get('tmpl', '', 'string') : '') . (Factory::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->getInput()->get('layout', '', 'string') : '') . '&task=edit.delete&id=' . Factory::getApplication()->getInput()->getInt('id', 0) . '&cid[]=' . Factory::getApplication()->getInput()->getCmd('record_id', 0) . '&Itemid=' . Factory::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : ''), false), '/'); ?>';
+            location.href = '<?php echo Uri::root() . ltrim(Route::_('index.php?option=com_contentbuilderng&title=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('title', '', 'string') . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') : '') . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') : '') . '&task=edit.delete&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&cid[]=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getCmd('record_id', 0) . '&Itemid=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : ''), false), '/'); ?>';
         }
     }
 </script>
@@ -331,11 +331,11 @@ if ($themeJs !== '') {
         $directStorageMode ? 'storage_id' : 'id' => $directStorageMode ? $directStorageId : $input->getInt('id', 0),
         'Itemid' => $input->getInt('Itemid', 0),
     ];
-    $detailsTmpl = Factory::getApplication()->getInput()->get('tmpl', '', 'string');
+    $detailsTmpl = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string');
     if ($detailsTmpl !== '') {
         $detailsBaseParams['tmpl'] = $detailsTmpl;
     }
-    $detailsLayout = Factory::getApplication()->getInput()->get('layout', '', 'string');
+    $detailsLayout = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string');
     if ($detailsLayout !== '') {
         $detailsBaseParams['layout'] = $detailsLayout;
     }
@@ -448,7 +448,7 @@ if ($themeJs !== '') {
 
     <?php if ($canEditRecord) : ?>
         <a class="btn btn-sm btn-primary cbButton cbEditButton"
-            href="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display&id=' . Factory::getApplication()->getInput()->getInt('id', 0) . '&record_id=' . Factory::getApplication()->getInput()->getCmd('record_id', 0) . (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . Factory::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . Factory::getApplication()->getInput()->getInt('Itemid', 0) . (Factory::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . Factory::getApplication()->getInput()->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . $previewQuery); ?>"
+            href="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&record_id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getCmd('record_id', 0) . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . $previewQuery); ?>"
             title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DETAILS_EDIT_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>">
             <span class="fa-solid fa-pen me-1" aria-hidden="true"></span>
             <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT'); ?>

@@ -17,7 +17,6 @@ namespace CB\Component\Contentbuilderng\Site\Model\Edit;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Cache\CacheControllerFactoryInterface;
-use Joomla\CMS\Factory;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
@@ -34,7 +33,7 @@ trait OwnershipTrait
 
     private function getComponent(): ContentbuilderngComponent
     {
-        $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
+        $component = $this->app->bootComponent('com_contentbuilderng');
 
         if (!$component instanceof ContentbuilderngComponent) {
             throw new \RuntimeException('Unexpected component instance');
@@ -62,7 +61,7 @@ trait OwnershipTrait
 
     private function cleanComponentCaches(): void
     {
-        $cacheFactory = Factory::getContainer()->get(CacheControllerFactoryInterface::class);
+        $cacheFactory = $this->getComponent()->getContainer()->get(CacheControllerFactoryInterface::class);
         $cacheBase = (string) $this->app->get('cache_path', JPATH_SITE . '/cache');
 
         foreach (array('com_content', 'com_contentbuilderng') as $group) {

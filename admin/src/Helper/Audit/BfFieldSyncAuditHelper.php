@@ -63,8 +63,6 @@ final class BfFieldSyncAuditHelper
                     ->from($db->quoteName('#__contentbuilderng_forms'))
                     ->where(
                         $db->quoteName('type') . ' IN ('
-                        . $db->quote('com_breezingforms') . ','
-                        . $db->quote('com_breezingforms_ng') . ','
                         . $db->quote('com_breezingformsng') . ')'
                     )
                     ->where($db->quoteName('reference_id') . ' > 0')
@@ -152,8 +150,6 @@ final class BfFieldSyncAuditHelper
                 ->from($db->quoteName('#__contentbuilderng_forms'))
                 ->where(
                     $db->quoteName('type') . ' IN ('
-                    . $db->quote('com_breezingforms') . ','
-                    . $db->quote('com_breezingforms_ng') . ','
                     . $db->quote('com_breezingformsng') . ')'
                 )
                 ->where($db->quoteName('reference_id') . ' > 0');

@@ -14,7 +14,6 @@ namespace CB\Component\Contentbuilderng\Administrator\types;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
@@ -22,8 +21,9 @@ use Joomla\Utilities\ArrayHelper;
 use Joomla\Filesystem\File;
 use Joomla\CMS\Environment\Browser;
 use CB\Component\Contentbuilderng\Administrator\Helper\PhpTemplateHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 
-class contentbuilderng_com_breezingforms
+class contentbuilderng_com_breezingformsng
 {
     private const SYSTEM_FIELD_RECORD_ID = -1001;
     private const SYSTEM_FIELD_VIEWED = -1002;
@@ -251,8 +251,8 @@ class contentbuilderng_com_breezingforms
             self::SYSTEM_FIELD_PAYMENT_TEST_ACCOUNT => $this->getFirstRecordColumnSelect(['paypal_testaccount', 'paypal_test_account', 'testaccount', 'test_account', 'payment_testaccount'], '0'),
             self::SYSTEM_FIELD_PAYMENT_DOWNLOAD_TRIES => $this->getFirstRecordColumnSelect(['paypal_download_tries', 'paypal_download_attempts', 'download_tries', 'download_attempts', 'payment_download_tries'], '0'),
             self::SYSTEM_FIELD_FORM_ID => (string) (int) ($this->properties->id ?? 0),
-            self::SYSTEM_FIELD_FORM_TITLE => Factory::getContainer()->get(DatabaseInterface::class)->quote((string) ($this->properties->title ?? '')),
-            self::SYSTEM_FIELD_FORM_NAME => Factory::getContainer()->get(DatabaseInterface::class)->quote((string) ($this->properties->name ?? '')),
+            self::SYSTEM_FIELD_FORM_TITLE => RuntimeContextHelper::getDatabase()->quote((string) ($this->properties->title ?? '')),
+            self::SYSTEM_FIELD_FORM_NAME => RuntimeContextHelper::getDatabase()->quote((string) ($this->properties->name ?? '')),
             default => "''",
         };
     }
@@ -299,14 +299,14 @@ class contentbuilderng_com_breezingforms
 
     private function getConfiguredSystemFieldDefinitions(): array
     {
-        $contentbuilderFormId = (int) Factory::getApplication()->getInput()->getInt('id', 0);
+        $contentbuilderFormId = (int) RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0);
 
         if ($contentbuilderFormId <= 0) {
             return [];
         }
 
         $definitions = self::getSystemFieldDefinitions();
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select($db->quoteName('reference_id'))
             ->from($db->quoteName('#__contentbuilderng_elements'))
@@ -387,7 +387,7 @@ class contentbuilderng_com_breezingforms
 
     private function getEffectiveActor(): array
     {
-        $app = Factory::getApplication();
+        $app = RuntimeContextHelper::getApplication();
         $input = $app->getInput();
         $identity = $app->getIdentity();
         $actorId = (int) ($identity->id ?? 0);
@@ -436,7 +436,7 @@ class contentbuilderng_com_breezingforms
 
     function __construct($id, $published = true)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
 
         $db->setQuery("SET SESSION group_concat_max_len = 9999999");
         $db->execute();
@@ -487,7 +487,7 @@ class contentbuilderng_com_breezingforms
 
         if (!is_object($this->properties)) return;
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $formId = (int) $this->properties->id;
         $syncQuery = $db->getQuery(true)
             ->select([
@@ -498,10 +498,10 @@ class contentbuilderng_com_breezingforms
             ->join('INNER', $db->quoteName('#__contentbuilderng_forms', 'f') . ' ON ' . $db->quoteName('f.reference_id') . ' = ' . $db->quoteName('r.form'))
             ->join('LEFT', $db->quoteName('#__contentbuilderng_records', 'cr') . ' ON ('
                 . $db->quoteName('r.form') . ' = ' . $formId . ' AND '
-                . $db->quoteName('cr.type') . ' = ' . $db->quote('com_breezingforms') . ' AND '
+                . $db->quoteName('cr.type') . ' = ' . $db->quote('com_breezingformsng') . ' AND '
                 . $db->quoteName('cr.reference_id') . ' = ' . $db->quoteName('r.form') . ' AND '
                 . $db->quoteName('cr.record_id') . ' = ' . $db->quoteName('r.id') . ')')
-            ->where($db->quoteName('f.type') . ' = ' . $db->quote('com_breezingforms'))
+            ->where($db->quoteName('f.type') . ' = ' . $db->quote('com_breezingformsng'))
             ->where($db->quoteName('f.reference_id') . ' = ' . $formId)
             ->where($db->quoteName('r.form') . ' = ' . $db->quoteName('f.reference_id'))
             ->where($db->quoteName('cr.record_id') . ' IS NULL')
@@ -525,7 +525,7 @@ class contentbuilderng_com_breezingforms
                 $checkQuery = $db->getQuery(true)
                     ->select($db->quoteName('id'))
                     ->from($db->quoteName('#__contentbuilderng_records'))
-                    ->where($db->quoteName('type') . ' = ' . $db->quote('com_breezingforms'))
+                    ->where($db->quoteName('type') . ' = ' . $db->quote('com_breezingformsng'))
                     ->where($db->quoteName('reference_id') . ' = ' . $formId)
                     ->where($db->quoteName('record_id') . ' = ' . $reference_id);
                 $db->setQuery($checkQuery);
@@ -535,7 +535,7 @@ class contentbuilderng_com_breezingforms
                         ->insert($db->quoteName('#__contentbuilderng_records'))
                         ->columns($db->quoteName(['type', 'record_id', 'reference_id', 'published']))
                         ->values(implode(',', [
-                            $db->quote('com_breezingforms'),
+                            $db->quote('com_breezingformsng'),
                             $reference_id,
                             $formId,
                             !empty($record['auto_publish']) ? 1 : 0,
@@ -554,7 +554,7 @@ class contentbuilderng_com_breezingforms
 
     public function getUniqueValues($element_id, $where_field = '', $where = '')
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $formId = (int) $this->properties->id;
         $where_add = '';
         if ($where_field != '' && $where != '') {
@@ -592,7 +592,7 @@ class contentbuilderng_com_breezingforms
 
     public function getAllElements()
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select('*')
             ->from($db->quoteName('#__facileforms_elements'))
@@ -619,7 +619,7 @@ class contentbuilderng_com_breezingforms
             return $this->sortableElements;
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select('*')
             ->from($db->quoteName('#__facileforms_elements'))
@@ -663,12 +663,12 @@ class contentbuilderng_com_breezingforms
 
         $data = new \stdClass();
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
 
         $metaQuery = $db->getQuery(true)
             ->select($db->quoteName(['metakey', 'metadesc', 'author', 'robots', 'rights', 'xreference', 'edited', 'last_update']))
             ->from($db->quoteName('#__contentbuilderng_records'))
-            ->where($db->quoteName('type') . ' = ' . $db->quote('com_breezingforms'))
+            ->where($db->quoteName('type') . ' = ' . $db->quote('com_breezingformsng'))
             ->where($db->quoteName('reference_id') . ' = ' . $db->quote($this->properties->id))
             ->where($db->quoteName('record_id') . ' = ' . $db->quote($record_id));
         $db->setQuery($metaQuery);
@@ -746,7 +746,7 @@ class contentbuilderng_com_breezingforms
         $show_all_languages = false
     ) {
         if (!is_object($this->properties)) return array();
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
 
         /////////////
         // we need all elements, so they will be searchable through having
@@ -801,12 +801,12 @@ class contentbuilderng_com_breezingforms
             From
                 #__facileforms_subrecords As s,
                 #__facileforms_records As r
-                " . ($published_only || !$show_all_languages || $show_all_languages ? " Left Join #__contentbuilderng_records As joined_records On ( joined_records.`type` = 'com_breezingforms' And joined_records.record_id = r.id And joined_records.reference_id = r.form ) " : "") . "
+                " . ($published_only || !$show_all_languages || $show_all_languages ? " Left Join #__contentbuilderng_records As joined_records On ( joined_records.`type` = 'com_breezingformsng' And joined_records.record_id = r.id And joined_records.reference_id = r.form ) " : "") . "
                 
             Where
                 r.id = " . $db->quote(intval($record_id)) . " And
-                joined_records.`type` = 'com_breezingforms'
-                " . (!$show_all_languages ? " And ( joined_records.sef = " . $db->quote(Factory::getApplication()->getInput()->getCmd('lang', '')) . " Or joined_records.sef = '' Or joined_records.sef is Null ) " : '') . "
+                joined_records.`type` = 'com_breezingformsng'
+                " . (!$show_all_languages ? " And ( joined_records.sef = " . $db->quote(RuntimeContextHelper::getApplication()->getInput()->getCmd('lang', '')) . " Or joined_records.sef = '' Or joined_records.sef is Null ) " : '') . "
                 " . ($show_all_languages ? " And ( joined_records.id is Null Or joined_records.id Is Not Null ) " : '') . "
                 " . (intval($own_only) > -1 ? ' And r.user_id=' . intval($own_only) . ' ' : '') . "
                 " . ($published_only ? " And joined_records.published = 1 " : '') . "
@@ -906,7 +906,7 @@ class contentbuilderng_com_breezingforms
             return array();
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
 
         /////////////
         // we need all elements, so they will be searchable through having
@@ -1280,7 +1280,7 @@ class contentbuilderng_com_breezingforms
                     #__contentbuilderng_forms As forms,
                     #__content As content
                 ) On (
-                    joined_articles.`type` = 'com_breezingforms' And
+                    joined_articles.`type` = 'com_breezingformsng' And
                     joined_articles.reference_id = " . $this->properties->id . " And
                     joined_records.reference_id = joined_articles.reference_id And
                     joined_records.record_id = joined_articles.record_id And
@@ -1310,9 +1310,9 @@ class contentbuilderng_com_breezingforms
                 " . ($article_category_filter > -1 ? ' content.catid = ' . intval($article_category_filter) . ' And ' : '') . "
                 joined_records.reference_id = r.form And
                 joined_records.record_id = r.id And
-                joined_records.`type` = 'com_breezingforms'
+                joined_records.`type` = 'com_breezingformsng'
 
-                " . (!$show_all_languages ? " And ( joined_records.sef = " . $db->quote(Factory::getApplication()->getInput()->getCmd('lang', '')) . " Or joined_records.sef = '' Or joined_records.sef is Null ) " : '') . "
+                " . (!$show_all_languages ? " And ( joined_records.sef = " . $db->quote(RuntimeContextHelper::getApplication()->getInput()->getCmd('lang', '')) . " Or joined_records.sef = '' Or joined_records.sef is Null ) " : '') . "
                 " . ($show_all_languages ? " And ( joined_records.id is Null Or joined_records.id Is Not Null ) " : '') . "
                 " . ($lang_code !== null ? " And joined_records.lang_code = " . $db->quote($lang_code) : '') . "
                 " . (intval($own_only) > -1 ? ' And r.user_id=' . intval($own_only) . ' ' : '') . "
@@ -1454,7 +1454,7 @@ class contentbuilderng_com_breezingforms
     public static function getFormsList()
     {
         $list = array();
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select($db->quoteName(['id', 'title', 'name']))
             ->from($db->quoteName('#__facileforms_forms'))
@@ -1476,7 +1476,7 @@ class contentbuilderng_com_breezingforms
 
     public function isGroup($element_id)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select($db->quoteName(['type', 'flag1']))
             ->from($db->quoteName('#__facileforms_elements'))
@@ -1505,7 +1505,7 @@ class contentbuilderng_com_breezingforms
     public function getGroupDefinition($element_id)
     {
         $return = array();
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $q1 = $db->getQuery(true)
             ->select($db->quoteName('data2'))
             ->from($db->quoteName('#__facileforms_elements'))
@@ -1558,7 +1558,7 @@ class contentbuilderng_com_breezingforms
 
     public function saveRecordUserData($record_id, $user_id, $fullname, $username)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->update($db->quoteName('#__facileforms_records'))
             ->set($db->quoteName('user_id') . ' = ' . (int) $user_id)
@@ -1571,7 +1571,7 @@ class contentbuilderng_com_breezingforms
 
     public function clearDirtyRecordUserData($record_id)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->delete($db->quoteName('#__facileforms_records'))
             ->where($db->quoteName('user_id') . ' = 0')
@@ -1583,14 +1583,14 @@ class contentbuilderng_com_breezingforms
     public function saveRecord($record_id, array $cleaned_values)
     {
         $record_id = intval($record_id);
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $insert_id = 0;
         if (!$record_id) {
             $username = '-';
             $user_full_name = '-';
-            if ((int) (Factory::getApplication()->getIdentity()->id ?? 0) > 0) {
-                $username = (string) (Factory::getApplication()->getIdentity()->username ?? '');
-                $user_full_name = (string) (Factory::getApplication()->getIdentity()->name ?? '');
+            if ((int) (RuntimeContextHelper::getApplication()->getIdentity()->id ?? 0) > 0) {
+                $username = (string) (RuntimeContextHelper::getApplication()->getIdentity()->username ?? '');
+                $user_full_name = (string) (RuntimeContextHelper::getApplication()->getIdentity()->name ?? '');
             }
             $now = (new Date())->toSql();
             $actor = $this->getEffectiveActor();
@@ -1794,7 +1794,7 @@ class contentbuilderng_com_breezingforms
 
     function delete($items, $form_id)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         ArrayHelper::toInteger($items);
         if (count($items)) {
             $idList = implode(',', $items);
@@ -1833,7 +1833,7 @@ class contentbuilderng_com_breezingforms
 
     function isOwner($user_id, $record_id)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select($db->quoteName('id'))
             ->from($db->quoteName('#__facileforms_records'))
@@ -1850,7 +1850,7 @@ class contentbuilderng_com_breezingforms
         }
 
         try {
-            $columns = Factory::getContainer()->get(DatabaseInterface::class)->getTableColumns('#__facileforms_records', false);
+            $columns = RuntimeContextHelper::getDatabase()->getTableColumns('#__facileforms_records', false);
         } catch (\Throwable $e) {
             $columns = [];
         }

@@ -28,7 +28,7 @@ use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 
 
 /** @var AdministratorApplication $app */
-$app = Factory::getApplication();
+$app = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication();
 $session = $app->getSession();
 $textUtilityService = new TextUtilityService();
 $componentLayoutBase = dirname(__DIR__, 2) . '/layouts';
@@ -70,7 +70,7 @@ try {
     $formReferenceId = trim((string) ($this->item->reference_id ?? ''));
 
     if ($formId > 0 && $formType !== '' && $formReferenceId !== '') {
-        $db = Factory::getContainer()->get(\Joomla\Database\DatabaseInterface::class);
+        $db = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select($db->quoteName('record_id'))
             ->from($db->quoteName('#__contentbuilderng_records'))
@@ -175,7 +175,7 @@ $apiExampleSparseDetailUrl = $apiExampleSparseDetailDisplayUrl . $apiPreviewQuer
 $apiExampleSparseStatsUrl = $apiExampleSparseStatsDisplayUrl . $apiPreviewQuery;
 $isBreezingFormsType = in_array(
     (string) ($this->item->type ?? ''),
-    ['com_breezingforms', 'com_breezingforms_ng'],
+    ['com_breezingformsng'],
     true
 );
 $canEditByType = (string) ($this->item->type ?? '') !== 'com_contentbuilderng';
@@ -415,8 +415,7 @@ $prepareEffectOptions = [
 ];
 
 $typeDisplayAliases = [
-    'com_breezingforms' => 'BreezingForms',
-    'com_breezingforms_ng' => 'BreezingForms',
+    'com_breezingformsng' => 'BreezingForms',
     'com_contentbuilderng' => 'ContentBuilder',
 ];
 
@@ -737,7 +736,7 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     <input type="hidden" name="id" value="<?php echo (int) $this->item->id; ?>" />
     <input type="hidden" name="jform[id]" value="<?php echo (int) $this->item->id; ?>" />
     <input type="hidden" name="task" value="form.display" />
-    <input type="hidden" name="limitstart" value="<?php echo (int) Factory::getApplication()->getInput()->getInt('limitstart', 0); ?>" />
+    <input type="hidden" name="limitstart" value="<?php echo (int) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('limitstart', 0); ?>" />
     <input type="hidden" name="jform[ordering]" value="<?php echo $this->item->ordering; ?>" />
     <input type="hidden" name="jform[published]" value="<?php echo $this->item->published; ?>" />
     <input type="hidden" name="filter_order" value="<?php echo htmlspecialchars($listOrder, ENT_QUOTES, 'UTF-8'); ?>" />

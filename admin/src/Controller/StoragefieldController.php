@@ -23,13 +23,40 @@ namespace CB\Component\Contentbuilderng\Administrator\Controller;
 
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use Joomla\CMS\MVC\Controller\BaseController;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
 use CB\Component\Contentbuilderng\Administrator\Service\StorageFieldService;
 
 class StoragefieldController extends BaseController
 {
+    private function getApp(): CMSApplicationInterface
+    {
+        $app = $this->app;
+
+        if (!$app instanceof CMSApplicationInterface) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function getStorageFieldService(): StorageFieldService
+    {
+        return $this->getComponent()->getContainer()->get(StorageFieldService::class);
+    }
+
     public function add(): bool
     {
         $this->checkToken();
@@ -62,12 +89,7 @@ class StoragefieldController extends BaseController
         }
 
         try {
-            $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
-            if (!$component instanceof ContentbuilderngComponent) {
-                throw new \RuntimeException('Unexpected component instance');
-            }
-
-            $component->getContainer()->get(StorageFieldService::class)->addField($storageId, [
+            $this->getStorageFieldService()->addField($storageId, [
                 'name'             => $fieldname,
                 'title'            => $fieldtitle,
                 'is_group'         => $isGroup,

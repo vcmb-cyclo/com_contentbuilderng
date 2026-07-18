@@ -4,7 +4,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 \defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Installer\Installer;
 use Joomla\CMS\Log\Log;
 use Joomla\Database\DatabaseInterface;
@@ -226,7 +225,7 @@ final class PluginInstallerService
     {
         $db = $this->db();
         $installer = new Installer();
-        $installer->setDatabase(Factory::getContainer()->get(DatabaseInterface::class));
+        $installer->setDatabase($db);
         $supported = ['blank', 'thoth', 'dark', 'khepri'];
 
         try {
@@ -638,7 +637,7 @@ final class PluginInstallerService
             $db->execute();
 
             $installer = new Installer();
-            $installer->setDatabase(Factory::getContainer()->get(DatabaseInterface::class));
+            $installer->setDatabase($db);
 
             if (!$installer->uninstall('plugin', $oldId, 1)) {
                 $this->log("[WARNING] Installed {$folder}/{$newElement}, but could not remove {$folder}/{$oldElement}.", Log::WARNING);
@@ -719,7 +718,7 @@ final class PluginInstallerService
         }
 
         $installer = new Installer();
-        $installer->setDatabase(Factory::getContainer()->get(DatabaseInterface::class));
+        $installer->setDatabase($this->db());
 
         return (bool) $installer->install($path);
     }

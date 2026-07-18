@@ -23,7 +23,8 @@ final class ConfigImportServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->service = new ConfigImportService();
+        $reflection = new \ReflectionClass(ConfigImportService::class);
+        $this->service = $reflection->newInstanceWithoutConstructor();
     }
 
     // -------------------------------------------------------------------------

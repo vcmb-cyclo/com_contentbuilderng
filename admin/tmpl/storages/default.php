@@ -20,9 +20,9 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Factory;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 
-Factory::getApplication()->getDocument()->getWebAssetManager()->useScript('core');
+\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getDocument()->getWebAssetManager()->useScript('core');
 
-$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getDocument()->getWebAssetManager();
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 $wa->useStyle('com_contentbuilderng.admin-storages');
 

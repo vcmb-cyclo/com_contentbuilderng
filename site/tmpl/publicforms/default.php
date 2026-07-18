@@ -22,7 +22,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Application\CMSApplication;
 
-$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getDocument()->getWebAssetManager();
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 $wa->useStyle('com_contentbuilderng.frontend');
 
@@ -41,7 +41,7 @@ $th = 'th';
 if ($this->page_heading) {
     ?>
     <h1 class="display-6 mb-4">
-        <?php $app = Factory::getApplication();/** @var CMSApplication $app */ echo $app->getDocument()->getTitle(); ?>
+        <?php $app = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication();/** @var CMSApplication $app */ echo $app->getDocument()->getTitle(); ?>
     </h1>
     <?php
 }
@@ -311,7 +311,7 @@ if ($this->page_heading) {
 
     <input type="hidden" name="option" value="com_contentbuilderng" />
     <input type="hidden" name="task" value="" />
-    <input type="hidden" name="Itemid" value="<?php echo Factory::getApplication()->getInput()->getInt('Itemid', 0); ?>" />
+    <input type="hidden" name="Itemid" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0); ?>" />
     <input type="hidden" name="limitstart" value="" />
     <input type="hidden" name="boxchecked" value="0" />
     <input type="hidden" name="view" id="view" value="publicforms" />

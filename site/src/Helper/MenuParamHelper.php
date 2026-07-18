@@ -14,7 +14,6 @@ namespace CB\Component\Contentbuilderng\Site\Helper;
 
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
 
 final class MenuParamHelper
@@ -48,7 +47,7 @@ final class MenuParamHelper
             return $value;
         }
 
-        return $params->get($key, $default);
+        return $default;
     }
 
     public static function getConfiguredListLimit($app, int $formId = 0): int
@@ -68,7 +67,7 @@ final class MenuParamHelper
         $item = $itemId > 0 ? $menu->getItem($itemId) : $menu->getActive();
 
         if (!$item) {
-            return self::getFormInitialListLimit($formId);
+            return self::getFormInitialListLimit($app, $formId);
         }
 
         $menuLimit = max(0, (int) self::getMenuParam($item->getParams(), 'cb_list_limit', 0));
@@ -77,18 +76,18 @@ final class MenuParamHelper
             return $menuLimit;
         }
 
-        return self::getFormInitialListLimit($formId);
+        return self::getFormInitialListLimit($app, $formId);
     }
 
-    public static function hasExplicitListLimitRequest(): bool
+    public static function hasExplicitListLimitRequest($app): bool
     {
-        $input = Factory::getApplication()->getInput();
+        $input = $app->getInput();
         $getList = $input->get->get('list', [], 'array');
         $postList = $input->post->get('list', [], 'array');
         return array_key_exists('limit', $getList) || array_key_exists('limit', $postList);
     }
 
-    private static function getFormInitialListLimit(int $formId): int
+    private static function getFormInitialListLimit($app, int $formId): int
     {
         if ($formId < 1) {
             return 0;
@@ -100,7 +99,7 @@ final class MenuParamHelper
 
         try {
             /** @var DatabaseInterface $db */
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $app->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
             $query = $db->getQuery(true)
                 ->select($db->quoteName('initial_list_limit'))
                 ->from($db->quoteName('#__contentbuilderng_forms'))
@@ -132,14 +131,14 @@ final class MenuParamHelper
         return $intValue === 1 ? 1 : 0;
     }
 
-    public static function resolvePageHeadingToggle($value, ?int $globalValue = null, int $default = 1): int
+    public static function resolvePageHeadingToggle($app, $value, ?int $globalValue = null, int $default = 1): int
     {
         if ($value === null) {
             return $default;
         }
 
         if ($value === '') {
-            $globalValue = Factory::getApplication()->getParams()->get('show_page_heading', $globalValue ?? $default);
+            $globalValue = $app->getParams()->get('show_page_heading', $globalValue ?? $default);
 
             return self::resolveToggleValue($globalValue, $default);
         }
@@ -147,24 +146,16 @@ final class MenuParamHelper
         return self::resolveToggleValue($value, $default);
     }
 
-    public static function getResolvedMenuToggle($params, string $key, int $default = 0, ?string $legacyKey = null): int
+    public static function getResolvedMenuToggle($params, string $key, int $default = 0): int
     {
         $value = self::getMenuParam($params, $key, null);
-
-        if (($value === null || $value === '') && $legacyKey !== null) {
-            $value = self::getMenuParam($params, $legacyKey, null);
-        }
 
         return self::resolveToggleValue($value, $default);
     }
 
-    public static function resolveInputOrMenuToggle($app, string $key, int $default = 0, ?string $legacyKey = null): int
+    public static function resolveInputOrMenuToggle($app, string $key, int $default = 0): int
     {
         $raw = $app->getInput()->get($key, null, 'raw');
-
-        if (($raw === null || $raw === '') && $legacyKey !== null) {
-            $raw = $app->getInput()->get($legacyKey, null, 'raw');
-        }
 
         if ($raw !== null && $raw !== '') {
             return self::resolveToggleValue($raw, $default);
@@ -174,7 +165,7 @@ final class MenuParamHelper
             $menu = $app->getMenu()->getActive();
 
             if ($menu) {
-                return self::getResolvedMenuToggle($menu->getParams(), $key, $default, $legacyKey);
+                return self::getResolvedMenuToggle($menu->getParams(), $key, $default);
             }
         }
 

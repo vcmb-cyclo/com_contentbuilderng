@@ -16,7 +16,8 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Edit;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Date\Date;
 use Joomla\Registry\Registry;
 use Joomla\CMS\Router\Route;
@@ -36,6 +37,32 @@ class HtmlView extends BaseHtmlView
 	protected $article_options;
     private bool $frontend;
     private array $breezingFormsRenderCache = [];
+
+    private function getApp(): CMSApplicationInterface
+    {
+        return $this->getDocument()->getApplication();
+    }
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
+    }
+
+    private function getDispatcher()
+    {
+        return $this->getApp()->getDispatcher();
+    }
 
     private function toUnicodeSlug(string $string): string
     {
@@ -66,21 +93,18 @@ class HtmlView extends BaseHtmlView
 
         $resolved = true;
         $candidates = [
-            'com_breezingforms' => JPATH_ROOT . '/components/com_breezingforms/breezingforms.php',
-            'com_breezingforms_ng' => JPATH_ROOT . '/components/com_breezingforms_ng/breezingforms.php',
+            'com_breezingformsng' => JPATH_ROOT . '/components/com_breezingformsng/breezingformsng.php',
         ];
 
         try {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->select($db->quoteName('element'))
                 ->from($db->quoteName('#__extensions'))
                 ->where($db->quoteName('type') . ' = ' . $db->quote('component'))
                 ->where($db->quoteName('enabled') . ' = 1')
                 ->where(
-                    $db->quoteName('element') . ' IN ('
-                    . $db->quote('com_breezingforms') . ','
-                    . $db->quote('com_breezingforms_ng') . ')'
+                    $db->quoteName('element') . ' = ' . $db->quote('com_breezingformsng')
                 );
 
             $db->setQuery($query);
@@ -230,7 +254,8 @@ class HtmlView extends BaseHtmlView
 	function display($tpl = null)
 	{
 		// Get data from the model
-        $this->frontend = Factory::getApplication()->isClient('site');
+        $app = $this->getApp();
+        $this->frontend = $app->isClient('site');
 		//HTMLHelper::_('bootstrap.tooltip');
 
 		// Get data from the model
@@ -271,7 +296,7 @@ class HtmlView extends BaseHtmlView
 
 		if ($subject->edit_by_type) {
 
-				$db = Factory::getContainer()->get(DatabaseInterface::class);
+				$db = $this->getDatabase();
 				$formIdValue = (int) $subject->form_id;
 				$recordIdValue = (string) $subject->record_id;
 				$query = $db->getQuery(true)
@@ -310,12 +335,12 @@ class HtmlView extends BaseHtmlView
 			$registry->loadString($table->attribs ?? '');
 
 			// seems to be a joomla bug. if sef urls is enabled, "start" is used for paging in articles, else "limitstart" will be used
-			$limitstart = Factory::getApplication()->getInput()->getInt('limitstart', 0);
-			$start = Factory::getApplication()->getInput()->getInt('start', 0);
+			$limitstart = $app->getInput()->getInt('limitstart', 0);
+			$start = $app->getInput()->getInt('start', 0);
 			$page = $limitstart ? $limitstart : $start;
 			$hasBfShortcode = $this->hasBreezingFormsPlaceholder((string) ($table->text ?? ''));
 
-			$dispatcher = Factory::getApplication()->getDispatcher();
+			$dispatcher = $this->getDispatcher();
 			PluginHelper::importPlugin('content');
 
 			$this->dispatchContentPrepare($dispatcher, $table, $registry, $page);
@@ -379,7 +404,7 @@ class HtmlView extends BaseHtmlView
 							}
 						}
 					}
-					$subject->template = str_replace($match, Route::_('index.php?option=com_contentbuilderng&view=details&id=' . Factory::getApplication()->getInput()->getInt('id') . '&record_id=' . Factory::getApplication()->getInput()->getCmd('record_id', '') . '&Itemid=' . Factory::getApplication()->getInput()->getInt('Itemid', 0) . $sub), $subject->template);
+					$subject->template = str_replace($match, Route::_('index.php?option=com_contentbuilderng&view=details&id=' . $app->getInput()->getInt('id') . '&record_id=' . $app->getInput()->getCmd('record_id', '') . '&Itemid=' . $app->getInput()->getInt('Itemid', 0) . $sub), $subject->template);
 				}
 			}
 
@@ -401,7 +426,7 @@ class HtmlView extends BaseHtmlView
 							}
 						}
 					}
-					$table->toc = str_replace($match, Route::_('index.php?option=com_contentbuilderng&view=details&id=' . Factory::getApplication()->getInput()->getInt('id') . '&record_id=' . Factory::getApplication()->getInput()->getCmd('record_id', '') . '&Itemid=' . Factory::getApplication()->getInput()->getInt('Itemid', 0) . $sub), $table->toc);
+					$table->toc = str_replace($match, Route::_('index.php?option=com_contentbuilderng&view=details&id=' . $app->getInput()->getInt('id') . '&record_id=' . $app->getInput()->getCmd('record_id', '') . '&Itemid=' . $app->getInput()->getInt('Itemid', 0) . $sub), $table->toc);
 				}
 			}
 
@@ -422,13 +447,13 @@ class HtmlView extends BaseHtmlView
 					$themePlugin = 'thoth';
 					PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin);
 				}
-		$dispatcher = Factory::getApplication()->getDispatcher();
+		$dispatcher = $this->getDispatcher();
         $eventResult = $dispatcher->dispatch('onEditableTemplateCss', new \Joomla\CMS\Event\GenericEvent('onEditableTemplateCss', ['theme' => $themePlugin]));
         $results = $eventResult->getArgument('result') ?: [];
 		$theme_css = implode('', $results);
 		$this->theme_css = $theme_css;
 
-			$dispatcher = Factory::getApplication()->getDispatcher();
+			$dispatcher = $this->getDispatcher();
         $eventResult = $dispatcher->dispatch('onEditableTemplateJavascript', new \Joomla\CMS\Event\GenericEvent('onEditableTemplateJavascript', ['theme' => $themePlugin]));
         $results = $eventResult->getArgument('result') ?: [];
 		$theme_js = implode('', $results);

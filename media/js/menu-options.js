@@ -64,7 +64,6 @@
     function findDescription(fieldName) {
         const described = findField([
             `#jform_params_settings_${fieldName}-desc`,
-            `#jform_params_${fieldName}-desc`,
         ]);
         if (described) {
             return described;
@@ -72,7 +71,6 @@
 
         const input = findField([
             `[name="jform[params][settings][${fieldName}]"]`,
-            `[name="jform[params][${fieldName}]"]`,
         ]);
         const group = input ? input.closest('.control-group, .form-group, .mb-3') : null;
 
@@ -82,9 +80,7 @@
     function findInput(fieldName) {
         return findField([
             `#jform_params_settings_${fieldName}`,
-            `#jform_params_${fieldName}`,
             `[name="jform[params][settings][${fieldName}]"]`,
-            `[name="jform[params][${fieldName}]"]`,
         ]);
     }
 
@@ -228,7 +224,6 @@
         updateBooleanField('cb_show_details_top_bar', Number(values.cb_show_details_top_bar) === 1);
         updateBooleanField('cb_show_details_bottom_bar', Number(values.cb_show_details_bottom_bar) === 1);
         updateBooleanField('cb_show_details_back_button', Number(values.show_back_button) === 1);
-        updateBooleanField('show_back_button', Number(values.show_back_button) === 1);
         updateBooleanField('cb_filter_in_title', Number(values.cb_filter_in_title) === 1);
         updateBooleanField('cb_prefix_in_title', Number(values.cb_prefix_in_title) === 1);
     }
@@ -240,7 +235,7 @@
 
     function getResetFields(name) {
         return Array.from(document.querySelectorAll(
-            `[name="jform[params][settings][${escapeSelectorValue(name)}]"], [name="jform[params][${escapeSelectorValue(name)}]"]`
+            `[name="jform[params][settings][${escapeSelectorValue(name)}]"]`
         ));
     }
 

@@ -5,10 +5,11 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 \defined('_JEXEC') or die;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Access\Exception\NotAllowed;
 use Joomla\CMS\Application\CMSApplication;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
@@ -16,16 +17,33 @@ use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 
 class PermissionService
 {
-    private readonly FormResolverService $formResolverService;
+    public function __construct(
+        private readonly CMSApplicationInterface $app,
+        private readonly DatabaseInterface $db,
+        private readonly FormResolverService $formResolverService,
+    ) {
+    }
 
-    public function __construct()
+    public static function createFromRuntimeContext(): self
     {
-        $this->formResolverService = new FormResolverService();
+        $app = RuntimeContextHelper::getApplication();
+        $db = RuntimeContextHelper::getDatabase();
+
+        return new self($app, $db, new FormResolverService($app));
     }
 
     private function getApp(): CMSApplication
     {
-        return Factory::getApplication();
+        if (!$this->app instanceof CMSApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $this->app;
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->db;
     }
 
     private function getInput()
@@ -52,7 +70,7 @@ class PermissionService
         static $parentByGroupId = null;
 
         if ($parentByGroupId === null) {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->select([
                     $db->quoteName('id'),
@@ -95,7 +113,7 @@ class PermissionService
 
         $session->remove($key);
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
 
         $query = $db->getQuery(true)
             ->select([
@@ -308,7 +326,7 @@ class PermissionService
             $userReturn = $permissions['own' . $suffix][$action];
 
             if (is_array($userReturn) && !empty($userReturn['own'])) {
-                $db = Factory::getContainer()->get(DatabaseInterface::class);
+                $db = $this->getDatabase();
                 static $typeref;
 
                 if (isset($typeref[(int) $userReturn['form_id']]) && is_array($typeref[(int) $userReturn['form_id']])) {

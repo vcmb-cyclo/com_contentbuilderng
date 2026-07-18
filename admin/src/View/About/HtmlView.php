@@ -17,11 +17,12 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Document\HtmlDocument;
 use Joomla\CMS\Uri\Uri;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\Router\Route;
+use Joomla\CMS\Language\Language;
 use Joomla\Database\DatabaseInterface;
 use CB\Component\Contentbuilderng\Administrator\Service\OpenApiSpecService;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 
 class HtmlView extends BaseHtmlView
 {
@@ -41,11 +42,42 @@ class HtmlView extends BaseHtmlView
     protected array $packedPayloadReport = [];
     protected array $repairWorkflow = [];
 
+    private function getApp(): AdministratorApplication
+    {
+        $app = $this->app;
+
+        if (!$app instanceof AdministratorApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
+    }
+
+    private function getLanguage(): Language
+    {
+        return $this->getApp()->getLanguage();
+    }
+
     #[\Override]
     public function display($tpl = null)
     {
-        /** @var AdministratorApplication $app */
-        $app = Factory::getApplication();
+        $app = $this->getApp();
 
         if ($this->getLayout() === 'help') {
             parent::display($tpl);
@@ -198,7 +230,7 @@ class HtmlView extends BaseHtmlView
         ];
 
         try {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->select($db->quoteName('manifest_cache'))
                 ->from($db->quoteName('#__extensions'))
@@ -277,7 +309,7 @@ class HtmlView extends BaseHtmlView
         }
 
         try {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
 
             if ($source === 'elements') {
                 $query = $db->getQuery(true)
@@ -350,7 +382,7 @@ class HtmlView extends BaseHtmlView
     private function getInstalledPlugins(): array
     {
         try {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->select([
                     $db->quoteName('extension_id'),
@@ -378,7 +410,7 @@ class HtmlView extends BaseHtmlView
         }
 
         $plugins = [];
-        $language = Factory::getApplication()->getLanguage();
+        $language = $this->getLanguage();
 
         foreach ($rows as $row) {
             if (!is_array($row)) {

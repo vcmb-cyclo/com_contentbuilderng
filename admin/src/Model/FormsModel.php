@@ -22,7 +22,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\Database\QueryInterface;
 use Joomla\Utilities\ArrayHelper;
@@ -34,6 +34,28 @@ use CB\Component\Contentbuilderng\Administrator\Model\FormModel;
 
 class FormsModel extends ListModel
 {
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = parent::getComponent();
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function getApp(): CMSApplication
+    {
+        $app = $this->getComponent()->getContainer()->get(CMSApplicationInterface::class);
+
+        if (!$app instanceof CMSApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
     public function __construct(
         array $config = [],
         ?MVCFactoryInterface $factory = null
@@ -59,8 +81,7 @@ class FormsModel extends ListModel
     #[\Override]
     protected function populateState($ordering = 'a.ordering', $direction = 'ASC')
     {
-        /** @var CMSApplication $app */
-        $app = Factory::getApplication();
+        $app = $this->getApp();
 
         // ✅ appels standard ListModel
         parent::populateState($ordering, $direction);
@@ -274,11 +295,7 @@ class FormsModel extends ListModel
             return false;
         }
 
-        $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
-        if (!$component instanceof ContentbuilderngComponent) {
-            return false;
-        }
-        $factory = $component->getMVCFactory();
+        $factory = $this->getComponent()->getMVCFactory();
 
         /** @var FormModel|null $formModel */
         $formModel = $factory->createModel('form', 'Administrator', ['ignore_request' => true]);

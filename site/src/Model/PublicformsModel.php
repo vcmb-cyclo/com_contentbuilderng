@@ -16,7 +16,7 @@ namespace CB\Component\Contentbuilderng\Site\Model;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Pagination\Pagination;
 use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\CMS\Application\SiteApplication;
@@ -70,8 +70,10 @@ class PublicformsModel extends ListModel
         // IMPORTANT : on transmet factory/app/input à BaseController
         parent::__construct($config, $factory);
 
-        /** @var SiteApplication $app */
-        $app = Factory::getApplication();
+        $app = $this->getComponent()->getContainer()->get(CMSApplicationInterface::class);
+        if (!$app instanceof SiteApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
         $this->app = $app;
         $option = 'com_contentbuilderng';
 
@@ -118,6 +120,7 @@ class PublicformsModel extends ListModel
                 $resolvedMenuParams = $menu->getParams((int) $item->id);
                 if ($item->getParams()->get('show_page_heading', null) !== null) {
                     $this->_show_page_heading = MenuParamHelper::resolvePageHeadingToggle(
+                        $this->app,
                         $item->getParams()->get('show_page_heading', null),
                         $resolvedMenuParams?->get('show_page_heading', null),
                         $this->_show_page_heading ? 1 : 0
@@ -226,7 +229,7 @@ class PublicformsModel extends ListModel
         $perms = array();
         if ($this->show_permissions) {
             foreach ($this->items as $item) {
-                $permissionService = new PermissionService();
+                $permissionService = PermissionService::createFromRuntimeContext();
                 $permissionService->setPermissions($item->id, '', '_fe');
                 $view = $permissionService->authorizeFe('view');
                 $new = $permissionService->authorizeFe('new');

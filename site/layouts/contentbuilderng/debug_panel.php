@@ -31,7 +31,7 @@ if ($cbRecordId > 0) {
     $debugIdBase .= '-record-' . $cbRecordId;
 }
 
-$identity = Factory::getApplication()->getIdentity();
+$identity = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getIdentity();
 $accountId = (int) ($identity->id ?? 0);
 $accountName = trim((string) ($identity->name ?? ''));
 $accountUsername = trim((string) ($identity->username ?? ''));
@@ -66,7 +66,7 @@ $formatValue = static function ($value): string {
     return (string) $value;
 };
 
-$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getDocument()->getWebAssetManager();
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 $wa->useStyle('com_contentbuilderng.debug-panel');
 ?>

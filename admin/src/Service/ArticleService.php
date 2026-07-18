@@ -7,7 +7,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Cache\CacheControllerFactoryInterface;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\Database\DatabaseInterface;
@@ -18,17 +17,32 @@ class ArticleService
     private readonly FormResolverService $formResolverService;
     private readonly TemplateRenderService $templateRenderService;
     private readonly TextUtilityService $textUtilityService;
+    private readonly DatabaseInterface $db;
+    private readonly CacheControllerFactoryInterface $cacheControllerFactory;
 
-    public function __construct(TemplateRenderService $templateRenderService)
+    public function __construct(
+        private readonly CMSApplication $app,
+        TemplateRenderService $templateRenderService,
+        FormResolverService $formResolverService,
+        DatabaseInterface $db,
+        CacheControllerFactoryInterface $cacheControllerFactory
+    )
     {
-        $this->formResolverService = new FormResolverService();
+        $this->formResolverService = $formResolverService;
         $this->templateRenderService = $templateRenderService;
         $this->textUtilityService = new TextUtilityService();
+        $this->db = $db;
+        $this->cacheControllerFactory = $cacheControllerFactory;
     }
 
     private function getApp(): CMSApplication
     {
-        return Factory::getApplication();
+        return $this->app;
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->db;
     }
 
     private function getCurrentUserId(): int
@@ -72,7 +86,7 @@ class ArticleService
             }
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $query = $db->getQuery(true)
             ->select('*')
             ->from($db->quoteName('#__contentbuilderng_forms'))
@@ -710,12 +724,10 @@ class ArticleService
 
     private function cleanComponentCaches(array $groups, array $options = []): void
     {
-        $cacheFactory = Factory::getContainer()->get(CacheControllerFactoryInterface::class);
-
         foreach ($groups as $group) {
             $cacheOptions = $options;
             $cacheOptions['defaultgroup'] = $group;
-            $cacheFactory->createCacheController('callback', $cacheOptions)->clean();
+            $this->cacheControllerFactory->createCacheController('callback', $cacheOptions)->clean();
         }
     }
 

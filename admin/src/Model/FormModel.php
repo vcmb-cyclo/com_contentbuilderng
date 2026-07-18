@@ -23,7 +23,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\Language\Text;
@@ -31,6 +30,7 @@ use Joomla\Filesystem\Folder;
 use Joomla\Filesystem\File;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
@@ -55,9 +55,26 @@ class FormModel extends AdminModel
         $this->_default_list_states = $this->buildDefaultListStates();
     }
 
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = parent::getComponent();
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
     private function getApp(): CMSApplication
     {
-        return Factory::getApplication();
+        $app = $this->getComponent()->getContainer()->get(CMSApplicationInterface::class);
+
+        if (!$app instanceof CMSApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
     }
 
     private function getInput()
@@ -65,15 +82,14 @@ class FormModel extends AdminModel
         return $this->getApp()->getInput();
     }
 
+    private function getDispatcher()
+    {
+        return $this->getApp()->getDispatcher();
+    }
+
     private function getFormSupportService(): FormSupportService
     {
-        $component = $this->getApp()->bootComponent('com_contentbuilderng');
-
-        if (!$component instanceof ContentbuilderngComponent) {
-            throw new \RuntimeException('Unexpected component instance');
-        }
-
-        return $component->getContainer()->get(FormSupportService::class);
+        return $this->getComponent()->getContainer()->get(FormSupportService::class);
     }
 
     private function getCurrentFormId(): int
@@ -779,7 +795,7 @@ class FormModel extends AdminModel
         if ($data->type && $data->reference_id) {
             $data->form = FormSourceFactory::getForm((string) $data->type, (string) $data->reference_id);
             if (!$data->form || !$data->form->exists) {
-                if ((string) $data->type === 'com_breezingforms') {
+                if ((string) $data->type === 'com_breezingformsng') {
                     $this->getApp()->enqueueMessage(
                         Text::sprintf('COM_CONTENTBUILDERNG_BREEZINGFORMS_SOURCE_NOT_FOUND', (int) $data->reference_id),
                         'warning'
@@ -1246,7 +1262,7 @@ class FormModel extends AdminModel
 
         $isBreezingFormsType = in_array(
             (string) ($jform['type'] ?? ''),
-            ['com_breezingforms', 'com_breezingforms_ng'],
+            ['com_breezingformsng'],
             true
         );
         $editByTypeEnabled = !empty($jform['edit_by_type']);
@@ -1351,7 +1367,7 @@ class FormModel extends AdminModel
         }
 
         if (
-            in_array((string) ($jform['type'] ?? ''), ['com_breezingforms', 'com_breezingforms_ng'], true)
+            (string) ($jform['type'] ?? '') === 'com_breezingformsng'
             && (int) ($jform['reference_id'] ?? 0) < 1
         ) {
             $app->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_BREEZINGFORMS_SOURCE_SELECT_REQUIRED'), 'notice');
@@ -1491,7 +1507,7 @@ class FormModel extends AdminModel
 
                     // Trigger the onContentBeforeDelete event.
                     if ($table->load($article)) {
-                        $dispatcher = Factory::getApplication()->getDispatcher();
+                        $dispatcher = $this->getDispatcher();
                         $eventObj = new \Joomla\CMS\Event\Model\BeforeDeleteEvent('onContentBeforeDelete', [
                             'context' => 'com_content.article',
                             'subject' => $table,
@@ -1506,7 +1522,7 @@ class FormModel extends AdminModel
 
                     // Trigger the onContentAfterDelete event.
                     $table->reset();
-                    $dispatcher = Factory::getApplication()->getDispatcher();
+                    $dispatcher = $this->getDispatcher();
                     $eventObj = new \Joomla\CMS\Event\Model\AfterDeleteEvent('onContentAfterDelete', [
                         'context' => 'com_content.article',
                         'subject' => $table,
@@ -1670,7 +1686,6 @@ class FormModel extends AdminModel
             $obj->published = 0;
 
             // $obj->created = (new Date())->toSql();
-            // $obj->created_by = Factory::getApplication()->getIdentity()->id;
             $obj->modified = (new Date())->toSql();
             $obj->modified_by = $this->getApp()->getIdentity()->id;
 

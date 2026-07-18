@@ -37,7 +37,7 @@ $showPagination = $pagPages > 1;
 $rangeStart = $pagStart + 1;
 $rangeEnd = min($pagStart + $pagLimit, $pagTotal);
 
-$input = Factory::getApplication()->getInput();
+$input = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput();
 $params = Uri::getInstance()->getQuery(true);
 $params['option'] = 'com_contentbuilderng';
 $params['task'] = 'list.display';

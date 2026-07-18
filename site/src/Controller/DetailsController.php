@@ -17,7 +17,6 @@ namespace CB\Component\Contentbuilderng\Site\Controller;
 
 use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\MVC\Controller\BaseController;
@@ -40,9 +39,14 @@ class DetailsController extends BaseController
     private bool $frontend;
     private $_show_back_button = true;
 
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->siteApp->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+    }
+
     private function getPermissionService(): PermissionService
     {
-        return new PermissionService();
+        return PermissionService::createFromRuntimeContext();
     }
 
     public function __construct(
@@ -75,15 +79,14 @@ class DetailsController extends BaseController
                     $this->_show_back_button = MenuParamHelper::getResolvedMenuToggle(
                         $params,
                         'cb_show_details_back_button',
-                        1,
-                        'show_back_button'
+                        1
                     ) === 1;
                 }
             }
         }
 
         if ($this->siteApp->getInput()->getWord('view', '') == 'latest') {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
 
             $formId = $this->siteApp->getInput()->getInt('id', 0);
             $query = $db->getQuery(true)
@@ -227,7 +230,7 @@ class DetailsController extends BaseController
         $limitKey = $stateKeyPrefix . '.limit';
         $startKey = $stateKeyPrefix . '.start';
         $configuredLimit = MenuParamHelper::getConfiguredListLimit($app, (int) $app->getInput()->getInt('id', 0));
-        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest();
+        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest($this->siteApp);
 
         $limit = $explicitLimitRequest && isset($list['limit']) ? (int) $list['limit'] : 0;
         if ($limit === 0) {

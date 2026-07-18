@@ -26,9 +26,11 @@ use Joomla\CMS\Component\Router\RouterServiceInterface;
 use Joomla\CMS\Component\Router\RouterServiceTrait;
 use Joomla\CMS\Extension\MVCComponent;
 use Joomla\CMS\HTML\HTMLRegistryAwareTrait;
+use Joomla\CMS\Application\CMSApplicationInterface;
+use Joomla\Database\DatabaseInterface;
 use Psr\Container\ContainerInterface;
-use Joomla\CMS\Factory;
 use LogicException;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 
 
 class ContentbuilderngComponent extends MVCComponent implements BootableExtensionInterface, RouterServiceInterface
@@ -42,10 +44,14 @@ class ContentbuilderngComponent extends MVCComponent implements BootableExtensio
     public function boot(ContainerInterface $container): void
     {
         $this->container = $container;
-        // Charge les langues du core (lib_joomla) pour avoir les clés JLIB_*/J* traduites.
-        Factory::getApplication()->getLanguage()->load('lib_joomla', JPATH_ADMINISTRATOR, null, true);
+        $app = $container->get(CMSApplicationInterface::class);
+        $db = $container->get(DatabaseInterface::class);
+        RuntimeContextHelper::initialize($app, $db);
 
-        Factory::getApplication()->getLanguage()->load(
+        // Charge les langues du core (lib_joomla) pour avoir les clés JLIB_*/J* traduites.
+        $app->getLanguage()->load('lib_joomla', JPATH_ADMINISTRATOR, null, true);
+
+        $app->getLanguage()->load(
             'com_contentbuilderng',
             JPATH_ADMINISTRATOR . '/components/com_contentbuilderng',
             null,

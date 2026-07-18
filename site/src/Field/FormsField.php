@@ -15,7 +15,6 @@ namespace CB\Component\Contentbuilderng\Site\Field;
 
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
@@ -42,23 +41,20 @@ class FormsField extends FormField
         'default_category',
     ];
 
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getDocument()->getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+    }
+
     private function getSelectedFormId(): int
     {
         $selectedFormId = (int) ($this->form?->getValue('form_id', 'params.settings', 0) ?? 0);
-
-        if ($selectedFormId <= 0) {
-            $selectedFormId = (int) ($this->form?->getValue('form_id', 'params', 0) ?? 0);
-        }
 
         if ($selectedFormId <= 0 && method_exists($this->form, 'getData')) {
             $data = $this->form->getData();
 
             if (is_object($data) && method_exists($data, 'get')) {
                 $selectedFormId = (int) $data->get('params.settings.form_id', 0);
-
-                if ($selectedFormId <= 0) {
-                    $selectedFormId = (int) $data->get('params.form_id', 0);
-                }
             }
         }
 
@@ -73,7 +69,7 @@ class FormsField extends FormField
     {
         $class = (string) ($this->element['class'] ?: '');
         $selectedFormId = $this->getSelectedFormId();
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $tableName = $db->getPrefix() . 'contentbuilderng_forms';
         $optionalColumns = [];
 
@@ -179,7 +175,7 @@ class FormsField extends FormField
             $defaultValueFormat = 'Default value: %s';
         }
 
-        $document = Factory::getApplication()->getDocument();
+        $document = $this->getDocument();
         $wa = $document->getWebAssetManager();
         $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
         if (!$wa->assetExists('style', self::MENU_OPTIONS_STYLE)) {

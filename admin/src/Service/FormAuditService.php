@@ -14,7 +14,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 \defined('_JEXEC') or die;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
-use CB\Component\Contentbuilderng\Administrator\types\contentbuilderng_com_breezingforms;
+use CB\Component\Contentbuilderng\Administrator\types\contentbuilderng_com_breezingformsng;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\Database\DatabaseInterface;
@@ -179,7 +179,7 @@ final class FormAuditService
 
     private function isIgnoredUnsyncedSourceField(string $sourceType, string $name): bool
     {
-        if (!in_array($sourceType, ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true)) {
+        if ($sourceType !== 'com_breezingformsng') {
             return false;
         }
 
@@ -215,14 +215,14 @@ final class FormAuditService
             return $definitionsByName;
         }
 
-        if (!class_exists(contentbuilderng_com_breezingforms::class)) {
-            $file = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/src/types/com_breezingforms.php';
+        if (!class_exists(contentbuilderng_com_breezingformsng::class)) {
+            $file = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/src/types/com_breezingformsng.php';
             if (is_file($file)) {
                 require_once $file;
             }
         }
 
-        if (!class_exists(contentbuilderng_com_breezingforms::class)) {
+        if (!class_exists(contentbuilderng_com_breezingformsng::class)) {
             return $definitionsByName = [
                 'bf_viewed' => ['label' => 'bf_viewed', 'name' => 'bf_viewed'],
                 'bf_exported' => ['label' => 'bf_exported', 'name' => 'bf_exported'],
@@ -231,7 +231,7 @@ final class FormAuditService
         }
 
         $definitionsByName = [];
-        foreach (contentbuilderng_com_breezingforms::getSystemFieldDefinitions() as $definition) {
+        foreach (contentbuilderng_com_breezingformsng::getSystemFieldDefinitions() as $definition) {
             $fieldName = trim((string) ($definition['name'] ?? ''));
             if ($fieldName !== '') {
                 $definitionsByName[$fieldName] = $definition;
@@ -409,7 +409,7 @@ final class FormAuditService
 
     private function isBreezingFormsSourceType(string $sourceType): bool
     {
-        return in_array($sourceType, ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true);
+        return $sourceType === 'com_breezingformsng';
     }
 
     private function formatSourceFieldAuditLabel(string $sourceType, string $name): string

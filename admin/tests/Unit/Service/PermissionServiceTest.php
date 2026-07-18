@@ -14,11 +14,10 @@ declare(strict_types=1);
 namespace CB\Component\Contentbuilderng\Tests\Unit\Service;
 
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Administrator\Service\FormResolverService;
 use CB\Component\Contentbuilderng\Tests\Stubs\Application;
-use CB\Component\Contentbuilderng\Tests\Stubs\Container;
 use CB\Component\Contentbuilderng\Tests\Stubs\Database;
 use Joomla\CMS\Access\Access;
-use Joomla\CMS\Factory;
 use PHPUnit\Framework\TestCase;
 
 final class PermissionServiceTest extends TestCase
@@ -28,14 +27,9 @@ final class PermissionServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $reflection = new \ReflectionClass(PermissionService::class);
-        $this->service = $reflection->newInstanceWithoutConstructor();
         $this->app = new Application();
         $this->app->setIdentity(0, '', '');
-        Factory::setContainer(new Container([
-            \Joomla\Database\DatabaseInterface::class => new Database(),
-        ]));
-        Factory::setApplication($this->app);
+        $this->service = new PermissionService($this->app, new Database(), new FormResolverService($this->app));
         Access::$groupsByUser = [
             0 => [9],
         ];

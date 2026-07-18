@@ -16,7 +16,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\User\UserFactoryInterface;
@@ -26,6 +25,7 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\User\UserHelper;
 use Joomla\CMS\Application\ApplicationHelper;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Mail\MailerFactoryInterface;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Application\AdministratorApplication;
@@ -33,12 +33,34 @@ use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 
 class VerifyModel extends BaseDatabaseModel
 {
 
     private $frontend = false;
     private AdministratorApplication|SiteApplication $app;
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = parent::getComponent();
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function createMailer()
+    {
+        return $this->getComponent()->getContainer()->get(MailerFactoryInterface::class)->createMailer();
+    }
+
+    private function getUserFactory(): UserFactoryInterface
+    {
+        return $this->getComponent()->getContainer()->get(UserFactoryInterface::class);
+    }
 
     private function getInput(): Input
     {
@@ -90,7 +112,7 @@ class VerifyModel extends BaseDatabaseModel
         // IMPORTANT : on transmet factory/app/input à ListModel
         parent::__construct($config, $factory);
 
-        $app = Factory::getApplication();
+        $app = $this->getComponent()->getContainer()->get(CMSApplicationInterface::class);
         if (!$app instanceof AdministratorApplication && !$app instanceof SiteApplication) {
             throw new \RuntimeException('Unexpected application instance');
         }
@@ -486,9 +508,8 @@ class VerifyModel extends BaseDatabaseModel
         $query = $db->getQuery(true);
 
         // Activate the user.
-        $container = Factory::getContainer();
         // To create a user instance:
-        $user = $container->get(UserFactoryInterface::class)->loadUserById($userId);
+        $user = $this->getUserFactory()->loadUserById($userId);
         $user->set('activation', '');
         $user->set('block', '0');
 
@@ -537,7 +558,7 @@ class VerifyModel extends BaseDatabaseModel
 
 
         // Send the registration email.
-        $return = Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer()->sendMail($data['mailfrom'], $data['fromname'], $data['email'], $emailSubject, $emailBody);
+        $return = $this->createMailer()->sendMail($data['mailfrom'], $data['fromname'], $data['email'], $emailSubject, $emailBody);
 
         $this->app->enqueueMessage(Text::_('COM_USERS_REGISTRATION_ADMINACTIVATE_SUCCESS'));
         $this->app->redirect(Route::_('index.php?option=com_users', false));
@@ -569,7 +590,7 @@ class VerifyModel extends BaseDatabaseModel
         PluginHelper::importPlugin('user');
 
         $query = $db->getQuery(true);
-        $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
+        $userFactory = $this->getUserFactory();
 
         // Activate the user.
         $user = $userFactory->loadUserById($userId);
@@ -630,7 +651,7 @@ class VerifyModel extends BaseDatabaseModel
                 $usercreator = $userFactory->loadUserById((int) $row->id);
 
                 if ($usercreator->authorise('core.create', 'com_users')) {
-                    $return = Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer()->sendMail($data['mailfrom'], $data['fromname'], $row->email, $emailSubject, $emailBody);
+                    $return = $this->createMailer()->sendMail($data['mailfrom'], $data['fromname'], $row->email, $emailSubject, $emailBody);
 
                     // Check for an error.
                     if ($return !== true) {
@@ -667,7 +688,7 @@ class VerifyModel extends BaseDatabaseModel
                 $data['username']
             );
 
-            $return = Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer()->sendMail($data['mailfrom'], $data['fromname'], $data['email'], $emailSubject, $emailBody);
+            $return = $this->createMailer()->sendMail($data['mailfrom'], $data['fromname'], $data['email'], $emailSubject, $emailBody);
 
             // Check for an error.
             if ($return !== true) {

@@ -82,7 +82,7 @@
         const typeSelect = document.getElementById('cb_form_type_select');
         if (typeSelect) {
             const isBreezingFormsType = (value) =>
-                value === 'com_breezingforms' || value === 'com_breezingforms_ng';
+                value === 'com_breezingformsng';
 
             const updateTypeTitle = () => {
                 const option = typeSelect.options[typeSelect.selectedIndex];

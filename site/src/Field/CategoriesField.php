@@ -15,7 +15,6 @@ namespace CB\Component\Contentbuilderng\Site\Field;
 
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
@@ -24,10 +23,16 @@ class CategoriesField extends FormField
 {
     protected $type = 'Categories';
 
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getDocument()->getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+    }
+
     protected function getInput()
     {
         $options = [];
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $app = $this->getDocument()->getApplication();
+        $db = $this->getDatabase();
         $query = $db->getQuery(true);
 
         $query->select('a.id AS value, a.title AS text, a.level');
@@ -43,7 +48,7 @@ class CategoriesField extends FormField
         try {
             $options = $db->loadObjectList();
         } catch (\Exception $e) {
-            Factory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+            $app->enqueueMessage($e->getMessage(), 'error');
         }
 
         for ($i = 0, $n = count($options); $i < $n; $i++) {
@@ -54,7 +59,7 @@ class CategoriesField extends FormField
             $options[$i]->text = str_repeat('- ', $options[$i]->level) . $options[$i]->text;
         }
 
-        $user = Factory::getApplication()->getIdentity();
+        $user = $app->getIdentity();
 
         foreach ($options as $i => $option) {
             if (!$user->authorise('core.create', 'com_content.category.' . $option->value)) {

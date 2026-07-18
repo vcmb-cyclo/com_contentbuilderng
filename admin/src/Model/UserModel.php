@@ -17,16 +17,28 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 \defined('_JEXEC') or die;
 
 use Joomla\Utilities\ArrayHelper;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 
 class UserModel extends BaseDatabaseModel
 {
     private $_form_id = 0;
 
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = parent::getComponent();
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
     private function getApp()
     {
-        return Factory::getApplication();
+        return $this->getComponent()->getContainer()->get(CMSApplicationInterface::class);
     }
 
     private function getInput()

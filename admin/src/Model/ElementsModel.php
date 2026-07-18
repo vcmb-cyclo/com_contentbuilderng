@@ -22,11 +22,12 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 \defined('_JEXEC') or die;
 
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\MVC\Model\ListModel;
-use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Database\DatabaseQuery;
 use Joomla\Utilities\ArrayHelper;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Table\ElementoptionsTable;
 
 class ElementsModel extends ListModel
@@ -35,6 +36,17 @@ class ElementsModel extends ListModel
      * ID du formulaire courant (form_id)
      */
     protected int $formId = 0;
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = parent::getComponent();
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
 
     /**
      * Constructor.
@@ -87,7 +99,13 @@ class ElementsModel extends ListModel
 
     private function getApp(): CMSApplication
     {
-        return Factory::getApplication();
+        $app = $this->getComponent()->getContainer()->get(CMSApplicationInterface::class);
+
+        if (!$app instanceof CMSApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
     }
 
     private function getInput()
@@ -113,8 +131,7 @@ class ElementsModel extends ListModel
     #[\Override]
     protected function populateState($ordering = 'ordering', $direction = 'asc')
     {
-        /** @var CMSApplication $app */
-        $app = Factory::getApplication();
+        $app = $this->getApp();
 
         // Récupération du form_id depuis l'input (obligatoire pour cette vue)
             // 1) priorité à la propriété (injectée depuis la vue)

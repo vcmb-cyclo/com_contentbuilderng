@@ -16,7 +16,7 @@ namespace CB\Component\Contentbuilderng\Site\Model;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
@@ -66,15 +66,17 @@ class DetailsModel extends ListModel
         // IMPORTANT : on transmet factory/app/input à ListModel
         parent::__construct($config, $factory);
 
-        /** @var SiteApplication $app */
-        $app = Factory::getApplication();
-        $component = $app->bootComponent('com_contentbuilderng');
+        $component = $this->getComponent();
         if (!$component instanceof ContentbuilderngComponent) {
             throw new \RuntimeException('Unexpected component instance');
         }
         $container = $component->getContainer();
+        $app = $container->get(CMSApplicationInterface::class);
+        if (!$app instanceof SiteApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
         $this->app = $app;
-        $this->runtimeUtilityService = new RuntimeUtilityService();
+        $this->runtimeUtilityService = new RuntimeUtilityService($app);
         $this->templateRenderService = $container->get(TemplateRenderService::class);
         $this->listSupportService = $container->get(ListSupportService::class);
         $option = 'com_contentbuilderng';
@@ -94,8 +96,7 @@ class DetailsModel extends ListModel
                 $this->_show_back_button = MenuParamHelper::getResolvedMenuToggle(
                     $params,
                     'cb_show_details_back_button',
-                    1,
-                    'show_back_button'
+                    1
                 ) === 1;
                 $menuRecordId = MenuParamHelper::getMenuParam($params, 'record_id', null);
 
@@ -109,6 +110,7 @@ class DetailsModel extends ListModel
                 $resolvedMenuParams = $menu->getParams((int) $item->id);
                 if ($item->getParams()->get('show_page_heading', null) !== null) {
                     $this->_show_page_heading = MenuParamHelper::resolvePageHeadingToggle(
+                        $this->app,
                         $item->getParams()->get('show_page_heading', null),
                         $resolvedMenuParams?->get('show_page_heading', null),
                         $this->_show_page_heading ? 1 : 0
@@ -471,8 +473,8 @@ class DetailsModel extends ListModel
                             $this->_record_id = $data->record_id;
                         } else {
                             $app->getInput()->set('cbIsNew', 1);
-                            (new PermissionService())->setPermissions($app->getInput()->getInt('id', 0), 0, $this->frontend ? '_fe' : '');
-                            $auth = $this->frontend ? (new PermissionService())->authorizeFe('new') : (new PermissionService())->authorize('new');
+                            (PermissionService::createFromRuntimeContext())->setPermissions($app->getInput()->getInt('id', 0), 0, $this->frontend ? '_fe' : '');
+                            $auth = $this->frontend ? (PermissionService::createFromRuntimeContext())->authorizeFe('new') : (PermissionService::createFromRuntimeContext())->authorize('new');
 
                             if ($auth) {
                                 $state = $this->resolveListState();
@@ -516,8 +518,7 @@ class DetailsModel extends ListModel
                     $this->_show_back_button = MenuParamHelper::resolveInputOrMenuToggle(
                         $app,
                         'cb_show_details_back_button',
-                        (int) ($data->show_back_button ?? 1),
-                        'show_back_button'
+                        (int) ($data->show_back_button ?? 1)
                     ) === 1;
                     $data->show_back_button = $this->_show_back_button;
 
@@ -728,7 +729,7 @@ class DetailsModel extends ListModel
         $limitKey = $stateKeyPrefix . '.limit';
         $startKey = $stateKeyPrefix . '.start';
         $configuredLimit = MenuParamHelper::getConfiguredListLimit($app, (int) $app->getInput()->getInt('id', 0));
-        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest();
+        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest($app);
 
         $limit = $explicitLimitRequest && isset($list['limit']) ? (int) $list['limit'] : 0;
         if ($limit === 0) {

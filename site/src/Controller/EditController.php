@@ -39,7 +39,7 @@ class EditController extends BaseController
 
     private function getPermissionService(): PermissionService
     {
-        return new PermissionService();
+        return PermissionService::createFromRuntimeContext();
     }
 
     private function getEditModel(array $config = ['ignore_request' => true]): EditModel
@@ -394,7 +394,7 @@ class EditController extends BaseController
         $limitKey = $stateKeyPrefix . '.limit';
         $startKey = $stateKeyPrefix . '.start';
         $configuredLimit = MenuParamHelper::getConfiguredListLimit($this->siteApp, (int) $this->input->getInt('id', 0));
-        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest();
+        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest($this->siteApp);
 
         $limit = $explicitLimitRequest && isset($list['limit']) ? (int) $list['limit'] : 0;
         if ($limit === 0) {

@@ -16,21 +16,32 @@ namespace CB\Component\Contentbuilderng\Administrator\View\User;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use CB\Component\Contentbuilderng\Administrator\View\Contentbuilderng\HtmlView as BaseHtmlView;
 use CB\Component\Contentbuilderng\Administrator\Model\UserModel;
 
 class HtmlView extends BaseHtmlView
 {
+    private function getApp(): CMSApplicationInterface
+    {
+        $app = $this->app;
+
+        if (!$app instanceof CMSApplicationInterface) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
     function display($tpl = null)
     {
         /** @var UserModel $model */
         $model = $this->getModel();
         $subject = $model->getData();
         $this->subject = $subject;
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $formId = $app->getInput()->getInt('form_id', 0);
         $subjectLabel = trim((string) ($subject->name ?? ''));
 

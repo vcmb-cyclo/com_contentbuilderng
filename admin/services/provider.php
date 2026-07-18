@@ -20,8 +20,9 @@ use Joomla\CMS\Extension\ComponentInterface;
 use Joomla\CMS\Extension\Service\Provider\ComponentDispatcherFactory;
 use Joomla\CMS\Extension\Service\Provider\MVCFactory;
 use Joomla\CMS\Extension\Service\Provider\RouterFactory;
+use Joomla\CMS\Application\CMSApplicationInterface;
+use Joomla\CMS\Cache\CacheControllerFactoryInterface;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
 use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
@@ -38,6 +39,7 @@ use CB\Component\Contentbuilderng\Administrator\Service\FormResolverService;
 use CB\Component\Contentbuilderng\Administrator\Service\RuntimeUtilityService;
 use CB\Component\Contentbuilderng\Administrator\Service\TemplateRenderService;
 use CB\Component\Contentbuilderng\Administrator\Service\TextUtilityService;
+use CB\Component\Contentbuilderng\Administrator\Service\ApiFieldPermissionService;
 
 return new class implements ServiceProviderInterface
 {
@@ -64,7 +66,7 @@ return new class implements ServiceProviderInterface
         $container->set(
             TemplateSampleService::class,
             static fn(Container $c) => new TemplateSampleService(
-                Factory::getApplication(),
+                $c->get(CMSApplicationInterface::class),
                 $c->get(DatabaseInterface::class)
             )
         );
@@ -78,12 +80,20 @@ return new class implements ServiceProviderInterface
         );
         $container->set(
             PermissionService::class,
-            static fn(Container $c) => new PermissionService()
+            static fn(Container $c) => new PermissionService(
+                $c->get(CMSApplicationInterface::class),
+                $c->get(DatabaseInterface::class),
+                $c->get(FormResolverService::class)
+            )
         );
         $container->set(
             ArticleService::class,
             static fn(Container $c) => new ArticleService(
-                $c->get(TemplateRenderService::class)
+                $c->get(CMSApplicationInterface::class),
+                $c->get(TemplateRenderService::class),
+                $c->get(FormResolverService::class),
+                $c->get(DatabaseInterface::class),
+                $c->get(CacheControllerFactoryInterface::class)
             )
         );
         $container->set(
@@ -92,7 +102,7 @@ return new class implements ServiceProviderInterface
         );
         $container->set(
             RuntimeUtilityService::class,
-            static fn(Container $c) => new RuntimeUtilityService()
+            static fn(Container $c) => new RuntimeUtilityService($c->get(CMSApplicationInterface::class))
         );
         $container->set(
             MenuService::class,
@@ -100,7 +110,11 @@ return new class implements ServiceProviderInterface
         );
         $container->set(
             FormResolverService::class,
-            static fn(Container $c) => new FormResolverService()
+            static fn(Container $c) => new FormResolverService($c->get(CMSApplicationInterface::class))
+        );
+        $container->set(
+            ApiFieldPermissionService::class,
+            static fn(Container $c) => new ApiFieldPermissionService($c->get(DatabaseInterface::class))
         );
         $container->set(
             TextUtilityService::class,
@@ -109,7 +123,7 @@ return new class implements ServiceProviderInterface
         $container->set(
             TemplateRenderService::class,
             static fn(Container $c) => new TemplateRenderService(
-                Factory::getApplication(),
+                $c->get(CMSApplicationInterface::class),
                 $c->get(DatabaseInterface::class),
                 $c->get(FormResolverService::class),
                 $c->get(FormSupportService::class),

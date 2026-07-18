@@ -21,7 +21,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Helper;
 
 \defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Log\Log;
 use Joomla\Filesystem\Folder;
 
@@ -46,7 +45,7 @@ final class Logger
 
     private static function applyJoomlaTimezone(): void
     {
-        $app = Factory::getApplication();
+        $app = RuntimeContextHelper::getApplication();
         $offset = is_object($app) && method_exists($app, 'get') ? (string) $app->get('offset', 'UTC') : 'UTC';
 
         try {
@@ -59,7 +58,7 @@ final class Logger
 
     private static function resolveLogDirectory(): string
     {
-        $app = Factory::getApplication();
+        $app = RuntimeContextHelper::getApplication();
         $logPath = '';
 
         if (is_object($app) && method_exists($app, 'get')) {
@@ -132,7 +131,7 @@ final class Logger
 
     private static function category(): string
     {
-        $app = Factory::getApplication();
+        $app = RuntimeContextHelper::getApplication();
 
         return $app->isClient('administrator') ? 'cb.admin' : 'cb.site';
     }
@@ -192,14 +191,14 @@ final class Logger
      */
     private static function baseContext(): array
     {
-        $app   = Factory::getApplication();
+        $app   = RuntimeContextHelper::getApplication();
         $input = $app->getInput();
 
         return [
             'client' => $app->isClient('administrator') ? 'admin' : 'site',
             'view'   => $input->getCmd('view', ''),
             'task'   => $input->getCmd('task', ''),
-            'userId' => (int) Factory::getApplication()->getIdentity()->id
+            'userId' => (int) ($app->getIdentity()->id ?? 0)
         ];
     }
 
@@ -238,7 +237,7 @@ final class Logger
     /** Debug seulement si debug Joomla activé */
     public static function debug(string $message, array $context = []): void
     {
-        if (!Factory::getApplication()->get('debug')) {
+        if (!RuntimeContextHelper::getApplication()->get('debug')) {
             return;
         }
 

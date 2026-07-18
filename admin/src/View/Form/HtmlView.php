@@ -12,14 +12,13 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Form;
 
 \defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseInterface;
-use Joomla\CMS\Application\CMSApplication;
 use Joomla\Registry\Registry;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
@@ -34,6 +33,33 @@ class HtmlView extends BaseHtmlView
     /** @var array{info: array<string,string>, checks: array<int,array{status:string,message:string}>} */
     public array $audit = ['info' => [], 'checks' => []];
 
+    private function getApp(): CMSApplication
+    {
+        $app = $this->getDocument()->getApplication();
+
+        if (!$app instanceof CMSApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_COMPONENT_FACTORY_NOT_FOUND'));
+        }
+
+        return $component;
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
+    }
+
     #[\Override]
     public function display($tpl = null)
     {
@@ -43,7 +69,7 @@ class HtmlView extends BaseHtmlView
         }
 
         if ($this->getLayout() === 'audit') {
-            $app = Factory::getApplication();
+            $app = $this->getApp();
             $formId = $app->getInput()->getInt('id', 0);
             $identity = $app->getIdentity();
             $formAsset = $formId > 0 ? 'com_contentbuilderng.form.' . $formId : 'com_contentbuilderng';
@@ -56,14 +82,13 @@ class HtmlView extends BaseHtmlView
                 throw new \RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'), 403);
             }
 
-            $auditService = new FormAuditService(Factory::getContainer()->get(DatabaseInterface::class));
+            $auditService = new FormAuditService($this->getDatabase());
             $this->audit = $auditService->audit($formId);
             parent::display($tpl);
             return;
         }
 
-        /** @var CMSApplication $app */
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $app->getInput()->set('hidemainmenu', true);
 
         // JS
@@ -115,10 +140,7 @@ class HtmlView extends BaseHtmlView
             $formId = (int) ($formId ?? 0);
             if ($formId > 0) {
                 /** @var ContentbuilderngComponent $component */
-                $component = $app->bootComponent('com_contentbuilderng');
-                if (!$component instanceof ContentbuilderngComponent) {
-                    throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_COMPONENT_FACTORY_NOT_FOUND'));
-                }
+                $component = $this->getComponent();
                 $factory = $component->getMVCFactory();
                 /** @var ElementsModel $elementsModel */
                 $elementsModel = $factory->createModel('Elements', 'Administrator');
@@ -318,7 +340,7 @@ class HtmlView extends BaseHtmlView
 
 
         // Données additionnelles
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $q = $db->getQuery(true)
             ->select([
                 'node.title AS ' . $db->quoteName('text'),
@@ -356,7 +378,7 @@ class HtmlView extends BaseHtmlView
             return [];
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $query = $db->getQuery(true)
             ->select([
                 $db->quoteName('id'),

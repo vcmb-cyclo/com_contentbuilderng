@@ -22,7 +22,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Factory;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 
-$app = Factory::getApplication();
+$app = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication();
 $app->getDocument()->getWebAssetManager()->useScript('core');
 
 $ordering  = (string) $this->state->get('list.ordering', 'u.id');
@@ -59,7 +59,7 @@ $sortLink = function (string $label, string $field) use ($ordering, $direction, 
 
     return '<a href="' . $url . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . $indicator . '</a>';
 };
-$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getDocument()->getWebAssetManager();
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 $wa->useStyle('com_contentbuilderng.admin-users');
 ?>

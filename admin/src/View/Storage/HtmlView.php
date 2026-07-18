@@ -13,14 +13,15 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Storage;
 
 \defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseInterface;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\View\Contentbuilderng\HtmlView as BaseHtmlView;
 
 class HtmlView extends BaseHtmlView
@@ -38,6 +39,33 @@ class HtmlView extends BaseHtmlView
     public string $storageTableLookupName = '';
     public string $storageTableErrorMessage = '';
 
+    private function getApp(): CMSApplicationInterface
+    {
+        $app = $this->app;
+
+        if (!$app instanceof CMSApplicationInterface) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
+    }
+
     #[\Override]
     public function display($tpl = null): void
     {         
@@ -46,7 +74,7 @@ class HtmlView extends BaseHtmlView
             return;
         }
 
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $input = $app->getInput();
         $identity = $app->getIdentity();
         $app->getInput()->set('hidemainmenu', true);
@@ -94,7 +122,7 @@ class HtmlView extends BaseHtmlView
         try {
             $storageId = (int) ($this->item->id ?? $input->getInt('id', 0));
             if ($storageId > 0) {
-                $factory = $app->bootComponent('com_contentbuilderng')->getMVCFactory();
+                $factory = $this->getComponent()->getMVCFactory();
                 $fieldsModel = $factory->createModel('Storagefields', 'Administrator');
 
                 if (!$fieldsModel) {
@@ -225,7 +253,7 @@ class HtmlView extends BaseHtmlView
         }
 
         try {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->select('COUNT(1)')
                 ->from($db->quoteName($this->storageTableLookupName));
@@ -255,7 +283,7 @@ class HtmlView extends BaseHtmlView
         $this->storageTableLookupName = $lookupName;
 
         try {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $tableList = array_map('strtolower', (array) $db->getTableList());
             $resolvedName = strtolower($db->replacePrefix($lookupName));
 

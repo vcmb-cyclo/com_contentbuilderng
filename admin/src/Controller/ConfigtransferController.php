@@ -14,7 +14,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Controller;
 
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Router\Route;
@@ -22,6 +22,17 @@ use Joomla\CMS\Router\Route;
 final class ConfigtransferController extends BaseController
 {
     protected $default_view = 'configtransfer';
+
+    private function getApp(): CMSApplicationInterface
+    {
+        $app = $this->app;
+
+        if (!$app instanceof CMSApplicationInterface) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
 
     public function back(): void
     {
@@ -40,7 +51,7 @@ final class ConfigtransferController extends BaseController
 
     private function redirectToWorkflow(string $mode): void
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $user = $app->getIdentity();
 
         if (!$user->authorise('core.manage', 'com_contentbuilderng')) {
@@ -53,7 +64,7 @@ final class ConfigtransferController extends BaseController
 
     private function redirectToAbout(): void
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $user = $app->getIdentity();
 
         if (!$user->authorise('core.manage', 'com_contentbuilderng')) {

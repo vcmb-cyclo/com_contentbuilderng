@@ -22,8 +22,8 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\Database\QueryInterface;
 use Joomla\Utilities\ArrayHelper;
@@ -31,6 +31,28 @@ use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 class StoragesModel extends ListModel
 {
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = parent::getComponent();
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function getApp(): CMSApplication
+    {
+        $app = $this->getComponent()->getContainer()->get(CMSApplicationInterface::class);
+
+        if (!$app instanceof CMSApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
     // Optionnel mais recommandé : définir le nom de la table (sans postfix)
     protected $table = 'Storage';
 
@@ -57,8 +79,7 @@ class StoragesModel extends ListModel
     #[\Override]
     protected function populateState($ordering = 'a.ordering', $direction = 'ASC')
     {
-        /** @var CMSApplication $app */
-        $app = Factory::getApplication();
+        $app = $this->getApp();
 
         // ✅ appels standard StorageModel
         parent::populateState($ordering, $direction);
@@ -161,11 +182,7 @@ class StoragesModel extends ListModel
             return false;
         }
 
-        $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
-        if (!$component instanceof ContentbuilderngComponent) {
-            return false;
-        }
-        $factory = $component->getMVCFactory();
+        $factory = $this->getComponent()->getMVCFactory();
 
         /** @var StorageModel|null $storageModel */
         $storageModel = $factory->createModel('storage', 'Administrator', ['ignore_request' => true]);
@@ -180,50 +197,6 @@ class StoragesModel extends ListModel
 
         return true;
     }
-
-    /*
-    function setPublished()
-    {
-        $cids = Factory::getApplication()->getInput()->get('cid', [], 'array');
-        ArrayHelper::toInteger($cids);
-        $this->getDatabase()->setQuery(' Update #__contentbuilderng_storages ' .
-            '  Set published = 1 Where id In ( ' . implode(',', $cids) . ')');
-        $this->getDatabase()->execute();
-
-    }
-
-    function setUnpublished()
-    {
-        $cids = Factory::getApplication()->getInput()->get('cid', [], 'array');
-        ArrayHelper::toInteger($cids);
-        $this->getDatabase()->setQuery(' Update #__contentbuilderng_storages ' .
-            '  Set published = 0 Where id In ( ' . implode(',', $cids) . ')');
-        $this->getDatabase()->execute();
-    }*/
-
-    /*
-     *
-     * MAIN LIST AREA
-     * 
-     */
-/*
-    private function buildOrderBy()
-    {
-        $app = Factory::getApplication();
-        $option = 'com_contentbuilderng';
-
-        $orderby = '';
-        $filter_order = $this->getState('storages_filter_order');
-        $filter_order_Dir = $this->getState('storages_filter_order_Dir');
-
-        // Error handling is never a bad thing.
-        if (!empty($filter_order) && !empty($filter_order_Dir)) {
-            $orderby = ' ORDER BY ' . $filter_order . ' ' . $filter_order_Dir;
-        }
-
-        return $orderby;
-    }
-*/
 
     /**
      * @return string The query
@@ -256,7 +229,7 @@ class StoragesModel extends ListModel
 
     function saveOrder()
     {
-        $input = Factory::getApplication()->getInput();
+        $input = $this->getApp()->getInput();
         $items = $input->post->get('cid', [], 'array');
         ArrayHelper::toInteger($items);
 

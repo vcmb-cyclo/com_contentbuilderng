@@ -15,7 +15,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 \defined('_JEXEC') or die;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
@@ -24,6 +24,12 @@ class ConfigImportService
 {
     public const MODE_MERGE = 'merge';
     public const MODE_REPLACE = 'replace';
+
+    public function __construct(
+        private readonly DatabaseInterface $db,
+        private readonly CMSApplicationInterface $app
+    ) {
+    }
 
     public function filterPayload(
         array $payload,
@@ -170,7 +176,7 @@ class ConfigImportService
 
     public function applyPayload(array $payload, array $selectedSections, string $importMode): array
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->db;
         $tableRowsImported = 0;
         $tablesImported = 0;
         $details = [];
@@ -450,7 +456,7 @@ class ConfigImportService
         $entries = is_array($storageContentPayload['storages'] ?? null) ? $storageContentPayload['storages'] : [];
         $imported = 0;
         $existingTables = array_map('strtolower', (array) $db->getTableList());
-        $exportService = new ConfigExportService();
+        $exportService = new ConfigExportService($this->db);
 
         foreach ($entries as $entry) {
             if (!is_array($entry)) {
@@ -823,7 +829,7 @@ class ConfigImportService
     private function applyAuditColumns(string $tableAlias, array $row, bool $isNew): array
     {
         $now = (new Date())->toSql();
-        $user = Factory::getApplication()->getIdentity();
+        $user = $this->app->getIdentity();
 
         if ($tableAlias === '#__contentbuilderng_forms') {
             if ($isNew) {

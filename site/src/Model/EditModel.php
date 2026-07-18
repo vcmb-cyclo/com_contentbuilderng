@@ -18,9 +18,9 @@ namespace CB\Component\Contentbuilderng\Site\Model;
 
 use Joomla\CMS\Application\ApplicationHelper;
 use Joomla\CMS\Application\AdministratorApplication;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Cache\CacheControllerFactoryInterface;
-use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Database\ParameterType;
 use Joomla\Database\QueryInterface;
@@ -116,11 +116,13 @@ class EditModel extends BaseDatabaseModel
         // IMPORTANT : on transmet factory/app/input à BaseController
         parent::__construct($config, $factory);
 
-        /** @var AdministratorApplication|SiteApplication $app */
-        $app = Factory::getApplication();
         $container = $this->getComponent()->getContainer();
+        $app = $container->get(CMSApplicationInterface::class);
+        if (!$app instanceof AdministratorApplication && !$app instanceof SiteApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
         $this->app = $app;
-        $this->runtimeUtilityService = new RuntimeUtilityService();
+        $this->runtimeUtilityService = new RuntimeUtilityService($app);
         $this->listSupportService = $container->get(ListSupportService::class);
         $this->templateRenderService = $container->get(TemplateRenderService::class);
         $option = 'com_contentbuilderng';
@@ -144,8 +146,7 @@ class EditModel extends BaseDatabaseModel
                     $this->_show_back_button = MenuParamHelper::getResolvedMenuToggle(
                         $params,
                         'cb_show_details_back_button',
-                        1,
-                        'show_back_button'
+                        1
                     ) === 1;
                 }
 
@@ -156,6 +157,7 @@ class EditModel extends BaseDatabaseModel
                 $resolvedMenuParams = $menu->getParams((int) $item->id);
                 if ($item->getParams()->get('show_page_heading', null) !== null) {
                     $this->_show_page_heading = MenuParamHelper::resolvePageHeadingToggle(
+                        $this->app,
                         $item->getParams()->get('show_page_heading', null),
                         $resolvedMenuParams?->get('show_page_heading', null),
                         $this->_show_page_heading ? 1 : 0
@@ -242,7 +244,7 @@ class EditModel extends BaseDatabaseModel
     /**
      * Strips control bytes that must never be persisted in a group field value:
      * NUL and the ASCII unit separator (0x1F). The latter is used internally by
-     * the BreezingForms source (com_breezingforms.php::getRecord()) as the
+     * the BreezingForms source (com_breezingformsng.php::getRecord()) as the
      * unambiguous delimiter between multi-select values; a raw POST (the
      * 'array' input filter applies no sanitisation) could otherwise smuggle a
      * stray 0x1F into a stored value and corrupt that reconstruction later.
@@ -253,6 +255,16 @@ class EditModel extends BaseDatabaseModel
             static fn($value): string => str_replace(["\x00", "\x1F"], '', (string) $value),
             $values
         );
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
+    }
+
+    private function createMailer()
+    {
+        return $this->getComponent()->getContainer()->get(MailerFactoryInterface::class)->createMailer();
     }
 
     private function _buildQuery()
@@ -391,8 +403,7 @@ class EditModel extends BaseDatabaseModel
                     $this->_show_back_button = MenuParamHelper::resolveInputOrMenuToggle(
                         $this->app,
                         'cb_show_details_back_button',
-                        (int) ($data->show_back_button ?? 1),
-                        'show_back_button'
+                        (int) ($data->show_back_button ?? 1)
                     ) === 1;
                     $data->back_button = $this->app->getInput()->getBool('latest', 0) && !$this->app->getInput()->getCmd('record_id', 0) ? false : $this->_show_back_button;
                     $data->latest = $this->_latest;
@@ -1648,7 +1659,7 @@ var contentbuilderng = new function(){
                         $config = $this->app->getInput()->post->get('Form', [], 'array');
                     }
 
-                    $permissionService = new PermissionService();
+                    $permissionService = PermissionService::createFromRuntimeContext();
                     $full = $this->frontend ? $permissionService->authorizeFe('fullarticle') : $permissionService->authorize('fullarticle');
                     $article_id = $this->getComponent()->getContainer()->get(ArticleService::class)->createArticle($this->_id, $record_return, $data->items, $ids, $data->title_field, $data->form->getRecordMetadata($record_return), $config, $full, $this->frontend ? $data->limited_article_options_fe : $data->limited_article_options, $this->app->getInput()->get('cb_category_id', null, 'string'));
 
@@ -1707,7 +1718,7 @@ var contentbuilderng = new function(){
                         $from = $MailFrom = (string) $this->app->get('mailfrom');
                         $fromname = (string) $this->app->get('fromname');
 
-                        $mailer = Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
+                        $mailer = $this->createMailer();
 
                         $email_admin_template = '';
                         $email_template = '';
@@ -1961,8 +1972,6 @@ var contentbuilderng = new function(){
         }
 
         if ($user_id) {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
-
             $pw = '';
             if (!empty($the_password_field)) {
                 $crypt = UserHelper::hashPassword($the_password_field);
@@ -2032,7 +2041,8 @@ var contentbuilderng = new function(){
             return false;
         }
 
-        $query = Factory::getContainer()->get(DatabaseInterface::class)->getQuery(true);
+        $db = $this->getDatabase();
+        $query = $db->getQuery(true);
 
         // Compile the notification mail values.
         $data['name'] = (string) ($user->name ?? '');
@@ -2109,7 +2119,7 @@ var contentbuilderng = new function(){
         $return = false;
 
         try {
-            $return = Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer()->sendMail($data['mailfrom'], $data['fromname'], $data['email'], $emailSubject, $emailBody);
+            $return = $this->createMailer()->sendMail($data['mailfrom'], $data['fromname'], $data['email'], $emailSubject, $emailBody);
         } catch (\Exception $e) {
         }
 
@@ -2127,14 +2137,14 @@ var contentbuilderng = new function(){
 
             // Get all admin users
             $query->clear()
-                ->select(Factory::getContainer()->get(DatabaseInterface::class)->quoteName(array('name', 'email', 'sendEmail')))
-                ->from(Factory::getContainer()->get(DatabaseInterface::class)->quoteName('#__users'))
-                ->where(Factory::getContainer()->get(DatabaseInterface::class)->quoteName('sendEmail') . ' = ' . 1);
+                ->select($db->quoteName(array('name', 'email', 'sendEmail')))
+                ->from($db->quoteName('#__users'))
+                ->where($db->quoteName('sendEmail') . ' = 1');
 
-            Factory::getContainer()->get(DatabaseInterface::class)->setQuery($query);
+            $db->setQuery($query);
 
             try {
-                $rows = Factory::getContainer()->get(DatabaseInterface::class)->loadObjectList();
+                $rows = $db->loadObjectList();
             } catch (\RuntimeException $e) {
                 $this->app->enqueueMessage(Text::sprintf('COM_USERS_DATABASE_ERROR', $e->getMessage()), 'error');
                 return false;
@@ -2142,7 +2152,7 @@ var contentbuilderng = new function(){
 
             // Send mail to all superadministrators id
             foreach ($rows as $row) {
-                $return = Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer()->sendMail($data['mailfrom'], $data['fromname'], $row->email, $emailSubject, $emailBodyAdmin);
+                $return = $this->createMailer()->sendMail($data['mailfrom'], $data['fromname'], $row->email, $emailSubject, $emailBodyAdmin);
 
                 // Check for an error.
                 if ($return !== true) {
@@ -2166,7 +2176,7 @@ var contentbuilderng = new function(){
             $this->app->enqueueMessage(Text::_('COM_USERS_REGISTRATION_SEND_MAIL_FAILED'), 'error');
 
             // Send a system message to administrators receiving system mails
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->select($db->quoteName('id'))
                 ->from($db->quoteName('#__users'))

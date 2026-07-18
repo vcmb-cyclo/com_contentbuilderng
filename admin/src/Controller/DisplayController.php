@@ -17,17 +17,28 @@ namespace CB\Component\Contentbuilderng\Administrator\Controller;
 \defined('_JEXEC') or die;
 
 use Joomla\CMS\MVC\Controller\BaseController;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Language\Text;
 
 class DisplayController extends BaseController
 {
     protected $default_view = 'storages';
 
+    private function getApp(): CMSApplicationInterface
+    {
+        $app = $this->app;
+
+        if (!$app instanceof CMSApplicationInterface) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
     #[\Override]
     public function display($cachable = false, $urlparams = [])
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $user = $app->getIdentity();
 
         if (!$user->authorise('core.manage', 'com_contentbuilderng')) {

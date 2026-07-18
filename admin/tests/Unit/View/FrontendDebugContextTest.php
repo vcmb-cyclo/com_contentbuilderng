@@ -20,7 +20,7 @@ final class FrontendDebugContextTest extends TestCase
     {
         $layout = $this->read('site/layouts/contentbuilderng/debug_panel.php');
 
-        self::assertStringContainsString("Factory::getApplication()->getIdentity()", $layout);
+        self::assertStringContainsString("RuntimeContextHelper::getApplication()->getIdentity()", $layout);
         self::assertStringContainsString("'COM_CONTENTBUILDERNG_DEBUG_CURRENT_ACCOUNT'", $layout);
         self::assertStringContainsString("'COM_CONTENTBUILDERNG_DEBUG_FORM_ID'", $layout);
         self::assertStringNotContainsString(

@@ -16,11 +16,10 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\Database\DatabaseInterface;
 use Joomla\Filesystem\Folder;
 use Joomla\Filesystem\File;
 use Joomla\Utilities\ArrayHelper;
@@ -35,9 +34,20 @@ class ElementoptionsModel extends BaseDatabaseModel
 {
     private $_element_id = 0;
 
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = parent::getComponent();
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
     private function getApp()
     {
-        return Factory::getApplication();
+        return $this->getComponent()->getContainer()->get(CMSApplicationInterface::class);
     }
 
     private function getInput()
@@ -143,7 +153,7 @@ class ElementoptionsModel extends BaseDatabaseModel
 
     function getValidationPlugins()
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $query = $db->getQuery(true)
             ->select($db->quoteName('element'))
             ->from($db->quoteName('#__extensions'))

@@ -20,7 +20,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Factory;
 
-$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getDocument()->getWebAssetManager();
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 $wa->useStyle('com_contentbuilderng.admin-about');
 
@@ -45,7 +45,7 @@ $formatBuildTimestamp = static function (string $timestamp): string {
     }
 
     try {
-        $timezoneName = (string) Factory::getApplication()->get('offset', 'UTC');
+        $timezoneName = (string) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->get('offset', 'UTC');
         $timezone = new \DateTimeZone($timezoneName !== '' ? $timezoneName : 'UTC');
         $date = new \DateTimeImmutable($timestamp, new \DateTimeZone('UTC'));
 
@@ -164,8 +164,8 @@ $auditGeneratedAtDisplay = (string) ($auditReport['generated_at'] ?? Text::_('CO
 
 if (!empty($auditReport['generated_at'])) {
     try {
-        $userTz = Factory::getApplication()->getIdentity()->getParam('timezone', '');
-        $configTz = Factory::getApplication()->get('offset', 'UTC');
+        $userTz = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getIdentity()->getParam('timezone', '');
+        $configTz = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->get('offset', 'UTC');
         $displayTz = new \DateTimeZone($userTz !== '' ? $userTz : $configTz);
         $auditGeneratedAt = new \DateTimeImmutable((string) $auditReport['generated_at'], new \DateTimeZone('UTC'));
         $auditGeneratedAtDisplay = $auditGeneratedAt->setTimezone($displayTz)->format('Y-m-d H:i:s');
@@ -235,7 +235,7 @@ $repairWorkflowCurrentStep = $repairWorkflowSteps[$repairWorkflowCurrentIndex] ?
 $repairWorkflowCurrentStepId = is_array($repairWorkflowCurrentStep) ? (string) ($repairWorkflowCurrentStep['id'] ?? '') : '';
 $repairWorkflowCurrentStatus = is_array($repairWorkflowCurrentStep) ? (string) ($repairWorkflowCurrentStep['status'] ?? 'pending') : 'pending';
 $repairWorkflowCurrentResult = is_array($repairWorkflowCurrentStep) ? (array) ($repairWorkflowCurrentStep['result'] ?? []) : [];
-$repairWorkflowRequested = Factory::getApplication()->getInput()->getInt('repair_workflow', 0) === 1;
+$repairWorkflowRequested = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('repair_workflow', 0) === 1;
 $repairWorkflowIsActive = $repairWorkflowRequested && !empty($repairWorkflow) && (bool) ($repairWorkflow['active'] ?? false);
 $repairWorkflowIsCompleted = (bool) ($repairWorkflow['completed'] ?? false);
 $repairWorkflowHasNext = $repairWorkflowIsActive && $repairWorkflowCurrentIndex < count($repairWorkflowSteps) - 1;

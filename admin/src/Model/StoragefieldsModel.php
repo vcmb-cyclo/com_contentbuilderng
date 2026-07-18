@@ -16,13 +16,14 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 
 \defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\Database\DatabaseQuery;
 use Joomla\Utilities\ArrayHelper;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Table\StorageFieldsTable;
 
 class StoragefieldsModel extends ListModel
@@ -33,6 +34,28 @@ class StoragefieldsModel extends ListModel
      * @var int
      */
     private int $storageId = 0;
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = parent::getComponent();
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function getApp(): CMSApplication
+    {
+        $app = $this->getComponent()->getContainer()->get(CMSApplicationInterface::class);
+
+        if (!$app instanceof CMSApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
 
     public function __construct($config = [], ?MVCFactoryInterface $factory = null)
     {
@@ -61,8 +84,7 @@ class StoragefieldsModel extends ListModel
     #[\Override]
     protected function populateState($ordering = 'ordering', $direction = 'asc'): void
     {
-        /** @var CMSApplication $app */
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $context = $this->context ?: 'com_contentbuilderng.storagefields';
         $storageId = (int) $this->storageId;
 
@@ -155,7 +177,7 @@ class StoragefieldsModel extends ListModel
         $orderCol  = (string) $this->getState('list.ordering', '');
         $orderDirn = strtolower((string) $this->getState('list.direction', ''));
 
-        $input = Factory::getApplication()->getInput();
+        $input = $this->getApp()->getInput();
         $list = (array) $input->get('list', [], 'array');
         $requestedOrder = isset($list['ordering']) ? preg_replace('/[^a-zA-Z0-9_\\.]/', '', (string) $list['ordering']) : '';
         $requestedDir = strtolower((string) ($list['direction'] ?? ''));
@@ -195,7 +217,7 @@ class StoragefieldsModel extends ListModel
             return false;
         }
 
-        $cid = Factory::getApplication()->getInput()->post->get('cid', [], 'array');
+        $cid = $this->getApp()->getInput()->post->get('cid', [], 'array');
         ArrayHelper::toInteger($cid);
         $pk = (int) ($cid[0] ?? 0);
 
