@@ -10,8 +10,6 @@
 
 namespace CB\Component\Contentbuilderng\Administrator\View\Form;
 
-use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
-
 \defined('_JEXEC') or die;
 
 use Joomla\CMS\Application\CMSApplication;
@@ -37,7 +35,7 @@ class HtmlView extends BaseHtmlView
 
     private function getApp(): CMSApplication
     {
-        $app = RuntimeContextHelper::getApplication();
+        $app = $this->app;
 
         if (!$app instanceof CMSApplication) {
             throw new \RuntimeException('Unexpected application instance');

@@ -69,7 +69,7 @@ class HtmlView extends BaseHtmlView
         return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
     }
 
-    private function getLanguage(): Language
+    protected function getLanguage(): Language
     {
         return $this->getApp()->getLanguage();
     }

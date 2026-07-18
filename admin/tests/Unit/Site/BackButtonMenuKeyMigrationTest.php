@@ -355,7 +355,7 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
 
         $aboutView = $this->read('admin/src/View/About/HtmlView.php');
         self::assertStringContainsString('private function getDatabase(): DatabaseInterface', $aboutView);
-        self::assertStringContainsString('private function getLanguage(): Language', $aboutView);
+        self::assertStringContainsString('protected function getLanguage(): Language', $aboutView);
 
         $configtransferView = $this->read('admin/src/View/Configtransfer/HtmlView.php');
         self::assertStringContainsString('private function getDatabase(): DatabaseInterface', $configtransferView);

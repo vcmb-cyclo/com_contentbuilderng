@@ -13,8 +13,6 @@
 
 namespace CB\Component\Contentbuilderng\Site\View\Details;
 
-use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
-
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
@@ -72,7 +70,7 @@ class HtmlView extends BaseHtmlView
 
     private function getApp(): SiteApplication
     {
-        $app = RuntimeContextHelper::getApplication();
+        $app = $this->app;
 
         if (!$app instanceof SiteApplication) {
             throw new \RuntimeException('Unexpected application instance');
