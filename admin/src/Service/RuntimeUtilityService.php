@@ -5,7 +5,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 \defined('_JEXEC') or die;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\PhpTemplateHelper;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
@@ -14,9 +14,8 @@ use Joomla\CMS\Uri\Uri;
 
 class RuntimeUtilityService
 {
-    private function getApp()
+    public function __construct(private readonly CMSApplicationInterface $app)
     {
-        return Factory::getApplication();
     }
 
     public function sanitizeHiddenFilterValue(string $value): string
@@ -37,7 +36,7 @@ class RuntimeUtilityService
             return '';
         }
 
-        $identity = $this->getApp()->getIdentity();
+        $identity = $this->app->getIdentity();
         $now = (new Date());
         $identityId = is_object($identity) && method_exists($identity, 'get')
             ? (int) $identity->get('id', 0)

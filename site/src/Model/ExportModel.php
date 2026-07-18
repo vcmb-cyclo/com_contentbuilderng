@@ -17,7 +17,7 @@ namespace CB\Component\Contentbuilderng\Site\Model;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
@@ -46,11 +46,14 @@ class ExportModel extends BaseDatabaseModel
     {
         parent::__construct($config);
 
-        /** @var SiteApplication $app */
-        $app = Factory::getApplication();
+        $container = $this->getComponent()->getContainer();
+        $app = $container->get(CMSApplicationInterface::class);
+        if (!$app instanceof SiteApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
         $this->app = $app;
-        $this->runtimeUtilityService = new RuntimeUtilityService();
-        $this->listSupportService = $app->bootComponent('com_contentbuilderng')->getContainer()->get(ListSupportService::class);
+        $this->runtimeUtilityService = new RuntimeUtilityService($app);
+        $this->listSupportService = $container->get(ListSupportService::class);
         $this->frontend = $app->isClient('site');
         $option = 'com_contentbuilderng';
 

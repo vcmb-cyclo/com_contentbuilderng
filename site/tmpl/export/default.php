@@ -33,9 +33,9 @@ use Joomla\CMS\Date\Date;
 
 //Font::setAutoSizeMethod(Font::AUTOSIZE_METHOD_EXACT);
 
-$db = Factory::getContainer()->get(DatabaseInterface::class);
+$db = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getDatabase();
 /** @var \Joomla\CMS\Application\CMSApplication $app */
-$app = Factory::getApplication();
+$app = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication();
 $input = $app->getInput();
 
 // Pourcentage de mélange de la couleur d'état vers le blanc (0-100), paramétrable via la requête.
@@ -225,7 +225,7 @@ if (!$userTimezone) {
 $date = (new Date('now', $userTimezone));
 
 $filenameTitle = $rawSheetTitle;
-if ($filenameTitle === '' && !empty($this->data->type) && $this->data->type === 'com_breezingforms') {
+if ($filenameTitle === '' && !empty($this->data->type) && $this->data->type === 'com_breezingformsng') {
     $query = $db->getQuery(true)
         ->select($db->quoteName('name'))
         ->from($db->quoteName('#__facileforms_forms'))

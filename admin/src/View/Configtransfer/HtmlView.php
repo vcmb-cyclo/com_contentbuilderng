@@ -16,13 +16,13 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Configtransfer;
 
 use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\Document\HtmlDocument;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseInterface;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 
 class HtmlView extends BaseHtmlView
 {
@@ -38,6 +38,33 @@ class HtmlView extends BaseHtmlView
     protected bool $exportStorageContent = false;
     protected string $mode = 'export';
 
+    private function getApp(): AdministratorApplication
+    {
+        $app = $this->app;
+
+        if (!$app instanceof AdministratorApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
+    }
+
     #[\Override]
     public function display($tpl = null)
     {
@@ -46,8 +73,7 @@ class HtmlView extends BaseHtmlView
             return;
         }
 
-        /** @var AdministratorApplication $app */
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $user = $app->getIdentity();
 
         if (!$user->authorise('core.manage', 'com_contentbuilderng')) {
@@ -141,7 +167,7 @@ class HtmlView extends BaseHtmlView
     private function loadForms(): array
     {
         try {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->select([
                     $db->quoteName('id'),
@@ -162,7 +188,7 @@ class HtmlView extends BaseHtmlView
     private function loadStorages(): array
     {
         try {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->select([
                     $db->quoteName('id'),

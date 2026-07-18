@@ -21,7 +21,8 @@ namespace CB\Component\Contentbuilderng\Site\View\Edit;
 
 \defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
@@ -95,11 +96,38 @@ class HtmlView extends BaseHtmlView
     private ?bool $ownerEditNavigationEnabled = null;
     private ?int $ownerEditNavigationUserId = null;
 
+    private function getApp(): SiteApplication
+    {
+        $app = $this->getDocument()->getApplication();
+
+        if (!$app instanceof SiteApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
+    }
+
     private function isFrontendEditAllowedForNavigation(): bool
     {
         if ($this->frontendEditAllowedForNavigation === null) {
-            $permissions = (array) Factory::getApplication()->getSession()->get('com_contentbuilderng.permissions_fe', []);
-            $user = Factory::getApplication()->getIdentity();
+            $permissions = (array) $this->getApp()->getSession()->get('com_contentbuilderng.permissions_fe', []);
+            $user = $this->getApp()->getIdentity();
             $groups = method_exists($user, 'getAuthorisedGroups') ? (array) $user->getAuthorisedGroups() : [];
 
             $this->frontendEditAllowedForNavigation = false;
@@ -129,7 +157,7 @@ class HtmlView extends BaseHtmlView
             return $this->ownerEditNavigationUserId;
         }
 
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $previewActorId = $app->getInput()->getBool('cb_preview_ok', false)
             ? (int) $app->getInput()->getInt('cb_preview_actor_id', 0)
             : 0;
@@ -151,7 +179,7 @@ class HtmlView extends BaseHtmlView
             return $this->ownerEditNavigationEnabled;
         }
 
-        $ownerPermissionMatrix = (array) Factory::getApplication()->getSession()->get('com_contentbuilderng.permissions_fe', []);
+        $ownerPermissionMatrix = (array) $this->getApp()->getSession()->get('com_contentbuilderng.permissions_fe', []);
         $ownerRuleSet = (array) ($ownerPermissionMatrix['own_fe'] ?? []);
 
         $this->ownerEditNavigationEnabled = $this->canUseEditPermissionBase($ownerPermissionMatrix)
@@ -192,7 +220,7 @@ class HtmlView extends BaseHtmlView
 
     private function resolveSiblingRecordIdsByRecordId(object $subject, int $currentRecordId): array
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $currentList = (array) $app->getInput()->get('list', [], 'array');
         $currentListStart = array_key_exists('start', $currentList) ? max(0, (int) $currentList['start']) : 0;
         if (
@@ -205,7 +233,7 @@ class HtmlView extends BaseHtmlView
             return ['previous' => 0, 'next' => 0, 'previous_start' => $currentListStart, 'next_start' => $currentListStart];
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $isAdminPreview = $app->getInput()->getBool('cb_preview_ok', false);
 
         $baseWhere = [
@@ -246,7 +274,7 @@ class HtmlView extends BaseHtmlView
 
     private function getListPaginationStateKeys(int $formId): array
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $option = 'com_contentbuilderng';
         $layout = (string) $app->getInput()->getCmd('layout', 'default');
 
@@ -265,7 +293,7 @@ class HtmlView extends BaseHtmlView
 
     private function resolveSiblingRecordIds(object $subject): array
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $currentRecordId = (int) $app->getInput()->getInt('record_id', 0);
         $fallback = $this->resolveSiblingRecordIdsByRecordId($subject, $currentRecordId);
 
@@ -373,7 +401,7 @@ class HtmlView extends BaseHtmlView
             return $markup;
         }
 
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $matches = array(array(), array());
         preg_match_all('/\"([^\"]*contentbuilderng_slug_used[^\"]*)\"/i', $markup, $matches);
 
@@ -430,21 +458,18 @@ class HtmlView extends BaseHtmlView
 
         $resolved = true;
         $candidates = [
-            'com_breezingforms' => JPATH_ROOT . '/components/com_breezingforms/breezingforms.php',
-            'com_breezingforms_ng' => JPATH_ROOT . '/components/com_breezingforms_ng/breezingforms.php',
+            'com_breezingformsng' => JPATH_ROOT . '/components/com_breezingformsng/breezingformsng.php',
         ];
 
         try {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->select($db->quoteName('element'))
                 ->from($db->quoteName('#__extensions'))
                 ->where($db->quoteName('type') . ' = ' . $db->quote('component'))
                 ->where($db->quoteName('enabled') . ' = 1')
                 ->where(
-                    $db->quoteName('element') . ' IN ('
-                    . $db->quote('com_breezingforms') . ','
-                    . $db->quote('com_breezingforms_ng') . ')'
+                    $db->quoteName('element') . ' = ' . $db->quote('com_breezingformsng')
                 );
 
             $db->setQuery($query);
@@ -602,7 +627,7 @@ class HtmlView extends BaseHtmlView
             return;
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $db->setQuery(
             'Select articles.`article_id`'
             . ' From #__contentbuilderng_articles As articles, #__content As content'
@@ -632,7 +657,7 @@ class HtmlView extends BaseHtmlView
         $registry = new Registry();
         $registry->loadString((string) ($table->attribs ?? ''));
 
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $limitstart = $app->getInput()->getInt('limitstart', 0);
         $start = $app->getInput()->getInt('start', 0);
         $page = $limitstart ? $limitstart : $start;
@@ -705,7 +730,7 @@ class HtmlView extends BaseHtmlView
     #[\Override]
     public function display($tpl = null): void
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         /** @var EditModel|null $model */
         $model = $this->getModel();
         if ($model) {

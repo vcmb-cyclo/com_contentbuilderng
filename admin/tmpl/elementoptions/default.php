@@ -25,7 +25,7 @@ use Joomla\CMS\Router\Route;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 
-$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getDocument()->getWebAssetManager();
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 $wa->useStyle('com_contentbuilderng.elementoptions');
 
@@ -40,14 +40,14 @@ if (!is_object($element) || empty($element->id)) {
     return;
 }
 
-$plugins = (Factory::getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(FormSupportService::class))->getFormElementsPlugins();
+$plugins = (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(FormSupportService::class))->getFormElementsPlugins();
 
 $elementType = is_string($this->element->type) ? $this->element->type : '';
 if ($elementType !== '') {
     \Joomla\CMS\Plugin\PluginHelper::importPlugin('contentbuilderng_form_elements', $elementType);
 }
 
-$dispatcher = Factory::getApplication()->getDispatcher();
+$dispatcher = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getDispatcher();
 $eventResult = $dispatcher->dispatch('onSettingsDisplay', new \Joomla\CMS\Event\GenericEvent('onSettingsDisplay', array($this->element->options ?? null)));
 $results = $eventResult->getArgument('result') ?: [];
 $dispatcher->clearListeners('onSettingsDisplay');

@@ -15,15 +15,42 @@ namespace CB\Component\Contentbuilderng\Administrator\Controller;
 
 \defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use CB\Component\Contentbuilderng\Administrator\Service\DatatableService;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 
 class DatatableController extends BaseController
 {
+    private function getApp(): CMSApplicationInterface
+    {
+        $app = $this->app;
+
+        if (!$app instanceof CMSApplicationInterface) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function getDatatableService(): DatatableService
+    {
+        return $this->getComponent()->getContainer()->get(DatatableService::class);
+    }
+
     public function create(): bool
     {
         $this->checkToken();
@@ -41,15 +68,7 @@ class DatatableController extends BaseController
         }
 
         try {
-            $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
-            if (!$component instanceof ContentbuilderngComponent) {
-                throw new \RuntimeException('Unexpected component instance');
-            }
-
-            $container = $component->getContainer();
-            $service   = $container->get(DatatableService::class);
-
-            $breturn = $service->createForStorage($storageId);
+            $breturn = $this->getDatatableService()->createForStorage($storageId);
             if ($breturn) {
                 $this->setRedirect(
                     Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . $storageId, false),
@@ -96,16 +115,11 @@ class DatatableController extends BaseController
         }
 
         try {
-            $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
-            if (!$component instanceof ContentbuilderngComponent) {
-                throw new \RuntimeException('Unexpected component instance');
-            }
-
-            $service = $component->getContainer()->get(DatatableService::class);
+            $service = $this->getDatatableService();
             $service->syncColumnsFromFields($storageId);
 
             foreach ($service->getLastSyncWarnings() as $warning) {
-                Factory::getApplication()->enqueueMessage($warning, 'warning');
+                $this->getApp()->enqueueMessage($warning, 'warning');
             }
 
             $this->setRedirect(

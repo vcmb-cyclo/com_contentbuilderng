@@ -12,7 +12,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Model\CategoryFields;
 \defined('_JEXEC') or die;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Form\Field\ListField;
-use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
 
 class FormFieldCategoryEditCb extends ListField
@@ -24,6 +23,11 @@ class FormFieldCategoryEditCb extends ListField
      * @since	1.6
      */
     public $type = 'CategoryEditCb';
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getDocument()->getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+    }
 
     /**
      * Method to get a list of categories that respects access controls and can be used for
@@ -43,7 +47,7 @@ class FormFieldCategoryEditCb extends ListField
         // Initialise variables.
         $options = array();
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $query = $db->getQuery(true);
 
         $query->select('a.id AS value, a.title AS text, a.level');

@@ -15,10 +15,10 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Users;
 
 \defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use CB\Component\Contentbuilderng\Administrator\Model\UsersModel;
 class HtmlView extends BaseHtmlView
 {
@@ -37,6 +37,17 @@ class HtmlView extends BaseHtmlView
      */
     protected $state;
 
+    private function getApp(): CMSApplicationInterface
+    {
+        $app = $this->app;
+
+        if (!$app instanceof CMSApplicationInterface) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
     #[\Override]
     public function display($tpl = null): void
     {
@@ -47,7 +58,7 @@ class HtmlView extends BaseHtmlView
         $this->state      = $model->getState();
 
         // Toolbar
-        $input = Factory::getApplication()->getInput();
+        $input = $this->getApp()->getInput();
         $formId = $input->getInt('form_id', 0);
         $tmpl = $input->getCmd('tmpl', '');
 

@@ -20,7 +20,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 
-$app = Factory::getApplication();
+$app = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication();
 $app->getDocument()->getWebAssetManager()->useScript('core');
 
 $wa = $app->getDocument()->getWebAssetManager();

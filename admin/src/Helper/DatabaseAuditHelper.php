@@ -29,9 +29,6 @@ use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StaleInstallerTempA
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StaleLanguageFilesAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Audit\StorageColumnTypeAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormDisplayColumnsHelper;
-use Joomla\CMS\Factory;
-use Joomla\Database\DatabaseInterface;
-
 final class DatabaseAuditHelper
 {
 
@@ -206,7 +203,7 @@ final class DatabaseAuditHelper
      */
     public static function run(): array
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $prefix = $db->getPrefix();
         $errors = [];
         $getTableIndexes = [AuditTableSupportHelper::class, 'getTableIndexes'];

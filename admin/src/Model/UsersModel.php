@@ -18,15 +18,38 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\Database\QueryInterface;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 
 class UsersModel extends ListModel
 {
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = parent::getComponent();
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function getApp(): CMSApplication
+    {
+        $app = $this->getComponent()->getContainer()->get(CMSApplicationInterface::class);
+
+        if (!$app instanceof CMSApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
     public function __construct(
         array $config = [],
         ?MVCFactoryInterface $factory = null
@@ -55,8 +78,7 @@ class UsersModel extends ListModel
     #[\Override]
     protected function populateState($ordering = 'u.id', $direction = 'ASC')
     {
-        /** @var CMSApplication $app */
-        $app = Factory::getApplication();
+        $app = $this->getApp();
 
         parent::populateState($ordering, $direction);
 
@@ -151,7 +173,7 @@ class UsersModel extends ListModel
     // Modernized publish/unpublish actions with query builder and typed input.
     public function setPublished(): void
     {
-        $app  = Factory::getApplication();
+        $app  = $this->getApp();
         $db   = $this->getDatabase();
         $formId = (int) $app->getInput()->getInt('form_id', 0);
 
@@ -194,7 +216,7 @@ class UsersModel extends ListModel
 
     public function setUnpublished(): void
     {
-        $app  = Factory::getApplication();
+        $app  = $this->getApp();
         $db   = $this->getDatabase();
         $formId = (int) $app->getInput()->getInt('form_id', 0);
 

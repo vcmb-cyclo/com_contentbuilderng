@@ -23,7 +23,7 @@ use Joomla\CMS\Session\Session;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 
 /** @var AdministratorApplication $app */
-$app = Factory::getApplication();
+$app = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication();
 $session = $app->getSession();
 
 $listOrder = $this->state ? (string) $this->state->get('list.ordering', 'ordering') : 'ordering';
@@ -1043,7 +1043,7 @@ echo HTMLHelper::_('uitab.endTabSet');
     <input type="hidden" name="list[ordering]" value="<?php echo htmlspecialchars($listOrder, ENT_QUOTES, 'UTF-8'); ?>" />
     <input type="hidden" name="list[direction]" value="<?php echo htmlspecialchars($listDirn, ENT_QUOTES, 'UTF-8'); ?>" />
     <input type="hidden" id="list_fullordering" name="list[fullordering]" value="<?php echo htmlspecialchars($fullOrdering, ENT_QUOTES, 'UTF-8'); ?>" />
-    <input type="hidden" name="limitstart" value="<?php echo (int) Factory::getApplication()->getInput()->getInt('limitstart', 0); ?>" />
+    <input type="hidden" name="limitstart" value="<?php echo (int) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('limitstart', 0); ?>" />
     <input type="hidden" name="boxchecked" value="0" />
     <input type="hidden" name="tabStartOffset" value="<?php echo htmlspecialchars($activeTab, ENT_QUOTES, 'UTF-8'); ?>" />
     <?php echo HTMLHelper::_('form.token'); ?>

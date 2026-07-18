@@ -14,7 +14,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Helper;
 // No direct access
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Session\Session;
 use Joomla\CMS\Uri\Uri;
@@ -26,7 +25,7 @@ final class RatingHelper
         static $cssLoaded;
         static $scriptRendered;
         /** @var \Joomla\CMS\Application\CMSWebApplicationInterface $app */
-        $app = Factory::getApplication();
+        $app = RuntimeContextHelper::getApplication();
 
         if (!$cssLoaded) {
             $mediaRoot = Uri::root(true) . '/media/com_contentbuilderng/images';

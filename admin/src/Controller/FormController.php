@@ -25,7 +25,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Controller;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\FormController as BaseFormController;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Response\JsonResponse;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Utilities\ArrayHelper;
@@ -43,6 +43,22 @@ class FormController extends BaseFormController
      */
     protected $view_list = 'forms';
     protected $view_item = 'form';
+
+    private function getApp()
+    {
+        $app = $this->app;
+
+        if (!$app instanceof CMSApplicationInterface) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getApp()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+    }
 
     private function getFormModelForSaveActions(): FormModel
     {
@@ -403,7 +419,7 @@ class FormController extends BaseFormController
                 return false;
             }
 
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->update($db->quoteName('#__contentbuilderng_forms'))
                 ->set($db->quoteName($field) . ' = ' . (int) $value)
@@ -524,7 +540,7 @@ class FormController extends BaseFormController
                 return false;
             }
 
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $formQuery = $db->getQuery(true)
                 ->select($db->quoteName(['type', 'reference_id']))
                 ->from($db->quoteName('#__contentbuilderng_forms'))
@@ -536,7 +552,7 @@ class FormController extends BaseFormController
                 throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'));
             }
 
-            if (!in_array((string) $formRow['type'], ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true)) {
+            if ((string) $formRow['type'] !== 'com_breezingformsng') {
                 throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_BF_ONLY'));
             }
 
@@ -637,7 +653,7 @@ class FormController extends BaseFormController
                 throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_SELECT_REQUIRED'));
             }
 
-            $db        = Factory::getContainer()->get(DatabaseInterface::class);
+            $db        = $this->getDatabase();
             $formQuery = $db->getQuery(true)
                 ->select($db->quoteName(['type', 'reference_id']))
                 ->from($db->quoteName('#__contentbuilderng_forms'))
@@ -649,7 +665,7 @@ class FormController extends BaseFormController
                 throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'));
             }
 
-            if (!in_array((string) $formRow['type'], ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true)) {
+            if ((string) $formRow['type'] !== 'com_breezingformsng') {
                 throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_BF_SYSTEM_FIELD_BF_ONLY'));
             }
 
@@ -735,7 +751,7 @@ class FormController extends BaseFormController
                 throw new \RuntimeException(Text::_('JERROR_NO_ITEMS_SELECTED'));
             }
 
-            $db          = Factory::getContainer()->get(DatabaseInterface::class);
+            $db          = $this->getDatabase();
             $deleteQuery = $db->getQuery(true)
                 ->delete($db->quoteName('#__contentbuilderng_elements'))
                 ->where($db->quoteName('id') . ' = ' . $elementId)
@@ -773,7 +789,7 @@ class FormController extends BaseFormController
                 return false;
             }
 
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $deleteQuery = $db->getQuery(true)
                 ->delete($db->quoteName('#__contentbuilderng_elements'))
                 ->where($db->quoteName('id') . ' = ' . $elementId)
@@ -927,7 +943,7 @@ class FormController extends BaseFormController
             return [];
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $query = $db->getQuery(true)
             ->select($db->quoteName('id'))
             ->from($db->quoteName('#__contentbuilderng_elements'))
@@ -1001,13 +1017,13 @@ class FormController extends BaseFormController
     private function respondAjax(bool $success, string $message = ''): void
     {
         echo new JsonResponse(['ok' => $success], $message, !$success);
-        Factory::getApplication()->close();
+        $this->getApp()->close();
     }
 
     private function respondAjaxData(bool $success, string $message, array $data): void
     {
         echo new JsonResponse(array_merge(['ok' => $success], $data), $message, !$success);
-        Factory::getApplication()->close();
+        $this->getApp()->close();
     }
 
     private function persistInlineElementSettings(int $formId): bool

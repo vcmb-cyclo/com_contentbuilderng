@@ -14,7 +14,6 @@ namespace CB\Component\Contentbuilderng\Site\Field;
 
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Language\Text;
 
@@ -63,7 +62,7 @@ class CbmenuresetField extends FormField
         if ($tooltipLabel === 'COM_CONTENTBUILDERNG_RESET_MENU_OPTIONS_TOOLTIP') {
             $tooltipLabel = $buttonLabel;
         }
-        $document = Factory::getApplication()->getDocument();
+        $document = $this->getDocument();
         $wa = $document->getWebAssetManager();
         $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
         if (!$wa->assetExists('style', self::MENU_OPTIONS_STYLE)) {

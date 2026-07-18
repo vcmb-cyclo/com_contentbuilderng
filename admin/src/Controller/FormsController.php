@@ -22,7 +22,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Controller;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
@@ -44,6 +43,22 @@ final class FormsController extends AdminController
     protected $view_list = 'forms';
     protected $view_item = 'form';
 
+    private function getApp(): CMSApplication
+    {
+        $app = $this->app;
+
+        if (!$app instanceof CMSApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getApp()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+    }
+
     public function __construct(
         array $config = [], 
         ?MVCFactoryInterface $factory = null, 
@@ -55,8 +70,7 @@ final class FormsController extends AdminController
 
         // Si tu veux absolument garder ces paramètres en session,
         // tu peux le faire proprement via $this->input.
-        /** @var CMSApplication $application */
-        $application = Factory::getApplication();
+        $application = $this->getApp();
         $session = $application->getSession();
 
         if ($this->input->getInt('email_users', -1) !== -1) {
@@ -219,7 +233,7 @@ final class FormsController extends AdminController
             $this->setMessage(Text::_('JERROR_NO_ITEMS_SELECTED'), 'warning');
         } else {
             try {
-                $db = Factory::getContainer()->get(DatabaseInterface::class);
+                $db = $this->getDatabase();
                 $query = $db->getQuery(true)
                     ->update($db->quoteName('#__contentbuilderng_forms'))
                     ->set($db->quoteName('debug_mode') . ' = ' . $state)

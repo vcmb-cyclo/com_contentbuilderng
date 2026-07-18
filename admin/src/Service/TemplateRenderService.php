@@ -937,6 +937,7 @@ class TemplateRenderService
 
             $detailsPrepare = $result['details_prepare'] ?? '';
             TemplatePrepareHelper::execute(
+                $this->getApp(),
                 $detailsPrepare,
                 'details_prepare',
                 function (string $prepareCode) use (&$items, &$template, &$rawItems, &$item, $record, $result, $recordId, $elementsAllowed, $contentbuilderngFormId): void {
@@ -1239,6 +1240,7 @@ class TemplateRenderService
         if ($execPrepare) {
             $editablePrepare = $result['editable_prepare'] ?? '';
             TemplatePrepareHelper::execute(
+                $this->getApp(),
                 $editablePrepare,
                 'editable_prepare',
                 function (string $prepareCode) use (&$items, &$template, &$item, $record, $result, $recordId, $elementsAllowed, $contentbuilderngFormId): void {

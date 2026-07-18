@@ -16,6 +16,7 @@ namespace CB\Component\Contentbuilderng\Site\Controller;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Service\ApiPermissionRequirementService;
 use CB\Component\Contentbuilderng\Administrator\Service\ApiFieldPermissionService;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Site\Model\DetailsModel;
@@ -26,7 +27,6 @@ use CB\Component\Contentbuilderng\Site\Service\StatsFilterValueService;
 use CB\Component\Contentbuilderng\Site\Service\StatsService;
 use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\BaseController;
@@ -41,6 +41,32 @@ class ApiController extends BaseController
 {
     private SiteApplication $siteApp;
     private bool $frontend;
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
+    }
+
+    private function getStatsService(): StatsService
+    {
+        return new StatsService($this->getDatabase());
+    }
+
+    private function getApiFieldPermissionService(): ApiFieldPermissionService
+    {
+        return new ApiFieldPermissionService($this->getDatabase());
+    }
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = $this->siteApp->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
 
     public function __construct(
         array $config = [], 
@@ -98,7 +124,7 @@ class ApiController extends BaseController
             }
             $recordId = $resolvedRecordId;
 
-            (new PermissionService())->setPermissions($formId, $recordId, $this->frontend ? '_fe' : '');
+            (PermissionService::createFromRuntimeContext())->setPermissions($formId, $recordId, $this->frontend ? '_fe' : '');
             $this->assertApiPermissions((new ApiPermissionRequirementService())->getRequiredPermissions($method, $action, $recordId));
 
             if ($action !== '') {
@@ -135,7 +161,7 @@ class ApiController extends BaseController
                     throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_RECORD_ID_REQUIRED'), 400);
                 }
 
-                (new PermissionService())->setPermissions($formId, $recordId, $this->frontend ? '_fe' : '');
+                (PermissionService::createFromRuntimeContext())->setPermissions($formId, $recordId, $this->frontend ? '_fe' : '');
                 if (!$this->can('edit')) {
                     throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_EDIT_NOT_ALLOWED'), 403);
                 }
@@ -169,7 +195,7 @@ class ApiController extends BaseController
     {
         $filter = (array) $this->input->get('filter', [], 'array');
 
-        return (new StatsService())->getStatsPayload($formId, [
+        return $this->getStatsService()->getStatsPayload($formId, [
             'field' => trim((string) $this->input->getString('field', '')),
             'filter' => [
                 'field' => trim((string) ($filter['field'] ?? '')),
@@ -221,7 +247,7 @@ class ApiController extends BaseController
             throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_INVALID_FILTER'), 400);
         }
 
-        $payload = (new StatsService())->getStatsPayload($formId, [
+        $payload = $this->getStatsService()->getStatsPayload($formId, [
             'field' => $field,
             'filter' => [
                 'field' => $filterField,
@@ -321,11 +347,11 @@ class ApiController extends BaseController
 
     private function getStatsFilterWhere(array $formRow, array $field, string $value): string
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
 
         return match ((string) $formRow['type']) {
             'com_contentbuilderng' => $this->getContentbuilderngStatsFilterWhere($formRow, $field, $value),
-            'com_breezingforms' => $db->quoteName('record_id') . ' IN (' . $this->getBreezingFormsStatsFilterRecordQuery($formRow, $field, $value) . ')',
+            'com_breezingformsng' => $db->quoteName('record_id') . ' IN (' . $this->getBreezingFormsStatsFilterRecordQuery($formRow, $field, $value) . ')',
             default => '1 = 0',
         };
     }
@@ -339,7 +365,7 @@ class ApiController extends BaseController
             return '1 = 0';
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $tableName = ((int) ($properties->bytable ?? 0) === 1 ? '' : '#__') . (string) $properties->name;
         $query = $db->getQuery(true)
             ->select($db->quoteName('source.id'))
@@ -351,7 +377,7 @@ class ApiController extends BaseController
 
     private function getBreezingFormsStatsFilterRecordQuery(array $formRow, array $field, string $value): string
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $valueColumn = $db->quoteName('subrecords.value');
         $query = $db->getQuery(true)
             ->select('DISTINCT ' . $db->quoteName('bf_records.id'))
@@ -382,7 +408,7 @@ class ApiController extends BaseController
 
         $values = match ((string) $formRow['type']) {
             'com_contentbuilderng' => $this->getContentbuilderngStatsFieldValues($formRow, $field),
-            'com_breezingforms' => $this->getBreezingFormsStatsFieldValues($formRow, $field),
+            'com_breezingformsng' => $this->getBreezingFormsStatsFieldValues($formRow, $field),
             default => [],
         };
 
@@ -406,7 +432,7 @@ class ApiController extends BaseController
         $names = method_exists($form, 'getElementNames') ? (array) $form->getElementNames() : [];
         $labels = method_exists($form, 'getElementLabels') ? (array) $form->getElementLabels() : [];
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $query = $db->getQuery(true)
             ->select([$db->quoteName('reference_id'), $db->quoteName('label')])
             ->from($db->quoteName('#__contentbuilderng_elements'))
@@ -458,7 +484,7 @@ class ApiController extends BaseController
             return [];
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $tableName = ((int) ($properties->bytable ?? 0) === 1 ? '' : '#__') . (string) $properties->name;
         $valueColumn = $db->quoteName('source.' . (string) $field['name']);
         $query = $db->getQuery(true)
@@ -479,7 +505,7 @@ class ApiController extends BaseController
 
     private function getBreezingFormsStatsFieldValues(array $formRow, array $field): array
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $valueColumn = $db->quoteName('subrecords.value');
         $query = $db->getQuery(true)
             ->select([
@@ -505,7 +531,7 @@ class ApiController extends BaseController
 
     private function getStatsRecordWhere(array $formRow, string $alias = ''): array
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $prefix = $alias !== '' ? $alias . '.' : '';
 
         return [
@@ -532,7 +558,7 @@ class ApiController extends BaseController
 
     private function getUniqueValuesPayload(int $formId): array
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $query = $db->getQuery(true)
             ->select([$db->quoteName('type'), $db->quoteName('reference_id')])
             ->from($db->quoteName('#__contentbuilderng_forms'))
@@ -550,7 +576,7 @@ class ApiController extends BaseController
 
         $fieldReferenceId = $this->input->getCmd('field_reference_id', '');
         $whereField = $this->input->getCmd('where_field', '');
-        $apiFields = new ApiFieldPermissionService();
+        $apiFields = $this->getApiFieldPermissionService();
         if (!$apiFields->isReferenceAllowed($formId, $fieldReferenceId)
             || ($whereField !== '' && !$apiFields->isReferenceAllowed($formId, $whereField))
         ) {
@@ -584,7 +610,7 @@ class ApiController extends BaseController
             throw new \RuntimeException(Text::_('JINVALID_TOKEN'), 403);
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $query = $db->getQuery(true)
             ->select([$db->quoteName('type'), $db->quoteName('reference_id'), $db->quoteName('rating_slots')])
             ->from($db->quoteName('#__contentbuilderng_forms'))
@@ -801,7 +827,7 @@ class ApiController extends BaseController
         if (isset($subject->form) && is_object($subject->form) && method_exists($subject->form, 'getElementNames')) {
             $elementNames = (array) $subject->form->getElementNames();
         }
-        $allowedReferences = (new ApiFieldPermissionService())->getAllowedReferenceMap($formId);
+        $allowedReferences = $this->getApiFieldPermissionService()->getAllowedReferenceMap($formId);
 
         $items = [];
         foreach ($subject->items as $row) {
@@ -863,7 +889,7 @@ class ApiController extends BaseController
             throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_RECORD_NOT_FOUND'), 404);
         }
 
-        $allowedReferences = (new ApiFieldPermissionService())->getAllowedReferenceMap($formId);
+        $allowedReferences = $this->getApiFieldPermissionService()->getAllowedReferenceMap($formId);
         $fields = [];
         foreach ($subject->items as $item) {
             if (!is_object($item)) {
@@ -922,7 +948,7 @@ class ApiController extends BaseController
             return ['previous' => 0, 'next' => 0];
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $where = [
             $db->quoteName('type') . ' = ' . $db->quote($type),
             $db->quoteName('reference_id') . ' = ' . $db->quote($referenceId),
@@ -961,7 +987,7 @@ class ApiController extends BaseController
 
         $form = $this->loadFormObject($formId);
         $elementNames = method_exists($form, 'getElementNames') ? (array) $form->getElementNames() : [];
-        $allowedReferences = (new ApiFieldPermissionService())->getAllowedReferenceMap($formId);
+        $allowedReferences = $this->getApiFieldPermissionService()->getAllowedReferenceMap($formId);
         $nameToRef = [];
         foreach ($elementNames as $ref => $name) {
             $nameToRef[(string) $name] = (string) $ref;
@@ -1016,7 +1042,7 @@ class ApiController extends BaseController
 
     private function loadFormObject(int $formId)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $query = $db->getQuery(true)
             ->select([$db->quoteName('type'), $db->quoteName('reference_id')])
             ->from($db->quoteName('#__contentbuilderng_forms'))
@@ -1039,8 +1065,8 @@ class ApiController extends BaseController
     private function can(string $action): bool
     {
         return $this->frontend
-            ? (new PermissionService())->authorizeFe($action)
-            : (new PermissionService())->authorize($action);
+            ? (PermissionService::createFromRuntimeContext())->authorizeFe($action)
+            : (PermissionService::createFromRuntimeContext())->authorize($action);
     }
 
     /**
@@ -1079,7 +1105,7 @@ class ApiController extends BaseController
             return $requestedRecordId;
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $query = $db->getQuery(true)
             ->select([$db->quoteName('type'), $db->quoteName('reference_id')])
             ->from($db->quoteName('#__contentbuilderng_forms'))
@@ -1163,7 +1189,7 @@ class ApiController extends BaseController
 
         $showDetails = $code >= 400
             && $code < 500
-            && StatsService::isFormDebugEnabled($formId);
+            && $this->getStatsService()->isFormDebugEnabled($formId);
         $response = [
             'success' => false,
             'messages' => [$showDetails ? $e->getMessage() : $this->getPublicApiErrorMessage($code)],

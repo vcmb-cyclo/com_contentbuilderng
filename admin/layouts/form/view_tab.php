@@ -157,9 +157,9 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
                     $sourceTypeName = trim((string) ($item->type_name ?? ''));
                     $sourceEditLink = '';
 
-                    if (in_array($sourceType, ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true) && $sourceReferenceId > 0 && $sourceTypeName !== '') {
+                    if ($sourceType === 'com_breezingformsng' && $sourceReferenceId > 0 && $sourceTypeName !== '') {
                         $bfOption = null;
-                        foreach (['com_breezingformsng', 'com_breezingforms_ng', 'com_breezingforms'] as $_opt) {
+                        foreach (['com_breezingformsng'] as $_opt) {
                             if (is_dir(JPATH_ADMINISTRATOR . '/components/' . $_opt)) {
                                 $bfOption = $_opt;
                                 break;

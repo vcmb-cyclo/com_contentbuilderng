@@ -31,7 +31,7 @@ final class EditOwnerNavigationTest extends TestCase
             $this->source
         );
         self::assertStringContainsString(
-            "\$permissions = (array) Factory::getApplication()->getSession()->get('com_contentbuilderng.permissions_fe', []);",
+            "\$permissions = (array) RuntimeContextHelper::getApplication()->getSession()->get('com_contentbuilderng.permissions_fe', []);",
             $this->source
         );
         self::assertStringContainsString(

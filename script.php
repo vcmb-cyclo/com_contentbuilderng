@@ -24,13 +24,17 @@ use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Filesystem\File;
 use Joomla\Filesystem\Folder;
+use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataMigrationHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\InstallerService;
 use CB\Component\Contentbuilderng\Administrator\Service\MigrationService;
 use CB\Component\Contentbuilderng\Administrator\Service\PluginInstallerService;
 use CB\Component\Contentbuilderng\Administrator\Service\SchemaService;
 
 $serviceBasePath = __DIR__ . '/admin/src/Service';
+$helperBasePath = __DIR__ . '/admin/src/Helper';
 
+require_once $helperBasePath . '/PackedDataHelper.php';
+require_once $helperBasePath . '/PackedDataMigrationHelper.php';
 require_once $serviceBasePath . '/InstallerService.php';
 require_once $serviceBasePath . '/MigrationService.php';
 require_once $serviceBasePath . '/PluginInstallerService.php';
@@ -54,6 +58,32 @@ class com_contentbuilderngInstallerScript
 
     private const SHARED_LOG_FILE = 'com_contentbuilderng.log';
     private const SHARED_LOG_KEEP_FILES = 10;
+    private const LEGACY_ROOT_MENU_SETTING_KEYS = [
+        'form_id',
+        'record_id',
+        'cb_controller',
+        'cb_category_id',
+        'cb_category_menu_filter',
+        'cb_list_filterhidden',
+        'cb_list_orderhidden',
+        'cb_show_author',
+        'cb_show_top_bar',
+        'cb_show_details_top_bar',
+        'cb_show_bottom_bar',
+        'cb_show_details_bottom_bar',
+        'cb_show_details_back_button',
+        'cb_latest',
+        'cb_list_limit',
+        'cb_filter_in_title',
+        'cb_prefix_in_title',
+        'force_menu_item_id',
+        'cb_show_id',
+        'cb_show_tags',
+        'cb_show_permission_column',
+        'cb_show_permission_new_column',
+        'cb_show_permission_edit_column',
+        'cb_show_introtext',
+    ];
 
     /** Legacy table renames (without prefix) => target (without prefix) */
     private const LEGACY_TABLE_RENAMES = [
@@ -333,11 +363,14 @@ class com_contentbuilderngInstallerScript
                 $this->ensureElementsListIncludeDefault();
                 $this->ensureElementsSearchIncludeDefault();
                 $this->ensureStorageFieldSqlTypeColumn();
+                $this->migratePackedPayloadsToModernFormat();
 
                 // Normalize menu links and titles
                 $this->updateMenuLinks('contentbuilder', 'com_contentbuilderng');
                 $this->updateMenuLinks('com_contentbuilder', 'com_contentbuilderng');
                 $this->updateMenuLinks('com_contentbuilder_ng', 'com_contentbuilderng');
+                $this->migrateLegacyRootMenuParamsToSettings();
+                $this->migrateLegacyMenuBackButtonParams();
 
                 // Install / update plugins shipped in package
                 $source = $this->resolveInstallSourcePath($parent);
@@ -367,6 +400,7 @@ class com_contentbuilderngInstallerScript
 
                 // Normalize legacy "type" fields pointing to component
                 $this->normalizeLegacyComponentTypes();
+                $this->normalizeLegacyBreezingFormsTypes();
 
                 // Remove legacy components rows safely (no uninstall hooks)
                 $this->removeLegacyComponent('contentbuilder');
@@ -1059,6 +1093,219 @@ class com_contentbuilderngInstallerScript
         $this->migrationService->repairLegacyMenuTitleKeys();
     }
 
+    private function migratePackedPayloadsToModernFormat(): void
+    {
+        $db = $this->db();
+
+        $summary = $this->safe(
+            static fn() => PackedDataMigrationHelper::migratePackedPayloadsStep($db),
+            null
+        );
+
+        if (!is_array($summary)) {
+            return;
+        }
+
+        $migrated = (int) ($summary['migrated'] ?? 0);
+        $candidates = (int) ($summary['candidates'] ?? 0);
+        $errors = (int) ($summary['errors'] ?? 0);
+
+        if ($migrated > 0) {
+            $this->log("[OK] Migrated {$migrated} packed payload(s) to the modern j: JSON format.");
+        } elseif ($candidates === 0) {
+            $this->log('[INFO] No legacy packed payload required migration.');
+        }
+
+        if ($errors > 0) {
+            $this->log("[WARNING] Packed payload migration reported {$errors} error(s); review the audit/repair screen.", Log::WARNING);
+        }
+    }
+
+    private function migrateLegacyMenuBackButtonParams(): void
+    {
+        $db = $this->db();
+
+        $rows = $this->safe(function () use ($db) {
+            $conditions = array_merge(
+                $this->buildMenuLinkOptionWhereClauses($db, 'contentbuilder'),
+                $this->buildMenuLinkOptionWhereClauses($db, 'com_contentbuilder'),
+                $this->buildMenuLinkOptionWhereClauses($db, 'com_contentbuilderng'),
+                $this->buildMenuLinkOptionWhereClauses($db, 'com_contentbuilder_ng')
+            );
+
+            $query = $db->getQuery(true)
+                ->select($db->quoteName(['id', 'params']))
+                ->from($db->quoteName('#__menu'))
+                ->where('(' . implode(' OR ', $conditions) . ')')
+                ->order($db->quoteName('id') . ' ASC');
+
+            $db->setQuery($query);
+
+            return $db->loadAssocList() ?: [];
+        }, []);
+
+        if ($rows === []) {
+            return;
+        }
+
+        $updated = 0;
+
+        foreach ($rows as $row) {
+            $menuId = (int) ($row['id'] ?? 0);
+            $rawParams = trim((string) ($row['params'] ?? ''));
+
+            if ($menuId < 1) {
+                continue;
+            }
+
+            $params = $rawParams === '' ? [] : json_decode($rawParams, true);
+
+            if (!is_array($params)) {
+                continue;
+            }
+
+            $changed = false;
+
+            if (array_key_exists('show_back_button', $params)) {
+                if (!array_key_exists('cb_show_details_back_button', $params)) {
+                    $params['cb_show_details_back_button'] = $params['show_back_button'];
+                }
+
+                unset($params['show_back_button']);
+                $changed = true;
+            }
+
+            $settings = $params['settings'] ?? null;
+
+            if (is_array($settings) && array_key_exists('show_back_button', $settings)) {
+                if (!array_key_exists('cb_show_details_back_button', $settings)) {
+                    $settings['cb_show_details_back_button'] = $settings['show_back_button'];
+                }
+
+                unset($settings['show_back_button']);
+                $params['settings'] = $settings;
+                $changed = true;
+            }
+
+            if (!$changed) {
+                continue;
+            }
+
+            $encodedParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+            if ($encodedParams === false) {
+                continue;
+            }
+
+            $this->safe(function () use ($db, $menuId, $encodedParams, &$updated) {
+                $query = $db->getQuery(true)
+                    ->update($db->quoteName('#__menu'))
+                    ->set($db->quoteName('params') . ' = ' . $db->quote($encodedParams))
+                    ->where($db->quoteName('id') . ' = ' . $menuId);
+
+                $db->setQuery($query);
+                $db->execute();
+                $updated++;
+            });
+        }
+
+        if ($updated > 0) {
+            $this->log("[OK] Migrated legacy menu back button parameter to cb_show_details_back_button: {$updated} menu item(s).");
+        }
+    }
+
+    private function migrateLegacyRootMenuParamsToSettings(): void
+    {
+        $db = $this->db();
+
+        $rows = $this->safe(function () use ($db) {
+            $conditions = array_merge(
+                $this->buildMenuLinkOptionWhereClauses($db, 'contentbuilder'),
+                $this->buildMenuLinkOptionWhereClauses($db, 'com_contentbuilder'),
+                $this->buildMenuLinkOptionWhereClauses($db, 'com_contentbuilderng'),
+                $this->buildMenuLinkOptionWhereClauses($db, 'com_contentbuilder_ng')
+            );
+
+            $query = $db->getQuery(true)
+                ->select($db->quoteName(['id', 'params']))
+                ->from($db->quoteName('#__menu'))
+                ->where('(' . implode(' OR ', $conditions) . ')')
+                ->order($db->quoteName('id') . ' ASC');
+
+            $db->setQuery($query);
+
+            return $db->loadAssocList() ?: [];
+        }, []);
+
+        if ($rows === []) {
+            return;
+        }
+
+        $updated = 0;
+
+        foreach ($rows as $row) {
+            $menuId = (int) ($row['id'] ?? 0);
+            $rawParams = trim((string) ($row['params'] ?? ''));
+
+            if ($menuId < 1) {
+                continue;
+            }
+
+            $params = $rawParams === '' ? [] : json_decode($rawParams, true);
+
+            if (!is_array($params)) {
+                continue;
+            }
+
+            $settings = $params['settings'] ?? [];
+
+            if (!is_array($settings)) {
+                $settings = [];
+            }
+
+            $changed = false;
+
+            foreach (self::LEGACY_ROOT_MENU_SETTING_KEYS as $key) {
+                if (!array_key_exists($key, $params)) {
+                    continue;
+                }
+
+                if (!array_key_exists($key, $settings)) {
+                    $settings[$key] = $params[$key];
+                }
+
+                unset($params[$key]);
+                $changed = true;
+            }
+
+            if (!$changed) {
+                continue;
+            }
+
+            $params['settings'] = $settings;
+            $encodedParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+            if ($encodedParams === false) {
+                continue;
+            }
+
+            $this->safe(function () use ($db, $menuId, $encodedParams, &$updated) {
+                $query = $db->getQuery(true)
+                    ->update($db->quoteName('#__menu'))
+                    ->set($db->quoteName('params') . ' = ' . $db->quote($encodedParams))
+                    ->where($db->quoteName('id') . ' = ' . $menuId);
+
+                $db->setQuery($query);
+                $db->execute();
+                $updated++;
+            });
+        }
+
+        if ($updated > 0) {
+            $this->log("[OK] Migrated legacy root menu parameters into params.settings: {$updated} menu item(s).");
+        }
+    }
+
     private function normalizeStoragesOrdering(): void
     {
         $this->schemaService->normalizeStoragesOrdering();
@@ -1675,6 +1922,65 @@ class com_contentbuilderngInstallerScript
             $this->log("[OK] Legacy type normalization completed: {$totalUpdated} row(s) updated.");
         } else {
             $this->log('[INFO] No legacy ContentBuilder type value needed normalization.');
+        }
+    }
+
+    private function normalizeLegacyBreezingFormsTypes(): void
+    {
+        $db = $this->db();
+        $targetType = 'com_breezingformsng';
+
+        $legacyTypes = [
+            'com_breezingforms',
+            'com_breezingforms_ng',
+            'com_breezingformsng',
+            'COM_BREEZINGFORMS',
+            'COM_BREEZINGFORMS_NG',
+            'COM_BREEZINGFORMSNG',
+        ];
+        $quoted = array_map(static fn($t) => $db->quote($t), $legacyTypes);
+
+        $tables = [
+            '#__contentbuilderng_forms',
+            '#__contentbuilderng_records',
+            '#__contentbuilderng_articles',
+            '#__contentbuilderng_resource_access',
+        ];
+
+        $totalUpdated = 0;
+
+        foreach ($tables as $table) {
+            try {
+                $cols = $db->getTableColumns($table, false);
+                $cols = is_array($cols) ? array_change_key_case($cols, CASE_LOWER) : [];
+                if (!array_key_exists('type', $cols)) {
+                    continue;
+                }
+            } catch (\Throwable) {
+                continue;
+            }
+
+            try {
+                $q = $db->getQuery(true)
+                    ->update($db->quoteName($table))
+                    ->set($db->quoteName('type') . ' = ' . $db->quote($targetType))
+                    ->where($db->quoteName('type') . ' IN (' . implode(',', $quoted) . ')');
+                $db->setQuery($q);
+                $db->execute();
+                $updated = (int) $db->getAffectedRows();
+                $totalUpdated += $updated;
+                if ($updated > 0) {
+                    $this->log("[OK] Normalized {$updated} legacy BreezingForms type row(s) in {$table}.");
+                }
+            } catch (\Throwable $e) {
+                $this->log("[WARNING] Failed normalizing legacy BreezingForms types in {$table}: " . $e->getMessage(), Log::WARNING);
+            }
+        }
+
+        if ($totalUpdated > 0) {
+            $this->log("[OK] Legacy BreezingForms type normalization completed: {$totalUpdated} row(s) updated.");
+        } else {
+            $this->log('[INFO] No legacy BreezingForms type value needed normalization.');
         }
     }
 

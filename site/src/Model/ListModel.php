@@ -16,9 +16,9 @@ namespace CB\Component\Contentbuilderng\Site\Model;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Application\AdministratorApplication;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\Registry\Registry;
@@ -82,12 +82,14 @@ class ListModel extends BaseListModel
     {
         parent::__construct($config, $factory);
 
-        /** @var AdministratorApplication|SiteApplication $app */
-        $app = Factory::getApplication();
         $container = $this->getComponent()->getContainer();
+        $app = $container->get(CMSApplicationInterface::class);
+        if (!$app instanceof AdministratorApplication && !$app instanceof SiteApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
         $this->app = $app;
         $this->listSupportService = $container->get(ListSupportService::class);
-        $this->runtimeUtilityService = new RuntimeUtilityService();
+        $this->runtimeUtilityService = new RuntimeUtilityService($app);
         $this->templateRenderService = $container->get(TemplateRenderService::class);
 
         $this->frontend = $app->isClient('site');
@@ -212,6 +214,7 @@ class ListModel extends BaseListModel
                     $resolvedMenuParams?->get('show_page_heading', null)
                 );
                 $this->_show_page_heading = MenuParamHelper::resolvePageHeadingToggle(
+                    $app,
                     $rawShowPageHeading ?? '',
                     $resolvedShowPageHeading,
                     $this->_show_page_heading ? 1 : 0
@@ -278,7 +281,7 @@ class ListModel extends BaseListModel
 
     private function getComponent(): ContentbuilderngComponent
     {
-        $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
+        $component = parent::getComponent();
 
         if (!$component instanceof ContentbuilderngComponent) {
             throw new \RuntimeException('Unexpected component instance');
@@ -316,7 +319,7 @@ class ListModel extends BaseListModel
         $limitKey = $paginationStateKey . '.limit';
         $startKey = $paginationStateKey . '.start';
         $configuredLimit = $this->getConfiguredListLimit();
-        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest();
+        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest($app);
 
         // Priority for state-backed menu overrides:
         // explicit request > menu setting > persisted session state > global default.

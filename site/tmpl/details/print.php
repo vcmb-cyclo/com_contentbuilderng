@@ -21,7 +21,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Application\CMSApplication;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
-$app = Factory::getApplication();
+$app = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication();
 /** @var CMSApplication $app */
 $showAuthorToggle = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_author', (int) ($this->cb_show_author ?? 1));
 

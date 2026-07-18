@@ -18,13 +18,14 @@ use CB\Component\Contentbuilderng\Administrator\Helper\DatabaseAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Service\ConfigExportService;
 use CB\Component\Contentbuilderng\Administrator\Service\ConfigImportService;
+use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\RepairWorkflowService;
 use Joomla\CMS\Application\AdministratorApplication;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Router\Route;
+use Joomla\Database\DatabaseInterface;
 
 final class AboutController extends BaseController
 {
@@ -36,14 +37,43 @@ final class AboutController extends BaseController
 
     private function getApp(): AdministratorApplication
     {
-        /** @var AdministratorApplication $app */
-        $app = Factory::getApplication();
+        $app = $this->app;
+
+        if (!$app instanceof AdministratorApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
         return $app;
     }
 
     private function getCurrentUserId(): int
     {
         return (int) ($this->getApp()->getIdentity()->id ?? 0);
+    }
+
+    private function getRepairWorkflowService(): RepairWorkflowService
+    {
+        $container = $this->getApp()->bootComponent('com_contentbuilderng')->getContainer();
+
+        return new RepairWorkflowService(
+            $this->getApp(),
+            $container->get(DatabaseInterface::class),
+            $container->get(FormSupportService::class)
+        );
+    }
+
+    private function getConfigExportService(): ConfigExportService
+    {
+        $container = $this->getApp()->bootComponent('com_contentbuilderng')->getContainer();
+
+        return new ConfigExportService($container->get(DatabaseInterface::class));
+    }
+
+    private function getConfigImportService(): ConfigImportService
+    {
+        $container = $this->getApp()->bootComponent('com_contentbuilderng')->getContainer();
+
+        return new ConfigImportService($container->get(DatabaseInterface::class), $this->getApp());
     }
 
     private function getAuthorizedApplication(): AdministratorApplication
@@ -86,7 +116,7 @@ final class AboutController extends BaseController
         $this->checkToken();
 
         $app = $this->getAuthorizedApplication();
-        $service = new RepairWorkflowService();
+        $service = $this->getRepairWorkflowService();
         $workflow = $service->createWorkflowState();
         $app->setUserState(RepairWorkflowService::WORKFLOW_STATE_KEY, $workflow);
 
@@ -103,7 +133,7 @@ final class AboutController extends BaseController
         $this->checkToken();
 
         $app = $this->getAuthorizedApplication();
-        $service = new RepairWorkflowService();
+        $service = $this->getRepairWorkflowService();
         $workflow = $service->getWorkflowState($app);
 
         if ($workflow === []) {
@@ -188,7 +218,7 @@ final class AboutController extends BaseController
         $this->checkToken();
 
         $app = $this->getAuthorizedApplication();
-        $service = new RepairWorkflowService();
+        $service = $this->getRepairWorkflowService();
         $workflow = $service->getWorkflowState($app);
 
         if ($workflow === []) {
@@ -245,7 +275,7 @@ final class AboutController extends BaseController
             $scannedTables = (int) ($report['scanned_tables'] ?? 0);
             $errorsCount = count((array) ($report['errors'] ?? []));
 
-            (new RepairWorkflowService())->logAuditReport($report);
+            $this->getRepairWorkflowService()->logAuditReport($report);
 
             Logger::info('Database audit completed', [
                 'issues_total' => $issuesTotal,
@@ -318,7 +348,7 @@ final class AboutController extends BaseController
         $this->rememberConfigTransferSelection();
 
         try {
-            $service = new ConfigExportService();
+            $service = $this->getConfigExportService();
 
             $selectedSections = $this->getSelectedConfigSections();
             if ($selectedSections === []) {
@@ -398,7 +428,7 @@ final class AboutController extends BaseController
         $this->rememberConfigTransferSelection();
 
         try {
-            $service = new ConfigImportService();
+            $service = $this->getConfigImportService();
 
             $selectedSections = $this->getSelectedConfigSections();
             if ($selectedSections === []) {

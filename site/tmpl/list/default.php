@@ -33,7 +33,7 @@ use CB\Component\Contentbuilderng\Site\Helper\PreviewColorModeHelper;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 
 /** @var SiteApplication $app */
-$app = Factory::getApplication();
+$app = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication();
 $cbListTemplateVariant = isset($cbListTemplateVariant) && is_string($cbListTemplateVariant)
 	? trim(strtolower($cbListTemplateVariant))
 	: 'default';
@@ -42,7 +42,7 @@ $isCompactVariant = $cbListTemplateVariant === 'compact';
 $isTilesVariant = $cbListTemplateVariant === 'tiles';
 $usesCardLayout = $isCardsVariant || $isTilesVariant;
 $frontend = $app->isClient('site');
-$permissionService = new PermissionService();
+$permissionService = PermissionService::createFromRuntimeContext();
 $language_allowed = $permissionService->authorizeFe('language');
 $edit_allowed = $frontend ? $permissionService->authorizeFe('edit') : $permissionService->authorize('edit');
 $delete_allowed = $frontend ? $permissionService->authorizeFe('delete') : $permissionService->authorize('delete');
@@ -85,7 +85,7 @@ $previewActorName = (string) $input->getString('cb_preview_actor_name', '');
 $previewUserId = $input->getInt('cb_preview_user_id', 0);
 $isAdminPreview = $input->getBool('cb_preview_ok', false);
 $isBfLinked     = !empty($this->debug_mode) && !empty($this->debug_show_bf_id)
-    && in_array($this->source_type ?? '', ['com_breezingforms', 'com_breezingforms_ng', 'com_breezingformsng'], true)
+    && ($this->source_type ?? '') === 'com_breezingformsng'
     && ($this->source_reference_id ?? 0) > 0;
 $currentUser = $app->getIdentity();
 $currentSessionLabel = trim((string) ($currentUser->name ?? ''));
@@ -508,7 +508,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 <?php endif; ?>
 <?php echo $this->intro_text; ?>
 
-	<form action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=list.display&' . $listTarget . $currentListLayoutQuery . '&Itemid=' . (int) Factory::getApplication()->getInput()->getInt('Itemid', 0) . $previewQuery); ?>"
+	<form action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=list.display&' . $listTarget . $currentListLayoutQuery . '&Itemid=' . (int) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . $previewQuery); ?>"
 		method="<?php echo $___getpost; ?>" name="adminForm" id="adminForm" class="cb-list-template-<?php echo htmlspecialchars($cbListTemplateVariant, ENT_QUOTES, 'UTF-8'); ?><?php echo !empty($this->list_header_sticky) && !$isCardsVariant && !$isTilesVariant ? ' cb-list-has-sticky-header' : ''; ?>">
 	<?php
 	$showNewButton = ($new_allowed && !empty($this->new_button));
@@ -520,14 +520,14 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 		'option' => 'com_contentbuilderng',
 		'task' => 'edit.display',
 		'backtolist' => 1,
-		($directStorageMode ? 'storage_id' : 'id') => $directStorageMode ? $directStorageId : (int) Factory::getApplication()->getInput()->getInt('id', 0),
-		'Itemid' => (int) Factory::getApplication()->getInput()->getInt('Itemid', 0),
+		($directStorageMode ? 'storage_id' : 'id') => $directStorageMode ? $directStorageId : (int) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0),
+		'Itemid' => (int) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0),
 	];
-	$listEditTmpl = (string) Factory::getApplication()->getInput()->get('tmpl', '', 'string');
+	$listEditTmpl = (string) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string');
 	if ($listEditTmpl !== '') {
 		$listEditBaseParams['tmpl'] = $listEditTmpl;
 	}
-	$listEditLayout = (string) Factory::getApplication()->getInput()->get('layout', '', 'string');
+	$listEditLayout = (string) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string');
 	if ($listEditLayout !== '') {
 		$listEditBaseParams['layout'] = $listEditLayout;
 	}
@@ -543,8 +543,8 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 		'option' => 'com_contentbuilderng',
 		'task' => 'edit.publish',
 		'backtolist' => 1,
-		($directStorageMode ? 'storage_id' : 'id') => $directStorageMode ? $directStorageId : (int) Factory::getApplication()->getInput()->getInt('id', 0),
-		'Itemid' => (int) Factory::getApplication()->getInput()->getInt('Itemid', 0),
+		($directStorageMode ? 'storage_id' : 'id') => $directStorageMode ? $directStorageId : (int) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0),
+		'Itemid' => (int) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0),
 	];
 	if ($listEditTmpl !== '') {
 		$listPublishBaseParams['tmpl'] = $listEditTmpl;
@@ -563,14 +563,14 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 	$listDetailsBaseParams = [
 		'option' => 'com_contentbuilderng',
 		'task' => 'details.display',
-		($directStorageMode ? 'storage_id' : 'id') => $directStorageMode ? $directStorageId : (int) Factory::getApplication()->getInput()->getInt('id', 0),
-		'Itemid' => (int) Factory::getApplication()->getInput()->getInt('Itemid', 0),
+		($directStorageMode ? 'storage_id' : 'id') => $directStorageMode ? $directStorageId : (int) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0),
+		'Itemid' => (int) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0),
 	];
-	$listTmpl = (string) Factory::getApplication()->getInput()->get('tmpl', '', 'string');
+	$listTmpl = (string) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string');
 	if ($listTmpl !== '') {
 		$listDetailsBaseParams['tmpl'] = $listTmpl;
 	}
-	$listLayout = (string) Factory::getApplication()->getInput()->get('layout', '', 'string');
+	$listLayout = (string) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string');
 	if ($listLayout !== '') {
 		$listDetailsBaseParams['layout'] = $listLayout;
 	}
@@ -1437,7 +1437,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 					?>
 						<td>
 							<?php
-								echo RatingHelper::getRating(Factory::getApplication()->getInput()->getInt('id', 0), $row->colRecord, $row->colRating, $this->rating_slots, Factory::getApplication()->getInput()->getCmd('lang', ''), $rating_allowed, $row->colRatingCount, $row->colRatingSum);
+								echo RatingHelper::getRating(\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0), $row->colRecord, $row->colRating, $this->rating_slots, \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getCmd('lang', ''), $rating_allowed, $row->colRatingCount, $row->colRatingSum);
 							?>
 						</td>
 					<?php
@@ -1492,9 +1492,9 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 		</div>
 		<?php endif; ?>
 		<?php
-		if (Factory::getApplication()->getInput()->get('tmpl', '', 'string') != '') {
+		if (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '') {
 	?>
-		<input type="hidden" name="tmpl" value="<?php echo Factory::getApplication()->getInput()->get('tmpl', '', 'string'); ?>" />
+		<input type="hidden" name="tmpl" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string'); ?>" />
 	<?php
 	}
 		if ($previewQuery !== '') {
@@ -1507,12 +1507,12 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 	<input type="hidden" name="task" id="task" value="" />
 	<input type="hidden" name="view" id="view" value="list" />
 	<input type="hidden" name="boxchecked" value="0" />
-	<input type="hidden" name="Itemid" value="<?php echo Factory::getApplication()->getInput()->getInt('Itemid', 0); ?>" />
+	<input type="hidden" name="Itemid" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0); ?>" />
 	<?php if ($currentListLayout !== 'default') : ?>
 	<input type="hidden" name="layout" value="<?php echo htmlspecialchars($currentListLayout, ENT_QUOTES, 'UTF-8'); ?>" />
 	<?php endif; ?>
 	<input type="hidden" name="list[start]" value="<?php echo (int) ($this->lists['liststart'] ?? 0); ?>" />
-	<input type="hidden" name="id" value="<?php echo Factory::getApplication()->getInput()->getInt('id', 0) ?>" />
+	<input type="hidden" name="id" value="<?php echo \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) ?>" />
 	<input type="hidden" name="list[ordering]" value="<?php echo $this->lists['order']; ?>" />
 	<input type="hidden" name="list[direction]" value="<?php echo $this->lists['order_Dir']; ?>" />
 	<input type="hidden" name="list[fullordering]" value="<?php echo trim(($this->lists['order'] ?? '') . ' ' . ($this->lists['order_Dir'] ?? '')); ?>" />

@@ -26,9 +26,14 @@ use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 
 class ListController extends BaseController
 {
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->app->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+    }
+
     private function getPermissionService(): PermissionService
     {
-        return new PermissionService();
+        return PermissionService::createFromRuntimeContext();
     }
 
     public function delete(): void
@@ -359,7 +364,7 @@ class ListController extends BaseController
         $limitKey = $stateKeyPrefix . '.limit';
         $startKey = $stateKeyPrefix . '.start';
         $configuredLimit = $this->getConfiguredListLimit();
-        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest();
+        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest($app);
 
         $limit = $explicitLimitRequest && isset($list['limit']) ? (int) $list['limit'] : 0;
         if ($limit === 0) {
@@ -515,7 +520,7 @@ class ListController extends BaseController
     private function isFormPublished(int $formId): bool
     {
         try {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $db = $this->getDatabase();
             $query = $db->getQuery(true)
                 ->select($db->quoteName('published'))
                 ->from($db->quoteName('#__contentbuilderng_forms'))

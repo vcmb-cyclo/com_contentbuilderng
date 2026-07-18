@@ -12,7 +12,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Helper;
 
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 
 final class FormSourceFactory
@@ -23,7 +22,7 @@ final class FormSourceFactory
      */
     private static function isSignedAdminPreviewRequest(int $formId): bool
     {
-        $app = Factory::getApplication();
+        $app = RuntimeContextHelper::getApplication();
         $input = $app->getInput();
 
         if ($formId < 1 || !$input->getBool('cb_preview', false)) {
@@ -93,18 +92,26 @@ final class FormSourceFactory
      */
     private static function createKnownTypeForm(string $type, int $referenceId)
     {
-        $normalizedType = $type === 'com_contentbuilder' ? 'com_contentbuilderng' : $type;
+        $normalizedType = match ($type) {
+            'com_contentbuilder' => 'com_contentbuilderng',
+            'com_breezingforms',
+            'com_breezingforms_ng',
+            'com_breezingformsng' => 'com_breezingformsng',
+            default => $type,
+        };
 
         $classMap = [
             'com_contentbuilderng' => 'CB\\Component\\Contentbuilderng\\Administrator\\types\\contentbuilderng_com_contentbuilderng',
-            'com_breezingforms' => 'CB\\Component\\Contentbuilderng\\Administrator\\types\\contentbuilderng_com_breezingforms',
+            'com_breezingformsng' => 'CB\\Component\\Contentbuilderng\\Administrator\\types\\contentbuilderng_com_breezingformsng',
         ];
 
         if (!isset($classMap[$normalizedType])) {
             return null;
         }
 
-        $file = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/src/types/' . $normalizedType . '.php';
+        $file = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/src/types/'
+            . ($normalizedType === 'com_breezingformsng' ? 'com_breezingforms' : $normalizedType)
+            . '.php';
         if (is_file($file)) {
             require_once $file;
         }
@@ -114,7 +121,7 @@ final class FormSourceFactory
             return null;
         }
 
-        $app = Factory::getApplication();
+        $app = RuntimeContextHelper::getApplication();
         $allowUnpublishedSource = $app->isClient('administrator')
             || $app->getInput()->getBool('cb_preview_ok', false)
             || self::isSignedAdminPreviewRequest((int) $app->getInput()->getInt('id', 0));

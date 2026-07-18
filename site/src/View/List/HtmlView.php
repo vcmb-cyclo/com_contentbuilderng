@@ -16,7 +16,7 @@ namespace CB\Component\Contentbuilderng\Site\View\List;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Uri\Uri;
@@ -38,9 +38,20 @@ class HtmlView extends BaseHtmlView
     public int $debug_show_filters = 0;
     public int $debug_show_cb_id = 0;
 
+    private function getApp(): SiteApplication
+    {
+        $app = $this->getDocument()->getApplication();
+
+        if (!$app instanceof SiteApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
     function display($tpl = null)
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $this->frontend = $app->isClient('site');
 
         // Get data from the model

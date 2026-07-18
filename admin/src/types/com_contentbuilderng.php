@@ -15,13 +15,13 @@ namespace CB\Component\Contentbuilderng\Administrator\types;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\Utilities\ArrayHelper;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Database\ParameterType;
 use Joomla\Filesystem\File;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\PhpTemplateHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 
 class contentbuilderng_com_contentbuilderng
 {
@@ -38,7 +38,7 @@ class contentbuilderng_com_contentbuilderng
 
     function __construct($id, $published = true)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $this->form_id = intval($id);
         $query = $db->getQuery(true)
             ->select('*')
@@ -70,7 +70,7 @@ class contentbuilderng_com_contentbuilderng
         if (!is_object($this->properties))
             return;
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $tableName = $db->quoteName($this->bytable . $this->properties->name);
         $subQuery = $db->getQuery(true)
             ->select($db->quoteName('cr.record_id'))
@@ -114,7 +114,7 @@ class contentbuilderng_com_contentbuilderng
 
     public static function getNumRecordsQuery($form_id, $user_id)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select([$db->quoteName('name'), $db->quoteName('bytable')])
             ->from($db->quoteName('#__contentbuilderng_storages'))
@@ -130,7 +130,7 @@ class contentbuilderng_com_contentbuilderng
 
     public function getUniqueValues($element_id, $where_field = '', $where = '')
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $fieldQuery = $db->getQuery(true)
             ->select($db->quoteName('name'))
             ->from($db->quoteName('#__contentbuilderng_storage_fields'))
@@ -173,7 +173,7 @@ class contentbuilderng_com_contentbuilderng
 
     public function getAllElements()
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select('*')
             ->from($db->quoteName('#__contentbuilderng_storage_fields'))
@@ -197,7 +197,7 @@ class contentbuilderng_com_contentbuilderng
             return $this->sortableElements;
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select('*')
             ->from($db->quoteName('#__contentbuilderng_storage_fields'))
@@ -244,7 +244,7 @@ class contentbuilderng_com_contentbuilderng
     public function getRecordMetadata($record_id)
     {
         $data = new \stdClass();
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select($db->quoteName(['metakey', 'metadesc', 'author', 'robots', 'rights', 'xreference', 'edited', 'last_update']))
             ->from($db->quoteName('#__contentbuilderng_records'))
@@ -335,7 +335,7 @@ class contentbuilderng_com_contentbuilderng
             return $out;
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
 
         $i = 0;
         $elSize = count($this->elements);
@@ -358,7 +358,7 @@ class contentbuilderng_com_contentbuilderng
             Where
                 r.id = " . $db->quote(intval($record_id)) . " And
                 joined_records.`type` = 'com_contentbuilderng'
-                " . (!$show_all_languages ? " And ( joined_records.sef = " . $db->quote(Factory::getApplication()->getInput()->getCmd('lang', '')) . " Or joined_records.sef = '' Or joined_records.sef is Null ) " : '') . "
+                " . (!$show_all_languages ? " And ( joined_records.sef = " . $db->quote(RuntimeContextHelper::getApplication()->getInput()->getCmd('lang', '')) . " Or joined_records.sef = '' Or joined_records.sef is Null ) " : '') . "
                 " . ($show_all_languages ? " And ( joined_records.id is Null Or joined_records.id Is Not Null ) " : '') . "
                 " . (intval($own_only) > -1 ? ' And r.user_id=' . intval($own_only) . ' ' : '') . "
                 " . ($published_only ? " And joined_records.published = 1 " : '') . "
@@ -419,7 +419,7 @@ class contentbuilderng_com_contentbuilderng
             return array();
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
 
         $selectors = '';
         $bottom = '';
@@ -704,7 +704,7 @@ class contentbuilderng_com_contentbuilderng
                 joined_records.reference_id = r.storage_id And
                 joined_records.record_id = r.id And
                 joined_records.`type` = 'com_contentbuilderng'
-                " . (!$show_all_languages ? " And ( joined_records.sef = " . $db->quote(Factory::getApplication()->getInput()->getCmd('lang', '')) . " Or joined_records.sef = '' Or joined_records.sef is Null ) " : '') . "
+                " . (!$show_all_languages ? " And ( joined_records.sef = " . $db->quote(RuntimeContextHelper::getApplication()->getInput()->getCmd('lang', '')) . " Or joined_records.sef = '' Or joined_records.sef is Null ) " : '') . "
                 " . ($show_all_languages ? " And ( joined_records.id is Null Or joined_records.id Is Not Null ) " : '') . "
                 " . ($lang_code !== null ? " And joined_records.lang_code = " . $db->quote($lang_code) : '') . "
                 " . (intval($own_only) > -1 ? ' And r.user_id=' . intval($own_only) . ' ' : '') . "
@@ -811,7 +811,7 @@ class contentbuilderng_com_contentbuilderng
     public static function getFormsList()
     {
         $list = array();
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         // In administrator context, allow selecting unpublished storages too.
         $query = $db->getQuery(true)
             ->select($db->quoteName(['id', 'title', 'name']))
@@ -833,7 +833,7 @@ class contentbuilderng_com_contentbuilderng
 
     public function isGroup($element_id)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select($db->quoteName('is_group'))
             ->from($db->quoteName('#__contentbuilderng_storage_fields'))
@@ -851,7 +851,7 @@ class contentbuilderng_com_contentbuilderng
     public function getGroupDefinition($element_id)
     {
         $return = array();
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select($db->quoteName('group_definition'))
             ->from($db->quoteName('#__contentbuilderng_storage_fields'))
@@ -894,7 +894,7 @@ class contentbuilderng_com_contentbuilderng
         if (intval($user_id) <= 0) {
             return;
         }
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->update($db->quoteName($this->bytable . $this->properties->name))
             ->set($db->quoteName('user_id') . ' = ' . (int) $user_id)
@@ -906,7 +906,7 @@ class contentbuilderng_com_contentbuilderng
 
     public function clearDirtyRecordUserData($record_id)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->delete($db->quoteName($this->bytable . $this->properties->name))
             ->where($db->quoteName('user_id') . ' = 0')
@@ -918,9 +918,9 @@ class contentbuilderng_com_contentbuilderng
     public function saveRecord($record_id, array $cleaned_values)
     {
         $record_id = intval($record_id);
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $insert_id = 0;
-        $identity = Factory::getApplication()->getIdentity();
+        $identity = RuntimeContextHelper::getApplication()->getIdentity();
         $user_id = (int) ($identity->id ?? 0);
         $username = trim((string) ($identity->username ?? ''));
         $user_full_name = trim((string) ($identity->name ?? ''));
@@ -932,7 +932,7 @@ class contentbuilderng_com_contentbuilderng
             }
         }
 
-        $input = Factory::getApplication()->getInput();
+        $input = RuntimeContextHelper::getApplication()->getInput();
         if ($input->getBool('cb_preview_ok', false)) {
             $previewActorId = (int) $input->getInt('cb_preview_actor_id', 0);
             $previewActorName = trim((string) $input->getString('cb_preview_actor_name', ''));
@@ -1102,7 +1102,7 @@ class contentbuilderng_com_contentbuilderng
 
     function delete($items, $form_id)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         ArrayHelper::toInteger($items);
         if (!is_object($this->properties) || trim((string) ($this->properties->name ?? '')) === '') {
             throw new \RuntimeException('Storage source is not available for delete action.');
@@ -1165,7 +1165,7 @@ class contentbuilderng_com_contentbuilderng
 
     function isOwner($user_id, $record_id)
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = RuntimeContextHelper::getDatabase();
         $query = $db->getQuery(true)
             ->select($db->quoteName('id'))
             ->from($db->quoteName($this->bytable . $this->properties->name))
@@ -1188,7 +1188,7 @@ class contentbuilderng_com_contentbuilderng
         }
 
         try {
-            $columns = Factory::getContainer()->get(DatabaseInterface::class)->getTableColumns($tableName, false);
+            $columns = RuntimeContextHelper::getDatabase()->getTableColumns($tableName, false);
         } catch (\Throwable $e) {
             $columns = [];
         }

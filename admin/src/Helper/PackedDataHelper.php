@@ -30,40 +30,12 @@ final class PackedDataHelper
             return $default;
         }
 
-        $jsonPayload = null;
-        if (strpos($decoded, 'j:') === 0) {
-            $jsonPayload = substr($decoded, 2);
-        } elseif (strpos(ltrim($decoded), '{') === 0 || strpos(ltrim($decoded), '[') === 0) {
-            $jsonPayload = $decoded;
-        }
-
-        if ($jsonPayload !== null) {
-            try {
-                return json_decode($jsonPayload, $assoc, 512, JSON_THROW_ON_ERROR);
-            } catch (\Throwable $e) {
-                return $default;
-            }
+        if (strpos($decoded, 'j:') !== 0) {
+            return $default;
         }
 
         try {
-            $legacyPayload = @unserialize($decoded, ['allowed_classes' => ['stdClass']]);
-
-            if ($legacyPayload !== false || $decoded === 'b:0;') {
-                if ($assoc) {
-                    return json_decode(
-                        json_encode($legacyPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                        true,
-                        512,
-                        JSON_THROW_ON_ERROR
-                    );
-                }
-
-                if (is_array($legacyPayload)) {
-                    return (object) $legacyPayload;
-                }
-
-                return $legacyPayload;
-            }
+            return json_decode(substr($decoded, 2), $assoc, 512, JSON_THROW_ON_ERROR);
         } catch (\Throwable $e) {
             return $default;
         }

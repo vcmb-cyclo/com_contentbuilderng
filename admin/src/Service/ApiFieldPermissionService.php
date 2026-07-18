@@ -13,11 +13,14 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
 
 final class ApiFieldPermissionService
 {
+    public function __construct(private readonly DatabaseInterface $db)
+    {
+    }
+
     /**
      * @return array<string,bool>
      */
@@ -27,7 +30,7 @@ final class ApiFieldPermissionService
             return [];
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->db;
         $query = $db->getQuery(true)
             ->select($db->quoteName('reference_id'))
             ->from($db->quoteName('#__contentbuilderng_elements'))

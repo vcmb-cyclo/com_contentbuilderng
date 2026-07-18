@@ -6,13 +6,12 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSApplicationInterface;
 
 class FormResolverService
 {
-    private function getApp()
+    public function __construct(private readonly CMSApplicationInterface $app)
     {
-        return Factory::getApplication();
     }
 
     public function getForm($type, $referenceId)
@@ -33,9 +32,8 @@ class FormResolverService
             return $forms[$type][$referenceId];
         }
 
-        $app = $this->getApp();
-        $isAdminPreview = $app->getInput()->getBool('cb_preview_ok', false);
-        $isAdministrator = $app->isClient('administrator');
+        $isAdminPreview = $this->app->getInput()->getBool('cb_preview_ok', false);
+        $isAdministrator = $this->app->isClient('administrator');
         $allowUnpublishedSource = $isAdminPreview || $isAdministrator;
 
         $form = FormSourceFactory::getForm($type, $referenceId);

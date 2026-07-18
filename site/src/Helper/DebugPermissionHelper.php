@@ -15,7 +15,6 @@ namespace CB\Component\Contentbuilderng\Site\Helper;
 \defined('_JEXEC') or die;
 
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
-use Joomla\CMS\Factory;
 
 final class DebugPermissionHelper
 {
@@ -39,6 +38,7 @@ final class DebugPermissionHelper
      */
     public static function resolvePermissions(
         PermissionService $permissionService,
+        $app,
         int $formId,
         bool $frontend
     ): array {
@@ -46,7 +46,7 @@ final class DebugPermissionHelper
 
         foreach (self::ACTIONS as $action) {
             $permissions[$action] = $action === 'new' && $formId > 0
-                ? self::authorizeNewForForm($permissionService, $formId, $frontend)
+                ? self::authorizeNewForForm($permissionService, $app, $formId, $frontend)
                 : self::authorize($permissionService, $action, $frontend);
         }
 
@@ -60,9 +60,8 @@ final class DebugPermissionHelper
             : $permissionService->authorize($action);
     }
 
-    private static function authorizeNewForForm(PermissionService $permissionService, int $formId, bool $frontend): bool
+    private static function authorizeNewForForm(PermissionService $permissionService, $app, int $formId, bool $frontend): bool
     {
-        $app = Factory::getApplication();
         $session = $app->getSession();
         $suffix = $frontend ? '_fe' : '';
         $key = 'com_contentbuilderng.permissions' . $suffix;

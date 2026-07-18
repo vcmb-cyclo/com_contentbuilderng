@@ -15,7 +15,6 @@ namespace CB\Component\Contentbuilderng\Site\Field;
 
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
@@ -24,19 +23,18 @@ class CbfilterField extends FormField
 {
     protected $type = 'Cbfilter';
 
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getDocument()->getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+    }
+
     protected function getInput()
     {
         $selectedFormId = (int) ($this->form?->getValue('form_id', 'params.settings', 0) ?? 0);
-        if ($selectedFormId <= 0) {
-            $selectedFormId = (int) ($this->form?->getValue('form_id', 'params', 0) ?? 0);
-        }
         if ($selectedFormId <= 0 && method_exists($this->form, 'getData')) {
             $data = $this->form->getData();
             if (is_object($data) && method_exists($data, 'get')) {
                 $selectedFormId = (int) $data->get('params.settings.form_id', 0);
-                if ($selectedFormId <= 0) {
-                    $selectedFormId = (int) $data->get('params.form_id', 0);
-                }
             }
         }
         if ($selectedFormId <= 0) {
@@ -46,7 +44,7 @@ class CbfilterField extends FormField
         $out = '<input type="hidden" name="' . $this->name . '" id="' . $this->id . '" value="' . htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8') . '"/>';
         $wrapperId = $this->id . '_elements_wrapper';
         $out .= '<div id="' . $wrapperId . '">';
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
 
         if ($selectedFormId > 0) {
             $query = $db->getQuery(true)
@@ -82,22 +80,15 @@ class CbfilterField extends FormField
 
                 var formField = contentbuilderng_findField([
                     "#jform_params_settings_form_id",
-                    "#jform_params_form_id",
-                    "[name=\\"jform[params][settings][form_id]\\"]",
-                    "[name=\\"jform[params][form_id]\\"]",
-                    "select[name=\\"jform[params][form_id]\\"]"
+                    "[name=\\"jform[params][settings][form_id]\\"]"
                 ]);
                 var hiddenFilterField = contentbuilderng_findField([
                     "#jform_params_settings_cb_list_filterhidden",
-                    "#jform_params_cb_list_filterhidden",
-                    "[name=\\"jform[params][settings][cb_list_filterhidden]\\"]",
-                    "[name=\\"jform[params][cb_list_filterhidden]\\"]"
+                    "[name=\\"jform[params][settings][cb_list_filterhidden]\\"]"
                 ]);
                 var hiddenOrderField = contentbuilderng_findField([
                     "#jform_params_settings_cb_list_orderhidden",
-                    "#jform_params_cb_list_orderhidden",
-                    "[name=\\"jform[params][settings][cb_list_orderhidden]\\"]",
-                    "[name=\\"jform[params][cb_list_orderhidden]\\"]"
+                    "[name=\\"jform[params][settings][cb_list_orderhidden]\\"]"
                 ]);
                 var currentFilterField = document.getElementById("' . $this->id . '");
                 var wrapper = document.getElementById("' . $wrapperId . '");

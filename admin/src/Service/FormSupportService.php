@@ -166,7 +166,7 @@ class FormSupportService
         $types = [];
 
         if ($this->isBreezingFormsAvailable()) {
-            $types[] = 'com_breezingforms';
+            $types[] = 'com_breezingformsng';
         }
 
         $types[] = 'com_contentbuilderng';
@@ -295,9 +295,6 @@ class FormSupportService
     private function isBreezingFormsAvailable(): bool
     {
         $manifestCandidates = [
-            JPATH_ROOT . '/administrator/components/com_breezingforms/breezingforms.xml',
-            JPATH_ROOT . '/administrator/components/com_breezingforms/com_breezingforms.xml',
-            JPATH_ROOT . '/administrator/components/com_breezingforms_ng/com_breezingforms_ng.xml',
             JPATH_ROOT . '/administrator/components/com_breezingformsng/com_breezingformsng.xml',
             JPATH_ROOT . '/administrator/components/com_breezingformsng/breezingformsng.xml',
         ];
@@ -314,7 +311,7 @@ class FormSupportService
                 ->select('COUNT(1)')
                 ->from($db->quoteName('#__extensions'))
                 ->where($db->quoteName('type') . ' = ' . $db->quote('component'))
-                ->where($db->quoteName('element') . ' IN (' . $db->quote('com_breezingforms') . ',' . $db->quote('com_breezingforms_ng') . ')');
+                ->where($db->quoteName('element') . ' = ' . $db->quote('com_breezingformsng'));
             $db->setQuery($query);
 
             if ((int) $db->loadResult() > 0) {

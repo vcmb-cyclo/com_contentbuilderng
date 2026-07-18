@@ -15,7 +15,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 \defined('_JEXEC') or die;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Database\QueryInterface;
@@ -39,6 +38,10 @@ class ConfigExportService
         'storage_content'  => ['type' => 'storage_content'],
     ];
 
+    public function __construct(private readonly DatabaseInterface $db)
+    {
+    }
+
     public function resolveEffectiveSections(array $selectedSections, array $selectedFormIds, array $selectedStorageIds): array
     {
         $effective = [];
@@ -59,7 +62,7 @@ class ConfigExportService
 
     public function buildPayload(array $selectedSections, array $selectedFormIds, array $selectedStorageIds, bool $includeStorageContent, int $generatedByUserId): array
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->db;
         $existingTables = array_map('strtolower', (array) $db->getTableList());
         $exportSections = [];
 

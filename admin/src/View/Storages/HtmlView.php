@@ -16,14 +16,15 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Storages;
 
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Document\HtmlDocument;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Administrator\Model\StoragesModel;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\View\Contentbuilderng\HtmlView as BaseHtmlView;
 
 /**
@@ -36,6 +37,28 @@ class HtmlView extends BaseHtmlView
     protected $state;
     protected $lists;
     protected $ordering;
+
+    private function getApp(): CMSApplication
+    {
+        $app = $this->app;
+
+        if (!$app instanceof CMSApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
 
     /**
      * Méthode d'affichage de la vue
@@ -92,7 +115,7 @@ class HtmlView extends BaseHtmlView
      */
     private function buildPreviewLinks(array $items): array
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $identity = $app->getIdentity();
         $secret = (string) $app->get('secret');
 
@@ -155,8 +178,6 @@ class HtmlView extends BaseHtmlView
         ToolbarHelper::addNew('storage.add');
         ToolbarHelper::editList('storage.edit');
         ToolbarHelper::deleteList('COM_CONTENTBUILDERNG_CONFIRM_STORAGE_DELETE_MESSAGE', 'storage.delete');
-        /** @var CMSApplication $app */
-        $app = Factory::getApplication();
         /** @var HtmlDocument $document */
         $document = $this->getDocument();
         $toolbar = $document->getToolbar('toolbar');
@@ -185,9 +206,6 @@ class HtmlView extends BaseHtmlView
      */
     protected function addToolbarIcon()
     {
-         // 1️⃣ Récupération du WebAssetManager
-        /** @var CMSApplication $app */
-        $app = Factory::getApplication();
         $document = $this->getDocument();
         $wa = $document->getWebAssetManager();
 

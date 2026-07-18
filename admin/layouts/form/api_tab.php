@@ -87,7 +87,7 @@ $renderPermissions = static function (array $permissions) use ($permissionLabelK
 
     return implode(' <span class="text-muted">+</span> ', $items);
 };
-$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa = \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getDocument()->getWebAssetManager();
 $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
 $wa->useStyle('com_contentbuilderng.admin-form-api');
 ?>

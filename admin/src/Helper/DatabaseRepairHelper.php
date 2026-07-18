@@ -14,7 +14,6 @@ namespace CB\Component\Contentbuilderng\Administrator\Helper;
 
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
 
 final class DatabaseRepairHelper
@@ -40,7 +39,7 @@ final class DatabaseRepairHelper
      */
     public static function repairDuplicateIndexesStep(?DatabaseInterface $db = null): array
     {
-        $db ??= Factory::getContainer()->get(DatabaseInterface::class);
+        $db ??= RuntimeContextHelper::getDatabase();
         $report = DatabaseAuditHelper::run();
         $groups = (array) ($report['duplicate_indexes'] ?? []);
 
@@ -136,7 +135,7 @@ final class DatabaseRepairHelper
      */
     public static function repairHistoricalTablesStep(?DatabaseInterface $db = null): array
     {
-        $db ??= Factory::getContainer()->get(DatabaseInterface::class);
+        $db ??= RuntimeContextHelper::getDatabase();
         $report = DatabaseAuditHelper::run();
         $historicalTables = array_values((array) ($report['historical_tables'] ?? []));
         $knownTables = [];

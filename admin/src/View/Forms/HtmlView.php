@@ -16,10 +16,10 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Forms;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
@@ -27,6 +27,17 @@ use CB\Component\Contentbuilderng\Administrator\View\Contentbuilderng\HtmlView a
 
 class HtmlView extends BaseHtmlView
 {
+    private function getApp(): CMSApplicationInterface
+    {
+        $app = $this->app;
+
+        if (!$app instanceof CMSApplicationInterface) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
     function display($tpl = null)
     {
         if ($this->getLayout() === 'help') {
@@ -117,7 +128,7 @@ class HtmlView extends BaseHtmlView
      */
     private function buildPreviewLinks(array $items): array
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $identity = $app->getIdentity();
         $secret = (string) $app->get('secret');
 

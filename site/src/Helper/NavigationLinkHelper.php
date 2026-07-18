@@ -134,7 +134,7 @@ final class NavigationLinkHelper
         $limitKey = $prefix . '.limit';
         $startKey = $prefix . '.start';
         $configuredLimit = MenuParamHelper::getConfiguredListLimit($app, $formId);
-        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest();
+        $explicitLimitRequest = MenuParamHelper::hasExplicitListLimitRequest($app);
 
         $limit = $explicitLimitRequest && isset($list['limit']) ? (int) $list['limit'] : 0;
         if ($limit === 0) {

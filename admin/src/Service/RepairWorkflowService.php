@@ -27,9 +27,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataMigrationHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\PluginExtensionDedupHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\StorageAuditColumnsHelper;
-use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use Joomla\CMS\Application\AdministratorApplication;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
 
@@ -55,12 +53,18 @@ class RepairWorkflowService
         'stale_installer_temp',
     ];
 
+    public function __construct(
+        private readonly AdministratorApplication $app,
+        private readonly DatabaseInterface $db,
+        private readonly FormSupportService $formSupportService
+    ) {
+    }
+
     public function createWorkflowState(): array
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
         $steps = [];
         $now = $this->localNow();
-        $prechecks = $this->buildPrechecks($db);
+        $prechecks = $this->buildPrechecks($this->db);
 
         foreach (self::WORKFLOW_STEPS as $stepId) {
             $step = [
@@ -134,20 +138,18 @@ class RepairWorkflowService
 
     public function executeStep(string $stepId): array
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
-
         return match ($stepId) {
-            'duplicate_indexes'    => $this->buildDuplicateIndexStepResult(DatabaseRepairHelper::repairDuplicateIndexesStep($db)),
-            'historical_tables'    => $this->buildHistoricalTablesStepResult(DatabaseRepairHelper::repairHistoricalTablesStep($db)),
-            'table_encoding'       => $this->buildTableEncodingStepResult(PackedDataMigrationHelper::repairTableCollationsStep($db)),
-            'packed_data'          => $this->buildPackedDataStepResult(PackedDataMigrationHelper::migratePackedPayloadsStep($db)),
-            'audit_columns'        => $this->buildAuditColumnsStepResult(StorageAuditColumnsHelper::repair($db)),
-            'form_audit_columns'   => $this->buildFormAuditColumnsStepResult(FormDisplayColumnsHelper::repair($db)),
-            'plugin_duplicates'    => $this->buildPluginDuplicateStepResult(PluginExtensionDedupHelper::repair($db)),
-            'historical_menu_entries' => $this->buildHistoricalMenuStepResult(PackedDataMigrationHelper::repairLegacyMenuEntriesStep($db)),
-            'bf_field_sync'        => $this->buildBfFieldSyncStepResult($this->repairBfFieldSync($db)),
-            'generated_article_categories'   => $this->buildGeneratedArticleCategoryStepResult(GeneratedArticleCategoryAuditHelper::repair($db)),
-            'element_reference_consistency'  => $this->buildElementReferenceConsistencyStepResult(ElementReferenceAuditHelper::repair($db)),
+            'duplicate_indexes'    => $this->buildDuplicateIndexStepResult(DatabaseRepairHelper::repairDuplicateIndexesStep($this->db)),
+            'historical_tables'    => $this->buildHistoricalTablesStepResult(DatabaseRepairHelper::repairHistoricalTablesStep($this->db)),
+            'table_encoding'       => $this->buildTableEncodingStepResult(PackedDataMigrationHelper::repairTableCollationsStep($this->db)),
+            'packed_data'          => $this->buildPackedDataStepResult(PackedDataMigrationHelper::migratePackedPayloadsStep($this->db)),
+            'audit_columns'        => $this->buildAuditColumnsStepResult(StorageAuditColumnsHelper::repair($this->db)),
+            'form_audit_columns'   => $this->buildFormAuditColumnsStepResult(FormDisplayColumnsHelper::repair($this->db)),
+            'plugin_duplicates'    => $this->buildPluginDuplicateStepResult(PluginExtensionDedupHelper::repair($this->db)),
+            'historical_menu_entries' => $this->buildHistoricalMenuStepResult(PackedDataMigrationHelper::repairLegacyMenuEntriesStep($this->db)),
+            'bf_field_sync'        => $this->buildBfFieldSyncStepResult($this->repairBfFieldSync($this->db)),
+            'generated_article_categories'   => $this->buildGeneratedArticleCategoryStepResult(GeneratedArticleCategoryAuditHelper::repair($this->db)),
+            'element_reference_consistency'  => $this->buildElementReferenceConsistencyStepResult(ElementReferenceAuditHelper::repair($this->db)),
             'stale_language_files'           => $this->buildStaleLanguageFilesStepResult(StaleLanguageFilesAuditHelper::repair()),
             'stale_installer_temp'           => $this->buildStaleInstallerTempStepResult(StaleInstallerTempAuditHelper::repair()),
             default                          => throw new \RuntimeException('Unknown repair step: ' . $stepId),
@@ -156,16 +158,7 @@ class RepairWorkflowService
 
     private function repairBfFieldSync(DatabaseInterface $db): array
     {
-        $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
-
-        if (!$component instanceof ContentbuilderngComponent) {
-            throw new \RuntimeException('Unexpected component instance');
-        }
-
-        return BfFieldSyncAuditHelper::repair(
-            $db,
-            $component->getContainer()->get(FormSupportService::class)
-        );
+        return BfFieldSyncAuditHelper::repair($db, $this->formSupportService);
     }
 
     public function logStepResult(string $stepId, string $action, array $result): void
@@ -1286,8 +1279,7 @@ class RepairWorkflowService
 
     private function localNow(): string
     {
-        $app = Factory::getApplication();
-        $offset = is_object($app) && method_exists($app, 'get') ? (string) $app->get('offset', 'UTC') : 'UTC';
+        $offset = (string) $this->app->get('offset', 'UTC');
 
         try {
             $timezone = new \DateTimeZone($offset !== '' ? $offset : 'UTC');

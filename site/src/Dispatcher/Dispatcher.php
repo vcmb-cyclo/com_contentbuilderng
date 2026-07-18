@@ -15,7 +15,7 @@ class Dispatcher extends ComponentDispatcher
         $app = $this->app;
         $session = $app->getSession();
         $menu = $app->getMenu();
-        $requestListLimitSubmitted = MenuParamHelper::hasExplicitListLimitRequest();
+        $requestListLimitSubmitted = MenuParamHelper::hasExplicitListLimitRequest($app);
 
         $menuParamDefaults = [
             'cb_controller' => null,
@@ -34,7 +34,6 @@ class Dispatcher extends ComponentDispatcher
             'cb_prefix_in_title' => null,
             'force_menu_item_id' => null,
             'cb_category_menu_filter' => null,
-            'show_back_button' => null,
         ];
 
         foreach ($menuParamDefaults as $key => $default) {
@@ -106,13 +105,7 @@ class Dispatcher extends ComponentDispatcher
             $input->set('cb_show_details_bottom_bar', MenuParamHelper::getMenuParam($params, 'cb_show_details_bottom_bar', null));
             $input->set('cb_show_details_top_bar', MenuParamHelper::getMenuParam($params, 'cb_show_details_top_bar', null));
 
-            $detailsBackButton = MenuParamHelper::getMenuParam($params, 'cb_show_details_back_button', null);
-            if ($detailsBackButton === null) {
-                $detailsBackButton = MenuParamHelper::getMenuParam($params, 'show_back_button', null);
-            }
-
-            $input->set('cb_show_details_back_button', $detailsBackButton);
-            $input->set('show_back_button', $detailsBackButton);
+            $input->set('cb_show_details_back_button', MenuParamHelper::getMenuParam($params, 'cb_show_details_back_button', null));
             $input->set('cb_list_limit', MenuParamHelper::getMenuParam($params, 'cb_list_limit', 0));
             $input->set('cb_filter_in_title', MenuParamHelper::getMenuParam($params, 'cb_filter_in_title', null));
             $input->set('cb_prefix_in_title', MenuParamHelper::getMenuParam($params, 'cb_prefix_in_title', null));

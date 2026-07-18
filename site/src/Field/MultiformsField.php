@@ -15,7 +15,6 @@ namespace CB\Component\Contentbuilderng\Site\Field;
 
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
 use Joomla\Database\DatabaseInterface;
 
@@ -23,11 +22,16 @@ class MultiformsField extends FormField
 {
     protected $type = 'Multiforms';
 
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getDocument()->getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+    }
+
     protected function getInput()
     {
         $class = (string) ($this->element['class'] ?: '');
         $multiple = 'multiple="multiple" ';
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $query = $db->getQuery(true)
             ->select($db->quoteName(['id', 'name']))
             ->from($db->quoteName('#__contentbuilderng_forms'))

@@ -46,6 +46,8 @@
 - [x] Phase 4 — Nettoyages mineurs (fait le 2026-07-18)
 - [~] Phase 5 — Montée en niveau PHPStan : niveau 2 atteint le 2026-07-18 ; la montée
   vers 4+ et la résorption de la baseline restent un fond de qualité continu
+- [x] Phase 6 — supprimer les compatibilités runtime legacy encore actives
+- [ ] Phase 7 — résorber le service locator statique `Factory` / container dans le code runtime
 
 ---
 
@@ -271,6 +273,126 @@ concaténation de `$db->quote()`/`$db->quoteName()` subsistent (ex.
   `joomla6-joomla-1` (HTTP 200).
 - [ ] PHPStan : monter vers 3 puis 4+, en résorbant la baseline par lots (fond continu)
 - [ ] Étendre la couverture PHPUnit aux services convertis en Phase 3
+
+---
+
+## Phase 6 — Supprimer les compatibilités runtime legacy
+
+**Priorité : haute.** Le composant installe et migre déjà vers le format NG moderne, mais
+il conserve encore **des lectures runtime de formats/clefs hérités** qui contredisent la
+ligne `AGENTS.md` (« pas de fallback, pas de compatibilité ascendante »).
+
+### Reliquats identifiés le 2026-07-18
+
+- `admin/src/Helper/PackedDataHelper.php` : `decodePackedData()` accepte encore les
+  payloads PHP sérialisés via `@unserialize(...)` si le blob base64 n'est pas du JSON
+  packé `j:...`
+- `admin/src/Helper/PackedDataMigrationHelper.php` : la réparation existe déjà et sait
+  détecter les payloads `legacy_php` ; **la lecture runtime legacy n'est donc plus
+  nécessaire une fois la base réparée**
+- `site/src/Helper/MenuParamHelper.php` et `site/src/Dispatcher/Dispatcher.php` :
+  fallback encore actif entre la clef moderne `cb_show_details_back_button` et l'ancienne
+  `show_back_button`
+- XML/frontend : plusieurs layouts utilisent encore l'ancien nom `show_back_button`
+  comme paramètre ou comme alias de secours (`site/tmpl/edit/default.xml`,
+  `site/tmpl/details/default.xml`, `site/tmpl/latest/latest.xml`, dispatcher)
+
+### Cible
+
+- Le format packé supporté en runtime doit être **uniquement** le JSON packé `j:...`
+- Les payloads hérités doivent être traités **uniquement** par une migration/réparation
+  explicite, pas silencieusement à l'exécution
+- Les paramètres menu/input frontend doivent exposer **une seule clef canonique**
+  (`cb_show_details_back_button`) ; l'ancienne clef ne doit plus être lue au runtime
+
+### Tâches
+
+- [x] `PackedDataHelper::decodePackedData()` : supprimer la branche `@unserialize(...)`
+- [x] Conserver `PackedDataMigrationHelper` comme **outil d'audit/réparation préalable**
+  avant suppression du fallback runtime
+- [x] Normaliser les XML/layouts/dispatcher/frontend sur `cb_show_details_back_button`
+  uniquement
+- [x] Retirer les paramètres `?string $legacyKey = null` de `MenuParamHelper`
+  quand le dernier alias aura disparu
+- [x] Ajouter/adapter les tests unitaires sur :
+  - refus d'un packed payload legacy en runtime
+  - réparation explicite via `PackedDataMigrationHelper`
+  - résolution menu/input sans alias `show_back_button`
+
+### Vérification
+
+- [ ] Audit About/DB repair : 0 payload `legacy_php` avant livraison
+- [ ] Tous les écrans frontend concernés (list, details, edit, latest, publicforms)
+  respectent encore les toggles après suppression des alias
+- [ ] Suite PHPUnit verte
+
+> **Note d'architecture** : la compatibilité de migration **à l'installation / mise à
+> jour** (renommage de tables, nettoyage d'extensions héritées, etc.) reste légitime et
+> n'entre pas dans cette phase. Le but ici est de supprimer les **fallbacks runtime**,
+> pas les migrations one-shot de `script.php`.
+
+> **Fait (2026-07-18)** : runtime packed-data durci sur le format `j:...` uniquement
+> (`PackedDataHelper` ne lit plus ni JSON non préfixé ni payload PHP sérialisé) ; la
+> migration d'update garde son propre décodeur legacy dans `PackedDataMigrationHelper`
+> pour convertir automatiquement les anciens payloads avant usage. Alias frontend
+> `show_back_button` retiré de `MenuParamHelper`, du dispatcher, des layouts XML/runtime,
+> de `menu-options.js` et des champs menu ; migrations automatiques ajoutées dans
+> `script.php` pour :
+> 1. renommer `show_back_button` vers `cb_show_details_back_button` ;
+> 2. déplacer les anciens paramètres de menu root-level vers `params.settings`.
+> Tests textuels ajoutés pour verrouiller le runtime strict, le chemin de migration
+> packed-data, la clef canonique du bouton retour et l'abandon des sélecteurs/lectures
+> root-level. **Reste hors code** : vérifications `php -l`, PHPUnit et smoke test de mise
+> à jour en environnement PHP/Joomla disponible.
+
+---
+
+## Phase 7 — Résorber le service locator statique `Factory` / container
+
+**Priorité : moyenne.** Il ne s'agit plus de dépréciations bloquantes, mais le composant
+reste loin d'un Joomla 6 « pur » tant qu'il dépend massivement de `Factory::getApplication()`
+et `Factory::getContainer()` dans les modèles, services, helpers, champs et templates.
+
+### État audité le 2026-07-18
+
+- `rg "Factory::getApplication\\(|Factory::getContainer\\(" admin site plugins --glob '!vendor/**'`
+  retourne **447 occurrences**
+- Les reliquats se concentrent dans :
+  - modèles/services/helpers admin et site
+  - champs personnalisés (`site/src/Field/*`)
+  - templates/layouts admin et site
+  - providers de plugins qui injectent l'application via `Factory::getApplication()`
+  - `admin/src/Extension/ContentbuilderngComponent.php` pour le chargement des langues
+
+### Cible
+
+- Services et helpers métier : dépendances injectées (application, base, mailer, cache,
+  user factory, dispatcher…) au lieu d'appels statiques globaux
+- Modèles/vues/contrôleurs : s'appuyer d'abord sur les accesseurs Joomla déjà disponibles
+  (`$this->getApplication()`, `$this->getDatabase()`, `$this->document`, `$this->getInput()`)
+- Templates/layouts : consommer les variables préparées par la vue plutôt que relire
+  l'application globale
+- Garder `Factory` uniquement là où Joomla l'impose réellement ou où l'installeur opère
+  hors MVC
+
+### Tâches
+
+- [ ] Prioriser les classes runtime les plus denses (`site/src/Controller/ApiController.php`,
+  `site/src/Service/StatsService.php`, `site/src/Model/EditModel.php`,
+  `admin/src/types/com_contentbuilderng.php`, `admin/src/types/com_breezingforms.php`)
+- [ ] Passer les helpers/champs autonomes (`site/src/Field/*`, `site/src/Helper/MenuParamHelper.php`)
+  sur des dépendances explicites ou des points d'entrée mieux bornés
+- [ ] Nettoyer les templates admin/site qui appellent `Factory::getApplication()` /
+  `getDocument()` directement quand la vue peut préparer la donnée
+- [ ] Réduire les providers/plugins à l'injection minimale requise par Joomla
+- [ ] Recompter les occurrences après chaque lot et documenter les exceptions restantes
+
+### Vérification
+
+- [ ] `rg "Factory::getApplication\\(|Factory::getContainer\\(" admin site plugins --glob '!vendor/**'`
+  en baisse documentée après chaque lot
+- [ ] `php -l` sur chaque fichier touché ; PHPUnit vert
+- [ ] Smoke test Docker sur tout flux touché
 
 ---
 

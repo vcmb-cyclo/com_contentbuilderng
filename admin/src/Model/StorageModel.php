@@ -23,9 +23,9 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\Database\DatabaseInterface;
@@ -51,22 +51,33 @@ class StorageModel extends AdminModel
     private string $target_table = '';
     private int $storageId = 0;
 
-    private function getDatatableService(): DatatableService
+    private function getComponent(): ContentbuilderngComponent
     {
-        $component = Factory::getApplication()->bootComponent('com_contentbuilderng');
+        $component = parent::getComponent();
 
         if (!$component instanceof ContentbuilderngComponent) {
             throw new \RuntimeException('Unexpected component instance');
         }
 
-        return $component->getContainer()->get(DatatableService::class);
+        return $component;
+    }
+
+    private function getDatatableService(): DatatableService
+    {
+        return $this->getComponent()->getContainer()->get(DatatableService::class);
     }
     /** @var array<string,mixed> */
     private array $lastImportSummary = [];
 
     private function getApp(): CMSApplication
     {
-        return Factory::getApplication();
+        $app = $this->getComponent()->getContainer()->get(CMSApplicationInterface::class);
+
+        if (!$app instanceof CMSApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
     }
 
     private function getInput()
@@ -245,7 +256,7 @@ class StorageModel extends AdminModel
 
         $newfieldtitle = $fieldtitle !== '' ? $fieldtitle : $newfieldname;
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
 
         // Unicité
         $query = $db->getQuery(true)
@@ -455,7 +466,7 @@ class StorageModel extends AdminModel
 
         $newfieldtitle = $fieldtitle !== '' ? $fieldtitle : $newfieldname;
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
 
         // ordering max+1
         $query = $db->getQuery(true)
@@ -541,7 +552,7 @@ class StorageModel extends AdminModel
      */
     private function syncStorageDataTableOrBytable(int $storageId, bool $isNew, \Joomla\CMS\Table\Table $table, ?string $oldName = null): void
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
 
         $name   = (string) ($table->name ?? '');
         $bytable = (int) ($table->bytable ?? 0);
@@ -791,7 +802,7 @@ class StorageModel extends AdminModel
     private function syncEditedFields(int $storageId, int $bytable, \Joomla\CMS\Table\Table $storageTable): void
     {
         $input = $this->getInput();
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
 
         $listnames  = $input->post->get('itemNames', [], 'array');
         if (empty($listnames)) {
@@ -907,7 +918,7 @@ class StorageModel extends AdminModel
      */
     private function ensureMissingColumnsFromFields(int $storageId, string $dataTableName): void
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
 
         // Liste des champs définis
         $query = $db->getQuery(true)
@@ -954,7 +965,7 @@ class StorageModel extends AdminModel
         $pks = (array) $pks;
         ArrayHelper::toInteger($pks);
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $row = $this->getTable('Storage');
 
         foreach ($pks as $pk) {
@@ -1139,7 +1150,7 @@ class StorageModel extends AdminModel
 
         $newfieldtitle = $fieldtitle !== '' ? $fieldtitle : $newfieldname;
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
 
         $db->setQuery(
             "SELECT id FROM #__contentbuilderng_storage_fields"
@@ -1534,7 +1545,7 @@ class StorageModel extends AdminModel
     // Give the database tables list.
     function getDbTables()
     {
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $tables = $db->getTableList();
         return $tables;
     }

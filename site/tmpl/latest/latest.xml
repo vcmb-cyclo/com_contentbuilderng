@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <metadata>
-    <!-- Joomla! 1.6 compatibility -->
     <layout title="COM_CONTENTBUILDERNG_MENU_ITEM_LATEST">
         <message>COM_CONTENTBUILDERNG_SELECT_LATEST_MESSAGE</message>
         <config>
@@ -9,7 +8,7 @@
                     <field type="forms" label="COM_CONTENTBUILDERNG_SELECT_VIEW" name="form_id" default="0"/>
                     <field type="cbmenureset" label="" description="" name="cb_menu_reset" />
                     <field type="note" label="COM_CONTENTBUILDERNG_MENU_OPTIONS_DETAILS" class="cb-menu-section-heading" />
-                    <field name="show_back_button" type="radio" class="btn-group btn-group-yesno" default="-1" label="COM_CONTENTBUILDERNG_SHOW_BACK_BUTTON" description="COM_CONTENTBUILDERNG_SHOW_BACK_BUTTON_DESC">
+                    <field name="cb_show_details_back_button" type="radio" class="btn-group btn-group-yesno" default="-1" label="COM_CONTENTBUILDERNG_SHOW_BACK_BUTTON" description="COM_CONTENTBUILDERNG_SHOW_BACK_BUTTON_DESC">
                         <option value="-1">JOPTION_USE_DEFAULT</option>
                         <option value="0">COM_CONTENTBUILDERNG_NO</option>
                         <option value="1">COM_CONTENTBUILDERNG_YES</option>

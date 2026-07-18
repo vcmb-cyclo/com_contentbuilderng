@@ -17,7 +17,8 @@ namespace CB\Component\Contentbuilderng\Site\View\Details;
 \defined('_JEXEC') or die('Restricted access');
 
 
-use Joomla\CMS\Factory;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Event\Content\ContentPrepareEvent; 
 use Joomla\CMS\Event\Content\AfterTitleEvent;
@@ -67,9 +68,36 @@ class HtmlView extends BaseHtmlView
     public int $rating_count = 0;
     public int $rating_sum = 0;
 
+    private function getApp(): SiteApplication
+    {
+        $app = $this->getDocument()->getApplication();
+
+        if (!$app instanceof SiteApplication) {
+            throw new \RuntimeException('Unexpected application instance');
+        }
+
+        return $app;
+    }
+
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
+    private function getDatabase(): DatabaseInterface
+    {
+        return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
+    }
+
     private function resolveSiblingRecordIdsByRecordId(object $subject, int $currentRecordId): array
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $currentList = (array) $app->getInput()->get('list', [], 'array');
         $currentListStart = array_key_exists('start', $currentList) ? max(0, (int) $currentList['start']) : 0;
         if (
@@ -82,7 +110,7 @@ class HtmlView extends BaseHtmlView
             return ['previous' => 0, 'next' => 0, 'previous_start' => $currentListStart, 'next_start' => $currentListStart];
         }
 
-        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $db = $this->getDatabase();
         $isAdminPreview = $app->getInput()->getBool('cb_preview_ok', false);
 
         $baseWhere = [
@@ -123,7 +151,7 @@ class HtmlView extends BaseHtmlView
 
     private function getListPaginationStateKeys(int $formId): array
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $option = 'com_contentbuilderng';
         $layout = (string) $app->getInput()->getCmd('layout', 'default');
         $storageId = (int) $app->getInput()->getInt('storage_id', 0);
@@ -144,7 +172,7 @@ class HtmlView extends BaseHtmlView
 
     private function resolveSiblingRecordIds(object $subject): array
     {
-        $app = Factory::getApplication();
+        $app = $this->getApp();
         $currentRecordId = (int) $app->getInput()->getInt('record_id', 0);
         if ($currentRecordId < 1) {
             return ['previous' => 0, 'next' => 0];
@@ -242,7 +270,7 @@ class HtmlView extends BaseHtmlView
 
 	function display($tpl = null)
 	{
-        $app = Factory::getApplication();
+        $app = $this->getApp();
 		// Get data from the model
 		$this->frontend = $app->isClient('site');
         $subject = $this->get('Data');
@@ -269,7 +297,7 @@ class HtmlView extends BaseHtmlView
 
 		$event = new \stdClass();
 
-		$db = Factory::getContainer()->get(DatabaseInterface::class);
+		$db = $this->getDatabase();
 		$formIdValue = (int) $subject->form_id;
 		$recordIdValue = (string) $subject->record_id;
 		$query = $db->getQuery(true)
@@ -311,9 +339,7 @@ class HtmlView extends BaseHtmlView
 		$registry->loadString($table->attribs ?? '{}', 'json');
 		PluginHelper::importPlugin('content');
 
-		// seems to be a joomla bug. if sef urls is enabled, "start" is used for paging in articles, else "limitstart" will be used
-		//$limitstart = Factory::getApplication()->getInput()->getInt('limitstart', 0);
-		//$start      = Factory::getApplication()->getInput()->getInt('start', 0);
+		// Legacy pagebreak note kept for context; the view now forces page 0 explicitly.
 
 		$limitstart = 0;
 
