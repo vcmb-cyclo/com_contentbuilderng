@@ -60,7 +60,7 @@ class EditController extends BaseController
         $storageId = (int) $this->input->getInt('storage_id', 0);
         $isAdminPreview = $this->isValidAdminPreviewRequest($formId, $storageId);
         $this->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
-        $this->siteApp->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
+        $this->siteApp->getInput()->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
         return $isAdminPreview;
     }
 
@@ -96,25 +96,25 @@ class EditController extends BaseController
         $this->siteApp = $app;
         $this->frontend = $this->siteApp->isClient('site');
        
-        $this->siteApp->input->set('cbIsNew', 0);
-        $storageId = (int) $this->siteApp->input->getInt('storage_id', 0);
-        $isDirectStorageMode = $storageId > 0 && $this->siteApp->input->getInt('id', 0) <= 0;
+        $this->siteApp->getInput()->set('cbIsNew', 0);
+        $storageId = (int) $this->siteApp->getInput()->getInt('storage_id', 0);
+        $isDirectStorageMode = $storageId > 0 && $this->siteApp->getInput()->getInt('id', 0) <= 0;
         $isAdminPreview = $isDirectStorageMode ? $this->isValidAdminPreviewRequest(0, $storageId) : false;
 
-        $task = (string) $this->siteApp->input->getCmd('task', '');
+        $task = (string) $this->siteApp->getInput()->getCmd('task', '');
         $taskAction = str_contains($task, '.') ? substr($task, strrpos($task, '.') + 1) : $task;
 
         if ($isDirectStorageMode && $isAdminPreview) {
             $this->getPermissionService()->setStoragePreviewPermissions($storageId, $this->frontend ? '_fe' : '');
         } elseif (in_array($taskAction, ['delete', 'state', 'publish', 'language'], true)) {
-            $items = $this->siteApp->input->get('cid', [], 'array');
-            $this->getPermissionService()->setPermissions($this->siteApp->input->getInt('id', 0), $items, $this->frontend ? '_fe' : '');
+            $items = $this->siteApp->getInput()->get('cid', [], 'array');
+            $this->getPermissionService()->setPermissions($this->siteApp->getInput()->getInt('id', 0), $items, $this->frontend ? '_fe' : '');
         } else {
-            if (!$isDirectStorageMode && $this->siteApp->input->getCmd('record_id', '')) {
-                $this->getPermissionService()->setPermissions($this->siteApp->input->getInt('id', 0), $this->siteApp->input->getCmd('record_id', ''), $this->frontend ? '_fe' : '');
+            if (!$isDirectStorageMode && $this->siteApp->getInput()->getCmd('record_id', '')) {
+                $this->getPermissionService()->setPermissions($this->siteApp->getInput()->getInt('id', 0), $this->siteApp->getInput()->getCmd('record_id', ''), $this->frontend ? '_fe' : '');
             } elseif (!$isDirectStorageMode) {
-                $this->siteApp->input->set('cbIsNew', 1);
-                $this->getPermissionService()->setPermissions($this->siteApp->input->getInt('id', 0), 0, $this->frontend ? '_fe' : '');
+                $this->siteApp->getInput()->set('cbIsNew', 1);
+                $this->getPermissionService()->setPermissions($this->siteApp->getInput()->getInt('id', 0), 0, $this->frontend ? '_fe' : '');
             }
         }
     }
@@ -138,22 +138,22 @@ class EditController extends BaseController
     {
         $isAdminPreview = $this->applyPreviewContextForAction();
 
-        if ($this->siteApp->isClient('site') && $this->siteApp->input->getInt('Itemid', 0)) {
+        if ($this->siteApp->isClient('site') && $this->siteApp->getInput()->getInt('Itemid', 0)) {
             $menu = $this->siteApp->getMenu();
             $item = $menu->getActive();
             if (is_object($item)) {
                 $params = $item->getParams();
-                $this->siteApp->input->set('cb_controller', MenuParamHelper::getMenuParam($params, 'cb_controller', null));
-                $this->siteApp->input->set('cb_category_id', (int) MenuParamHelper::getMenuParam($params, 'cb_category_id', 0));
+                $this->siteApp->getInput()->set('cb_controller', MenuParamHelper::getMenuParam($params, 'cb_controller', null));
+                $this->siteApp->getInput()->set('cb_category_id', (int) MenuParamHelper::getMenuParam($params, 'cb_category_id', 0));
             }
         }
 
-        $this->siteApp->input->set('cbIsNew', 0);
-        $this->siteApp->input->set('ContentbuilderngHelper::cbinternalCheck', 1);
+        $this->siteApp->getInput()->set('cbIsNew', 0);
+        $this->siteApp->getInput()->set('ContentbuilderngHelper::cbinternalCheck', 1);
 
-        $isEdit = (bool) $this->siteApp->input->getCmd('record_id', '');
+        $isEdit = (bool) $this->siteApp->getInput()->getCmd('record_id', '');
         if (!$isEdit) {
-            $this->siteApp->input->set('cbIsNew', 1);
+            $this->siteApp->getInput()->set('cbIsNew', 1);
         }
 
         if (!$isAdminPreview) {
@@ -167,14 +167,14 @@ class EditController extends BaseController
         $model = $this->getEditModel(['ignore_request' => true]);
         $id = $model->store();
 
-        $submission_failed = $this->siteApp->input->getBool('cb_submission_failed', false);
-        $cb_submit_msg = $this->siteApp->input->set('cb_submit_msg', '');
+        $submission_failed = $this->siteApp->getInput()->getBool('cb_submission_failed', false);
+        $this->siteApp->getInput()->set('cb_submit_msg', '');
 
         $type = 'message';
         if ($id && !$submission_failed) {
 
             $msg = Text::_('COM_CONTENTBUILDERNG_SAVED');
-            $return = NavigationLinkHelper::decodeInternalReturn((string) $this->siteApp->input->get('return', '', 'string'));
+            $return = NavigationLinkHelper::decodeInternalReturn((string) $this->siteApp->getInput()->get('return', '', 'string'));
             if ($return !== '') {
                 $this->siteApp->enqueueMessage($msg, 'message');
                 $this->siteApp->redirect($return);
@@ -188,12 +188,12 @@ class EditController extends BaseController
         $previewQuery = $this->buildPreviewQuery();
         $listQuery = $this->buildListQuery();
 
-        if ($this->siteApp->input->getString('cb_controller', '') == 'edit') {
-            $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->input->get('title', '', 'string') . ($this->siteApp->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->input->get('tmpl', '', 'string') : '') . ($this->siteApp->input->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->input->get('layout', '', 'string') : '') . '&task=edit.display&return=' . NavigationLinkHelper::encodeInternalReturn((string) $this->siteApp->input->get('return', '', 'string')) . '&Itemid=' . $this->siteApp->input->getInt('Itemid', 0) . $previewQuery, false);
+        if ($this->siteApp->getInput()->getString('cb_controller', '') == 'edit') {
+            $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->getInput()->get('title', '', 'string') . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '') . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '') . '&task=edit.display&return=' . NavigationLinkHelper::encodeInternalReturn((string) $this->siteApp->getInput()->get('return', '', 'string')) . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0) . $previewQuery, false);
         } else if ($apply) {
-            $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->input->get('title', '', 'string') . ($this->siteApp->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->input->get('tmpl', '', 'string') : '') . ($this->siteApp->input->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->input->get('layout', '', 'string') : '') . '&task=edit.display&return=' . NavigationLinkHelper::encodeInternalReturn((string) $this->siteApp->input->get('return', '', 'string')) . '&backtolist=' . $this->siteApp->input->getInt('backtolist', 0) . '&id=' . $this->siteApp->input->getInt('id', 0) . '&record_id=' . $id . '&Itemid=' . $this->siteApp->input->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '') . $previewQuery, false);
+            $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->getInput()->get('title', '', 'string') . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '') . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '') . '&task=edit.display&return=' . NavigationLinkHelper::encodeInternalReturn((string) $this->siteApp->getInput()->get('return', '', 'string')) . '&backtolist=' . $this->siteApp->getInput()->getInt('backtolist', 0) . '&id=' . $this->siteApp->getInput()->getInt('id', 0) . '&record_id=' . $id . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '') . $previewQuery, false);
         } else {
-            $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->input->get('title', '', 'string') . ($this->siteApp->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->input->get('tmpl', '', 'string') : '') . ($this->siteApp->input->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->input->get('layout', '', 'string') : '') . '&task=list.display&id=' . $this->siteApp->input->getInt('id', 0) . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . $this->siteApp->input->getInt('Itemid', 0) . $previewQuery, false);
+            $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->getInput()->get('title', '', 'string') . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '') . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '') . '&task=list.display&id=' . $this->siteApp->getInput()->getInt('id', 0) . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0) . $previewQuery, false);
         }
         $this->setRedirect($link, $msg, $type);
     }
@@ -222,13 +222,13 @@ class EditController extends BaseController
             $previewQuery = $this->buildPreviewQuery();
             $link = Route::_(
                 'index.php?option=com_contentbuilderng&task=list.display&backtolist=1&id='
-                . $this->siteApp->input->getInt('id', 0)
-                . ($this->siteApp->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->input->get('tmpl', '', 'string') : '')
-                . ($this->siteApp->input->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->input->get('layout', '', 'string') : '')
+                . $this->siteApp->getInput()->getInt('id', 0)
+                . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '')
+                . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '')
                 . '&record_id='
                 . ($listQuery !== '' ? '&' . $listQuery : '')
                 . $previewQuery
-                . '&Itemid=' . $this->siteApp->input->getInt('Itemid', 0),
+                . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0),
                 false
             );
             $this->setRedirect($link, Text::_('JERROR_NO_ITEMS_SELECTED'), 'warning');
@@ -265,19 +265,19 @@ class EditController extends BaseController
 
         // Clear record context to avoid redirects back to details/edit for a deleted record.
         $this->input->set('record_id', 0);
-        $this->siteApp->input->set('record_id', 0);
+        $this->siteApp->getInput()->set('record_id', 0);
 
         $listQuery = $this->buildListQuery();
         $previewQuery = $this->buildPreviewQuery();
         $link = Route::_(
             'index.php?option=com_contentbuilderng&task=list.display&backtolist=1&id='
-            . $this->siteApp->input->getInt('id', 0)
-            . ($this->siteApp->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->input->get('tmpl', '', 'string') : '')
-            . ($this->siteApp->input->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->input->get('layout', '', 'string') : '')
+            . $this->siteApp->getInput()->getInt('id', 0)
+            . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '')
+            . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '')
             . '&record_id='
             . ($listQuery !== '' ? '&' . $listQuery : '')
             . $previewQuery
-            . '&Itemid=' . $this->siteApp->input->getInt('Itemid', 0),
+            . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0),
             false
         );
 
@@ -303,14 +303,14 @@ class EditController extends BaseController
         }
 
         $listQuery = $this->buildListQuery();
-        $link = Route::_('index.php?option=com_contentbuilderng&task=list.display&id=' . $this->siteApp->input->getInt('id', 0) . ($this->siteApp->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->input->get('tmpl', '', 'string') : '') . ($this->siteApp->input->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->input->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . $this->siteApp->input->getInt('Itemid', 0), false);
+        $link = Route::_('index.php?option=com_contentbuilderng&task=list.display&id=' . $this->siteApp->getInput()->getInt('id', 0) . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '') . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0), false);
         $this->setRedirect($link, $msg, 'message');
     }
 
     public function publish()
     {
-        $storageId = (int) $this->siteApp->input->getInt('storage_id', 0);
-        $isDirectStorageMode = $storageId > 0 && $this->siteApp->input->getInt('id', 0) <= 0;
+        $storageId = (int) $this->siteApp->getInput()->getInt('storage_id', 0);
+        $isDirectStorageMode = $storageId > 0 && $this->siteApp->getInput()->getInt('id', 0) <= 0;
         $isAdminPreview = $this->applyPreviewContextForAction();
 
         if ($isDirectStorageMode && !$isAdminPreview) {
@@ -329,9 +329,9 @@ class EditController extends BaseController
         }
 
         $model = $this->getEditModel(['ignore_request' => true]);
-        $model->setIds($this->siteApp->input->getInt('id', 0), $this->siteApp->input->getCmd('record_id', 0));
+        $model->setIds($this->siteApp->getInput()->getInt('id', 0), $this->siteApp->getInput()->getCmd('record_id', 0));
         $model->change_list_publish();
-        if ($this->siteApp->input->getInt('list_publish', 0)) {
+        if ($this->siteApp->getInput()->getInt('list_publish', 0)) {
             $msg = Text::_('COM_CONTENTBUILDERNG_LIST_STATES_PUBLISHED');
         } else {
             $msg = Text::_('COM_CONTENTBUILDERNG_UNPUBLISHED');
@@ -346,12 +346,12 @@ class EditController extends BaseController
         $previewQuery = $this->buildPreviewQuery();
         $link = Route::_(
             'index.php?option=com_contentbuilderng&task=list.display&'
-            . ($isDirectStorageMode ? 'storage_id=' . $storageId : 'id=' . $this->siteApp->input->getInt('id', 0))
+            . ($isDirectStorageMode ? 'storage_id=' . $storageId : 'id=' . $this->siteApp->getInput()->getInt('id', 0))
             . ($listQuery !== '' ? '&' . $listQuery : '')
-            . ($this->siteApp->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->input->get('tmpl', '', 'string') : '')
-            . ($this->siteApp->input->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->input->get('layout', '', 'string') : '')
+            . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '')
+            . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '')
             . $previewQuery
-            . '&Itemid=' . $this->siteApp->input->getInt('Itemid', 0),
+            . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0),
             false
         );
         $this->setRedirect($link, $msg, 'message');
@@ -370,7 +370,7 @@ class EditController extends BaseController
         $model->change_list_language();
         $msg = Text::_('COM_CONTENTBUILDERNG_LANGUAGE_CHANGED');
         $listQuery = $this->buildListQuery();
-        $link = Route::_('index.php?option=com_contentbuilderng&task=list.display&id=' . $this->siteApp->input->getInt('id', 0) . ($listQuery !== '' ? '&' . $listQuery : '') . ($this->siteApp->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->input->get('tmpl', '', 'string') : '') . ($this->siteApp->input->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->input->get('layout', '', 'string') : '') . '&Itemid=' . $this->siteApp->input->getInt('Itemid', 0), false);
+        $link = Route::_('index.php?option=com_contentbuilderng&task=list.display&id=' . $this->siteApp->getInput()->getInt('id', 0) . ($listQuery !== '' ? '&' . $listQuery : '') . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '') . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '') . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0), false);
         $this->setRedirect($link, $msg, 'message');
     }
 
@@ -525,23 +525,23 @@ class EditController extends BaseController
 
         // Keep both input bags aligned for downstream model/view access.
         $this->input->set('id', $formId);
-        $this->siteApp->input->set('id', $formId);
+        $this->siteApp->getInput()->set('id', $formId);
         $this->input->set('view', 'edit');
 
         if ($recordId) {
             $this->input->set('record_id', $recordId);
-            $this->siteApp->input->set('record_id', $recordId);
+            $this->siteApp->getInput()->set('record_id', $recordId);
         }
 
         // Contexte CB correct pour cette page
-        $this->siteApp->input->set('view', 'edit');
+        $this->siteApp->getInput()->set('view', 'edit');
 
         // Permissions
         $isAdminPreview = $isDirectStorageMode
             ? $this->isValidAdminPreviewRequest(0, $storageId)
             : $this->isValidAdminPreviewRequest($formId);
         $this->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
-        $this->siteApp->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
+        $this->siteApp->getInput()->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
 
         if ($isDirectStorageMode && $isAdminPreview) {
             $this->getPermissionService()->setStoragePreviewPermissions($storageId, $this->frontend ? '_fe' : '');
@@ -549,16 +549,16 @@ class EditController extends BaseController
             $this->getPermissionService()->setPermissions($formId, $recordId, $suffix);
         }
         if (!$isAdminPreview) {
-            if ($this->siteApp->input->getCmd('record_id', '')) {
+            if ($this->siteApp->getInput()->getCmd('record_id', '')) {
                 $this->getPermissionService()->checkPermissions('edit', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_EDIT_NOT_ALLOWED'), $this->frontend ? '_fe' : '');
             } else {
                 $this->getPermissionService()->checkPermissions('new', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_NEW_NOT_ALLOWED'), $this->frontend ? '_fe' : '');
             }
         }
 
-        $this->siteApp->input->set('tmpl', $this->siteApp->input->getWord('tmpl', null));
-        $this->siteApp->input->set('layout', $this->siteApp->input->getWord('layout', null) == 'latest' ? null : $this->siteApp->input->getWord('layout', null));
-        $this->siteApp->input->set('view', 'edit');
+        $this->siteApp->getInput()->set('tmpl', $this->siteApp->getInput()->getWord('tmpl', null));
+        $this->siteApp->getInput()->set('layout', $this->siteApp->getInput()->getWord('layout', null) == 'latest' ? null : $this->siteApp->getInput()->getWord('layout', null));
+        $this->siteApp->getInput()->set('view', 'edit');
 
         parent::display();
     }
@@ -603,8 +603,8 @@ class EditController extends BaseController
             if (hash_equals(hash_hmac('sha256', $payload, $secret), $sig)) {
                 $this->input->set('cb_preview_actor_id', $actorId);
                 $this->input->set('cb_preview_actor_name', $actorName);
-                $this->siteApp->input->set('cb_preview_actor_id', $actorId);
-                $this->siteApp->input->set('cb_preview_actor_name', $actorName);
+                $this->siteApp->getInput()->set('cb_preview_actor_id', $actorId);
+                $this->siteApp->getInput()->set('cb_preview_actor_name', $actorName);
                 return true;
             }
         }

@@ -16,6 +16,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Database\QueryInterface;
 
@@ -111,7 +112,7 @@ class ConfigExportService
 
         return [
             'meta' => [
-                'generated_at' => Factory::getDate()->toSql(),
+                'generated_at' => (new Date())->toSql(),
                 'generated_by' => $generatedByUserId,
                 'component' => 'com_contentbuilderng',
                 'format' => 'cbng-config-export-v1',

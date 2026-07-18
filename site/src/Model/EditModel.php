@@ -22,6 +22,8 @@ use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Cache\CacheControllerFactoryInterface;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
+use Joomla\Database\ParameterType;
+use Joomla\Database\QueryInterface;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\Filesystem\Folder;
@@ -848,14 +850,12 @@ var contentbuilderng = new function(){
 
                             if (!$meta->created_id && !(int) ($this->app->getIdentity()->id ?? 0)) {
 
-                                $this->getDatabase()->setQuery("Select count(id) From #__users Where `username` = " . $this->getDatabase()->quote($username));
-                                if ($this->getDatabase()->loadResult()) {
+                                if ($this->userConflictExists('username', $username)) {
                                     $this->app->getInput()->set('cb_submission_failed', 1);
                                     $this->app->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_USERNAME_NOT_AVAILABLE'), 'error');
                                 }
 
-                                $this->getDatabase()->setQuery("Select count(id) From #__users Where `email` = " . $this->getDatabase()->quote($email));
-                                if ($this->getDatabase()->loadResult()) {
+                                if ($this->userConflictExists('email', $email)) {
                                     $this->app->getInput()->set('cb_submission_failed', 1);
                                     $this->app->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_EMAIL_EMPTY'), 'error');
                                 }
@@ -874,30 +874,18 @@ var contentbuilderng = new function(){
                                     $this->app->getInput()->set('cb_' . $the_password_repeat_field['reference_id'], '');
                                 }
                             } else {
-                                if ($meta->created_id && $meta->created_id != (int) ($this->app->getIdentity()->id ?? 0)) {
-                                    $this->getDatabase()->setQuery("Select count(id) From #__users Where id <> " . $this->getDatabase()->quote($meta->created_id) . " And `username` = " . $this->getDatabase()->quote($username));
-                                    if ($this->getDatabase()->loadResult()) {
-                                        $this->app->getInput()->set('cb_submission_failed', 1);
-                                        $this->app->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_USERNAME_NOT_AVAILABLE'), 'error');
-                                    }
+                                $excludeId = ($meta->created_id && $meta->created_id != (int) ($this->app->getIdentity()->id ?? 0))
+                                    ? (int) $meta->created_id
+                                    : (int) ($this->app->getIdentity()->id ?? 0);
 
-                                    $this->getDatabase()->setQuery("Select count(id) From #__users Where id <> " . $this->getDatabase()->quote($meta->created_id) . " And `email` = " . $this->getDatabase()->quote($email));
-                                    if ($this->getDatabase()->loadResult()) {
-                                        $this->app->getInput()->set('cb_submission_failed', 1);
-                                        $this->app->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_EMAIL_EMPTY'), 'error');
-                                    }
-                                } else {
-                                    $this->getDatabase()->setQuery("Select count(id) From #__users Where id <> " . $this->getDatabase()->quote((int) ($this->app->getIdentity()->id ?? 0)) . " And `username` = " . $this->getDatabase()->quote($username));
-                                    if ($this->getDatabase()->loadResult()) {
-                                        $this->app->getInput()->set('cb_submission_failed', 1);
-                                        $this->app->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_USERNAME_NOT_AVAILABLE'), 'error');
-                                    }
+                                if ($this->userConflictExists('username', $username, $excludeId)) {
+                                    $this->app->getInput()->set('cb_submission_failed', 1);
+                                    $this->app->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_USERNAME_NOT_AVAILABLE'), 'error');
+                                }
 
-                                    $this->getDatabase()->setQuery("Select count(id) From #__users Where id <> " . $this->getDatabase()->quote((int) ($this->app->getIdentity()->id ?? 0)) . " And `email` = " . $this->getDatabase()->quote($email));
-                                    if ($this->getDatabase()->loadResult()) {
-                                        $this->app->getInput()->set('cb_submission_failed', 1);
-                                        $this->app->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_EMAIL_EMPTY'), 'error');
-                                    }
+                                if ($this->userConflictExists('email', $email, $excludeId)) {
+                                    $this->app->getInput()->set('cb_submission_failed', 1);
+                                    $this->app->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_EMAIL_EMPTY'), 'error');
                                 }
 
                                 if (trim($pw1) != '' || trim($pw2) != '') {
@@ -1074,6 +1062,7 @@ var contentbuilderng = new function(){
                                             $val = $the_upload_fields[$id]['options']->max_filesize;
                                             $val = trim($val);
                                             $last = strtolower($val[strlen($val) - 1]);
+                                            $val = (int) $val;
                                             switch ($last) {
                                                 case 'g':
                                                     $val *= 1024;
@@ -1424,7 +1413,7 @@ var contentbuilderng = new function(){
 
                                 if ($bypass->text != $orig_text && intval($user_id) > 0) {
 
-                                    $_now = Factory::getDate();
+                                    $_now = (new Date());
 
                                     $verificationSessionKey = 'com_contentbuilderng.verify.' . $data->registration_bypass_plugin . $verification_name;
                                     $setup = $session->get($verificationSessionKey, '');
@@ -1480,8 +1469,16 @@ var contentbuilderng = new function(){
                         $sef = '';
                         $ignore_lang_code = '*';
                         if ($data->default_lang_code_ignore) {
-                            $this->getDatabase()->setQuery("Select lang_code From #__languages Where published = 1 And sef = " . $this->getDatabase()->quote(trim($this->app->getInput()->getCmd('lang', ''))));
-                            $ignore_lang_code = $this->getDatabase()->loadResult();
+                            $db = $this->getDatabase();
+                            $langSef = trim($this->app->getInput()->getCmd('lang', ''));
+                            $query = $db->getQuery(true)
+                                ->select($db->quoteName('lang_code'))
+                                ->from($db->quoteName('#__languages'))
+                                ->where($db->quoteName('published') . ' = 1')
+                                ->where($db->quoteName('sef') . ' = :sef')
+                                ->bind(':sef', $langSef);
+                            $db->setQuery($query);
+                            $ignore_lang_code = $db->loadResult();
                             if (!$ignore_lang_code) {
                                 $ignore_lang_code = '*';
                             }
@@ -1491,31 +1488,44 @@ var contentbuilderng = new function(){
                                 $sef = '';
                             }
                         } else {
-                            $this->getDatabase()->setQuery("Select sef From #__languages Where published = 1 And lang_code = " . $this->getDatabase()->quote($data->default_lang_code));
-                            $sef = $this->getDatabase()->loadResult();
+                            $db = $this->getDatabase();
+                            $defaultLangCode = (string) $data->default_lang_code;
+                            $query = $db->getQuery(true)
+                                ->select($db->quoteName('sef'))
+                                ->from($db->quoteName('#__languages'))
+                                ->where($db->quoteName('published') . ' = 1')
+                                ->where($db->quoteName('lang_code') . ' = :langCode')
+                                ->bind(':langCode', $defaultLangCode);
+                            $db->setQuery($query);
+                            $sef = $db->loadResult();
                         }
 
                         $language = $data->default_lang_code_ignore ? $ignore_lang_code : $data->default_lang_code;
 
-                        $this->getDatabase()->setQuery("Select id, edited From #__contentbuilderng_records Where `type` = " . $this->getDatabase()->quote($data->type) . " And `reference_id` = " . $this->getDatabase()->quote($data->form->getReferenceId()) . " And record_id = " . $this->getDatabase()->quote($record_return));
-                        $res = $this->getDatabase()->loadAssoc();
-                        $last_update = Factory::getDate();
+                        $db = $this->getDatabase();
+                        $query = $db->getQuery(true)
+                            ->select($db->quoteName(['id', 'edited']))
+                            ->from($db->quoteName('#__contentbuilderng_records'));
+                        $this->applyRecordKeyConditions($query, (string) $data->type, (string) $data->form->getReferenceId(), (string) $record_return);
+                        $db->setQuery($query);
+                        $res = $db->loadAssoc();
+                        $last_update = (new Date());
                         $last_update = $last_update->toSql();
 
                         if (!is_array($res)) {
 
                             $is_future = 0;
-                            $created_up = Factory::getDate();
+                            $created_up = (new Date());
                             $created_up = $created_up->toSql();
 
                             if (intval($data->default_publish_up_days) != 0) {
                                 $is_future = 1;
-                                $date = Factory::getDate(strtotime('now +' . intval($data->default_publish_up_days) . ' days'));
+                                $date = (new Date(strtotime('now +' . intval($data->default_publish_up_days) . ' days')));
                                 $created_up = $date->toSql();
                             }
                             $created_down = null;
                             if (intval($data->default_publish_down_days) != 0) {
-                                $date = Factory::getDate(strtotime($created_up . ' +' . intval($data->default_publish_down_days) . ' days'));
+                                $date = (new Date(strtotime($created_up . ' +' . intval($data->default_publish_down_days) . ' days')));
                                 $created_down = $date->toSql();
                             }
                             $db = $this->getDatabase();
@@ -1550,8 +1560,21 @@ var contentbuilderng = new function(){
                             $db->setQuery($query);
                             $this->getDatabase()->execute();
                         } else {
-                            $this->getDatabase()->setQuery("Update #__contentbuilderng_records Set last_update = " . $this->getDatabase()->quote($last_update) . ",lang_code = " . $this->getDatabase()->quote($language) . ", sef = " . $this->getDatabase()->quote(trim($sef ?? '')) . ", edited = edited + 1 Where `type` = " . $this->getDatabase()->quote($data->type) . " And  `reference_id` = " . $this->getDatabase()->quote($data->form->getReferenceId()) . " And record_id = " . $this->getDatabase()->quote($record_return));
-                            $this->getDatabase()->execute();
+                            $db = $this->getDatabase();
+                            $languageValue = (string) $language;
+                            $sefValue = trim($sef ?? '');
+                            $query = $db->getQuery(true)
+                                ->update($db->quoteName('#__contentbuilderng_records'))
+                                ->set($db->quoteName('last_update') . ' = :lastUpdate')
+                                ->set($db->quoteName('lang_code') . ' = :langCode')
+                                ->set($db->quoteName('sef') . ' = :sef')
+                                ->set($db->quoteName('edited') . ' = ' . $db->quoteName('edited') . ' + 1')
+                                ->bind(':lastUpdate', $last_update)
+                                ->bind(':langCode', $languageValue)
+                                ->bind(':sef', $sefValue);
+                            $this->applyRecordKeyConditions($query, (string) $data->type, (string) $data->form->getReferenceId(), (string) $record_return);
+                            $db->setQuery($query);
+                            $db->execute();
                         }
                     }
                 } else {
@@ -1570,8 +1593,6 @@ var contentbuilderng = new function(){
                 );
 
                 $data_email_items = $data->form->getRecord($record_return, false, -1, true);
-
-                $this->getDatabase()->setQuery("Select * From #__contentbuilderng_records");
 
                 $data->labels = $data->form->getElementLabels();
                 $ids = array();
@@ -1607,8 +1628,20 @@ var contentbuilderng = new function(){
                     //     throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_RECORD_NOT_FOUND'), 404);
                     //}
 
-                    $this->getDatabase()->setQuery("Select articles.`id` From #__contentbuilderng_articles As articles, #__content As content Where content.id = articles.article_id And (content.state = 1 Or content.state = 0) And articles.form_id = " . intval($this->_id) . " And articles.record_id = " . $this->getDatabase()->quote($record_return));
-                    $article = $this->getDatabase()->loadResult();
+                    $db = $this->getDatabase();
+                    $formIdValue = (int) $this->_id;
+                    $recordReturnValue = (string) $record_return;
+                    $query = $db->getQuery(true)
+                        ->select('articles.' . $db->quoteName('id'))
+                        ->from($db->quoteName('#__contentbuilderng_articles', 'articles'))
+                        ->join('INNER', $db->quoteName('#__content', 'content'), 'content.id = articles.article_id')
+                        ->where('(content.state = 1 OR content.state = 0)')
+                        ->where('articles.form_id = :formId')
+                        ->where('articles.record_id = :recordId')
+                        ->bind(':formId', $formIdValue, ParameterType::INTEGER)
+                        ->bind(':recordId', $recordReturnValue);
+                    $db->setQuery($query);
+                    $article = $db->loadResult();
 
                     $config = array();
                     if ($article) {
@@ -1630,8 +1663,19 @@ var contentbuilderng = new function(){
 
                 // required to determine blocked users in system plugin
                 if ($data->act_as_registration && isset($user_id) && intval($user_id) > 0) {
-                    $this->getDatabase()->setQuery("Insert Into #__contentbuilderng_registered_users (user_id, form_id, record_id) Values (" . intval($user_id) . ", " . $this->_id . ", " . $this->getDatabase()->quote($record_return) . ")");
-                    $this->getDatabase()->execute();
+                    $db = $this->getDatabase();
+                    $userIdValue = (int) $user_id;
+                    $formIdValue = (int) $this->_id;
+                    $recordReturnValue = (string) $record_return;
+                    $query = $db->getQuery(true)
+                        ->insert($db->quoteName('#__contentbuilderng_registered_users'))
+                        ->columns($db->quoteName(['user_id', 'form_id', 'record_id']))
+                        ->values(':userId, :formId, :recordId')
+                        ->bind(':userId', $userIdValue, ParameterType::INTEGER)
+                        ->bind(':formId', $formIdValue, ParameterType::INTEGER)
+                        ->bind(':recordId', $recordReturnValue);
+                    $db->setQuery($query);
+                    $db->execute();
                 }
 
                 if (!$data->edit_by_type) {
@@ -2181,22 +2225,47 @@ var contentbuilderng = new function(){
                     $new_items = array();
                     if ($res && $cnt) {
                         for ($i = 0; $i < $cnt; $i++) {
-                            $new_items[] = $this->getDatabase()->quote($items[$i]);
+                            $new_items[] = (string) $items[$i];
                         }
-                        $new_items = implode(',', $new_items);
-                        $this->getDatabase()->setQuery("Delete From #__contentbuilderng_list_records Where form_id = " . intval($this->_id) . " And record_id In ($new_items)");
-                        $this->getDatabase()->execute();
-                        $this->getDatabase()->setQuery("Delete From #__contentbuilderng_records Where `type` = " . $this->getDatabase()->quote($data->type) . " And  `reference_id` = " . $this->getDatabase()->quote($data->form->getReferenceId()) . " And record_id In ($new_items)");
-                        $this->getDatabase()->execute();
+                        $db = $this->getDatabase();
+                        $formIdValue = (int) $this->_id;
+                        $typeValue = (string) $data->type;
+                        $referenceIdValue = (string) $data->form->getReferenceId();
+
+                        $query = $db->getQuery(true)
+                            ->delete($db->quoteName('#__contentbuilderng_list_records'))
+                            ->where($db->quoteName('form_id') . ' = :formId')
+                            ->whereIn($db->quoteName('record_id'), $new_items, ParameterType::STRING)
+                            ->bind(':formId', $formIdValue, ParameterType::INTEGER);
+                        $db->setQuery($query);
+                        $db->execute();
+
+                        $query = $db->getQuery(true)
+                            ->delete($db->quoteName('#__contentbuilderng_records'))
+                            ->where($db->quoteName('type') . ' = :type')
+                            ->where($db->quoteName('reference_id') . ' = :referenceId')
+                            ->whereIn($db->quoteName('record_id'), $new_items, ParameterType::STRING)
+                            ->bind(':type', $typeValue)
+                            ->bind(':referenceId', $referenceIdValue);
+                        $db->setQuery($query);
+                        $db->execute();
                         if ($data->delete_articles) {
-                            $this->getDatabase()->setQuery("Select article_id From #__contentbuilderng_articles Where `type` = " . $this->getDatabase()->quote($data->type) . " And reference_id = " . $this->getDatabase()->quote($data->form->getReferenceId()) . " And record_id In ($new_items)");
-                            $articles = $this->getDatabase()->loadColumn();
+                            $query = $db->getQuery(true)
+                                ->select($db->quoteName('article_id'))
+                                ->from($db->quoteName('#__contentbuilderng_articles'))
+                                ->where($db->quoteName('type') . ' = :type')
+                                ->where($db->quoteName('reference_id') . ' = :referenceId')
+                                ->whereIn($db->quoteName('record_id'), $new_items, ParameterType::STRING)
+                                ->bind(':type', $typeValue)
+                                ->bind(':referenceId', $referenceIdValue);
+                            $db->setQuery($query);
+                            $articles = $db->loadColumn();
 
                             if (count($articles)) {
                                 $article_items = array();
                                 $article_ids = array();
                                 foreach ($articles as $article) {
-                                    $article_items[] = $this->getDatabase()->quote('com_content.article.' . $article);
+                                    $article_items[] = 'com_content.article.' . $article;
                                     $article_ids[] = $article;
                                     $table = new \Joomla\CMS\Table\Content($this->getDatabase());
                                     // Trigger the onContentBeforeDelete event.
@@ -2208,8 +2277,13 @@ var contentbuilderng = new function(){
                                         ]);
                                         $dispatcher->dispatch('onContentBeforeDelete', $event);
                                     }
-                                    $this->getDatabase()->setQuery("Delete From #__content Where id = " . intval($article));
-                                    $this->getDatabase()->execute();
+                                    $articleIdValue = (int) $article;
+                                    $query = $db->getQuery(true)
+                                        ->delete($db->quoteName('#__content'))
+                                        ->where($db->quoteName('id') . ' = :articleId')
+                                        ->bind(':articleId', $articleIdValue, ParameterType::INTEGER);
+                                    $db->setQuery($query);
+                                    $db->execute();
                                     // Trigger the onContentAfterDelete event.
                                     $table->reset();
                                     $dispatcher = $this->app->getDispatcher();
@@ -2239,8 +2313,15 @@ var contentbuilderng = new function(){
                             }
                         }
 
-                        $this->getDatabase()->setQuery("Delete From #__contentbuilderng_articles Where `type` = " . $this->getDatabase()->quote($data->type) . " And reference_id = " . $this->getDatabase()->quote($data->form->getReferenceId()) . " And record_id In ($new_items)");
-                        $this->getDatabase()->execute();
+                        $query = $db->getQuery(true)
+                            ->delete($db->quoteName('#__contentbuilderng_articles'))
+                            ->where($db->quoteName('type') . ' = :type')
+                            ->where($db->quoteName('reference_id') . ' = :referenceId')
+                            ->whereIn($db->quoteName('record_id'), $new_items, ParameterType::STRING)
+                            ->bind(':type', $typeValue)
+                            ->bind(':referenceId', $referenceIdValue);
+                        $db->setQuery($query);
+                        $db->execute();
                     }
                 }
             }
@@ -2252,8 +2333,8 @@ var contentbuilderng = new function(){
     function change_list_states()
     {
 
-        $this->getDatabase()->setQuery('Select reference_id From #__contentbuilderng_forms Where id = ' . intval($this->_id));
-        $reference_id = $this->getDatabase()->loadResult();
+        $typeref = $this->loadFormTypeReference();
+        $reference_id = $typeref['reference_id'] ?? null;
         if (!$reference_id) {
             return 0;
         }
@@ -2270,39 +2351,45 @@ var contentbuilderng = new function(){
             return 0;
         }
 
+        $db = $this->getDatabase();
+        $formIdValue = (int) $this->_id;
+
         if ($listState === 0) {
-            $quotedItems = array();
+            $itemValues = array_map('strval', $items);
 
-            foreach ($items as $item) {
-                $quotedItems[] = $this->getDatabase()->quote((string) $item);
-            }
+            if (count($itemValues)) {
+                $query = $db->getQuery(true)
+                    ->select('COUNT(1)')
+                    ->from($db->quoteName('#__contentbuilderng_list_records'))
+                    ->where($db->quoteName('form_id') . ' = :formId')
+                    ->whereIn($db->quoteName('record_id'), $itemValues, ParameterType::STRING)
+                    ->bind(':formId', $formIdValue, ParameterType::INTEGER);
+                $db->setQuery($query);
+                $changedCount = (int) $db->loadResult();
 
-            if (count($quotedItems)) {
-                $this->getDatabase()->setQuery(
-                    "Select Count(1) From #__contentbuilderng_list_records Where form_id = "
-                    . intval($this->_id)
-                    . " And record_id In ("
-                    . implode(',', $quotedItems)
-                    . ')'
-                );
-                $changedCount = (int) $this->getDatabase()->loadResult();
-
-                $this->getDatabase()->setQuery(
-                    "Delete From #__contentbuilderng_list_records Where form_id = "
-                    . intval($this->_id)
-                    . " And record_id In ("
-                    . implode(',', $quotedItems)
-                    . ')'
-                );
-                $this->getDatabase()->execute();
+                $query = $db->getQuery(true)
+                    ->delete($db->quoteName('#__contentbuilderng_list_records'))
+                    ->where($db->quoteName('form_id') . ' = :formId')
+                    ->whereIn($db->quoteName('record_id'), $itemValues, ParameterType::STRING)
+                    ->bind(':formId', $formIdValue, ParameterType::INTEGER);
+                $db->setQuery($query);
+                $db->execute();
             }
 
             return $changedCount;
         }
 
         // prevent from changing to an unpublished state
-        $this->getDatabase()->setQuery("Select id, action From #__contentbuilderng_list_states Where published = 1 And id = " . $listState . " And form_id = " . $this->_id);
-        $res = $this->getDatabase()->loadAssoc();
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['id', 'action']))
+            ->from($db->quoteName('#__contentbuilderng_list_states'))
+            ->where($db->quoteName('published') . ' = 1')
+            ->where($db->quoteName('id') . ' = :listState')
+            ->where($db->quoteName('form_id') . ' = :formId')
+            ->bind(':listState', $listState, ParameterType::INTEGER)
+            ->bind(':formId', $formIdValue, ParameterType::INTEGER);
+        $db->setQuery($query);
+        $res = $db->loadAssoc();
         if (!is_array($res)) {
             return 0;
         }
@@ -2318,19 +2405,45 @@ var contentbuilderng = new function(){
             $this->app->enqueueMessage($error);
         }
 
+        $referenceIdValue = (string) $reference_id;
+
         foreach ($items as $item) {
-            $this->getDatabase()->setQuery("Select id, state_id From #__contentbuilderng_list_records Where form_id = " . $this->_id . " And record_id = " . $this->getDatabase()->quote($item));
-            $res = $this->getDatabase()->loadAssoc();
+            $itemValue = (string) $item;
+            $query = $db->getQuery(true)
+                ->select($db->quoteName(['id', 'state_id']))
+                ->from($db->quoteName('#__contentbuilderng_list_records'))
+                ->where($db->quoteName('form_id') . ' = :formId')
+                ->where($db->quoteName('record_id') . ' = :recordId')
+                ->bind(':formId', $formIdValue, ParameterType::INTEGER)
+                ->bind(':recordId', $itemValue);
+            $db->setQuery($query);
+            $res = $db->loadAssoc();
             if (!is_array($res)) {
-                $this->getDatabase()->setQuery("Insert Into #__contentbuilderng_list_records (state_id, form_id, record_id, reference_id) Values (" . $listState . ", " . $this->_id . ", " . $this->getDatabase()->quote($item) . ", " . $this->getDatabase()->quote($reference_id) . ")");
-                $this->getDatabase()->execute();
+                $query = $db->getQuery(true)
+                    ->insert($db->quoteName('#__contentbuilderng_list_records'))
+                    ->columns($db->quoteName(['state_id', 'form_id', 'record_id', 'reference_id']))
+                    ->values(':listState, :formId, :recordId, :referenceId')
+                    ->bind(':listState', $listState, ParameterType::INTEGER)
+                    ->bind(':formId', $formIdValue, ParameterType::INTEGER)
+                    ->bind(':recordId', $itemValue)
+                    ->bind(':referenceId', $referenceIdValue);
+                $db->setQuery($query);
+                $db->execute();
                 $changedCount++;
             } else {
                 if ((int) $res['state_id'] === $listState) {
                     continue;
                 }
-                $this->getDatabase()->setQuery("Update #__contentbuilderng_list_records Set state_id = " . $listState . " Where form_id = " . $this->_id . " And record_id = " . $this->getDatabase()->quote($item));
-                $this->getDatabase()->execute();
+                $query = $db->getQuery(true)
+                    ->update($db->quoteName('#__contentbuilderng_list_records'))
+                    ->set($db->quoteName('state_id') . ' = :listState')
+                    ->where($db->quoteName('form_id') . ' = :formId')
+                    ->where($db->quoteName('record_id') . ' = :recordId')
+                    ->bind(':listState', $listState, ParameterType::INTEGER)
+                    ->bind(':formId', $formIdValue, ParameterType::INTEGER)
+                    ->bind(':recordId', $itemValue);
+                $db->setQuery($query);
+                $db->execute();
                 $changedCount++;
             }
         }
@@ -2349,31 +2462,58 @@ var contentbuilderng = new function(){
 
     function change_list_language()
     {
-        $this->getDatabase()->setQuery('Select reference_id,`type` From #__contentbuilderng_forms Where id = ' . intval($this->_id));
-        $typeref = $this->getDatabase()->loadAssoc();
+        $typeref = $this->loadFormTypeReference();
 
-        if (!is_array($typeref)) {
+        if ($typeref === null) {
             return;
         }
 
-        $reference_id = $typeref['reference_id'];
-        $type = $typeref['type'];
+        $reference_id = (string) $typeref['reference_id'];
+        $type = (string) $typeref['type'];
 
         $items = $this->app->getInput()->get('cid', [], 'array');
 
-        $sef = '';
-        $this->getDatabase()->setQuery("Select sef From #__languages Where published = 1 And lang_code = " . $this->getDatabase()->quote($this->app->getInput()->get('list_language', '*', 'string')));
-        $sef = $this->getDatabase()->loadResult();
+        $db = $this->getDatabase();
+        $listLanguage = (string) $this->app->getInput()->get('list_language', '*', 'string');
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('sef'))
+            ->from($db->quoteName('#__languages'))
+            ->where($db->quoteName('published') . ' = 1')
+            ->where($db->quoteName('lang_code') . ' = :langCode')
+            ->bind(':langCode', $listLanguage);
+        $db->setQuery($query);
+        $sef = (string) $db->loadResult();
 
         foreach ($items as $item) {
-            $this->getDatabase()->setQuery("Select id From #__contentbuilderng_records Where `type` = " . $this->getDatabase()->quote($type) . " And `reference_id` = " . $this->getDatabase()->quote($reference_id) . " And record_id = " . $this->getDatabase()->quote($item));
-            $res = $this->getDatabase()->loadResult();
+            $itemValue = (string) $item;
+            $query = $db->getQuery(true)
+                ->select($db->quoteName('id'))
+                ->from($db->quoteName('#__contentbuilderng_records'));
+            $this->applyRecordKeyConditions($query, $type, $reference_id, $itemValue);
+            $db->setQuery($query);
+            $res = $db->loadResult();
             if (!$res) {
-                $this->getDatabase()->setQuery("Insert Into #__contentbuilderng_records (`type`,lang_code, sef, record_id, reference_id) Values (" . $this->getDatabase()->quote($type) . "," . $this->getDatabase()->quote($this->app->getInput()->get('list_language', '*', 'string')) . ", " . $this->getDatabase()->quote($sef) . ", " . $this->getDatabase()->quote($item) . ", " . $this->getDatabase()->quote($reference_id) . ")");
-                $this->getDatabase()->execute();
+                $query = $db->getQuery(true)
+                    ->insert($db->quoteName('#__contentbuilderng_records'))
+                    ->columns($db->quoteName(['type', 'lang_code', 'sef', 'record_id', 'reference_id']))
+                    ->values(':type, :langCode, :sef, :recordId, :referenceId')
+                    ->bind(':type', $type)
+                    ->bind(':langCode', $listLanguage)
+                    ->bind(':sef', $sef)
+                    ->bind(':recordId', $itemValue)
+                    ->bind(':referenceId', $reference_id);
+                $db->setQuery($query);
+                $db->execute();
             } else {
-                $this->getDatabase()->setQuery("Update #__contentbuilderng_records Set sef = " . $this->getDatabase()->quote($sef) . ", lang_code = " . $this->getDatabase()->quote($this->app->getInput()->get('list_language', '*', 'string')) . " Where `type` = " . $this->getDatabase()->quote($type) . " And `reference_id` = " . $this->getDatabase()->quote($reference_id) . " And record_id = " . $this->getDatabase()->quote($item));
-                $this->getDatabase()->execute();
+                $query = $db->getQuery(true)
+                    ->update($db->quoteName('#__contentbuilderng_records'))
+                    ->set($db->quoteName('sef') . ' = :sef')
+                    ->set($db->quoteName('lang_code') . ' = :langCode')
+                    ->bind(':sef', $sef)
+                    ->bind(':langCode', $listLanguage);
+                $this->applyRecordKeyConditions($query, $type, $reference_id, $itemValue);
+                $db->setQuery($query);
+                $db->execute();
             }
 
             $language = $this->app->getInput()->get('list_language', '*', 'string');
@@ -2402,8 +2542,7 @@ var contentbuilderng = new function(){
         $typeref = null;
 
         if ((int) $this->_id > 0) {
-            $this->getDatabase()->setQuery('Select reference_id,`type` From #__contentbuilderng_forms Where id = ' . intval($this->_id));
-            $typeref = $this->getDatabase()->loadAssoc();
+            $typeref = $this->loadFormTypeReference();
         } elseif ($storageId > 0) {
             $typeref = [
                 'reference_id' => $storageId,
@@ -2429,52 +2568,74 @@ var contentbuilderng = new function(){
         $this->getDatabase()->setQuery("SET @ids := null");
         $this->getDatabase()->execute();
 
-        $created_up = Factory::getDate();
+        $created_up = (new Date());
         $created_up = $created_up->toSql();
 
+        $db = $this->getDatabase();
+        $typeValue = (string) $type;
+        $referenceIdValue = (string) $reference_id;
+
         foreach ($items as $item) {
-            $this->getDatabase()->setQuery("Select id, publish_up, published From #__contentbuilderng_records Where `type` = " . $this->getDatabase()->quote($type) . " And `reference_id` = " . $this->getDatabase()->quote($reference_id) . " And record_id = " . $this->getDatabase()->quote($item));
-            $res = $this->getDatabase()->loadAssoc();
+            $itemValue = (string) $item;
+            $query = $db->getQuery(true)
+                ->select($db->quoteName(['id', 'publish_up', 'published']))
+                ->from($db->quoteName('#__contentbuilderng_records'));
+            $this->applyRecordKeyConditions($query, $typeValue, $referenceIdValue, $itemValue);
+            $db->setQuery($query);
+            $res = $db->loadAssoc();
             $currentPublished = is_array($res) ? (int) ($res['published'] ?? 0) : 0;
             if ($currentPublished !== $publish) {
                 $changedCount++;
             }
 
             if (!is_array($res)) {
-                $this->getDatabase()->setQuery("Insert Into #__contentbuilderng_records (`type`,published, record_id, reference_id) Values (" . $this->getDatabase()->quote($type) . "," . $publish . ", " . $this->getDatabase()->quote($item) . ", " . $this->getDatabase()->quote($reference_id) . ")");
-                $this->getDatabase()->execute();
+                $query = $db->getQuery(true)
+                    ->insert($db->quoteName('#__contentbuilderng_records'))
+                    ->columns($db->quoteName(['type', 'published', 'record_id', 'reference_id']))
+                    ->values(':type, :published, :recordId, :referenceId')
+                    ->bind(':type', $typeValue)
+                    ->bind(':published', $publish, ParameterType::INTEGER)
+                    ->bind(':recordId', $itemValue)
+                    ->bind(':referenceId', $referenceIdValue);
+                $db->setQuery($query);
+                $db->execute();
             } else {
-                $this->getDatabase()->setQuery(
-                    "UPDATE #__contentbuilderng_records 
-                    SET 
-                        is_future = 0, 
-                        publish_up = " . ($publish ? $this->getDatabase()->quote($created_up) : 'NULL') . ", 
-                        publish_down = NULL, 
-                        published = " . ($publish ? 1 : 0) . " 
-                    WHERE `type` = " . $this->getDatabase()->quote($type) . " 
-                    AND `reference_id` = " . $this->getDatabase()->quote($reference_id) . " 
-                    AND record_id = " . $this->getDatabase()->quote($item)
-                );
-                $this->getDatabase()->execute();
+                $query = $db->getQuery(true)
+                    ->update($db->quoteName('#__contentbuilderng_records'))
+                    ->set($db->quoteName('is_future') . ' = 0')
+                    ->set($db->quoteName('publish_up') . ' = ' . ($publish ? ':publishUp' : 'NULL'))
+                    ->set($db->quoteName('publish_down') . ' = NULL')
+                    ->set($db->quoteName('published') . ' = :published')
+                    ->bind(':published', $publish, ParameterType::INTEGER);
+                if ($publish) {
+                    $query->bind(':publishUp', $created_up);
+                }
+                $this->applyRecordKeyConditions($query, $typeValue, $referenceIdValue, $itemValue);
+                $db->setQuery($query);
+                $db->execute();
             }
 
-            $publishUpValue = $publish
-                ? $this->getDatabase()->quote($created_up)
-                : $this->getDatabase()->quote(is_array($res) ? $res['publish_up'] : $created_up);
+            $publishUpArticle = $publish
+                ? $created_up
+                : (string) (is_array($res) ? $res['publish_up'] : $created_up);
 
-            $this->getDatabase()->setQuery(
-                "UPDATE #__contentbuilderng_articles AS articles
-                INNER JOIN #__content AS content ON content.id = articles.article_id
-                SET 
-                    content.publish_up = " . $publishUpValue . ",
-                    content.publish_down = NULL,
-                    content.state = " . ($publish ? 1 : 0) . "
-                WHERE articles.`type` = " . $this->getDatabase()->quote($type) . " 
-                AND articles.reference_id = " . $this->getDatabase()->quote($reference_id) . " 
-                AND articles.record_id = " . $this->getDatabase()->quote($item) . "
-                AND (content.state = 0 OR content.state = 1)"
-            );
-            $this->getDatabase()->execute();
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__contentbuilderng_articles', 'articles'))
+                ->innerJoin($db->quoteName('#__content', 'content'), 'content.id = articles.article_id')
+                ->set('content.publish_up = :publishUp')
+                ->set('content.publish_down = NULL')
+                ->set('content.state = :state')
+                ->where('articles.' . $db->quoteName('type') . ' = :type')
+                ->where('articles.reference_id = :referenceId')
+                ->where('articles.record_id = :recordId')
+                ->where('(content.state = 0 OR content.state = 1)')
+                ->bind(':publishUp', $publishUpArticle)
+                ->bind(':state', $publish, ParameterType::INTEGER)
+                ->bind(':type', $typeValue)
+                ->bind(':referenceId', $referenceIdValue)
+                ->bind(':recordId', $itemValue);
+            $db->setQuery($query);
+            $db->execute();
         }
         $this->getDatabase()->setQuery("SELECT @ids");
         $select_ids = $this->getDatabase()->loadResult();
@@ -2497,5 +2658,50 @@ var contentbuilderng = new function(){
         $result = $eventResult->getArgument('result') ?: [];
 
         return $changedCount;
+    }
+
+    private function loadFormTypeReference(): ?array
+    {
+        $db = $this->getDatabase();
+        $formIdValue = (int) $this->_id;
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['reference_id', 'type']))
+            ->from($db->quoteName('#__contentbuilderng_forms'))
+            ->where($db->quoteName('id') . ' = :formId')
+            ->bind(':formId', $formIdValue, ParameterType::INTEGER);
+        $db->setQuery($query);
+        $row = $db->loadAssoc();
+
+        return is_array($row) ? $row : null;
+    }
+
+    private function applyRecordKeyConditions(QueryInterface $query, string $type, string $referenceId, string $recordId): void
+    {
+        $db = $this->getDatabase();
+        $query->where($db->quoteName('type') . ' = :cbType')
+            ->where($db->quoteName('reference_id') . ' = :cbReferenceId')
+            ->where($db->quoteName('record_id') . ' = :cbRecordId')
+            ->bind(':cbType', $type)
+            ->bind(':cbReferenceId', $referenceId)
+            ->bind(':cbRecordId', $recordId);
+    }
+
+    private function userConflictExists(string $column, string $value, ?int $excludeId = null): bool
+    {
+        $db = $this->getDatabase();
+        $query = $db->getQuery(true)
+            ->select('COUNT(' . $db->quoteName('id') . ')')
+            ->from($db->quoteName('#__users'))
+            ->where($db->quoteName($column) . ' = :value')
+            ->bind(':value', $value);
+
+        if ($excludeId !== null) {
+            $query->where($db->quoteName('id') . ' <> :excludeId')
+                ->bind(':excludeId', $excludeId, ParameterType::INTEGER);
+        }
+
+        $db->setQuery($query);
+
+        return (bool) $db->loadResult();
     }
 }

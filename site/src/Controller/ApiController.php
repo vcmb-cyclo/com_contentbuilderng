@@ -27,10 +27,12 @@ use CB\Component\Contentbuilderng\Site\Service\StatsService;
 use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Database\DatabaseInterface;
+use Joomla\Database\ParameterType;
 use Joomla\Input\Input;
 use Joomla\CMS\Session\Session;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
@@ -82,7 +84,7 @@ class ApiController extends BaseController
 
             $isAdminPreview = $this->isValidAdminPreviewRequest($formId);
             $this->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
-            $this->siteApp->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
+            $this->siteApp->getInput()->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
 
             $resolvedRecordId = $recordId > 0
                 ? $this->normalizeRequestedRecordId($formId, $recordId)
@@ -626,19 +628,30 @@ class ApiController extends BaseController
             return ['code' => 0, 'msg' => Text::_('COM_CONTENTBUILDERNG_THANK_YOU_FOR_RATING')];
         }
 
-        $now = Factory::getDate();
+        $now = (new Date());
         $nowSql = $now->toSql();
 
-        $db->setQuery("Delete From #__contentbuilderng_rating_cache Where Datediff(" . $db->quote($nowSql) . ", `date`) >= 1");
+        $recordIdValue = (string) $recordId;
+        $formIdValue = (int) $formId;
+
+        $query = $db->getQuery(true)
+            ->delete($db->quoteName('#__contentbuilderng_rating_cache'))
+            ->where('DATEDIFF(:now, ' . $db->quoteName('date') . ') >= 1')
+            ->bind(':now', $nowSql);
+        $db->setQuery($query);
         $db->execute();
 
         $clientIp = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
-        $db->setQuery(
-            "Select `form_id` From #__contentbuilderng_rating_cache"
-            . " Where `record_id` = " . $db->quote((string) $recordId)
-            . " And `form_id` = " . $formId
-            . " And `ip` = " . $db->quote($clientIp)
-        );
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('form_id'))
+            ->from($db->quoteName('#__contentbuilderng_rating_cache'))
+            ->where($db->quoteName('record_id') . ' = :recordId')
+            ->where($db->quoteName('form_id') . ' = :formId')
+            ->where($db->quoteName('ip') . ' = :ip')
+            ->bind(':recordId', $recordIdValue)
+            ->bind(':formId', $formIdValue, ParameterType::INTEGER)
+            ->bind(':ip', $clientIp);
+        $db->setQuery($query);
         $cached = $db->loadResult();
         $ratingSessionKey = 'com_contentbuilderng.rating.rated' . $formId . $recordId;
         $rated = $this->siteApp->getSession()->get($ratingSessionKey, false);
@@ -649,73 +662,89 @@ class ApiController extends BaseController
 
         $this->siteApp->getSession()->set($ratingSessionKey, true);
 
-        $db->setQuery(
-            "Update #__contentbuilderng_records"
-            . " Set rating_count = rating_count + 1, rating_sum = rating_sum + " . $rating . ", lastip = " . $db->quote($clientIp)
-            . " Where `type` = " . $db->quote((string) $result['type'])
-            . " And `reference_id` = " . $db->quote((string) $result['reference_id'])
-            . " And `record_id` = " . $db->quote((string) $recordId)
-        );
+        $typeValue = (string) $result['type'];
+        $referenceIdValue = (string) $result['reference_id'];
+        $ratingValue = (int) $rating;
+
+        $query = $db->getQuery(true)
+            ->update($db->quoteName('#__contentbuilderng_records'))
+            ->set($db->quoteName('rating_count') . ' = ' . $db->quoteName('rating_count') . ' + 1')
+            ->set($db->quoteName('rating_sum') . ' = ' . $db->quoteName('rating_sum') . ' + :rating')
+            ->set($db->quoteName('lastip') . ' = :ip')
+            ->where($db->quoteName('type') . ' = :type')
+            ->where($db->quoteName('reference_id') . ' = :referenceId')
+            ->where($db->quoteName('record_id') . ' = :recordId')
+            ->bind(':rating', $ratingValue, ParameterType::INTEGER)
+            ->bind(':ip', $clientIp)
+            ->bind(':type', $typeValue)
+            ->bind(':referenceId', $referenceIdValue)
+            ->bind(':recordId', $recordIdValue);
+        $db->setQuery($query);
         $db->execute();
 
-        $db->setQuery(
-            "Insert Into #__contentbuilderng_rating_cache (`record_id`,`form_id`,`ip`,`date`) Values ("
-            . $db->quote((string) $recordId) . ", "
-            . $formId . ", "
-            . $db->quote($clientIp) . ", "
-            . $db->quote($nowSql) . ")"
-        );
+        $query = $db->getQuery(true)
+            ->insert($db->quoteName('#__contentbuilderng_rating_cache'))
+            ->columns($db->quoteName(['record_id', 'form_id', 'ip', 'date']))
+            ->values(':recordId, :formId, :ip, :now')
+            ->bind(':recordId', $recordIdValue)
+            ->bind(':formId', $formIdValue, ParameterType::INTEGER)
+            ->bind(':ip', $clientIp)
+            ->bind(':now', $nowSql);
+        $db->setQuery($query);
         $db->execute();
 
-        $db->setQuery(
-            "Select a.article_id From #__contentbuilderng_articles As a, #__content As c"
-            . " Where c.id = a.article_id And (c.state = 1 Or c.state = 0)"
-            . " And a.form_id = " . $formId
-            . " And a.record_id = " . $db->quote((string) $recordId)
-        );
+        $query = $db->getQuery(true)
+            ->select('a.' . $db->quoteName('article_id'))
+            ->from($db->quoteName('#__contentbuilderng_articles', 'a'))
+            ->join('INNER', $db->quoteName('#__content', 'c'), 'c.id = a.article_id')
+            ->where('(c.state = 1 OR c.state = 0)')
+            ->where('a.form_id = :formId')
+            ->where('a.record_id = :recordId')
+            ->bind(':formId', $formIdValue, ParameterType::INTEGER)
+            ->bind(':recordId', $recordIdValue);
+        $db->setQuery($query);
         $articleId = (int) $db->loadResult();
 
         if ($articleId > 0) {
-            $db->setQuery("Select content_id From #__content_rating Where content_id = " . $articleId);
+            $query = $db->getQuery(true)
+                ->select($db->quoteName('content_id'))
+                ->from($db->quoteName('#__content_rating'))
+                ->where($db->quoteName('content_id') . ' = :articleId')
+                ->bind(':articleId', $articleId, ParameterType::INTEGER);
+            $db->setQuery($query);
             $exists = $db->loadResult();
 
             if ($exists) {
-                $db->setQuery("
-                    Update 
-                        #__content_rating As cr, 
-                        #__contentbuilderng_records As cbr, 
-                        #__contentbuilderng_articles As cba
-                    Set
-                        cr.rating_count = cbr.rating_count,
-                        cr.rating_sum = cbr.rating_sum,
-                        cr.lastip = cbr.lastip
-                    Where
-                        cbr.record_id = " . $db->quote((string) $recordId) . "
-                    And
-                        cbr.record_id = cba.record_id
-                    And
-                        cbr.reference_id = " . $db->quote((string) $result['reference_id']) . "
-                    And
-                        cbr.`type` = " . $db->quote((string) $result['type']) . " 
-                    And 
-                        cba.form_id = " . $formId . "
-                    And
-                        cr.content_id = cba.article_id
-                ");
+                $query = $db->getQuery(true)
+                    ->update(
+                        $db->quoteName('#__content_rating', 'cr')
+                        . ', ' . $db->quoteName('#__contentbuilderng_records', 'cbr')
+                        . ', ' . $db->quoteName('#__contentbuilderng_articles', 'cba')
+                    )
+                    ->set('cr.rating_count = cbr.rating_count')
+                    ->set('cr.rating_sum = cbr.rating_sum')
+                    ->set('cr.lastip = cbr.lastip')
+                    ->where('cbr.record_id = :recordId')
+                    ->where('cbr.record_id = cba.record_id')
+                    ->where('cbr.reference_id = :referenceId')
+                    ->where('cbr.' . $db->quoteName('type') . ' = :type')
+                    ->where('cba.form_id = :formId')
+                    ->where('cr.content_id = cba.article_id')
+                    ->bind(':recordId', $recordIdValue)
+                    ->bind(':referenceId', $referenceIdValue)
+                    ->bind(':type', $typeValue)
+                    ->bind(':formId', $formIdValue, ParameterType::INTEGER);
+                $db->setQuery($query);
                 $db->execute();
             } else {
-                $db->setQuery("
-                    Insert Into #__content_rating (
-                        content_id,
-                        rating_sum,
-                        rating_count,
-                        lastip
-                    ) Values (
-                        " . $articleId . ",
-                        " . $rating . ",
-                        1,
-                        " . $db->quote($clientIp) . "
-                    )");
+                $query = $db->getQuery(true)
+                    ->insert($db->quoteName('#__content_rating'))
+                    ->columns($db->quoteName(['content_id', 'rating_sum', 'rating_count', 'lastip']))
+                    ->values(':articleId, :rating, 1, :ip')
+                    ->bind(':articleId', $articleId, ParameterType::INTEGER)
+                    ->bind(':rating', $ratingValue, ParameterType::INTEGER)
+                    ->bind(':ip', $clientIp);
+                $db->setQuery($query);
                 $db->execute();
             }
         }
@@ -755,9 +784,9 @@ class ApiController extends BaseController
         $this->input->set('id', $formId);
         $this->input->set('record_id', 0);
         $this->input->set('view', 'list');
-        $this->siteApp->input->set('id', $formId);
-        $this->siteApp->input->set('record_id', 0);
-        $this->siteApp->input->set('view', 'list');
+        $this->siteApp->getInput()->set('id', $formId);
+        $this->siteApp->getInput()->set('record_id', 0);
+        $this->siteApp->getInput()->set('view', 'list');
 
         $model = $this->getListModel();
         $dataSet = $model->getData();
@@ -819,9 +848,9 @@ class ApiController extends BaseController
         $this->input->set('id', $formId);
         $this->input->set('record_id', $recordId);
         $this->input->set('view', 'details');
-        $this->siteApp->input->set('id', $formId);
-        $this->siteApp->input->set('record_id', $recordId);
-        $this->siteApp->input->set('view', 'details');
+        $this->siteApp->getInput()->set('id', $formId);
+        $this->siteApp->getInput()->set('record_id', $recordId);
+        $this->siteApp->getInput()->set('view', 'details');
 
         $verbose = (bool) $this->input->getBool('verbose', false);
 
@@ -1189,8 +1218,8 @@ class ApiController extends BaseController
         if (hash_equals(hash_hmac('sha256', $payload, $secret), $sig)) {
             $this->input->set('cb_preview_actor_id', $actorId);
             $this->input->set('cb_preview_actor_name', $actorName);
-            $this->siteApp->input->set('cb_preview_actor_id', $actorId);
-            $this->siteApp->input->set('cb_preview_actor_name', $actorName);
+            $this->siteApp->getInput()->set('cb_preview_actor_id', $actorId);
+            $this->siteApp->getInput()->set('cb_preview_actor_name', $actorName);
             return true;
         }
 

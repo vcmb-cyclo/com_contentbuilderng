@@ -18,6 +18,7 @@ namespace CB\Component\Contentbuilderng\Site\View\Details;
 
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Event\Content\ContentPrepareEvent; 
 use Joomla\CMS\Event\Content\AfterTitleEvent;
 use Joomla\CMS\Event\Content\BeforeDisplayEvent;
@@ -27,6 +28,7 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseInterface;
+use Joomla\Database\ParameterType;
 use Joomla\Registry\Registry;
 use CB\Component\Contentbuilderng\Administrator\View\Contentbuilderng\HtmlView as BaseHtmlView;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
@@ -268,7 +270,18 @@ class HtmlView extends BaseHtmlView
 		$event = new \stdClass();
 
 		$db = Factory::getContainer()->get(DatabaseInterface::class);
-		$db->setQuery("Select articles.`article_id` From #__contentbuilderng_articles As articles, #__content As content Where content.id = articles.article_id And (content.state = 1 Or content.state = 0) And articles.form_id = " . intval($subject->form_id) . " And articles.record_id = " . $db->quote($subject->record_id));
+		$formIdValue = (int) $subject->form_id;
+		$recordIdValue = (string) $subject->record_id;
+		$query = $db->getQuery(true)
+			->select('articles.' . $db->quoteName('article_id'))
+			->from($db->quoteName('#__contentbuilderng_articles', 'articles'))
+			->join('INNER', $db->quoteName('#__content', 'content'), 'content.id = articles.article_id')
+			->where('(content.state = 1 OR content.state = 0)')
+			->where('articles.form_id = :formId')
+			->where('articles.record_id = :recordId')
+			->bind(':formId', $formIdValue, ParameterType::INTEGER)
+			->bind(':recordId', $recordIdValue);
+		$db->setQuery($query);
 		$article = $db->loadResult();
 
 		$table = new \Joomla\CMS\Table\Content($db);
@@ -287,7 +300,7 @@ class HtmlView extends BaseHtmlView
 
             $alias = $table->alias ? $this->toUnicodeSlug((string) $table->alias) : $this->toUnicodeSlug((string) $subject->page_title);
 		if (trim(str_replace('-', '', $alias)) == '') {
-			$datenow = Factory::getDate();
+			$datenow = (new Date());
 			$alias = $datenow->format("%Y-%m-%d-%H-%M-%S");
 		}
 

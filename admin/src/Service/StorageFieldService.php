@@ -16,7 +16,7 @@ class StorageFieldService
 
     public function addField(int $storageId, array $fieldData): void
     {
-        Logger::info("Demande d'ajout du champ $fieldData dont la table a un storageId $storageId.");
+        Logger::info("Demande d'ajout du champ " . json_encode($fieldData) . " dont la table a un storageId $storageId.");
 
         $db = $this->db;
 

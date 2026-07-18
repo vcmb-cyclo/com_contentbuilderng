@@ -14,7 +14,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Helper;
 
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\Database\DatabaseInterface;
 
 final class StorageAuditColumnsHelper
@@ -165,7 +165,7 @@ final class StorageAuditColumnsHelper
         }
 
         $summary['scanned'] = count($storageTables);
-        $now = Factory::getDate()->toSql();
+        $now = (new Date())->toSql();
 
         foreach ($storageTables as $storageTable) {
             $physicalTable = (string) ($storageTable['table_name'] ?? '');

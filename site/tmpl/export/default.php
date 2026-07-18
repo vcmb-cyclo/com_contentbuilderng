@@ -29,6 +29,7 @@ VendorHelper::load();
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 
 //Font::setAutoSizeMethod(Font::AUTOSIZE_METHOD_EXACT);
 
@@ -221,7 +222,7 @@ if (!$userTimezone) {
 }
 
 // Créer la date avec le fuseau horaire
-$date = Factory::getDate('now', $userTimezone);
+$date = (new Date('now', $userTimezone));
 
 $filenameTitle = $rawSheetTitle;
 if ($filenameTitle === '' && !empty($this->data->type) && $this->data->type === 'com_breezingforms') {

@@ -92,7 +92,7 @@ class ElementsModel extends ListModel
 
     private function getInput()
     {
-        return $this->getApp()->input;
+        return $this->getApp()->getInput();
     }
 
     private function resolveCurrentFormId(): int

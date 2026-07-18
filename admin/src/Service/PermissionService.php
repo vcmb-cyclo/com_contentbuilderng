@@ -9,6 +9,7 @@ use Joomla\CMS\Access\Access;
 use Joomla\CMS\Access\Exception\NotAllowed;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
@@ -29,7 +30,7 @@ class PermissionService
 
     private function getInput()
     {
-        return $this->getApp()->input;
+        return $this->getApp()->getInput();
     }
 
     private function getCurrentUserId(): int
@@ -226,7 +227,7 @@ class PermissionService
             $permissions['limit_add'] = false;
         }
 
-        $jdate = Factory::getDate();
+        $jdate = (new Date());
         $permissions['verify_view'] = $this->resolveVerificationPermission('view', $result, $jdate->toSql());
         $permissions['verify_new'] = $this->resolveVerificationPermission('new', $result, $jdate->toSql());
         $permissions['verify_edit'] = $this->resolveVerificationPermission('edit', $result, $jdate->toSql());

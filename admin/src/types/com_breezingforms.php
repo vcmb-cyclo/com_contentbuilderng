@@ -15,6 +15,7 @@ namespace CB\Component\Contentbuilderng\Administrator\types;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Utilities\ArrayHelper;
@@ -1591,7 +1592,7 @@ class contentbuilderng_com_breezingforms
                 $username = (string) (Factory::getApplication()->getIdentity()->username ?? '');
                 $user_full_name = (string) (Factory::getApplication()->getIdentity()->name ?? '');
             }
-            $now = Factory::getDate()->toSql();
+            $now = (new Date())->toSql();
             $actor = $this->getEffectiveActor();
 
             $insertQuery = $db->getQuery(true)
@@ -1622,7 +1623,7 @@ class contentbuilderng_com_breezingforms
                 $updateQuery = $db->getQuery(true)
                     ->update($db->quoteName('#__facileforms_records'))
                     ->set($db->quoteName('modified_user_id') . ' = ' . $db->quote($modifierId))
-                    ->set($db->quoteName('modified') . ' = ' . $db->quote(Factory::getDate()->toSql()))
+                    ->set($db->quoteName('modified') . ' = ' . $db->quote((new Date())->toSql()))
                     ->set($db->quoteName('modified_by') . ' = ' . $db->quote($modifierName))
                     ->where($db->quoteName('id') . ' = ' . $db->quote($record_id));
                 $db->setQuery($updateQuery);

@@ -17,6 +17,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\User\UserFactoryInterface;
 use Joomla\CMS\Uri\Uri;
@@ -147,7 +148,7 @@ class VerifyModel extends BaseDatabaseModel
             ? $this->decodePackedQueryString((string) $out['plugin_options'])
             : [];
 
-        $_now = Factory::getDate();
+        $_now = (new Date());
 
         //$this->getDatabase()->setQuery("Select count(id) From #__contentbuilderng_verifications Where Timestampdiff(Second, `start_date`, '".strtotime($_now->toSQL())."') < 1 And ip = " . $this->getDatabase()->quote($_SERVER['REMOTE_ADDR']));
         //$ver = $this->getDatabase()->loadResult();

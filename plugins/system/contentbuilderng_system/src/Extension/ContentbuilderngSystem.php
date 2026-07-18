@@ -18,6 +18,7 @@ namespace CB\Plugin\System\ContentbuilderngSystem\Extension;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
@@ -398,7 +399,7 @@ final class ContentbuilderngSystem extends CMSPlugin implements SubscriberInterf
 
         if ($isSyncMutationRequest) {
             // managing published states
-            $date = Factory::getDate()->toSql();
+            $date = (new Date())->toSql();
 
             $db = $this->db;
             $query = $db->getQuery(true)
@@ -614,7 +615,7 @@ final class ContentbuilderngSystem extends CMSPlugin implements SubscriberInterf
             $lang->load('com_contentbuilderng', JPATH_ADMINISTRATOR);
         }
 
-        $now = Factory::getDate()->toSql();
+        $now = (new Date())->toSql();
 
         foreach ($list as $data) {
             if (!is_array($data) || !$data['create_articles']) {

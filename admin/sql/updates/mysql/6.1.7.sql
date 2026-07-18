@@ -1,0 +1,4 @@
+-- Baseline du schéma versionné ContentBuilder NG (2026-07-18).
+-- Ce fichier enregistre la version 6.1.7 dans #__schemas sans modifier le schéma :
+-- les installations existantes sont déjà à ce niveau via sql/install.sql et script.php.
+-- Toute évolution de schéma future = un nouveau fichier sql/updates/mysql/<version>.sql.

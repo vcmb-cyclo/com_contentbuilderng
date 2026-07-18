@@ -7,6 +7,12 @@ parameters:
 			path: admin/layouts/form/advanced_options.php
 
 		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:getDocument\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/layouts/form/api_tab.php
+
+		-
 			message: '#^Variable \$displayData might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -67,6 +73,12 @@ parameters:
 			path: admin/layouts/storage/storage_tab.php
 
 		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:redirect\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/Controller/DisplayController.php
+
+		-
 			message: '#^Method CB\\Component\\Contentbuilderng\\Administrator\\Controller\\ElementoptionsController\:\:display\(\) should return static\(CB\\Component\\Contentbuilderng\\Administrator\\Controller\\ElementoptionsController\) but return statement is missing\.$#'
 			identifier: return.missing
 			count: 1
@@ -77,6 +89,18 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: admin/src/Controller/FormController.php
+
+		-
+			message: '#^Method Joomla\\Session\\SessionInterface\:\:set\(\) invoked with 3 parameters, 1\-2 required\.$#'
+			identifier: arguments.count
+			count: 4
+			path: admin/src/Controller/FormsController.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\MVC\\Model\\BaseDatabaseModel\:\:copy\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/Controller/StoragesController.php
 
 		-
 			message: '#^Method CB\\Component\\Contentbuilderng\\Administrator\\Controller\\UsersController\:\:display\(\) should return static\(CB\\Component\\Contentbuilderng\\Administrator\\Controller\\UsersController\) but return statement is missing\.$#'
@@ -157,6 +181,12 @@ parameters:
 			path: admin/src/Model/UserModel.php
 
 		-
+			message: '#^Method Joomla\\CMS\\Installer\\Installer\:\:uninstall\(\) invoked with 3 parameters, 2 required\.$#'
+			identifier: arguments.count
+			count: 2
+			path: admin/src/Service/PluginInstallerService.php
+
+		-
 			message: '#^Anonymous function has an unused use \$contentbuilderngFormId\.$#'
 			identifier: closure.unusedUse
 			count: 2
@@ -215,6 +245,42 @@ parameters:
 			identifier: method.notFound
 			count: 2
 			path: admin/src/Service/TemplateSampleService.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object Database connector object\)\: Unexpected token "Database", expected variable at offset 51 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: admin/src/Table/CbuserTable.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object Database connector object\)\: Unexpected token "Database", expected variable at offset 51 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: admin/src/Table/ElementoptionsTable.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object Database connector object\)\: Unexpected token "Database", expected variable at offset 51 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: admin/src/Table/FormTable.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object Database connector object\)\: Unexpected token "Database", expected variable at offset 51 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: admin/src/Table/ListTable.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object Database connector object\)\: Unexpected token "Database", expected variable at offset 51 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: admin/src/Table/StorageFieldsTable.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object Database connector object\)\: Unexpected token "Database", expected variable at offset 51 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: admin/src/Table/StorageTable.php
 
 		-
 			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Edit\\HtmlView\:\:\$apply_button_title\.$#'
@@ -337,6 +403,18 @@ parameters:
 			path: admin/src/View/Edit/HtmlView.php
 
 		-
+			message: '#^Call to method getData\(\) on an unknown class CB\\Component\\Contentbuilderng\\Administrator\\Model\\EditModel\.$#'
+			identifier: class.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^PHPDoc tag @var for variable \$model contains unknown class CB\\Component\\Contentbuilderng\\Administrator\\Model\\EditModel\.$#'
+			identifier: class.notFound
+			count: 1
+			path: admin/src/View/Edit/HtmlView.php
+
+		-
 			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Elementoptions\\HtmlView\:\:\$element\.$#'
 			identifier: property.notFound
 			count: 1
@@ -439,6 +517,12 @@ parameters:
 			path: admin/src/View/Form/HtmlView.php
 
 		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Toolbar\\ToolbarButton\:\:target\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/View/Form/HtmlView.php
+
+		-
 			message: '#^Variable \$formId on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.variable
 			count: 1
@@ -487,6 +571,54 @@ parameters:
 			path: admin/src/View/Forms/HtmlView.php
 
 		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Document\\Document\:\:getToolbar\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/View/Forms/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\MVC\\Model\\BaseDatabaseModel\:\:getItems\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/View/Forms/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\MVC\\Model\\BaseDatabaseModel\:\:getPagination\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/View/Forms/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\MVC\\Model\\BaseDatabaseModel\:\:getTags\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/View/Forms/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Document\\Document\:\:getToolbar\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/View/Storage/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Extension\\ComponentInterface\:\:getMVCFactory\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/View/Storage/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\MVC\\Model\\BaseDatabaseModel\:\:getForm\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/View/Storage/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\MVC\\Model\\BaseDatabaseModel\:\:getItem\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/View/Storage/HtmlView.php
+
+		-
 			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Administrator\\View\\Storages\\HtmlView\:\:\$previewLinks\.$#'
 			identifier: property.notFound
 			count: 1
@@ -497,6 +629,36 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: admin/src/View/User/HtmlView.php
+
+		-
+			message: '#^Property CB\\Component\\Contentbuilderng\\Administrator\\View\\Users\\HtmlView\:\:\$pagination has unknown class JPagination as its type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: admin/src/View/Users/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:getDocument\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: plugins/content/contentbuilderng_cbstats/src/Extension/ContentbuilderngStats.php
+
+		-
+			message: '#^Method Joomla\\Session\\SessionInterface\:\:get\(\) invoked with 3 parameters, 1\-2 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: plugins/content/contentbuilderng_download/src/Extension/ContentbuilderngDownload.php
+
+		-
+			message: '#^Method Joomla\\Session\\SessionInterface\:\:set\(\) invoked with 3 parameters, 1\-2 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: plugins/content/contentbuilderng_download/src/Extension/ContentbuilderngDownload.php
+
+		-
+			message: '#^Binary operation "\+" between float and string results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: plugins/content/contentbuilderng_image_scale/src/Extension/ContentbuilderngImageScale.php
 
 		-
 			message: '#^Variable \$ref_id might not be defined\.$#'
@@ -535,6 +697,168 @@ parameters:
 			path: plugins/content/contentbuilderng_rating/src/Extension/ContentbuilderngRating.php
 
 		-
+			message: '#^Method CB\\Plugin\\ContentbuilderngListaction\\Trash\\Extension\\Trash\:\:onAfterAction\(\) has invalid return type CB\\Plugin\\ContentbuilderngListaction\\Trash\\Extension\\type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: plugins/contentbuilderng_listaction/trash/src/Extension/Trash.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$article_id$#'
+			identifier: parameter.notFound
+			count: 1
+			path: plugins/contentbuilderng_listaction/trash/src/Extension/Trash.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$form_id$#'
+			identifier: parameter.notFound
+			count: 3
+			path: plugins/contentbuilderng_listaction/trash/src/Extension/Trash.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$previous_errors$#'
+			identifier: parameter.notFound
+			count: 1
+			path: plugins/contentbuilderng_listaction/trash/src/Extension/Trash.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$record_id$#'
+			identifier: parameter.notFound
+			count: 1
+			path: plugins/contentbuilderng_listaction/trash/src/Extension/Trash.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$record_ids$#'
+			identifier: parameter.notFound
+			count: 2
+			path: plugins/contentbuilderng_listaction/trash/src/Extension/Trash.php
+
+		-
+			message: '#^PHPDoc tag @return with type CB\\Plugin\\ContentbuilderngListaction\\Trash\\Extension\\type is incompatible with native type string\.$#'
+			identifier: return.phpDocType
+			count: 1
+			path: plugins/contentbuilderng_listaction/trash/src/Extension/Trash.php
+
+		-
+			message: '#^Method CB\\Plugin\\ContentbuilderngListaction\\Untrash\\Extension\\Untrash\:\:onAfterAction\(\) has invalid return type CB\\Plugin\\ContentbuilderngListaction\\Untrash\\Extension\\type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: plugins/contentbuilderng_listaction/untrash/src/Extension/Untrash.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$article_id$#'
+			identifier: parameter.notFound
+			count: 1
+			path: plugins/contentbuilderng_listaction/untrash/src/Extension/Untrash.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$form_id$#'
+			identifier: parameter.notFound
+			count: 3
+			path: plugins/contentbuilderng_listaction/untrash/src/Extension/Untrash.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$previous_errors$#'
+			identifier: parameter.notFound
+			count: 1
+			path: plugins/contentbuilderng_listaction/untrash/src/Extension/Untrash.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$record_id$#'
+			identifier: parameter.notFound
+			count: 1
+			path: plugins/contentbuilderng_listaction/untrash/src/Extension/Untrash.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$record_ids$#'
+			identifier: parameter.notFound
+			count: 2
+			path: plugins/contentbuilderng_listaction/untrash/src/Extension/Untrash.php
+
+		-
+			message: '#^PHPDoc tag @return with type CB\\Plugin\\ContentbuilderngListaction\\Untrash\\Extension\\type is incompatible with native type string\.$#'
+			identifier: return.phpDocType
+			count: 1
+			path: plugins/contentbuilderng_listaction/untrash/src/Extension/Untrash.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$link$#'
+			identifier: parameter.notFound
+			count: 1
+			path: plugins/contentbuilderng_verify/passthrough/src/Extension/Passthrough.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$options$#'
+			identifier: parameter.notFound
+			count: 3
+			path: plugins/contentbuilderng_verify/passthrough/src/Extension/Passthrough.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$plugin_settings$#'
+			identifier: parameter.notFound
+			count: 1
+			path: plugins/contentbuilderng_verify/passthrough/src/Extension/Passthrough.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$return_url$#'
+			identifier: parameter.notFound
+			count: 3
+			path: plugins/contentbuilderng_verify/passthrough/src/Extension/Passthrough.php
+
+		-
+			message: '#^PHPDoc tag @return with type mixed is not subtype of native type array\.$#'
+			identifier: return.phpDocType
+			count: 1
+			path: plugins/contentbuilderng_verify/passthrough/src/Extension/Passthrough.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$link$#'
+			identifier: parameter.notFound
+			count: 1
+			path: plugins/contentbuilderng_verify/paypal/src/Extension/Paypal.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$options$#'
+			identifier: parameter.notFound
+			count: 3
+			path: plugins/contentbuilderng_verify/paypal/src/Extension/Paypal.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$plugin_settings$#'
+			identifier: parameter.notFound
+			count: 1
+			path: plugins/contentbuilderng_verify/paypal/src/Extension/Paypal.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$return_url$#'
+			identifier: parameter.notFound
+			count: 3
+			path: plugins/contentbuilderng_verify/paypal/src/Extension/Paypal.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Extension\\ComponentInterface\:\:getContainer\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: plugins/system/contentbuilderng_system/src/Extension/ContentbuilderngSystem.php
+
+		-
+			message: '#^Method Joomla\\CMS\\Document\\Document\:\:getBuffer\(\) invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: plugins/system/contentbuilderng_system/src/Extension/ContentbuilderngSystem.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:createExtensionNamespaceMap\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: script.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:getDocument\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/layouts/contentbuilderng/debug_panel.php
+
+		-
 			message: '#^Variable \$displayData might not be defined\.$#'
 			identifier: variable.undefined
 			count: 5
@@ -571,6 +895,42 @@ parameters:
 			path: site/src/Controller/VerifyController.php
 
 		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:getMenu\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/src/Dispatcher/Dispatcher.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:getSession\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/src/Dispatcher/Dispatcher.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:getDocument\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/src/Field/CbmenuresetField.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:getDocument\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/src/Field/FormsField.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:getSession\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/src/Helper/DebugPermissionHelper.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:getParams\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/src/Helper/MenuParamHelper.php
+
+		-
 			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\Model\\DetailsModel\:\:\$_data\.$#'
 			identifier: property.notFound
 			count: 2
@@ -597,7 +957,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\Model\\EditModel\:\:\$_id\.$#'
 			identifier: property.notFound
-			count: 39
+			count: 32
 			path: site/src/Model/EditModel.php
 
 		-
@@ -611,6 +971,12 @@ parameters:
 			identifier: variable.undefined
 			count: 4
 			path: site/src/Model/EditModel.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Extension\\ComponentInterface\:\:getContainer\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/src/Model/ExportModel.php
 
 		-
 			message: '#^Variable \$filter_order_Dir in empty\(\) always exists and is not falsy\.$#'
@@ -791,6 +1157,48 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:getUserState\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:setUserState\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Extension\\ComponentInterface\:\:getMVCFactory\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/src/View/Details/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:getSession\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: site/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:getUserState\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: site/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Application\\CMSApplicationInterface\:\:setUserState\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: site/src/View/Edit/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Extension\\ComponentInterface\:\:getMVCFactory\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/src/View/Edit/HtmlView.php
 
 		-
 			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\Export\\HtmlView\:\:\$data\.$#'
@@ -1129,6 +1537,12 @@ parameters:
 			path: site/src/View/List/HtmlView.php
 
 		-
+			message: '#^Call to an undefined method Joomla\\CMS\\MVC\\Model\\BaseDatabaseModel\:\:getPagination\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/src/View/List/HtmlView.php
+
+		-
 			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\View\\PublicForms\\HtmlView\:\:\$introtext\.$#'
 			identifier: property.notFound
 			count: 1
@@ -1205,3 +1619,15 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: site/src/View/Publicforms/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\MVC\\Model\\BaseDatabaseModel\:\:getForm\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/src/View/Verify/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\MVC\\Model\\BaseDatabaseModel\:\:getItem\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: site/src/View/Verify/HtmlView.php
