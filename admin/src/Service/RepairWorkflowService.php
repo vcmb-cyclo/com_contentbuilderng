@@ -286,7 +286,7 @@ class RepairWorkflowService
         });
 
         $this->logStructuredSection('Database audit historical tables', $historicalTables, static function (string|array $historicalTable, int $index): ?string {
-            $table = trim((string) $historicalTable);
+            $table = trim(is_array($historicalTable) ? implode(', ', array_map('strval', $historicalTable)) : (string) $historicalTable);
             return $table === '' ? null : sprintf('%d. %s', $index + 1, $table);
         });
 

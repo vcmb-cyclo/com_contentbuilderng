@@ -21,6 +21,7 @@ use CB\Component\Contentbuilderng\Administrator\Service\ConfigImportService;
 use CB\Component\Contentbuilderng\Administrator\Service\RepairWorkflowService;
 use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Router\Route;
@@ -335,7 +336,7 @@ final class AboutController extends BaseController
             $includeStorageContent = $this->shouldExportStorageContent();
             $payload = $service->buildPayload($selectedSections, $selectedFormIds, $selectedStorageIds, $includeStorageContent, $this->getCurrentUserId());
             $exportSummary = $service->buildSummary($payload, $selectedSections, $selectedFormIds, $selectedStorageIds, $includeStorageContent);
-            $fileName = 'contentbuilderng-config-' . Factory::getDate()->format('Ymd-His') . '.json';
+            $fileName = 'contentbuilderng-config-' . (new Date())->format('Ymd-His') . '.json';
 
             $app->setUserState('com_contentbuilderng.about.export', [
                 'generated_at' => $this->getJoomlaLocalDateTime(),
@@ -477,7 +478,7 @@ final class AboutController extends BaseController
 
     private function getSelectedConfigSections(): array
     {
-        $selectedRaw = (array) $this->getApp()->input->get('cb_config_sections', [], 'array');
+        $selectedRaw = (array) $this->getApp()->getInput()->get('cb_config_sections', [], 'array');
         $selected = [];
 
         foreach ($selectedRaw as $sectionKey) {
@@ -504,7 +505,7 @@ final class AboutController extends BaseController
 
     private function getSelectedConfigImportNames(string $inputKey): array
     {
-        $selectedRaw = (array) $this->getApp()->input->get($inputKey, [], 'array');
+        $selectedRaw = (array) $this->getApp()->getInput()->get($inputKey, [], 'array');
         $selected = [];
 
         foreach ($selectedRaw as $selectedName) {
@@ -519,7 +520,7 @@ final class AboutController extends BaseController
 
     private function getSelectedNumericIds(string $inputKey): array
     {
-        $selectedRaw = (array) $this->getApp()->input->get($inputKey, [], 'array');
+        $selectedRaw = (array) $this->getApp()->getInput()->get($inputKey, [], 'array');
         $selected = [];
 
         foreach ($selectedRaw as $selectedId) {
@@ -534,7 +535,7 @@ final class AboutController extends BaseController
 
     private function getImportMode(): string
     {
-        $mode = strtolower((string) $this->getApp()->input->getCmd('cb_config_import_mode', ConfigImportService::MODE_MERGE));
+        $mode = strtolower((string) $this->getApp()->getInput()->getCmd('cb_config_import_mode', ConfigImportService::MODE_MERGE));
         return in_array($mode, [ConfigImportService::MODE_MERGE, ConfigImportService::MODE_REPLACE], true)
             ? $mode
             : ConfigImportService::MODE_MERGE;
@@ -542,7 +543,7 @@ final class AboutController extends BaseController
 
     private function shouldExportStorageContent(): bool
     {
-        return $this->getApp()->input->getInt('cb_export_storage_content', 0) === 1;
+        return $this->getApp()->getInput()->getInt('cb_export_storage_content', 0) === 1;
     }
 
     // -------------------------------------------------------------------------

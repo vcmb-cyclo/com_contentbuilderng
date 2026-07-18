@@ -21,6 +21,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Event\GenericEvent as Event;
 use Joomla\Event\SubscriberInterface;
+use Joomla\Database\ParameterType;
 
 final class Trash extends CMSPlugin implements SubscriberInterface
 {
@@ -67,7 +68,16 @@ final class Trash extends CMSPlugin implements SubscriberInterface
         $lang->load('plg_contentbuilderng_listaction_trash', JPATH_ADMINISTRATOR);
 
         foreach ($record_ids as $record_id) {
-            $this->db->setQuery("Update #__content As content, #__contentbuilderng_articles As article Set content.state = -2 Where article.form_id = " . intval($form_id) . " And article.record_id = " . $this->db->Quote($record_id) . " And content.id = article.article_id");
+            $recordIdValue = (string) $record_id;
+            $query = $this->db->getQuery(true)
+                ->update($this->db->quoteName('#__content', 'content'))
+                ->innerJoin($this->db->quoteName('#__contentbuilderng_articles', 'article'), 'content.id = article.article_id')
+                ->set('content.state = -2')
+                ->where('article.form_id = :formId')
+                ->where('article.record_id = :recordId')
+                ->bind(':formId', $form_id, ParameterType::INTEGER)
+                ->bind(':recordId', $recordIdValue);
+            $this->db->setQuery($query);
             $this->db->execute();
         }
 
@@ -106,11 +116,24 @@ final class Trash extends CMSPlugin implements SubscriberInterface
         $record_id = $args[1] ?? null;
         $article_id = isset($args[2]) ? (int) $args[2] : 0;
 
-        $this->db->setQuery("Select action From #__contentbuilderng_list_records As lr, #__contentbuilderng_list_states As ls Where lr.state_id = ls.id And lr.form_id = ls.form_id And lr.form_id = " . intval($form_id) . " And lr.record_id = " . $this->db->Quote($record_id));
+        $recordIdValue = (string) $record_id;
+        $query = $this->db->getQuery(true)
+            ->select($this->db->quoteName('action'))
+            ->from($this->db->quoteName('#__contentbuilderng_list_records', 'lr'))
+            ->join('INNER', $this->db->quoteName('#__contentbuilderng_list_states', 'ls'), 'lr.state_id = ls.id AND lr.form_id = ls.form_id')
+            ->where('lr.form_id = :formId')
+            ->where('lr.record_id = :recordId')
+            ->bind(':formId', $form_id, ParameterType::INTEGER)
+            ->bind(':recordId', $recordIdValue);
+        $this->db->setQuery($query);
         $action = $this->db->loadResult();
 
         if ($action == 'trash') {
-            $this->db->setQuery("Delete From #__content Where id = " . intval($article_id));
+            $query = $this->db->getQuery(true)
+                ->delete($this->db->quoteName('#__content'))
+                ->where($this->db->quoteName('id') . ' = :articleId')
+                ->bind(':articleId', $article_id, ParameterType::INTEGER);
+            $this->db->setQuery($query);
             $this->db->execute();
         }
 

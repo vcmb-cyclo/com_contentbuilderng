@@ -54,7 +54,7 @@ class TemplateRenderService
 
     private function getInput()
     {
-        return $this->getApp()->input;
+        return $this->getApp()->getInput();
     }
 
     private function getCurrentUserId(): int

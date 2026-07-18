@@ -16,6 +16,7 @@ namespace CB\Component\Contentbuilderng\Site\Service;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Service\ApiFieldPermissionService;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
 
@@ -73,7 +74,7 @@ final class StatsService
             throw new \RuntimeException(Text::_($messageKey), 404);
         }
 
-        $nowSql = Factory::getDate()->toSql();
+        $nowSql = (new Date())->toSql();
         $recordWhere = [
             $db->quoteName('type') . ' = ' . $db->quote((string) $formRow['type']),
             $db->quoteName('reference_id') . ' = ' . $db->quote((string) $formRow['reference_id']),

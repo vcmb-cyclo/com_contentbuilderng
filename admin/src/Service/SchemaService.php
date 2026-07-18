@@ -16,7 +16,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 require_once __DIR__ . '/../Helper/FormDisplayColumnsHelper.php';
 
 use CB\Component\Contentbuilderng\Administrator\Helper\FormDisplayColumnsHelper;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseInterface;
@@ -663,7 +663,7 @@ final class SchemaService
     private function migrateInternalStorageDataTablesAuditColumns(): void
     {
         $db = $this->db();
-        $now = Factory::getDate()->toSql();
+        $now = (new Date())->toSql();
 
         $storages = $this->safe(function () use ($db) {
             $query = $db->getQuery(true)

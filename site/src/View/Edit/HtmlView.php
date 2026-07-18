@@ -22,6 +22,7 @@ namespace CB\Component\Contentbuilderng\Site\View\Edit;
 \defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -624,7 +625,7 @@ class HtmlView extends BaseHtmlView
             ? $this->toUnicodeSlug((string) $table->alias)
             : $this->toUnicodeSlug((string) ($this->item->page_title ?? $this->page_title));
         if (trim(str_replace('-', '', $alias)) === '') {
-            $alias = Factory::getDate()->format('%Y-%m-%d-%H-%M-%S');
+            $alias = (new Date())->format('%Y-%m-%d-%H-%M-%S');
         }
         $table->slug = ($articleId > 0 ? $articleId : 0) . ':' . $alias . ':contentbuilderng_slug_used';
 

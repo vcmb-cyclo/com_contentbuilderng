@@ -16,6 +16,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseInterface;
 
@@ -821,7 +822,7 @@ class ConfigImportService
 
     private function applyAuditColumns(string $tableAlias, array $row, bool $isNew): array
     {
-        $now = Factory::getDate()->toSql();
+        $now = (new Date())->toSql();
         $user = Factory::getApplication()->getIdentity();
 
         if ($tableAlias === '#__contentbuilderng_forms') {

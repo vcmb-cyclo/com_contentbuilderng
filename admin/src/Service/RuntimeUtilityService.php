@@ -6,6 +6,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\PhpTemplateHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Router\Route;
@@ -37,7 +38,7 @@ class RuntimeUtilityService
         }
 
         $identity = $this->getApp()->getIdentity();
-        $now = Factory::getDate();
+        $now = (new Date());
         $identityId = is_object($identity) && method_exists($identity, 'get')
             ? (int) $identity->get('id', 0)
             : (int) ($identity->id ?? 0);

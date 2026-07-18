@@ -14,7 +14,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Helper\Audit;
 
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 
 final class DatabaseAuditReportBuilder
 {
@@ -154,7 +154,7 @@ final class DatabaseAuditReportBuilder
             + count($staleInstallerTempDirs);
 
         return [
-            'generated_at' => Factory::getDate()->toSql(),
+            'generated_at' => (new Date())->toSql(),
             'scanned_tables' => count($tables),
             'tables' => array_map(
                 static fn(string $tableName): string => $toAlias($tableName, $prefix),

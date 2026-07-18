@@ -24,6 +24,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\Filesystem\Folder;
@@ -61,7 +62,7 @@ class FormModel extends AdminModel
 
     private function getInput()
     {
-        return $this->getApp()->input;
+        return $this->getApp()->getInput();
     }
 
     private function getFormSupportService(): FormSupportService
@@ -890,14 +891,13 @@ class FormModel extends AdminModel
     {
         parent::prepareTable($table);
 
-        $now  = Factory::getDate()->toSql();
+        $now  = (new Date())->toSql();
         $user = $this->getApp()->getIdentity();
 
         $table->name  = trim((string) $table->name);
         $table->title = trim((string) $table->title);
         $table->tag   = trim((string) ($table->tag ?? ''));
 
-        // Si tes champs existent bien en JTable (c'est le cas)
         if (empty($table->id)) {
             // Création
             if (empty($table->created)) {
@@ -1276,7 +1276,7 @@ class FormModel extends AdminModel
         $jform['config'] = PackedDataHelper::encodePackedData($config);
 
         // Last_update.
-        $jform['last_update'] = Factory::getDate()->toSql();
+        $jform['last_update'] = (new Date())->toSql();
 
         // 7) Ajustements divers (si nécessaire)
         // - default_category depuis sectioncategories (comme avant)
@@ -1669,9 +1669,9 @@ class FormModel extends AdminModel
             $obj->name = Text::sprintf('COM_CONTENTBUILDERNG_COPY_OF', $obj->name);
             $obj->published = 0;
 
-            // $obj->created = Factory::getDate()->toSql();
+            // $obj->created = (new Date())->toSql();
             // $obj->created_by = Factory::getApplication()->getIdentity()->id;
-            $obj->modified = Factory::getDate()->toSql();
+            $obj->modified = (new Date())->toSql();
             $obj->modified_by = $this->getApp()->getIdentity()->id;
 
             $db->insertObject('#__contentbuilderng_forms', $obj);

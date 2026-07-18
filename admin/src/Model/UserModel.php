@@ -31,7 +31,7 @@ class UserModel extends BaseDatabaseModel
 
     private function getInput()
     {
-        return $this->getApp()->input;
+        return $this->getApp()->getInput();
     }
 
     private function getCurrentFormId(): int

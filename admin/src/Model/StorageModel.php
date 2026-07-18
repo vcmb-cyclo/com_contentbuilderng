@@ -24,10 +24,12 @@ namespace CB\Component\Contentbuilderng\Administrator\Model;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\Database\DatabaseInterface;
+use Joomla\Database\ParameterType;
 use Joomla\Filesystem\File;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
@@ -69,7 +71,7 @@ class StorageModel extends AdminModel
 
     private function getInput()
     {
-        return $this->getApp()->input;
+        return $this->getApp()->getInput();
     }
 
     private function getCurrentIdentity()
@@ -170,13 +172,7 @@ class StorageModel extends AdminModel
 
     public function getTable($type = 'Storage', $prefix = 'Administrator', $config = [])
     {
-        // Méthode moderne via MVCFactory du composant
         $table = $this->getMVCFactory()->createTable($type, $prefix, $config);
-
-        // Fallback (déprécié mais utile en dépannage)
-        // if (!$table) {
-        //    $table = Table::getInstance($type, 'CB\\Component\\Contentbuilderng\\Administrator\\Table\\', $config);
-        // }
 
         if (!$table) {
             throw new \RuntimeException(
@@ -354,7 +350,7 @@ class StorageModel extends AdminModel
         }
 
         // Standard Joomla-style audit fields for storages.
-        $now = Factory::getDate()->toSql();
+        $now = (new Date())->toSql();
         $user = $this->getCurrentIdentity();
         $actor = trim((string) (($user->username ?? '') !== '' ? $user->username : ($user->name ?? '')));
         if ($actor === '') {
@@ -550,7 +546,7 @@ class StorageModel extends AdminModel
         $name   = (string) ($table->name ?? '');
         $bytable = (int) ($table->bytable ?? 0);
 
-        $last_update = Factory::getDate()->toSql();
+        $last_update = (new Date())->toSql();
 
         // map table list => colonnes
         $tableList = $db->getTableList();
@@ -967,7 +963,11 @@ class StorageModel extends AdminModel
             // charger storage
             $storage = $this->getItem($pk);
 
-            $db->setQuery("DELETE FROM #__contentbuilderng_storage_fields WHERE storage_id = " . (int)$pk);
+            $query = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_storage_fields'))
+                ->where($db->quoteName('storage_id') . ' = :storageId')
+                ->bind(':storageId', $pk, ParameterType::INTEGER);
+            $db->setQuery($query);
             $db->execute();
 
             try {
@@ -1367,7 +1367,7 @@ class StorageModel extends AdminModel
 
         if ($handle !== FALSE) {
 
-            $last_update = Factory::getDate()->toSql();
+            $last_update = (new Date())->toSql();
 
             $fieldnames = array();
             $rowReadCount = 0;
@@ -1410,17 +1410,47 @@ class StorageModel extends AdminModel
                         ->from($targetTable)
                 );
                 $droppedDataRecords = (int) $this->getDatabase()->loadResult();
-                $this->getDatabase()->setQuery("Select Count(*) From #__contentbuilderng_records Where `type` = 'com_contentbuilderng' And reference_id = " . $this->getDatabase()->quote($this->storageId));
-                $droppedMetaRecords = (int) $this->getDatabase()->loadResult();
-                $this->getDatabase()->setQuery("Select Count(*) From #__contentbuilderng_articles Where `type` = 'com_contentbuilderng' And reference_id = " . $this->getDatabase()->quote($this->storageId));
-                $droppedArticleLinks = (int) $this->getDatabase()->loadResult();
+                $db = $this->getDatabase();
+                $storageIdValue = (string) $this->storageId;
 
-                $this->getDatabase()->setQuery('TRUNCATE TABLE ' . $targetTable);
-                $this->getDatabase()->execute();
-                $this->getDatabase()->setQuery("Delete From #__contentbuilderng_records Where `type` = 'com_contentbuilderng' And reference_id = " . $this->getDatabase()->quote($this->storageId));
-                $this->getDatabase()->execute();
-                $this->getDatabase()->setQuery("Delete a.*, c.* From #__contentbuilderng_articles As a, #__content As c Where c.id = a.article_id And a.`type` = 'com_contentbuilderng' And a.reference_id = " . $this->getDatabase()->quote($this->storageId));
-                $this->getDatabase()->execute();
+                $query = $db->getQuery(true)
+                    ->select('COUNT(*)')
+                    ->from($db->quoteName('#__contentbuilderng_records'))
+                    ->where($db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng'))
+                    ->where($db->quoteName('reference_id') . ' = :referenceId')
+                    ->bind(':referenceId', $storageIdValue);
+                $db->setQuery($query);
+                $droppedMetaRecords = (int) $db->loadResult();
+
+                $query = $db->getQuery(true)
+                    ->select('COUNT(*)')
+                    ->from($db->quoteName('#__contentbuilderng_articles'))
+                    ->where($db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng'))
+                    ->where($db->quoteName('reference_id') . ' = :referenceId')
+                    ->bind(':referenceId', $storageIdValue);
+                $db->setQuery($query);
+                $droppedArticleLinks = (int) $db->loadResult();
+
+                $db->setQuery('TRUNCATE TABLE ' . $targetTable);
+                $db->execute();
+
+                $query = $db->getQuery(true)
+                    ->delete($db->quoteName('#__contentbuilderng_records'))
+                    ->where($db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng'))
+                    ->where($db->quoteName('reference_id') . ' = :referenceId')
+                    ->bind(':referenceId', $storageIdValue);
+                $db->setQuery($query);
+                $db->execute();
+
+                // DELETE multi-tables (a.*, c.*) : non exprimable via le Query Builder Joomla,
+                // fragment MySQL brut conservé avec valeurs quotées.
+                $db->setQuery(
+                    'DELETE a.*, c.* FROM ' . $db->quoteName('#__contentbuilderng_articles', 'a')
+                    . ' INNER JOIN ' . $db->quoteName('#__content', 'c') . ' ON c.id = a.article_id'
+                    . ' WHERE a.' . $db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng')
+                    . ' AND a.reference_id = ' . $db->quote($storageIdValue)
+                );
+                $db->execute();
             }
 
             $insert_query_prefix = 'INSERT INTO '
@@ -1447,8 +1477,20 @@ class StorageModel extends AdminModel
                 $query = "$insert_query_prefix (" . join(", ", $this->quote_all_array($data)) . ")";
                 $this->getDatabase()->setQuery($query);
                 $this->getDatabase()->execute();
-                $this->getDatabase()->setQuery("Insert Into #__contentbuilderng_records (`type`,last_update,is_future,lang_code, sef, published, record_id, reference_id) Values ('com_contentbuilderng'," . $this->getDatabase()->quote($last_update) . ",0,'*',''," . $this->getInput()->getInt('csv_published', 0) . ", " . $this->getDatabase()->quote(intval($this->getDatabase()->insertid())) . ", " . $this->getDatabase()->quote($this->storageId) . ")");
-                $this->getDatabase()->execute();
+                $db = $this->getDatabase();
+                $publishedValue = $this->getInput()->getInt('csv_published', 0);
+                $recordIdValue = (string) intval($db->insertid());
+                $referenceIdValue = (string) $this->storageId;
+                $insertQuery = $db->getQuery(true)
+                    ->insert($db->quoteName('#__contentbuilderng_records'))
+                    ->columns($db->quoteName(['type', 'last_update', 'is_future', 'lang_code', 'sef', 'published', 'record_id', 'reference_id']))
+                    ->values($db->quote('com_contentbuilderng') . ", :lastUpdate, 0, '*', '', :published, :recordId, :referenceId")
+                    ->bind(':lastUpdate', $last_update)
+                    ->bind(':published', $publishedValue, ParameterType::INTEGER)
+                    ->bind(':recordId', $recordIdValue)
+                    ->bind(':referenceId', $referenceIdValue);
+                $db->setQuery($insertQuery);
+                $db->execute();
                 $rowImportedCount++;
             }
             fclose($handle);

@@ -8,6 +8,7 @@ use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Cache\CacheControllerFactoryInterface;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Registry\Registry;
@@ -32,7 +33,7 @@ class ArticleService
 
     private function getCurrentUserId(): int
     {
-        $input = $this->getApp()->input;
+        $input = $this->getApp()->getInput();
 
         if ($input->getBool('cb_preview_ok', false)) {
             $previewActorId = (int) $input->getInt('cb_preview_actor_id', 0);
@@ -55,7 +56,7 @@ class ArticleService
 
         foreach (['publish_up', 'created', 'publish_down'] as $dateKey) {
             if (isset($config[$dateKey]) && $config[$dateKey]) {
-                $config[$dateKey] = Factory::getDate($config[$dateKey], $tz)->format('Y-m-d H:i:s');
+                $config[$dateKey] = (new Date($config[$dateKey], $tz))->format('Y-m-d H:i:s');
             } else {
                 $config[$dateKey] = null;
             }
@@ -205,19 +206,19 @@ class ArticleService
         $createdBy = 0;
         $createdByAlias = '';
         $createdArticle = null;
-        $_now = Factory::getDate();
+        $_now = (new Date());
         $createdUp = $publishUpRecord;
         $createdDown = $publishDownRecord;
 
         if (is_array($article) && isset($article['article_id']) && (int) $form['default_publish_up_days'] != 0) {
-            $date = Factory::getDate(strtotime((($createdUp !== null) ? $createdUp : $_now) . ' +' . (int) $form['default_publish_down_days'] . ' days'));
+            $date = (new Date(strtotime((($createdUp !== null) ? $createdUp : $_now) . ' +' . (int) $form['default_publish_down_days'] . ' days')));
             $createdUp = $date->toSql();
         }
 
         $publishUp = $createdUp;
 
         if (is_array($article) && isset($article['article_id']) && (int) $form['default_publish_down_days'] != 0) {
-            $date = Factory::getDate(strtotime(($createdUp !== null ? $createdUp : $_now) . ' +' . (int) $form['default_publish_down_days'] . ' days'));
+            $date = (new Date(strtotime(($createdUp !== null ? $createdUp : $_now) . ' +' . (int) $form['default_publish_down_days'] . ' days')));
             $createdDown = $date->toSql();
         }
 
@@ -390,7 +391,7 @@ class ArticleService
         }
 
         $createdBy = $createdBy ?: $metadata->created_id;
-        $created = $createdArticle ?: ($metadata->created ?: Factory::getDate()->toSql());
+        $created = $createdArticle ?: ($metadata->created ?: (new Date())->toSql());
 
         if ($created && strlen(trim($created)) <= 10) {
             $created .= ' 00:00:00';
@@ -409,7 +410,7 @@ class ArticleService
             : $this->textUtilityService->stringURLUnicodeSlug($label);
 
         if (trim(str_replace('-', '', $alias)) == '') {
-            $alias = Factory::getDate()->format('%Y-%m-%d-%H-%M-%S');
+            $alias = (new Date())->format('%Y-%m-%d-%H-%M-%S');
         }
 
         if (!$article) {
@@ -463,7 +464,7 @@ class ArticleService
             $db->execute();
 
             $article = $db->insertid();
-            $___datenow = Factory::getDate()->toSql();
+            $___datenow = (new Date())->toSql();
             $query = $db->getQuery(true)
                 ->insert($db->quoteName('#__contentbuilderng_articles'))
                 ->columns([
@@ -541,7 +542,7 @@ class ArticleService
                 }
             }
         } else {
-            $___datenow = Factory::getDate()->toSql();
+            $___datenow = (new Date())->toSql();
             $modified = $___datenow;
             $currentUserId = $this->getCurrentUserId();
             $metadataModifiedBy = isset($metadata->modified_id) ? (int) $metadata->modified_id : 0;
@@ -646,7 +647,7 @@ class ArticleService
                 $db->execute();
             }
 
-            $___datenow = Factory::getDate()->toSql();
+            $___datenow = (new Date())->toSql();
             $query = $db->getQuery(true)
                 ->update($db->quoteName('#__contentbuilderng_articles'))
                 ->set($db->quoteName('last_update') . ' = ' . $db->quote($___datenow))

@@ -16,7 +16,7 @@ namespace CB\Component\Contentbuilderng\Site\Model\Edit;
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
-use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\Filesystem\Folder;
 use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PathService;
@@ -85,7 +85,7 @@ trait PathHelpersTrait
         $path = str_replace('{username}', $this->toSafePathToken((string) ($this->app->getIdentity()->username ?? 'anonymous') . '_' . (int) ($this->app->getIdentity()->id ?? 0)), $path);
         $path = str_replace('{name}', $this->toSafePathToken((string) ($this->app->getIdentity()->name ?? 'Anonymous') . '_' . (int) ($this->app->getIdentity()->id ?? 0)), $path);
 
-        $_now = Factory::getDate();
+        $_now = (new Date());
 
         $path = str_replace('{date}', $_now->format('Y-m-d'), $path);
         $path = str_replace('{time}', $_now->format('His'), $path);

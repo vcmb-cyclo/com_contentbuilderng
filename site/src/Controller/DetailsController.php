@@ -61,7 +61,7 @@ class DetailsController extends BaseController
         $this->siteApp = $app;
         $this->frontend = $this->siteApp->isClient('site');
 
-        if ($this->frontend && $this->siteApp->input->getInt('Itemid', 0)) {
+        if ($this->frontend && $this->siteApp->getInput()->getInt('Itemid', 0)) {
 
             // try menu item
             $menu = $this->siteApp->getMenu();
@@ -71,7 +71,7 @@ class DetailsController extends BaseController
                 $menuRecordId = MenuParamHelper::getMenuParam($params, 'record_id', null);
 
                 if ($menuRecordId !== null) {
-                    $this->siteApp->input->set('record_id', $menuRecordId);
+                    $this->siteApp->getInput()->set('record_id', $menuRecordId);
                     $this->_show_back_button = MenuParamHelper::getResolvedMenuToggle(
                         $params,
                         'cb_show_details_back_button',
@@ -82,10 +82,10 @@ class DetailsController extends BaseController
             }
         }
 
-        if ($this->siteApp->input->getWord('view', '') == 'latest') {
+        if ($this->siteApp->getInput()->getWord('view', '') == 'latest') {
             $db = Factory::getContainer()->get(DatabaseInterface::class);
 
-            $formId = $this->siteApp->input->getInt('id', 0);
+            $formId = $this->siteApp->getInput()->getInt('id', 0);
             $query = $db->getQuery(true)
                 ->select($db->quoteName(['type', 'reference_id']))
                 ->from($db->quoteName('#__contentbuilderng_forms'))
@@ -129,12 +129,12 @@ class DetailsController extends BaseController
                 $rec2 = $form->getRecord($rec->colRecord, false, -1, true);
 
                 $record_id = $rec->colRecord;
-                $this->siteApp->input->set('record_id', $record_id);
+                $this->siteApp->getInput()->set('record_id', $record_id);
             }
 
-            if (!$this->siteApp->input->getCmd('record_id', '')) {
-                $this->siteApp->input->set('cbIsNew', 1);
-                $this->getPermissionService()->setPermissions($this->siteApp->input->getInt('id', 0), 0, $this->frontend ? '_fe' : '');
+            if (!$this->siteApp->getInput()->getCmd('record_id', '')) {
+                $this->siteApp->getInput()->set('cbIsNew', 1);
+                $this->getPermissionService()->setPermissions($this->siteApp->getInput()->getInt('id', 0), 0, $this->frontend ? '_fe' : '');
                 $auth = $this->frontend ? $this->getPermissionService()->authorizeFe('new') : $this->getPermissionService()->authorize('new');
 
                 if ($auth) {
@@ -146,7 +146,7 @@ class DetailsController extends BaseController
                         'direction' => $state['direction'],
                     ]]);
 
-                    $this->siteApp->redirect(Route::_('index.php?option=com_contentbuilderng&task=edit.display&latest=1&backtolist=' . $this->siteApp->input->getInt('backtolist', 0) . '&id=' . $this->siteApp->input->getInt('id', 0) . ($this->siteApp->input->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->input->get('tmpl', '', 'string') : '') . ($this->siteApp->input->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->input->get('layout', '', 'string') : '') . '&record_id=' . ($listQuery !== '' ? '' : '') . ($listQuery !== '' ? '&' . $listQuery : ''), false));
+                    $this->siteApp->redirect(Route::_('index.php?option=com_contentbuilderng&task=edit.display&latest=1&backtolist=' . $this->siteApp->getInput()->getInt('backtolist', 0) . '&id=' . $this->siteApp->getInput()->getInt('id', 0) . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '') . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '') . '&record_id=' . ($listQuery !== '' ? '' : '') . ($listQuery !== '' ? '&' . $listQuery : ''), false));
                 } else {
                     $this->siteApp->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_ADD_ENTRY_FIRST'));
                     $this->siteApp->redirect(Route::_('index.php'));
@@ -154,8 +154,8 @@ class DetailsController extends BaseController
             }
         }
 
-        if ($this->siteApp->input->getInt('storage_id', 0) <= 0 || $this->siteApp->input->getInt('id', 0) > 0) {
-            $this->getPermissionService()->setPermissions($this->siteApp->input->getInt('id', 0), $this->siteApp->input->getCmd('record_id', 0), $this->frontend ? '_fe' : '');
+        if ($this->siteApp->getInput()->getInt('storage_id', 0) <= 0 || $this->siteApp->getInput()->getInt('id', 0) > 0) {
+            $this->getPermissionService()->setPermissions($this->siteApp->getInput()->getInt('id', 0), $this->siteApp->getInput()->getCmd('record_id', 0), $this->frontend ? '_fe' : '');
         }
     }
 
@@ -180,7 +180,7 @@ class DetailsController extends BaseController
 
         // Keep both input bags aligned for downstream model/view access.
         $this->input->set('id', $form_id);
-        $this->siteApp->input->set('id', $form_id);
+        $this->siteApp->getInput()->set('id', $form_id);
 
         $recordId = (int) $this->input->getInt('record_id', 0);
         if (!$recordId) {
@@ -191,7 +191,7 @@ class DetailsController extends BaseController
         }
         if ($recordId) {
             $this->input->set('record_id', $recordId);
-            $this->siteApp->input->set('record_id', $recordId);
+            $this->siteApp->getInput()->set('record_id', $recordId);
         }
 
         if (!$isDirectStorageMode) {
@@ -201,7 +201,7 @@ class DetailsController extends BaseController
             ? $this->isValidAdminPreviewRequest(0, $storageId)
             : $this->isValidAdminPreviewRequest($form_id);
         $this->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
-        $this->siteApp->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
+        $this->siteApp->getInput()->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
         if ($isDirectStorageMode && $isAdminPreview) {
             $this->getPermissionService()->setStoragePreviewPermissions($storageId, $suffix);
         }
@@ -209,10 +209,10 @@ class DetailsController extends BaseController
             $this->getPermissionService()->checkPermissions('view', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_VIEW_NOT_ALLOWED'), $this->frontend ? '_fe' : '');
         }
 
-        $this->siteApp->input->set('tmpl', $this->siteApp->input->getWord('tmpl', null));
-        $this->siteApp->input->set('layout', $this->siteApp->input->getWord('layout', null) == 'latest' ? null : $this->siteApp->input->getWord('layout', null));
-        if ($this->siteApp->input->getWord('view', '') == 'latest') {
-            $this->siteApp->input->set('cb_latest', 1);
+        $this->siteApp->getInput()->set('tmpl', $this->siteApp->getInput()->getWord('tmpl', null));
+        $this->siteApp->getInput()->set('layout', $this->siteApp->getInput()->getWord('layout', null) == 'latest' ? null : $this->siteApp->getInput()->getWord('layout', null));
+        if ($this->siteApp->getInput()->getWord('view', '') == 'latest') {
+            $this->siteApp->getInput()->set('cb_latest', 1);
         }
 
         parent::display();
@@ -330,8 +330,8 @@ class DetailsController extends BaseController
             if (hash_equals(hash_hmac('sha256', $payload, $secret), $sig)) {
                 $this->input->set('cb_preview_actor_id', $actorId);
                 $this->input->set('cb_preview_actor_name', $actorName);
-                $this->siteApp->input->set('cb_preview_actor_id', $actorId);
-                $this->siteApp->input->set('cb_preview_actor_name', $actorName);
+                $this->siteApp->getInput()->set('cb_preview_actor_id', $actorId);
+                $this->siteApp->getInput()->set('cb_preview_actor_name', $actorName);
                 return true;
             }
         }

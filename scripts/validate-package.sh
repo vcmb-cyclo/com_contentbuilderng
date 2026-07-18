@@ -16,6 +16,7 @@ required=(
     "script.php"
     "admin/services/provider.php"
     "admin/sql/install.sql"
+    "admin/sql/updates/mysql/6.1.7.sql"
     "site/src/Controller/ApiController.php"
     "media/joomla.asset.json"
     "plugins/system/contentbuilderng_system/contentbuilderng_system.xml"

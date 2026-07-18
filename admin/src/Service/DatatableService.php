@@ -16,7 +16,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 \defined('_JEXEC') or die;
 
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Database\ParameterType;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
@@ -296,7 +296,7 @@ class DatatableService
         $db = $this->db;
         $prefixed = $db->getPrefix() . $tableName;
         $tableQN = $db->quoteName('#__' . $tableName);
-        $now = Factory::getDate()->toSql();
+        $now = (new Date())->toSql();
 
         $rawCols = $db->getTableColumns($prefixed, true);
         $cols = [];
@@ -487,7 +487,7 @@ class DatatableService
             return false;
         }
 
-        $now = Factory::getDate()->toSql();
+        $now = (new Date())->toSql();
 
         // Create
         $sql = "

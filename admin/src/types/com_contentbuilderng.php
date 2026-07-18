@@ -16,7 +16,9 @@ namespace CB\Component\Contentbuilderng\Administrator\types;
 
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\Database\DatabaseInterface;
+use Joomla\Database\ParameterType;
 use Joomla\Filesystem\File;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\PhpTemplateHelper;
@@ -955,7 +957,7 @@ class contentbuilderng_com_contentbuilderng
             $username = $user_full_name;
         }
 
-        $date = Factory::getDate();
+        $date = (new Date());
         $now = $date->toSql();
         foreach ($cleaned_values as $id => $value) {
             $options = null;
@@ -1034,62 +1036,64 @@ class contentbuilderng_com_contentbuilderng
 
         if (!$record_id) {
 
-            $the_keys = '';
-            $the_values = '';
-            $cnt = count($names);
+            $tableName = (string) ($this->bytable . $this->properties->name);
+            $userIdValue = (string) $user_id;
+            $userFullNameValue = (string) $user_full_name;
+            $nowValue = (string) $now;
 
+            $columns = ['created', 'user_id', 'created_by'];
+            $placeholders = [':created', ':userId', ':createdBy'];
+            $query = $db->getQuery(true)
+                ->insert($db->quoteName($tableName))
+                ->bind(':created', $nowValue)
+                ->bind(':userId', $userIdValue)
+                ->bind(':createdBy', $userFullNameValue);
+
+            $bindValues = [];
             $i = 0;
             foreach ($names as $id => $keys) {
-                $the_keys .= '`' . $keys['name'] . '`' . ($i + 1 < $cnt ? ',' : '');
-                $the_values .= $db->quote($keys['value']) . ($i + 1 < $cnt ? ',' : '');
+                $columns[] = (string) $keys['name'];
+                $placeholders[] = ':fieldValue' . $i;
+                $bindValues[$i] = (string) $keys['value'];
+                $query->bind(':fieldValue' . $i, $bindValues[$i]);
                 $i++;
             }
 
-            if ($the_keys) {
-                $the_keys = ',' . $the_keys;
-            }
-
-            if ($the_values) {
-                $the_values = ',' . $the_values;
-            }
-
-            $db->setQuery("Insert Into " . $this->bytable . $this->properties->name . " (
-                `created`,
-                `user_id`,
-                `created_by`
-                $the_keys
-            ) Values (
-                '" . $now . "',
-                " . $db->quote($user_id) . ",
-                " . $db->quote($user_full_name) . "
-                $the_values
-            )");
+            $query->columns($db->quoteName($columns))
+                ->values(implode(', ', $placeholders));
+            $db->setQuery($query);
             $db->execute();
             $record_id = $db->insertid();
 
         } else {
 
-            $the_values = '';
-            $cnt = count($names);
+            $tableName = (string) ($this->bytable . $this->properties->name);
+            $userIdValue = (string) $user_id;
+            $userFullNameValue = (string) $user_full_name;
+            $nowValue = (string) $now;
+            $recordIdValue = (int) $record_id;
 
+            $query = $db->getQuery(true)
+                ->update($db->quoteName($tableName))
+                ->set($db->quoteName('modified') . ' = :modified')
+                ->set($db->quoteName('modified_user_id') . ' = :userId')
+                ->set($db->quoteName('modified_by') . ' = :modifiedBy')
+                ->where($db->quoteName('id') . ' = :recordId')
+                ->bind(':modified', $nowValue)
+                ->bind(':userId', $userIdValue)
+                ->bind(':modifiedBy', $userFullNameValue)
+                ->bind(':recordId', $recordIdValue, ParameterType::INTEGER);
+
+            $bindValues = [];
             $i = 0;
             foreach ($names as $id => $keys) {
-                $the_values .= '`' . $keys['name'] . '` = ' . $db->quote($keys['value']) . ($i + 1 < $cnt ? ',' : '');
+                $bindValues[$i] = (string) $keys['value'];
+                $query->set($db->quoteName((string) $keys['name']) . ' = :fieldValue' . $i);
+                $query->bind(':fieldValue' . $i, $bindValues[$i]);
                 $i++;
             }
 
-            if ($the_values) {
-                $the_values = ',' . $the_values;
-            }
-
-            $db->setQuery("Update " . $this->bytable . $this->properties->name . " Set
-               `modified` = '" . $now . "',
-               `modified_user_id` = " . $db->quote($user_id) . ",
-               `modified_by` = " . $db->quote($user_full_name) . "
-               $the_values
-               Where
-               id = $record_id
-           ");
+            $db->setQuery($query);
             $db->execute();
         }
 

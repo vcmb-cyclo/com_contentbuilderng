@@ -32,7 +32,7 @@ final class EditSaveCloseTest extends TestCase
             $controller
         );
         self::assertStringContainsString(
-            "'&Itemid=' . \$this->siteApp->input->getInt('Itemid', 0) . \$previewQuery",
+            "'&Itemid=' . \$this->siteApp->getInput()->getInt('Itemid', 0) . \$previewQuery",
             $controller
         );
     }

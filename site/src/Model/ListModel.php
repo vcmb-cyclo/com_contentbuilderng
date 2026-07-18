@@ -17,6 +17,7 @@ namespace CB\Component\Contentbuilderng\Site\Model;
 \defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Language\Text;
@@ -765,7 +766,7 @@ class ListModel extends BaseListModel
                     }
 
                     // enables the record randomizer
-                    $now = Factory::getDate();
+                    $now = (new Date());
                     $data->rand_update = intval($data->rand_update);
                     if ($data->rand_update < 1) {
                         $data->rand_update = 86400;
@@ -1187,7 +1188,12 @@ class ListModel extends BaseListModel
     #[\Override]
     public function getItems()
     {
-        $data = $this->getData(); // ton getData() récupère déjà $data->items
+        $data = $this->getData();
+
+        if (is_array($data)) {
+            return $data['items'] ?? [];
+        }
+
         return $data->items ?? [];
     }
 
