@@ -13,6 +13,8 @@
 
 namespace CB\Component\Contentbuilderng\Administrator\View\Edit;
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
+
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
@@ -40,7 +42,7 @@ class HtmlView extends BaseHtmlView
 
     private function getApp(): CMSApplicationInterface
     {
-        return $this->getDocument()->getApplication();
+        return RuntimeContextHelper::getApplication();
     }
 
     private function getComponent(): ContentbuilderngComponent

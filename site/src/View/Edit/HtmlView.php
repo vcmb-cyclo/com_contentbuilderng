@@ -19,6 +19,8 @@
 
 namespace CB\Component\Contentbuilderng\Site\View\Edit;
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
+
 \defined('_JEXEC') or die;
 
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
@@ -98,7 +100,7 @@ class HtmlView extends BaseHtmlView
 
     private function getApp(): SiteApplication
     {
-        $app = $this->getDocument()->getApplication();
+        $app = RuntimeContextHelper::getApplication();
 
         if (!$app instanceof SiteApplication) {
             throw new \RuntimeException('Unexpected application instance');

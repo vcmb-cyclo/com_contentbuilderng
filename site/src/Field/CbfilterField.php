@@ -13,6 +13,8 @@
 
 namespace CB\Component\Contentbuilderng\Site\Field;
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
+
 \defined('_JEXEC') or die('Direct Access to this location is not allowed.');
 
 use Joomla\CMS\Form\FormField;
@@ -25,7 +27,7 @@ class CbfilterField extends FormField
 
     private function getDatabase(): DatabaseInterface
     {
-        return $this->getDocument()->getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+        return RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
     }
 
     protected function getInput()

@@ -9,6 +9,8 @@
 
 namespace CB\Component\Contentbuilderng\Administrator\Model\CategoryFields;
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
+
 \defined('_JEXEC') or die;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Form\Field\ListField;
@@ -26,7 +28,7 @@ class FormFieldCategoryEditCb extends ListField
 
     private function getDatabase(): DatabaseInterface
     {
-        return $this->getDocument()->getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+        return RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
     }
 
     /**
