@@ -502,6 +502,7 @@ namespace {
     require_once \dirname(__DIR__) . '/src/Service/ApiPermissionRequirementService.php';
     require_once \dirname(__DIR__) . '/src/Service/FormResolverService.php';
     require_once \dirname(__DIR__) . '/src/Service/PermissionService.php';
+    require_once dirname(__DIR__) . '/src/Service/RepairWorkflowService.php';
     require_once \dirname(__DIR__) . '/src/Helper/FormDisplayColumnsHelper.php';
     require_once \dirname(__DIR__) . '/src/Service/ConfigExportService.php';
     require_once \dirname(__DIR__) . '/src/Service/ConfigImportService.php';

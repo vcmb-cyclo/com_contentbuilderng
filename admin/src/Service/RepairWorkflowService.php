@@ -136,6 +136,30 @@ class RepairWorkflowService
         return is_array($workflow) ? $workflow : [];
     }
 
+    public function advanceToNextPendingStep(array $workflow, int $currentIndex): array
+    {
+        $steps = array_values((array) ($workflow['steps'] ?? []));
+
+        for ($nextIndex = $currentIndex + 1; $nextIndex < count($steps); $nextIndex++) {
+            if ((string) ($steps[$nextIndex]['status'] ?? 'pending') !== 'pending') {
+                continue;
+            }
+
+            $workflow['current_step'] = $nextIndex;
+            $workflow['completed'] = false;
+
+            return $workflow;
+        }
+
+        $workflow['completed'] = true;
+
+        if ($steps !== []) {
+            $workflow['current_step'] = min(max(0, $currentIndex), count($steps) - 1);
+        }
+
+        return $workflow;
+    }
+
     public function executeStep(string $stepId): array
     {
         return match ($stepId) {

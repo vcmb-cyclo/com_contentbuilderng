@@ -193,16 +193,8 @@ final class AboutController extends BaseController
         $steps[$currentIndex] = $currentStep;
         $workflow['steps'] = $steps;
 
-        if ($action === 'skip' && $currentIndex < count($steps) - 1) {
-            $workflow['current_step'] = $currentIndex + 1;
-        }
-
-        if (($workflow['current_step'] ?? $currentIndex) >= count($steps) - 1 && $currentIndex >= count($steps) - 1) {
-            $workflow['completed'] = true;
-        }
-
-        if ($action === 'skip' && $currentIndex >= count($steps) - 1) {
-            $workflow['completed'] = true;
+        if ($action === 'skip') {
+            $workflow = $service->advanceToNextPendingStep($workflow, $currentIndex);
         }
 
         $workflow['updated_at'] = $currentStep['completed_at'];
@@ -237,15 +229,13 @@ final class AboutController extends BaseController
             return;
         }
 
-        if ($currentIndex < count($steps) - 1) {
-            $workflow['current_step'] = $currentIndex + 1;
-            $workflow['updated_at'] = $this->getJoomlaLocalDateTime();
-            $app->setUserState(RepairWorkflowService::WORKFLOW_STATE_KEY, $workflow);
+        $workflow = $service->advanceToNextPendingStep($workflow, $currentIndex);
+        $workflow['updated_at'] = $this->getJoomlaLocalDateTime();
+        $app->setUserState(RepairWorkflowService::WORKFLOW_STATE_KEY, $workflow);
+
+        if (empty($workflow['completed'])) {
             $this->setMessage(Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_WORKFLOW_NEXT_STEP'), 'message');
         } else {
-            $workflow['completed'] = true;
-            $workflow['updated_at'] = $this->getJoomlaLocalDateTime();
-            $app->setUserState(RepairWorkflowService::WORKFLOW_STATE_KEY, $workflow);
             $this->setMessage(Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_WORKFLOW_FINISHED'), 'message');
         }
 

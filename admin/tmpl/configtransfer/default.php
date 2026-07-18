@@ -41,6 +41,8 @@ $selectedSections = array_fill_keys((array) ($this->selectedSections ?? []), tru
 $selectedFormIds = array_fill_keys(array_map('intval', (array) ($this->selectedFormIds ?? [])), true);
 $selectedStorageIds = array_fill_keys(array_map('intval', (array) ($this->selectedStorageIds ?? [])), true);
 $exportStorageContent = (int) (($this->exportStorageContent ?? false) ? 1 : 0) === 1;
+Text::script('COM_CONTENTBUILDERNG_ABOUT_EXPORT_CONFIGURATION_SUCCESS');
+Text::script('COM_CONTENTBUILDERNG_ABOUT_EXPORT_CONFIGURATION_DOWNLOAD_FAILED');
 ?>
 
 <form
@@ -573,6 +575,61 @@ $exportStorageContent = (int) (($this->exportStorageContent ?? false) ? 1 : 0) =
         var exportSelectionItems = document.querySelectorAll('.cb-config-form-item, .cb-config-storage-item');
         for (var j = 0; j < exportSelectionItems.length; j++) {
             exportSelectionItems[j].addEventListener('change', syncImportSubmitState);
+        }
+
+        var configTransferForm = document.getElementById('adminForm');
+        if (configTransferForm && <?php echo $isExportMode ? 'true' : 'false'; ?>) {
+            configTransferForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                var submitButton = document.getElementById('cb-config-submit-button');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                }
+
+                fetch(configTransferForm.action, {
+                    method: 'POST',
+                    body: new FormData(configTransferForm),
+                    credentials: 'same-origin',
+                    headers: {'X-Requested-With': 'XMLHttpRequest'}
+                }).then(function (response) {
+                    var disposition = response.headers.get('Content-Disposition') || '';
+                    if (!response.ok || disposition.toLowerCase().indexOf('attachment') === -1) {
+                        throw new Error('Export response is not a downloadable attachment.');
+                    }
+
+                    return response.blob().then(function (blob) {
+                        return {blob: blob, disposition: disposition};
+                    });
+                }).then(function (download) {
+                    var fileNameMatch = download.disposition.match(/filename="?([^";]+)"?/i);
+                    var fileName = fileNameMatch && fileNameMatch[1]
+                        ? fileNameMatch[1]
+                        : 'contentbuilderng-config.json';
+                    var downloadUrl = URL.createObjectURL(download.blob);
+                    var link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    URL.revokeObjectURL(downloadUrl);
+
+                    if (window.Joomla && typeof Joomla.renderMessages === 'function') {
+                        Joomla.renderMessages({
+                            success: [Joomla.Text._('COM_CONTENTBUILDERNG_ABOUT_EXPORT_CONFIGURATION_SUCCESS')]
+                        });
+                    }
+                }).catch(function () {
+                    if (window.Joomla && typeof Joomla.renderMessages === 'function') {
+                        Joomla.renderMessages({
+                            error: [Joomla.Text._('COM_CONTENTBUILDERNG_ABOUT_EXPORT_CONFIGURATION_DOWNLOAD_FAILED')]
+                        });
+                    }
+                }).finally(function () {
+                    syncImportSubmitState();
+                });
+            });
         }
 
         function extractPreviewRows(payload, sectionKey) {
