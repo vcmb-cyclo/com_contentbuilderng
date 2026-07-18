@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 6.1.7-RC86 — 2026-07-19
+
+### Added
+
+- CBStats `export=manual` displays the final normalized labels, values and total below Pie, Bar and Table outputs, together with the visible frozen `source=manual` syntax and an accessible centered copy action.
+
+### Fixed
+
+- CBStats manual export uses the final displayed labels and values after `titles=`, additions and sorting; only `export=manual` enables the export block.
+- Restored the official Joomla plugin name `ContentBuilder NG - Content - CBStats` and the concise `title`/`titles` extension summary while retaining the full CBStats description.
+- Added manual-export and case-sensitivity guidance to the CB / Views / API / CBStats help, with case-insensitive tag, option-name and keyword handling while preserving free-value casing.
+
 ## 6.1.7-RC83 — 2026-07-17
 
 ### Fixed

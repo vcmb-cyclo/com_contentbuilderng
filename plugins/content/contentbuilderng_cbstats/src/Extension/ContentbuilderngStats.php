@@ -20,6 +20,8 @@ use CB\Plugin\Content\ContentbuilderngStats\Service\PiePresentationService;
 use CB\Plugin\Content\ContentbuilderngStats\Service\TotalPresentationService;
 use CB\Plugin\Content\ContentbuilderngStats\Service\ManualValuesException;
 use CB\Plugin\Content\ContentbuilderngStats\Service\ManualValuesParser;
+use CB\Plugin\Content\ContentbuilderngStats\Service\ManualExportService;
+use CB\Plugin\Content\ContentbuilderngStats\Service\TagSyntaxService;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
@@ -35,6 +37,7 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
     private static bool $pieAssetsLoaded = false;
     private static bool $barAssetsLoaded = false;
     private static bool $chartAssetRegistryLoaded = false;
+    private static bool $manualExportAssetsLoaded = false;
 
     public static function getSubscribedEvents(): array
     {
@@ -50,7 +53,7 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         }
 
         $article->text = preg_replace_callback(
-            '/\{CBStats\b([^}]*)\}/i',
+            TagSyntaxService::TAG_PATTERN,
             fn(array $match): string => $this->renderStatsTag((string) ($match[1] ?? '')),
             (string) $article->text
         );
@@ -58,13 +61,13 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
 
     private function renderStatsTag(string $rawAttributes): string
     {
-        $attributes = $this->parseAttributes($rawAttributes);
-        $source = strtolower(trim((string) ($attributes['source'] ?? 'view')));
+        $attributes = TagSyntaxService::parseAttributes($rawAttributes);
+        $source = TagSyntaxService::normalizeKeyword((string) ($attributes['source'] ?? 'view'));
         $manual = $source === 'manual';
         $formId = (int) (($attributes['id'] ?? '') !== '' ? $attributes['id'] : $this->extractId($rawAttributes));
         $debugRequested = $this->isEnabled((string) ($attributes['debug'] ?? '0'));
         $debug = false;
-        $output = strtolower(trim((string) ($attributes['output'] ?? 'total')));
+        $output = TagSyntaxService::normalizeKeyword((string) ($attributes['output'] ?? 'total'));
         $allowedOutputs = ['total', 'table', 'form_name', 'sum', 'min', 'max', 'json', 'pie', 'bar'];
         $field = trim((string) ($attributes['field'] ?? ''));
         $filterField = trim((string) ($attributes['filter[field]'] ?? ''));
@@ -74,9 +77,10 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         $titles = trim((string) ($attributes['titles'] ?? ''));
         $title = trim((string) ($attributes['title'] ?? ''));
         $background = TotalPresentationService::validateBackground((string) ($attributes['background'] ?? ''));
-        $sort = strtolower(trim((string) ($attributes['sort'] ?? 'none')));
-        $dir = strtolower(trim((string) ($attributes['dir'] ?? 'asc')));
+        $sort = TagSyntaxService::normalizeKeyword((string) ($attributes['sort'] ?? 'none'));
+        $dir = TagSyntaxService::normalizeKeyword((string) ($attributes['dir'] ?? 'asc'));
         $values = (string) ($attributes['values'] ?? '');
+        $exportManual = ManualExportService::isRequested((string) ($attributes['export'] ?? ''));
 
         if ($filterField === '' && $field !== '' && $value !== '') {
             $filterField = $field;
@@ -89,7 +93,17 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
             }
 
             if ($manual) {
-                return $this->renderManualStats($values, $output, $sort, $dir, $add, $titles, $title, $background);
+                return $this->renderManualStats(
+                    $values,
+                    $output,
+                    $sort,
+                    $dir,
+                    $add,
+                    $titles,
+                    $title,
+                    $background,
+                    $exportManual
+                );
             }
 
             if (!class_exists(StatsService::class)) {
@@ -204,10 +218,10 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
 
             return match ($output) {
                 'form_name' => htmlspecialchars($this->getFormName($payload), ENT_QUOTES, 'UTF-8'),
-                'table' => $this->renderTable($payload, $fieldStats, $title, $background),
+                'table' => $this->renderTable($payload, $fieldStats, $title, $background, $exportManual),
                 'json' => $this->renderJson($fieldStats),
-                'pie' => $this->renderPie($payload, $fieldStats, $title, $background),
-                'bar' => $this->renderBar($payload, $fieldStats, $title, $background),
+                'pie' => $this->renderPie($payload, $fieldStats, $title, $background, $exportManual),
+                'bar' => $this->renderBar($payload, $fieldStats, $title, $background, $exportManual),
                 'total' => (string) StatsService::resolveCbstatsOutput($payload, 'total'),
                 'sum' => $this->renderSum($payload),
                 'min' => $this->renderNumericFieldValue($payload, 'min'),
@@ -287,51 +301,15 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         }
     }
 
-    private function parseAttributes(string $rawAttributes): array
-    {
-        $attributes = [];
-        $rawAttributes = $this->normalizeAttributes($rawAttributes);
-
-        preg_match_all('/([A-Za-z0-9_\-\[\]]+)\s*=\s*("([^"]*)"|\'([^\']*)\'|([^\s]+))/u', $rawAttributes, $matches, PREG_SET_ORDER);
-
-        foreach ($matches as $match) {
-            $key = strtolower((string) $match[1]);
-            $value = '';
-
-            foreach ([3, 4, 5] as $index) {
-                if (isset($match[$index]) && (string) $match[$index] !== '') {
-                    $value = (string) $match[$index];
-                    break;
-                }
-            }
-
-            if ($key !== '') {
-                $attributes[$key] = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            }
-        }
-
-        return $attributes;
-    }
-
     private function extractId(string $rawAttributes): int
     {
-        $rawAttributes = $this->normalizeAttributes($rawAttributes);
+        $rawAttributes = TagSyntaxService::normalizeMarkup($rawAttributes);
 
         if (preg_match('/\bid\s*[:=]\s*["\']?([0-9]+)/iu', $rawAttributes, $match)) {
             return (int) $match[1];
         }
 
         return 0;
-    }
-
-    private function normalizeAttributes(string $rawAttributes): string
-    {
-        $rawAttributes = str_replace('&nbsp;', ' ', $rawAttributes);
-        $rawAttributes = html_entity_decode($rawAttributes, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        $rawAttributes = strip_tags($rawAttributes);
-        $rawAttributes = str_replace("\u{00A0}", ' ', $rawAttributes);
-
-        return preg_replace('/\s+/u', ' ', $rawAttributes) ?? $rawAttributes;
     }
 
     private function isEnabled(string $value): bool
@@ -390,7 +368,13 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
     /**
      * @param list<array{label: string, value: int|float}> $fieldStats
      */
-    private function renderTable(array $payload, array $fieldStats, string $title, string $background): string
+    private function renderTable(
+        array $payload,
+        array $fieldStats,
+        string $title,
+        string $background,
+        bool $exportManual = false
+    ): string
     {
         $field = (array) ($payload['field'] ?? []);
 
@@ -416,15 +400,23 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
 
         $total = array_sum(array_column($fieldStats, 'value'));
 
-        return $html . '</tbody><tfoot><tr class="cbstats-total-row"><th scope="row" class="cbstats-table-label cbstats-total-label">'
+        $html .= '</tbody><tfoot><tr class="cbstats-total-row"><th scope="row" class="cbstats-table-label cbstats-total-label">'
             . $this->renderTotalLabel($title) . '</th><td class="cbstats-table-number cbstats-total-value"><strong>'
             . $this->formatNumber($total) . '</strong></td></tr></tfoot></table></div>';
+
+        return $html . ($exportManual ? $this->renderManualExport($fieldStats, 'table', $title, $background) : '');
     }
 
     /**
      * @param list<array{label: string, value: int|float}> $fieldStats
      */
-    private function renderPie(array $payload, array $fieldStats, string $title, string $background): string
+    private function renderPie(
+        array $payload,
+        array $fieldStats,
+        string $title,
+        string $background,
+        bool $exportManual = false
+    ): string
     {
         if ($fieldStats === []) {
             return '<span class="cbstats-pie-empty">'
@@ -456,13 +448,19 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
             . htmlspecialchars(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_CHART_UNAVAILABLE'), ENT_QUOTES, 'UTF-8')
             . '</canvas></div>';
 
-        return $html . $this->renderChartDetails($items, $total, $title);
+        return $html . $this->renderChartDetails($items, $total, $title, 'pie', $background, $exportManual);
     }
 
     /**
      * @param list<array{label: string, value: int|float}> $fieldStats
      */
-    private function renderBar(array $payload, array $fieldStats, string $title, string $background): string
+    private function renderBar(
+        array $payload,
+        array $fieldStats,
+        string $title,
+        string $background,
+        bool $exportManual = false
+    ): string
     {
         if ($fieldStats === []) {
             return '<span class="cbstats-bar-empty">'
@@ -493,13 +491,20 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
             . htmlspecialchars(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_CHART_UNAVAILABLE'), ENT_QUOTES, 'UTF-8')
             . '</canvas></div>';
 
-        return $html . $this->renderChartDetails($items, $total, $title);
+        return $html . $this->renderChartDetails($items, $total, $title, 'bar', $background, $exportManual);
     }
 
     /**
      * @param list<array{label: string, value: int|float, percentage: float, percentageLabel: string, color: string}> $items
      */
-    private function renderChartDetails(array $items, int|float $total, string $title): string
+    private function renderChartDetails(
+        array $items,
+        int|float $total,
+        string $title,
+        string $output,
+        string $background,
+        bool $exportManual
+    ): string
     {
         $html = '<div class="cbstats-pie-legend" role="list">';
 
@@ -513,9 +518,19 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
                 . '</div>';
         }
 
-        return $html . '</div><div class="cbstats-total-box"><span class="cbstats-total-label">'
+        $html .= '</div><div class="cbstats-total-box"><span class="cbstats-total-label">'
             . $this->renderTotalLabel($title) . '</span> <strong class="cbstats-total-value">'
-            . $this->formatNumber($total) . '</strong></div></section>';
+            . $this->formatNumber($total) . '</strong></div>';
+
+        if ($exportManual) {
+            $finalDisplayedItems = array_map(
+                static fn(array $item): array => ['label' => $item['label'], 'value' => $item['value']],
+                $items
+            );
+            $html .= $this->renderManualExport($finalDisplayedItems, $output, $title, $background);
+        }
+
+        return $html . '</section>';
     }
 
     private function formatNumber(int|float $value): string
@@ -533,7 +548,8 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         string $add,
         string $titles,
         string $title,
-        string $background
+        string $background,
+        bool $exportManual
     ): string {
         if (!in_array($output, ['total', 'table', 'pie', 'bar'], true)) {
             throw new \RuntimeException(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_DEBUG_INVALID_MANUAL_OUTPUT'), 400);
@@ -563,9 +579,9 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         $payload['records']['total'] = $total;
 
         return match ($output) {
-            'table' => $this->renderTable($payload, $fieldStats, $title, $background),
-            'pie' => $this->renderPie($payload, $fieldStats, $title, $background),
-            'bar' => $this->renderBar($payload, $fieldStats, $title, $background),
+            'table' => $this->renderTable($payload, $fieldStats, $title, $background, $exportManual),
+            'pie' => $this->renderPie($payload, $fieldStats, $title, $background, $exportManual),
+            'bar' => $this->renderBar($payload, $fieldStats, $title, $background, $exportManual),
             'total' => $this->formatNumber($total),
         };
     }
@@ -577,6 +593,52 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
             Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_TOTAL'),
             Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_TOTAL_SEPARATOR')
         ), ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
+     * @param list<array{label: string, value: int|float}> $fieldStats
+     */
+    private function renderManualExport(array $fieldStats, string $output, string $title, string $background): string
+    {
+        $this->loadManualExportAssets();
+        $total = array_sum(array_column($fieldStats, 'value'));
+        $labels = implode(' ; ', array_column($fieldStats, 'label'));
+        $values = implode(' ; ', array_map(
+            fn(array $item): string => $this->formatNumber($item['value']),
+            $fieldStats
+        ));
+        $displayTitle = TotalPresentationService::formatLabel(
+            $title,
+            Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_TOTAL'),
+            Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_TOTAL_SEPARATOR')
+        );
+        $syntax = ManualExportService::buildSyntax($fieldStats, $output, $title, $background);
+        $escapedSyntax = htmlspecialchars($syntax, ENT_QUOTES, 'UTF-8');
+
+        return '<aside class="cbstats-manual-export">'
+            . '<h3 class="cbstats-manual-export-title">'
+            . htmlspecialchars(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_EXPORT_TITLE'), ENT_QUOTES, 'UTF-8')
+            . '</h3><dl class="cbstats-manual-export-summary">'
+            . $this->renderManualExportSummary('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_EXPORT_SUMMARY_TITLE', $displayTitle)
+            . $this->renderManualExportSummary('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_EXPORT_SUMMARY_TITLES', $labels)
+            . $this->renderManualExportSummary('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_EXPORT_SUMMARY_VALUES', $values)
+            . $this->renderManualExportSummary('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_EXPORT_SUMMARY_TOTAL', $this->formatNumber($total))
+            . '</dl><label class="cbstats-manual-export-label">'
+            . htmlspecialchars(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_EXPORT_SYNTAX_LABEL'), ENT_QUOTES, 'UTF-8')
+            . '<textarea readonly rows="3" class="cbstats-manual-export-syntax">' . $escapedSyntax . '</textarea></label>'
+            . '<div class="cbstats-manual-export-actions"><button type="button" class="cbstats-manual-copy">'
+            . htmlspecialchars(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_EXPORT_COPY'), ENT_QUOTES, 'UTF-8')
+            . '</button></div><p class="cbstats-manual-copy-status" aria-live="polite" data-success="'
+            . htmlspecialchars(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_EXPORT_COPIED'), ENT_QUOTES, 'UTF-8')
+            . '" data-failure="'
+            . htmlspecialchars(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_EXPORT_COPY_FAILED'), ENT_QUOTES, 'UTF-8')
+            . '"></p></aside>';
+    }
+
+    private function renderManualExportSummary(string $languageKey, string $value): string
+    {
+        return '<div><dt>' . htmlspecialchars(Text::_($languageKey), ENT_QUOTES, 'UTF-8') . '</dt><dd>'
+            . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '</dd></div>';
     }
 
     private function renderBackgroundStyle(string $background): string
@@ -609,6 +671,18 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
     private function loadDataTableAssets(): void
     {
         $this->getCbstatsWebAssetManager()->useStyle('plg_content_contentbuilderng_cbstats.data');
+    }
+
+    private function loadManualExportAssets(): void
+    {
+        if (self::$manualExportAssetsLoaded) {
+            return;
+        }
+
+        $wa = $this->getCbstatsWebAssetManager();
+        $wa->useStyle('plg_content_contentbuilderng_cbstats.manual-export');
+        $wa->useScript('plg_content_contentbuilderng_cbstats.manual-export');
+        self::$manualExportAssetsLoaded = true;
     }
 
     private function getCbstatsWebAssetManager(): WebAssetManager

@@ -134,6 +134,7 @@ Exemples :
 {CBStats id=25 field=Parcours output=json sort=title dir=asc}
 {CBStats id=25 field=Parcours output=pie sort=value dir=desc}
 {CBStats id=25 field=Parcours output=bar sort=value dir=desc}
+{CBStats id=25 field=Parcours output=pie title="👥 Total des inscrits" export=manual}
 {CBStats id=25 field=Catégorie output=pie add="Existant=-2;Externe=3"}
 {CBStats id=25 field=Catégorie output=table titles="1=Groupe 1;2=Groupe 2"}
 {CBStats id=25 field=Catégorie output=bar add="1=-2;2=3" titles="1=Groupe 1;2=Groupe 2" sort=value dir=desc}
@@ -144,6 +145,10 @@ Exemples :
 {CBStats id=25 filter[field]=Statut filter[value]="Ouvert*" output=total}
 {CBStats id=25 filter[field]=Statut filter[value]="Ouvert* | En attente" output=total}
 ```
+
+### Export manuel figé
+
+Ajoutez `export=manual` à une balise Pie, Bar ou Table pour afficher les libellés, valeurs et total finaux ainsi qu’une balise `source=manual` visible. Les filtres, ajouts, renommages et tris sont déjà intégrés aux données figées. Le bouton centré copie exactement la syntaxe affichée, prête à être collée dans un autre article sans dépendre de la vue d’origine.
 
 | Sortie | Résultat | `field` obligatoire |
 | --- | --- | --- |

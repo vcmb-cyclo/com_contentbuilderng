@@ -53,6 +53,7 @@ $cbStatsTitlesSyntax = '{CBStats id=' . $formId . ' field=NomDuChamp output=tabl
 $cbStatsAddSortSyntax = '{CBStats id=' . $formId . ' field=NomDuChamp output=bar add="1=-2;2=3" titles="1=Groupe 1;2=Groupe 2" sort=value dir=desc}';
 $cbStatsManualSyntax = '{CBStats source=manual output=pie values="100 km=45;150 km=47;200 km=38;200 km (Formule)=30" title="' . $cbStatsTitleLabel . '"}';
 $cbStatsManualBarSyntax = '{CBStats source=manual output=bar values="Ligne 1=10;Ligne 2=30;Ligne 3=22;Ligne 4=44" title="' . $cbStatsTitleLabel . '" sort=value dir=desc}';
+$cbStatsExportSyntax = '{CBStats id=' . $formId . ' field=GroupeVcmb output=bar sort=value dir=desc export=manual}';
 $cbStatsApiJsonUrl = 'index.php?option=com_contentbuilderng&task=api.display&id=' . $formId . '&action=cbstats&field=NomDuChamp&output=json';
 $cbStatsApiFilteredJsonUrl = $cbStatsApiJsonUrl . '&filter[field]=Statut&filter[value]=Ouvert*&sort=value&dir=desc';
 $cbStatsApiAdjustedJsonUrl = $cbStatsApiJsonUrl . '&add=1%3D-2%3B2%3D3&titles=1%3DGroupe%201%3B2%3DGroupe%202';
@@ -215,6 +216,10 @@ $wa->useStyle('com_contentbuilderng.admin-form-api');
                 <h5 class="h6 mt-3 mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_SORT_ADD_TITLE'); ?></h5>
                 <p class="mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_SORT_ADD_HINT'); ?></p>
                 <div class="mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_TITLE_HINT'); ?></div>
+                <h5 class="h6 mt-3 mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_EXPORT_TITLE'); ?></h5>
+                <p class="mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_EXPORT_HELP'); ?></p>
+                <div class="cb-form-api-cbstats-examples mb-2"><code><?php echo htmlspecialchars($cbStatsExportSyntax, ENT_QUOTES, 'UTF-8'); ?></code></div>
+                <p class="mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_CASE_HELP'); ?></p>
                 <h5 class="h6 mt-3 mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_URL_TITLE'); ?></h5>
                 <p class="mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CONTENT_PLUGIN_URL_HINT'); ?></p>
                 <h5 class="h6 mt-3 mb-2"><?php echo Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_ACL_TITLE'); ?></h5>

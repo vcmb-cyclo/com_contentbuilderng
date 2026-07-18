@@ -260,6 +260,8 @@ filter[value]=200 km* | 300 km*
 
 ### CBStats content and URL API
 
+In Joomla content, `export=manual` can be added to Pie, Bar and Table tags. It displays the final normalized values and a visible, copyable `source=manual` tag. This presentation-only option is not part of the URL/API output contract.
+
 The CBStats content plugin uses one normalized field-statistics source for its
 HTML table, JSON, Pie and Bar outputs. Its JSON contract is a raw array containing
 string labels and integer values:

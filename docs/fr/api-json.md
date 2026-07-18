@@ -267,6 +267,8 @@ filter[value]=200 km* | 300 km*
 
 ### Plugin de contenu et API URL CBStats
 
+Dans un contenu Joomla, `export=manual` peut être ajouté aux balises Pie, Bar et Table. Il affiche les valeurs finales normalisées et une balise `source=manual` visible et copiable. Cette option de présentation ne fait pas partie du contrat des sorties URL/API.
+
 Le plugin de contenu CBStats utilise une source normalisée unique pour ses sorties
 Table, JSON, Pie et Bar. Son contrat JSON est un tableau brut contenant des
 libellés sous forme de chaînes et des valeurs entières :

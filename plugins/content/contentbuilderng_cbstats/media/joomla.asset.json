@@ -11,6 +11,17 @@
             "uri": "plg_content_contentbuilderng_cbstats/cbstats-data.css"
         },
         {
+            "name": "plg_content_contentbuilderng_cbstats.manual-export",
+            "type": "style",
+            "uri": "plg_content_contentbuilderng_cbstats/cbstats-manual-export.css"
+        },
+        {
+            "name": "plg_content_contentbuilderng_cbstats.manual-export",
+            "type": "script",
+            "uri": "plg_content_contentbuilderng_cbstats/cbstats-manual-export.js",
+            "attributes": { "defer": true }
+        },
+        {
             "name": "plg_content_contentbuilderng_cbstats.chartjs",
             "type": "script",
             "uri": "plg_content_contentbuilderng_cbstats/vendor/chart.umd.min.js",

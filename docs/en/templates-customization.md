@@ -110,6 +110,7 @@ Examples:
 {CBStats id=3 field=FieldName output=json sort=title dir=asc}
 {CBStats id=3 field=FieldName output=pie sort=value dir=desc}
 {CBStats id=3 field=FieldName output=bar sort=value dir=desc}
+{CBStats id=25 field=Route output=pie title="👥 Total registrations" export=manual}
 {CBStats id=3 field=Category output=pie add="Existing=-2;External=3"}
 {CBStats id=3 field=Category output=table titles="1=Group 1;2=Group 2"}
 {CBStats id=3 field=Category output=bar add="1=-2;2=3" titles="1=Group 1;2=Group 2" sort=value dir=desc}
@@ -120,6 +121,10 @@ Examples:
 {CBStats id=3 filter[field]=Status filter[value]="Open*" output=total}
 {CBStats id=3 filter[field]=Status filter[value]="Open* | Pending" output=total}
 ```
+
+### Frozen manual export
+
+Add `export=manual` to a Pie, Bar or Table tag to show the final labels, values and total together with a visible `source=manual` tag. Filters, additions, renamed titles and sorting are already incorporated in the frozen data. The centered copy button copies exactly the displayed syntax, which can be pasted into another article without depending on the original view.
 
 | Output | Result | `field` required |
 | --- | --- | --- |
