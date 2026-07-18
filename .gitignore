@@ -10,3 +10,5 @@ admin/vendor/
 qa-artifacts/
 qa-report.html
 joomla-stubs
+build/
+build/
