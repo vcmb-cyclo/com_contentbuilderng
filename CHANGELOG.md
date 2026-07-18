@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 6.1.7-RC86-B01 — 2026-07-19
+
+### Fixed
+
+- Fixed administrator XLSX export routing and restored BreezingForms NG source loading after its Joomla 6 type-file rename.
+
 ## 6.1.7-RC86 — 2026-07-19
 
 ### Added

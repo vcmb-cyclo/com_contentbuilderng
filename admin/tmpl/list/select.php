@@ -117,7 +117,7 @@ SELECT
             if ($this->export_xls):
                 ?>
                 <span style="float: right; text-align: right;"><a
-                        href="<?php echo Route::_('index.php?option=com_contentbuilderng&view=export&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&type=xls&format=raw&tmpl=component'); ?>">
+                        href="<?php echo Route::link('site', 'index.php?option=com_contentbuilderng&view=export&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&type=xls&format=raw&tmpl=component'); ?>">
                         <div class="cbXlsExportButton"
                             style="background-image: url(<?php echo Uri::root(true); ?>/media/com_contentbuilderng/images/xls.png); background-repeat: no-repeat; width: 16px; height: 16px;"
                             alt="Export"></div>

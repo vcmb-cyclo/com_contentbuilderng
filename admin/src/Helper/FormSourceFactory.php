@@ -110,7 +110,7 @@ final class FormSourceFactory
         }
 
         $file = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/src/types/'
-            . ($normalizedType === 'com_breezingformsng' ? 'com_breezingforms' : $normalizedType)
+            . $normalizedType
             . '.php';
         if (is_file($file)) {
             require_once $file;

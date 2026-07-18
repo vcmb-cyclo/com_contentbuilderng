@@ -129,7 +129,7 @@ if ($themeJs !== '') {
         ?>
         <div class="col-12 col-sm-auto d-grid d-sm-block">
             <a class="btn btn-sm btn-outline-success"
-                href="<?php echo Route::_('index.php?option=com_contentbuilderng&view=export&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&type=xls&format=raw&tmpl=component'); ?>">
+                href="<?php echo Route::link('site', 'index.php?option=com_contentbuilderng&view=export&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&type=xls&format=raw&tmpl=component'); ?>">
                 <i class="fa fa-file-excel" aria-hidden="true"></i>
             </a>
         </div>
