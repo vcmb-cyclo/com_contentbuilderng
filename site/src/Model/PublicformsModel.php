@@ -13,6 +13,9 @@
 
 namespace CB\Component\Contentbuilderng\Site\Model;
 
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
+
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
@@ -26,6 +29,17 @@ use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 
 class PublicformsModel extends ListModel
 {
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
     /**
      * Items total
      * @var integer

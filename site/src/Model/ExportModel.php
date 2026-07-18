@@ -13,6 +13,9 @@
 
 namespace CB\Component\Contentbuilderng\Site\Model;
 
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
+
 // No direct access
 \defined('_JEXEC') or die('Restricted access');
 
@@ -29,6 +32,17 @@ use CB\Component\Contentbuilderng\Site\Helper\PublishedRecordVisibilityHelper;
 
 class ExportModel extends BaseDatabaseModel
 {
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
     private readonly RuntimeUtilityService $runtimeUtilityService;
     private readonly ListSupportService $listSupportService;
     private $frontend = false;
