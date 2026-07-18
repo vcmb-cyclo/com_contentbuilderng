@@ -107,7 +107,8 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
                 }
             }
 
-            $debug = $debugRequested && StatsService::isFormDebugEnabled($formId);
+            $statsService = new StatsService(RuntimeContextHelper::getDatabase());
+            $debug = $debugRequested && $statsService->isFormDebugEnabled($formId);
 
             if ($formId < 1) {
                 throw new \RuntimeException(Text::_('PLG_CONTENT_CONTENTBUILDERNG_CBSTATS_DEBUG_ID_REQUIRED'), 400);
@@ -150,7 +151,7 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
                 }
             }
 
-            $payload = (new StatsService(RuntimeContextHelper::getDatabase()))->getStatsPayload($formId, [
+            $payload = $statsService->getStatsPayload($formId, [
                 'field' => $field,
                 'filter' => [
                     'field' => $filterField,

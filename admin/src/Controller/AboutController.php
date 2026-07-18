@@ -16,6 +16,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Controller;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\DatabaseAuditHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Service\ConfigExportService;
 use CB\Component\Contentbuilderng\Administrator\Service\ConfigImportService;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
@@ -51,9 +52,20 @@ final class AboutController extends BaseController
         return (int) ($this->getApp()->getIdentity()->id ?? 0);
     }
 
+    private function getComponent(): ContentbuilderngComponent
+    {
+        $component = $this->getApp()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component;
+    }
+
     private function getRepairWorkflowService(): RepairWorkflowService
     {
-        $container = $this->getApp()->bootComponent('com_contentbuilderng')->getContainer();
+        $container = $this->getComponent()->getContainer();
 
         return new RepairWorkflowService(
             $this->getApp(),
@@ -64,14 +76,14 @@ final class AboutController extends BaseController
 
     private function getConfigExportService(): ConfigExportService
     {
-        $container = $this->getApp()->bootComponent('com_contentbuilderng')->getContainer();
+        $container = $this->getComponent()->getContainer();
 
         return new ConfigExportService($container->get(DatabaseInterface::class));
     }
 
     private function getConfigImportService(): ConfigImportService
     {
-        $container = $this->getApp()->bootComponent('com_contentbuilderng')->getContainer();
+        $container = $this->getComponent()->getContainer();
 
         return new ConfigImportService($container->get(DatabaseInterface::class), $this->getApp());
     }

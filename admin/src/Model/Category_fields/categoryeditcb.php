@@ -28,7 +28,7 @@ class FormFieldCategoryEditCb extends ListField
 
     protected function getDatabase(): DatabaseInterface
     {
-        return RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+        return RuntimeContextHelper::getDatabase();
     }
 
     /**

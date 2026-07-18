@@ -27,7 +27,7 @@ class CategoriesField extends FormField
 
     protected function getDatabase(): DatabaseInterface
     {
-        return RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
+        return RuntimeContextHelper::getDatabase();
     }
 
     protected function getInput()
