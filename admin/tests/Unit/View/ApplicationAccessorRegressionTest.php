@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CB\Component\Contentbuilderng\Tests\Unit\View;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ApplicationAccessorRegressionTest extends TestCase
@@ -16,29 +15,44 @@ final class ApplicationAccessorRegressionTest extends TestCase
         $this->root = \dirname(__DIR__, 4);
     }
 
-    #[DataProvider('viewProvider')]
-    public function testUpdatedViewsUseLocalApplicationAccessor(
-        string $relativePath,
-        string $expectedReturnType
-    ): void {
-        $source = $this->read($relativePath);
+    public function testAllViewsUseTheirInjectedApplication(): void
+    {
+        $viewsWithAccessor = 0;
 
-        self::assertStringContainsString(
-            'private function getApp(): ' . $expectedReturnType,
-            $source
-        );
-        self::assertStringContainsString(
-            '$app = $this->app;',
-            $source
-        );
-        self::assertStringContainsString(
-            'throw new \RuntimeException(\'Unexpected application instance\');',
-            $source
-        );
-        self::assertStringNotContainsString(
-            'RuntimeContextHelper::getApplication()',
-            $source
-        );
+        foreach ($this->viewFiles() as $relativePath) {
+            $source = $this->read($relativePath);
+
+            if (!str_contains($source, 'function getApp(')) {
+                continue;
+            }
+
+            ++$viewsWithAccessor;
+            self::assertStringContainsString('$app = $this->app;', $source, $relativePath);
+            self::assertStringContainsString(
+                'throw new \RuntimeException(\'Unexpected application instance\');',
+                $source,
+                $relativePath
+            );
+            self::assertStringNotContainsString(
+                'RuntimeContextHelper::getApplication()',
+                $source,
+                $relativePath
+            );
+            self::assertStringNotContainsString('Factory::getApplication()', $source, $relativePath);
+        }
+
+        self::assertGreaterThan(0, $viewsWithAccessor, 'No view application accessors were discovered');
+    }
+
+    public function testNoViewNarrowsInheritedLanguageAccessorVisibility(): void
+    {
+        foreach ($this->viewFiles() as $relativePath) {
+            self::assertDoesNotMatchRegularExpression(
+                '/\bprivate\s+function\s+getLanguage\s*\(/',
+                $this->read($relativePath),
+                $relativePath
+            );
+        }
     }
 
     public function testEditTemplateUsesCanonicalRuntimeContextDatabaseNamespace(): void
@@ -55,30 +69,23 @@ final class ApplicationAccessorRegressionTest extends TestCase
         );
     }
 
-    public static function viewProvider(): array
+    /**
+     * @return list<string>
+     */
+    private function viewFiles(): array
     {
-        return [
-            'Admin edit view' => [
-                'admin/src/View/Edit/HtmlView.php',
-                'CMSApplicationInterface',
-            ],
-            'Admin form view' => [
-                'admin/src/View/Form/HtmlView.php',
-                'CMSApplication',
-            ],
-            'Site details view' => [
-                'site/src/View/Details/HtmlView.php',
-                'SiteApplication',
-            ],
-            'Site edit view' => [
-                'site/src/View/Edit/HtmlView.php',
-                'SiteApplication',
-            ],
-            'Site list view' => [
-                'site/src/View/List/HtmlView.php',
-                'SiteApplication',
-            ],
-        ];
+        $files = array_merge(
+            glob($this->root . '/admin/src/View/*/HtmlView.php') ?: [],
+            glob($this->root . '/site/src/View/*/HtmlView.php') ?: []
+        );
+        sort($files);
+
+        self::assertNotEmpty($files, 'No Joomla view files were discovered');
+
+        return array_map(
+            fn(string $path): string => substr($path, strlen($this->root) + 1),
+            $files
+        );
     }
 
     private function read(string $relativePath): string
