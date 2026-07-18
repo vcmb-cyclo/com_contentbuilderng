@@ -75,7 +75,7 @@ jobs:
 
       - name: Extract Joomla core for class discovery
         run: |
-          container="$(docker create joomla:6.0-apache)"
+          container="$(docker create joomla:6.1.2-php8.3-apache)"
           mkdir -p joomla-stubs
           docker cp "${container}:/usr/src/joomla/libraries" joomla-stubs/libraries
           docker rm "${container}"
