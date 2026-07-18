@@ -77,17 +77,17 @@ final class ContentbuilderngPermissionObserver extends CMSPlugin implements Subs
             if ($form && !(Factory::getApplication()->getInput()->get('option', '', 'string') == 'com_contentbuilderng' && Factory::getApplication()->getInput()->get('controller', '', 'string') == 'edit')) {
 
                 Factory::getApplication()->getLanguage()->load('com_contentbuilderng');
-                (new PermissionService())->setPermissions($data['form_id'], $data['record_id'], $frontend ? '_fe' : '');
+                (PermissionService::createFromRuntimeContext())->setPermissions($data['form_id'], $data['record_id'], $frontend ? '_fe' : '');
 
                 if (Factory::getApplication()->getInput()->getCmd('view') == 'article') {
-                    (new PermissionService())->checkPermissions('view', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_VIEW_NOT_ALLOWED'), $frontend ? '_fe' : '');
+                    (PermissionService::createFromRuntimeContext())->checkPermissions('view', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_VIEW_NOT_ALLOWED'), $frontend ? '_fe' : '');
                 } else {
                     if ($frontend) {
-                        if (!(new PermissionService())->authorizeFe('view')) {
+                        if (!(PermissionService::createFromRuntimeContext())->authorizeFe('view')) {
                             $article->text = Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_VIEW_NOT_ALLOWED');
                         }
                     } else {
-                        if (!(new PermissionService())->authorize('view')) {
+                        if (!(PermissionService::createFromRuntimeContext())->authorize('view')) {
                             $article->text = Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_VIEW_NOT_ALLOWED');
                         }
                     }

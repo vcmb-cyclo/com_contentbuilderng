@@ -140,7 +140,7 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
         self::assertStringNotContainsString('Factory::getContainer()->get(DatabaseInterface::class)', $statsService);
         self::assertStringContainsString('public function isFormDebugEnabled(int $formId): bool', $statsService);
 
-        self::assertStringContainsString('private function getDatabase(): DatabaseInterface', $editModel);
+        self::assertStringContainsString('protected function getDatabase(): DatabaseInterface', $editModel);
         self::assertStringContainsString('private function createMailer()', $editModel);
         self::assertStringContainsString('return $this->getComponent()->getContainer()->get(DatabaseInterface::class);', $editModel);
         self::assertStringContainsString('return $this->getComponent()->getContainer()->get(MailerFactoryInterface::class)->createMailer();', $editModel);
@@ -382,7 +382,9 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
         self::assertStringNotContainsString('Factory::getContainer()', $formModel);
 
         $categoryField = $this->read('admin/src/Model/Category_fields/categoryeditcb.php');
-        self::assertStringContainsString('private function getDatabase(): DatabaseInterface', $categoryField);
+        // protected: FormField (via ListField) uses DatabaseAwareTrait, whose
+        // getDatabase() is protected — private would narrow visibility (fatal).
+        self::assertStringContainsString('protected function getDatabase(): DatabaseInterface', $categoryField);
         self::assertStringNotContainsString('Factory::getApplication()', $categoryField);
         self::assertStringNotContainsString('Factory::getContainer()', $categoryField);
     }

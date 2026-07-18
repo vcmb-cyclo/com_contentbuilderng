@@ -308,10 +308,10 @@ final class ContentbuilderngDownload extends CMSPlugin implements SubscriberInte
 
                 if (!$is_list) {
 
-                    (new PermissionService())->setPermissions($form_id, $record_id, $frontend ? '_fe' : '');
+                    (PermissionService::createFromRuntimeContext())->setPermissions($form_id, $record_id, $frontend ? '_fe' : '');
 
                     if ($frontend) {
-                        if (!(new PermissionService())->authorizeFe('view')) {
+                        if (!(PermissionService::createFromRuntimeContext())->authorizeFe('view')) {
                             if ($this->app->getInput()->get->getString('contentbuilderng_download_file', '')) {
                                 ob_end_clean();
                                 die('No Access');
@@ -320,7 +320,7 @@ final class ContentbuilderngDownload extends CMSPlugin implements SubscriberInte
                             }
                         }
                     } else {
-                        if (!(new PermissionService())->authorize('view')) {
+                        if (!(PermissionService::createFromRuntimeContext())->authorize('view')) {
                             if ($this->app->getInput()->get->getString('contentbuilderng_download_file', '')) {
                                 ob_end_clean();
                                 die('No Access');

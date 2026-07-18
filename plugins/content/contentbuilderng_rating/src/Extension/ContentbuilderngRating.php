@@ -176,14 +176,14 @@ final class ContentbuilderngRating extends CMSPlugin implements SubscriberInterf
 
                 if (!$is_list) {
 
-                    (new PermissionService())->setPermissions($form_id, $record_id, $frontend ? '_fe' : '');
+                    (PermissionService::createFromRuntimeContext())->setPermissions($form_id, $record_id, $frontend ? '_fe' : '');
 
                     if ($frontend) {
-                        if (!(new PermissionService())->authorizeFe('rating')) {
+                        if (!(PermissionService::createFromRuntimeContext())->authorizeFe('rating')) {
                             $rating_allowed = false;
                         }
                     } else {
-                        if (!(new PermissionService())->authorize('rating')) {
+                        if (!(PermissionService::createFromRuntimeContext())->authorize('rating')) {
                             $rating_allowed = false;
                         }
                     }

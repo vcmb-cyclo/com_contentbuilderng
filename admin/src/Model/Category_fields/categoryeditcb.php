@@ -26,7 +26,7 @@ class FormFieldCategoryEditCb extends ListField
      */
     public $type = 'CategoryEditCb';
 
-    private function getDatabase(): DatabaseInterface
+    protected function getDatabase(): DatabaseInterface
     {
         return RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
     }

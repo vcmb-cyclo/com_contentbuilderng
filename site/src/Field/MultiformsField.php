@@ -24,7 +24,7 @@ class MultiformsField extends FormField
 {
     protected $type = 'Multiforms';
 
-    private function getDatabase(): DatabaseInterface
+    protected function getDatabase(): DatabaseInterface
     {
         return RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
     }

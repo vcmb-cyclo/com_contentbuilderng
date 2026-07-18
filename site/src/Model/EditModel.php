@@ -269,7 +269,7 @@ class EditModel extends BaseDatabaseModel
         );
     }
 
-    private function getDatabase(): DatabaseInterface
+    protected function getDatabase(): DatabaseInterface
     {
         return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
     }

@@ -15,6 +15,7 @@ namespace CB\Plugin\Content\ContentbuilderngStats\Extension;
 use CB\Component\Contentbuilderng\Site\Service\StatsService;
 use CB\Component\Contentbuilderng\Site\Service\StatsFilterValueService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use CB\Plugin\Content\ContentbuilderngStats\Service\PiePresentationService;
 use CB\Plugin\Content\ContentbuilderngStats\Service\TotalPresentationService;
 use CB\Plugin\Content\ContentbuilderngStats\Service\ManualValuesException;
@@ -149,7 +150,7 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
                 }
             }
 
-            $payload = (new StatsService())->getStatsPayload($formId, [
+            $payload = (new StatsService(RuntimeContextHelper::getDatabase()))->getStatsPayload($formId, [
                 'field' => $field,
                 'filter' => [
                     'field' => $filterField,
@@ -267,7 +268,7 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         try {
             $app = Factory::getApplication();
             $frontend = $app->isClient('site');
-            $permissions = new PermissionService();
+            $permissions = PermissionService::createFromRuntimeContext();
 
             if ($frontend) {
                 $permissions->setPermissions($formId, 0, '_fe');

@@ -25,7 +25,7 @@ class CategoriesField extends FormField
 {
     protected $type = 'Categories';
 
-    private function getDatabase(): DatabaseInterface
+    protected function getDatabase(): DatabaseInterface
     {
         return RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
     }

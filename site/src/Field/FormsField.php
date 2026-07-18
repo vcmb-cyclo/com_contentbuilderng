@@ -43,7 +43,7 @@ class FormsField extends FormField
         'default_category',
     ];
 
-    private function getDatabase(): DatabaseInterface
+    protected function getDatabase(): DatabaseInterface
     {
         return RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng')->getContainer()->get(DatabaseInterface::class);
     }
