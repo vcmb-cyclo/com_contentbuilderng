@@ -4,6 +4,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 \defined('_JEXEC') or die;
 
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 use Joomla\Database\DatabaseInterface;
 
 class ListSupportService
@@ -11,6 +12,11 @@ class ListSupportService
     public function __construct(
         private readonly DatabaseInterface $db
     ) {
+    }
+
+    public static function createFromRuntimeContext(): self
+    {
+        return new self(RuntimeContextHelper::getDatabase());
     }
 
     public function getListRecordMeta(array $items, int $formId, string $type, $referenceId): array
