@@ -205,7 +205,9 @@ $currentStateBadgeStyle = $getStateBadgeStyle((string) $recordId, (array) ($this
 $showStateControl = (int) ($this->list_state ?? 0) === 1 && count($stateOptions) > 0 && $hasRecord;
 $showRatingControl = (int) ($this->list_rating ?? 0) === 1 && (int) ($this->rating_slots ?? 0) > 0 && $hasRecord;
 $backHref = ($backToList || !$hasRecord) ? $listHref : $detailsHref;
-$showBack = $this->back_button && !$hasReturn;
+if (!isset($showBack)) {
+    $showBack = $this->back_button && !$hasReturn;
+}
 $prevRecordId = property_exists($this, 'prev_record_id') ? (int) $this->prev_record_id : 0;
 $nextRecordId = property_exists($this, 'next_record_id') ? (int) $this->next_record_id : 0;
 $prevRecordStart = property_exists($this, 'prev_record_start') ? (int) $this->prev_record_start : 0;
