@@ -1324,11 +1324,16 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 							data-record-id="<?php echo (int) $row->colRecord; ?>"
 							<?php echo $stateCellStyle !== '' ? 'style="' . htmlspecialchars($stateCellStyle, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>
 							<?php if ($state_allowed && count($this->states)) : ?>
-								<?php $currentStateTitle = $this->state_titles[$row->colRecord] ?? ''; ?>
-								<?php $currentStateId = ''; ?>
-								<?php foreach ($this->states as $state) : ?>
-									<?php if ($currentStateTitle === (string) $state['title']) { $currentStateId = (string) (int) $state['id']; break; } ?>
-								<?php endforeach; ?>
+								<?php
+								$currentStateTitle = $this->state_titles[$row->colRecord] ?? '';
+								$currentStateId = '';
+								foreach ($this->states as $state) {
+									if ($currentStateTitle === (string) $state['title']) {
+										$currentStateId = (string) (int) $state['id'];
+										break;
+									}
+								}
+								?>
 									<select
 										class="form-select form-select-sm"
 										onchange="contentbuilderng_state_single(this, this.value, <?php echo (int) $row->colRecord; ?>);"
