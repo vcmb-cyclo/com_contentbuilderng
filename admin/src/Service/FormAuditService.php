@@ -15,6 +15,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\types\contentbuilderng_com_breezingformsng;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\Database\DatabaseInterface;
@@ -38,7 +39,10 @@ final class FormAuditService
     {
         $db = $this->db;
         $query = $db->getQuery(true)
-            ->select($db->quoteName(['id', 'name', 'title', 'type', 'reference_id', 'details_template', 'editable_template', 'theme_plugin']))
+            ->select($db->quoteName([
+                'id', 'name', 'title', 'type', 'reference_id', 'details_template', 'editable_template', 'theme_plugin',
+                'created', 'modified', 'created_by', 'modified_by', 'published', 'debug_mode',
+            ]))
             ->from($db->quoteName('#__contentbuilderng_forms'))
             ->where($db->quoteName('id') . ' = ' . $formId);
         $db->setQuery($query, 0, 1);
@@ -93,7 +97,10 @@ final class FormAuditService
         $published = array_values(array_filter($elements, static fn(array $row): bool => (int) $row['published'] === 1));
         $editable = array_values(array_filter($published, static fn(array $row): bool => (int) $row['editable'] === 1));
 
+        $modified = trim((string) ($form['modified'] ?? ''));
+
         $info = [
+            Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_ID') => (string) (int) $form['id'],
             Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_FORM') => trim((string) $form['name']) . ' (#' . (int) $form['id'] . ')',
             Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_SOURCE') => (string) $form['type'] . ' / ' . (string) $form['reference_id'],
             Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_ELEMENTS') => Text::sprintf(
@@ -103,6 +110,22 @@ final class FormAuditService
                 count($editable)
             ),
             Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_RECORDS') => (string) $recordsTotal,
+            Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_PUBLISHED') => (int) ($form['published'] ?? 0) === 1
+                ? Text::_('JYES')
+                : Text::_('JNO'),
+            Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_DEBUG') => (int) ($form['debug_mode'] ?? 0) === 1
+                ? Text::_('JYES')
+                : Text::_('JNO'),
+            Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_CREATED') => $this->formatAuditDate((string) ($form['created'] ?? '')),
+            Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_CREATED_BY') => trim((string) ($form['created_by'] ?? '')) !== ''
+                ? (string) $form['created_by']
+                : Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_UNAVAILABLE'),
+            Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_MODIFIED') => $modified !== ''
+                ? $this->formatAuditDate($modified)
+                : Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_UNAVAILABLE'),
+            Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_MODIFIED_BY') => trim((string) ($form['modified_by'] ?? '')) !== ''
+                ? (string) $form['modified_by']
+                : Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_UNAVAILABLE'),
         ];
 
         $checks = array_merge(
@@ -123,7 +146,24 @@ final class FormAuditService
             ];
         }
 
-        return ['info' => $info, 'checks' => $checks];
+        return [
+            'info' => $info,
+            'checks' => $checks,
+            'form' => [
+                'id' => (int) $form['id'],
+                'name' => trim((string) $form['name']),
+                'title' => trim((string) $form['title']),
+            ],
+        ];
+    }
+
+    private function formatAuditDate(string $value): string
+    {
+        if ($value === '' || $value === '0000-00-00 00:00:00') {
+            return Text::_('COM_CONTENTBUILDERNG_AUDIT_INFO_UNAVAILABLE');
+        }
+
+        return HTMLHelper::_('date', $value, Text::_('DATE_FORMAT_LC5'));
     }
 
     /**

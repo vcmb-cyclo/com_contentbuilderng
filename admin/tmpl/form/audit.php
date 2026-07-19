@@ -15,13 +15,19 @@ use CB\Component\Contentbuilderng\Administrator\Service\FormAuditService;
 use Joomla\CMS\Language\Text;
 
 $audit = (array) ($this->audit ?? ['info' => [], 'checks' => []]);
+$auditForm = (array) ($audit['form'] ?? []);
 $statusBadges = [
     FormAuditService::STATUS_OK => ['bg-success', 'COM_CONTENTBUILDERNG_AUDIT_STATUS_OK'],
     FormAuditService::STATUS_WARNING => ['bg-warning text-dark', 'COM_CONTENTBUILDERNG_AUDIT_STATUS_WARNING'],
     FormAuditService::STATUS_ERROR => ['bg-danger', 'COM_CONTENTBUILDERNG_AUDIT_STATUS_ERROR'],
 ];
+$auditTitle = trim((string) ($auditForm['name'] ?? '')) !== ''
+    ? Text::sprintf('COM_CONTENTBUILDERNG_AUDIT_MODAL_TITLE', trim((string) $auditForm['name']), (int) ($auditForm['id'] ?? 0))
+    : Text::_('COM_CONTENTBUILDERNG_AUDIT');
 ?>
 <div class="p-3">
+    <h1 class="h4 mb-3"><?php echo htmlspecialchars($auditTitle, ENT_QUOTES, 'UTF-8'); ?></h1>
+
     <div class="alert alert-info">
         <?php echo Text::_('COM_CONTENTBUILDERNG_AUDIT_SAVED_CONFIGURATION_NOTICE'); ?>
     </div>
