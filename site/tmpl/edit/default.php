@@ -751,6 +751,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
         <?php
         $debugPermissions = DebugPermissionHelper::resolvePermissions(
             $permissionService,
+            Factory::getApplication(),
             (int) $id,
             $frontend
         );

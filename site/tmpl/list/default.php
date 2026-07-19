@@ -419,6 +419,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 		<?php
 		$debugPermissions = DebugPermissionHelper::resolvePermissions(
 			$permissionService,
+			Factory::getApplication(),
 			(int) ($this->form_id ?? 0),
 			$frontend
 		);

@@ -231,6 +231,7 @@ if ($themeJs !== '') {
         <?php
         $debugPermissions = DebugPermissionHelper::resolvePermissions(
             $permissionService,
+            Factory::getApplication(),
             (int) $input->getInt('id', 0),
             $frontend
         );
