@@ -977,11 +977,16 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 								<?php endif; ?>
 								<?php if ($this->list_state && ($hasStateControl || $hasStaticStateBadge)) : ?>
 									<?php if ($hasStateControl && !$isTilesVariant) : ?>
-										<?php $currentStateTitle = $this->state_titles[$row->colRecord] ?? ''; ?>
-										<?php $currentStateId = ''; ?>
-										<?php foreach ($this->states as $state) : ?>
-											<?php if ($currentStateTitle === (string) $state['title']) { $currentStateId = (string) (int) $state['id']; break; } ?>
-										<?php endforeach; ?>
+										<?php
+										$currentStateTitle = $this->state_titles[$row->colRecord] ?? '';
+										$currentStateId = '';
+										foreach ($this->states as $state) {
+											if ($currentStateTitle === (string) $state['title']) {
+												$currentStateId = (string) (int) $state['id'];
+												break;
+											}
+										}
+										?>
 										<select
 											class="form-select form-select-sm cb-list-card-badge-select"
 											onchange="contentbuilderng_state_single(this, this.value, <?php echo (int) $row->colRecord; ?>);"
