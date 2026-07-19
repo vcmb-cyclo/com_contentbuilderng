@@ -356,13 +356,26 @@ et `Factory::getContainer()` dans les modèles, services, helpers, champs et tem
 ### État audité le 2026-07-18
 
 - `rg "Factory::getApplication\\(|Factory::getContainer\\(" admin site plugins --glob '!vendor/**'`
-  retourne **447 occurrences**
-- Les reliquats se concentrent dans :
+  retournait **447 occurrences**
+- Les reliquats se concentraient dans :
   - modèles/services/helpers admin et site
   - champs personnalisés (`site/src/Field/*`)
   - templates/layouts admin et site
   - providers de plugins qui injectent l'application via `Factory::getApplication()`
   - `admin/src/Extension/ContentbuilderngComponent.php` pour le chargement des langues
+
+> **Recompte (2026-07-19)** : `rg` retourne désormais **130 occurrences**, dont **57 sont
+> des assertions de test** dans `admin/tests/Unit/Site/BackButtonMenuKeyMigrationTest.php`
+> (`assertStringNotContainsString('Factory::getApplication()'...)`, etc. — elles
+> *vérifient l'absence* du motif ailleurs, ce ne sont pas des usages réels). Hors ce
+> fichier de test : **73 occurrences réelles** dans le code runtime, réparties
+> principalement sur les `services/provider.php` des plugins (usage légitime,
+> l'assemblage DI ne peut pas s'auto-injecter) et une poignée de plugins de contenu
+> (`contentbuilderng_image_scale` 6, `contentbuilderng_cbstats` 6,
+> `contentbuilderng_permission_observer` 5, `contentbuilderng_rating` 4, thèmes/validation/
+> verify 2-3 chacun). Baisse non documentée entre le 18 et le 19 (travaux de correction de
+> régressions post-migration, cf. commits `main` de la période) — chiffre de référence à
+> utiliser pour la suite : **73**.
 
 ### Cible
 
