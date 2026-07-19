@@ -35,6 +35,41 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
         self::assertStringNotContainsString("getMenuParam(\$params, 'show_back_button', null)", $source);
     }
 
+    public function testDispatcherPreservesCanonicalBackButtonUrlOverride(): void
+    {
+        $source = $this->read('site/src/Dispatcher/Dispatcher.php');
+
+        // The raw request value must be captured before menuParamDefaults resets
+        // every cb_* input key to null, otherwise the override is lost before it
+        // can ever be read.
+        $captureOffset = strpos($source, "\$requestedBackButtonToggle = \$input->get('cb_show_details_back_button', null, 'raw');");
+        $resetOffset = strpos($source, '$menuParamDefaults = [');
+
+        self::assertNotFalse($captureOffset, 'Dispatcher must capture the raw cb_show_details_back_button request value.');
+        self::assertNotFalse($resetOffset, 'Dispatcher must still reset menu param defaults.');
+        self::assertLessThan(
+            $resetOffset,
+            $captureOffset,
+            'The raw cb_show_details_back_button value must be captured before menuParamDefaults resets it to null.'
+        );
+
+        // Menu injection must keep the captured override when present, and only
+        // fall back to the menu item's own configured value otherwise.
+        self::assertStringNotContainsString(
+            "\$input->set('cb_show_details_back_button', MenuParamHelper::getMenuParam(\$params, 'cb_show_details_back_button', null));",
+            $source,
+            'Dispatcher must no longer unconditionally overwrite cb_show_details_back_button with the menu value.'
+        );
+        self::assertStringContainsString(
+            "\$requestedBackButtonToggle !== null && \$requestedBackButtonToggle !== ''",
+            $source
+        );
+        self::assertStringContainsString(
+            "MenuParamHelper::getMenuParam(\$params, 'cb_show_details_back_button', null)",
+            $source
+        );
+    }
+
     public function testFrontendLayoutsUseCanonicalBackButtonMenuField(): void
     {
         foreach ([
