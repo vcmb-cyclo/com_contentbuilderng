@@ -35,39 +35,80 @@ final class BackButtonMenuKeyMigrationTest extends TestCase
         self::assertStringNotContainsString("getMenuParam(\$params, 'show_back_button', null)", $source);
     }
 
-    public function testDispatcherPreservesCanonicalBackButtonUrlOverride(): void
+    public function testDispatcherPreservesRequestOverridableMenuParams(): void
     {
         $source = $this->read('site/src/Dispatcher/Dispatcher.php');
 
-        // The raw request value must be captured before menuParamDefaults resets
-        // every cb_* input key to null, otherwise the override is lost before it
-        // can ever be read.
-        $captureOffset = strpos($source, "\$requestedBackButtonToggle = \$input->get('cb_show_details_back_button', null, 'raw');");
+        // The whitelist must contain exactly the eight approved keys, in a
+        // stable order — no per-parameter special case is allowed.
+        self::assertMatchesRegularExpression(
+            '/private const REQUEST_OVERRIDABLE_MENU_PARAMS = \[(.*?)\];/s',
+            $source
+        );
+        preg_match('/private const REQUEST_OVERRIDABLE_MENU_PARAMS = \[(.*?)\];/s', $source, $constMatch);
+        preg_match_all("/'([a-z_]+)'/", $constMatch[1], $keyMatches);
+
+        self::assertSame(
+            [
+                'cb_show_author',
+                'cb_show_top_bar',
+                'cb_show_details_top_bar',
+                'cb_show_bottom_bar',
+                'cb_show_details_bottom_bar',
+                'cb_show_details_back_button',
+                'cb_filter_in_title',
+                'cb_prefix_in_title',
+            ],
+            $keyMatches[1],
+            'REQUEST_OVERRIDABLE_MENU_PARAMS must contain exactly the eight whitelisted keys, in this order.'
+        );
+
+        // The raw request values must be captured before menuParamDefaults
+        // resets every cb_* input key to null, otherwise the overrides are
+        // lost before they can ever be read.
+        $captureOffset = strpos($source, 'foreach (self::REQUEST_OVERRIDABLE_MENU_PARAMS as $overridableKey) {');
         $resetOffset = strpos($source, '$menuParamDefaults = [');
 
-        self::assertNotFalse($captureOffset, 'Dispatcher must capture the raw cb_show_details_back_button request value.');
+        self::assertNotFalse($captureOffset, 'Dispatcher must capture request overrides for the whitelisted keys.');
         self::assertNotFalse($resetOffset, 'Dispatcher must still reset menu param defaults.');
         self::assertLessThan(
             $resetOffset,
             $captureOffset,
-            'The raw cb_show_details_back_button value must be captured before menuParamDefaults resets it to null.'
+            'Request overrides must be captured before menuParamDefaults resets the input keys to null.'
         );
 
-        // Menu injection must keep the captured override when present, and only
-        // fall back to the menu item's own configured value otherwise.
-        self::assertStringNotContainsString(
-            "\$input->set('cb_show_details_back_button', MenuParamHelper::getMenuParam(\$params, 'cb_show_details_back_button', null));",
+        // Only null and empty string are rejected — "0", "1" and "-1" are all
+        // valid override values and must survive the capture.
+        self::assertStringContainsString(
+            "\$overrideValue !== null && \$overrideValue !== ''",
             $source,
-            'Dispatcher must no longer unconditionally overwrite cb_show_details_back_button with the menu value.'
+            'Capture must only reject null/empty string, so "0" stays a valid override.'
         );
+        self::assertStringNotContainsString(
+            'if ($overrideValue)',
+            $source,
+            'Capture must not use a truthiness check, which would drop "0" as an override.'
+        );
+        self::assertStringNotContainsString(
+            'empty($overrideValue)',
+            $source,
+            'Capture must not use empty(), which would drop "0" as an override.'
+        );
+
+        // Injection keeps the captured override when present, and only falls
+        // back to the menu item's own configured value otherwise.
         self::assertStringContainsString(
-            "\$requestedBackButtonToggle !== null && \$requestedBackButtonToggle !== ''",
+            'array_key_exists($overridableKey, $requestedMenuOverrides)',
             $source
         );
         self::assertStringContainsString(
-            "MenuParamHelper::getMenuParam(\$params, 'cb_show_details_back_button', null)",
+            "MenuParamHelper::getMenuParam(\$params, \$overridableKey, null)",
             $source
         );
+
+        // No per-parameter special case (e.g. the former back-button-only
+        // variable) must remain now that the whitelist loop covers it.
+        self::assertStringNotContainsString('$requestedBackButtonToggle', $source);
     }
 
     public function testFrontendLayoutsUseCanonicalBackButtonMenuField(): void

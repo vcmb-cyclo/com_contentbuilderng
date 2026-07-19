@@ -8,6 +8,23 @@ use Joomla\CMS\Dispatcher\ComponentDispatcher;
 
 class Dispatcher extends ComponentDispatcher
 {
+    /**
+     * Menu params whose request-provided value must survive the
+     * menuParamDefaults reset below, so a URL override is still visible to
+     * MenuParamHelper::resolveInputOrMenuToggle() once the menu item's own
+     * value is injected.
+     */
+    private const REQUEST_OVERRIDABLE_MENU_PARAMS = [
+        'cb_show_author',
+        'cb_show_top_bar',
+        'cb_show_details_top_bar',
+        'cb_show_bottom_bar',
+        'cb_show_details_bottom_bar',
+        'cb_show_details_back_button',
+        'cb_filter_in_title',
+        'cb_prefix_in_title',
+    ];
+
     #[\Override]
     public function dispatch(): void
     {
@@ -16,7 +33,14 @@ class Dispatcher extends ComponentDispatcher
         $session = $app->getSession();
         $menu = $app->getMenu();
         $requestListLimitSubmitted = MenuParamHelper::hasExplicitListLimitRequest($app);
-        $requestedBackButtonToggle = $input->get('cb_show_details_back_button', null, 'raw');
+
+        $requestedMenuOverrides = [];
+        foreach (self::REQUEST_OVERRIDABLE_MENU_PARAMS as $overridableKey) {
+            $overrideValue = $input->get($overridableKey, null, 'raw');
+            if ($overrideValue !== null && $overrideValue !== '') {
+                $requestedMenuOverrides[$overridableKey] = $overrideValue;
+            }
+        }
 
         $menuParamDefaults = [
             'cb_controller' => null,
@@ -100,21 +124,15 @@ class Dispatcher extends ComponentDispatcher
             $input->set('cb_controller', MenuParamHelper::getMenuParam($params, 'cb_controller', null));
             $input->set('cb_list_filterhidden', MenuParamHelper::getMenuParam($params, 'cb_list_filterhidden', null));
             $input->set('cb_list_orderhidden', MenuParamHelper::getMenuParam($params, 'cb_list_orderhidden', null));
-            $input->set('cb_show_author', MenuParamHelper::getMenuParam($params, 'cb_show_author', null));
-            $input->set('cb_show_bottom_bar', MenuParamHelper::getMenuParam($params, 'cb_show_bottom_bar', null));
-            $input->set('cb_show_top_bar', MenuParamHelper::getMenuParam($params, 'cb_show_top_bar', null));
-            $input->set('cb_show_details_bottom_bar', MenuParamHelper::getMenuParam($params, 'cb_show_details_bottom_bar', null));
-            $input->set('cb_show_details_top_bar', MenuParamHelper::getMenuParam($params, 'cb_show_details_top_bar', null));
-
-            $input->set(
-                'cb_show_details_back_button',
-                $requestedBackButtonToggle !== null && $requestedBackButtonToggle !== ''
-                    ? $requestedBackButtonToggle
-                    : MenuParamHelper::getMenuParam($params, 'cb_show_details_back_button', null)
-            );
+            foreach (self::REQUEST_OVERRIDABLE_MENU_PARAMS as $overridableKey) {
+                $input->set(
+                    $overridableKey,
+                    array_key_exists($overridableKey, $requestedMenuOverrides)
+                        ? $requestedMenuOverrides[$overridableKey]
+                        : MenuParamHelper::getMenuParam($params, $overridableKey, null)
+                );
+            }
             $input->set('cb_list_limit', MenuParamHelper::getMenuParam($params, 'cb_list_limit', 0));
-            $input->set('cb_filter_in_title', MenuParamHelper::getMenuParam($params, 'cb_filter_in_title', null));
-            $input->set('cb_prefix_in_title', MenuParamHelper::getMenuParam($params, 'cb_prefix_in_title', null));
             $input->set('force_menu_item_id', MenuParamHelper::getMenuParam($params, 'force_menu_item_id', 0));
             $input->set('cb_category_menu_filter', MenuParamHelper::getMenuParam($params, 'cb_category_menu_filter', 0));
 
