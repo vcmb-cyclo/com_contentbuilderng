@@ -1218,15 +1218,13 @@ class TemplateRenderService
         if (!count($record)) {
             $hasRecords = false;
             $names = $form->getElementNames();
-            if (!count($labels)) {
-                $labels = $form->getElementLabels();
-            }
+            $elementLabels = $form->getElementLabels();
             foreach ($names as $elementId => $name) {
                 if (!isset($items[$name])) {
                     $items[$name] = array();
                 }
                 $items[$name]['id'] = $elementId;
-                $items[$name]['label'] = $labels[$elementId];
+                $items[$name]['label'] = $labels[$elementId] ?? ($elementLabels[$elementId] ?? $name);
                 $items[$name]['value'] = '';
                 $items[$name]['values'] = null;
             }
