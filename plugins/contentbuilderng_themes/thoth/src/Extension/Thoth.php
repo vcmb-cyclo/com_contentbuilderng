@@ -22,6 +22,7 @@ use Joomla\Database\DatabaseInterface;
 use Joomla\CMS\Event\GenericEvent as Event;
 use Joomla\Event\SubscriberInterface;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 
 final class Thoth extends CMSPlugin implements SubscriberInterface
 {
@@ -29,7 +30,7 @@ final class Thoth extends CMSPlugin implements SubscriberInterface
 
     private function useStyle(string $name, string $file): void
     {
-        $wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+        $wa = RuntimeContextHelper::getApplication()->getDocument()->getWebAssetManager();
         $assetName = 'plg_contentbuilderng_themes_thoth.' . $name;
 
         if (!$wa->assetExists('style', $assetName)) {

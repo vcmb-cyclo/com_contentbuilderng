@@ -27,6 +27,7 @@ use Joomla\CMS\Component\Router\RouterServiceTrait;
 use Joomla\CMS\Extension\MVCComponent;
 use Joomla\CMS\HTML\HTMLRegistryAwareTrait;
 use Joomla\CMS\Application\CMSApplicationInterface;
+use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\Database\DatabaseInterface;
 use Psr\Container\ContainerInterface;
 use LogicException;
@@ -49,6 +50,9 @@ class ContentbuilderngComponent extends MVCComponent implements BootableExtensio
         // binds it in the component container before boot() runs, so it is
         // resolvable here. DatabaseInterface delegates to the global container.
         $app = $container->get(CMSApplicationInterface::class);
+        if (!$app instanceof CMSWebApplicationInterface) {
+            throw new LogicException('ContentBuilder NG can only boot behind the site or administrator web application.');
+        }
         $db = $container->get(DatabaseInterface::class);
         RuntimeContextHelper::initialize($app, $db);
 
