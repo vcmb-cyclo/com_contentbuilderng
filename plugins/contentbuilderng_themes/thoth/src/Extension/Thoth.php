@@ -27,6 +27,24 @@ final class Thoth extends CMSPlugin implements SubscriberInterface
 {
     private const THEME_NAME = 'thoth';
 
+    private function useStyle(string $name, string $file): void
+    {
+        $wa = $this->getApplication()->getDocument()->getWebAssetManager();
+        $assetName = 'plg_contentbuilderng_themes_thoth.' . $name;
+
+        if (!$wa->assetExists('style', $assetName)) {
+            $wa->registerStyle(
+                $assetName,
+                'plugins/contentbuilderng_themes/thoth/css/' . $file,
+                ['version' => 'auto'],
+                ['media' => 'all'],
+                ['com_contentbuilderng.frontend']
+            );
+        }
+
+        $wa->useStyle($assetName);
+    }
+
     private function acceptsThemeEvent(Event $event): bool
     {
         $requestedTheme = trim((string) ($event->getArgument('theme') ?? ''));
@@ -120,8 +138,8 @@ final class Thoth extends CMSPlugin implements SubscriberInterface
             return;
         }
 
-        $cssFile = __DIR__ . '/../../css/content.css';
-        $out = \is_file($cssFile) ? (string) \file_get_contents($cssFile) : '';
+        $this->useStyle('content', 'content.css');
+        $out = '';
 
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);
@@ -146,8 +164,8 @@ final class Thoth extends CMSPlugin implements SubscriberInterface
             return;
         }
 
-        $cssFile = __DIR__ . '/../../css/list.css';
-        $out = \is_file($cssFile) ? (string) \file_get_contents($cssFile) : '';
+        $this->useStyle('list', 'list.css');
+        $out = '';
 
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);

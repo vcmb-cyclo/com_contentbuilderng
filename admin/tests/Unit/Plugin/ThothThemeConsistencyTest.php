@@ -14,6 +14,7 @@ final class ThothThemeConsistencyTest extends TestCase
     {
         $root = \dirname(__DIR__, 4) . '/plugins/contentbuilderng_themes/thoth';
         $parts = [
+            \dirname(__DIR__, 4) . '/media/css/frontend.css',
             $root . '/src/Extension/Thoth.php',
             $root . '/css/content.css',
             $root . '/css/list.css',
@@ -30,10 +31,10 @@ final class ThothThemeConsistencyTest extends TestCase
     public function testDetailsAndEditUseBootstrapBodyColors(): void
     {
         self::assertStringContainsString(
-            ".cbEditableWrapper,\n.cbDetailsWrapper {\n"
-                . "    max-width: 100%;",
+            ":is(.cbDetailsWrapper, .cbEditableWrapper) {",
             $this->source
         );
+        self::assertStringContainsString('max-width: 100%;', $this->source);
         self::assertStringContainsString(
             'color: var(--bs-body-color, #212529);',
             $this->source
@@ -51,8 +52,7 @@ final class ThothThemeConsistencyTest extends TestCase
     public function testDetailsAndEditPanelsMatchListVisualLanguage(): void
     {
         self::assertStringContainsString(
-            ".cbEditableWrapper .cbEditableBody,\n"
-                . ".cbDetailsWrapper .cbDetailsBody {",
+            ':is(.cbDetailsWrapper, .cbEditableWrapper) :is(.cbDetailsBody, .cbEditableBody) {',
             $this->source
         );
         self::assertStringContainsString(
@@ -72,12 +72,11 @@ final class ThothThemeConsistencyTest extends TestCase
     public function testListEditAndDetailsSharePanelAndControlStyles(): void
     {
         self::assertStringContainsString(
-            ".cbEditableWrapper .cbToolBar,\n"
-                . ".cbDetailsWrapper .cbToolBar {",
+            ':is(.cbDetailsWrapper, .cbEditableWrapper) .cbToolBar {',
             $this->source
         );
         self::assertStringContainsString(
-            'box-shadow: 0 0.35rem 0.9rem rgba(0, 0, 0, 0.06);',
+            'box-shadow: 0 .35rem .9rem rgba(0, 0, 0, .06);',
             $this->source
         );
         self::assertStringContainsString(
@@ -88,7 +87,7 @@ final class ThothThemeConsistencyTest extends TestCase
             $this->source
         );
         self::assertStringContainsString(
-            ".cbEditableWrapper .btn,\n.cbDetailsWrapper .btn {",
+            ':is(.cbDetailsWrapper, .cbEditableWrapper) :is(.cbToolBar, .cbTitleRecordNav) .cbButton.btn {',
             $this->source
         );
         self::assertStringContainsString(
@@ -100,12 +99,11 @@ final class ThothThemeConsistencyTest extends TestCase
     public function testEditAndDetailsUseTheSameSoberTitleAsTheList(): void
     {
         self::assertStringContainsString(
-            'border-bottom: 1px solid rgba(0, 0, 0, 0.12);',
+            'border-bottom: 1px solid var(--cb-screen-border);',
             $this->source
         );
         self::assertStringContainsString(
-            ".cbEditableWrapper > h1.display-6::after,\n"
-                . ".cbDetailsWrapper > h1.display-6::after {\n"
+            ":is(.cbDetailsWrapper, .cbEditableWrapper) > h1.display-6::after {\n"
                 . "    display: none;",
             $this->source
         );
@@ -135,7 +133,7 @@ final class ThothThemeConsistencyTest extends TestCase
                 . ".cbEditableWrapper .cbEditableBody > .mb-3 .form-select:not([multiple]):not([size]),\n"
                 . ".cbEditableWrapper .cbEditableBody > .mb-3 .form-select-sm:not([multiple]):not([size]) {\n"
                 . "    min-height: 1.86rem;\n"
-                . "    font-size: 0.83rem;\n"
+                . "    font-size: var(--cb-font-size-compact);\n"
                 . "    padding-top: 0.2rem;\n"
                 . "    padding-bottom: 0.2rem;\n"
                 . "    padding-right: 3.25rem;",

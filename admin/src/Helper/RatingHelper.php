@@ -28,64 +28,9 @@ final class RatingHelper
         $app = RuntimeContextHelper::getApplication();
 
         if (!$cssLoaded) {
-            $mediaRoot = Uri::root(true) . '/media/com_contentbuilderng/images';
-            $app->getDocument()->getWebAssetManager()->addInlineStyle('.cbVotingDisplay, .cbVotingStarButtonWrapper {
-	height: 20px;
-	width: 100px;
-}
-
-.cbVotingStarButtonWrapper {
-	position: absolute;
-	z-index: 100;
-	top: 0;
-	left: 0;
-}
-
-.cbVotingDisplay {
-	position: relative;
-	background-image: url(' . $mediaRoot . '/bg_votingStarOff.png);
-	background-repeat: repeat-x;
-        min-height: 20px;
-        display: inline-block;
-}
-
-.cbVotingStars {
-	position: relative;
-	float: left;
-	height: 20px;
-	overflow: hidden;
-	background-image: url(' . $mediaRoot . '/bg_votingStarOn.png);
-	background-repeat: repeat-x;
-}
-
-.cbVotingStarButton {
-	display: inline;
-	height: 20px;
-	width: 20px;
-	float: left;
-	cursor: pointer;
-}
-
-.cbRating{ width: 30px; }
-.cbRatingUpDown{text-align: center; width: 90px; }
-.cbRatingImage {margin: auto; display: block;}
-.cbRatingCount {text-align: center; font-size: 11px;}
-.cbRatingVotes {text-align: center; font-size: 11px;} 
-
-.cbRatingImage2{
-    width: 30px;
-    height: 30px;
-    background-image: url(' . $mediaRoot . '/thumbs_down.png);
-    background-repeat: no-repeat;
-}
-
-.cbRatingImage{ 
-    width: 30px;
-    height: 30px;
-    background-image: url(' . $mediaRoot . '/thumbs_up.png);
-    background-repeat: no-repeat;
-}');
-
+            $wa = $app->getDocument()->getWebAssetManager();
+            $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+            $wa->useStyle('com_contentbuilderng.rating');
             $cssLoaded = true;
         }
 
@@ -259,23 +204,23 @@ final class RatingHelper
                 } else if ($rating_slots == 2) {
                     ?>
                                 <div class="cbRatingUpDown">
-                                    <div style="float: left;">
-                                        <div class="cbRatingImage" style="cursor:pointer;"
+                                    <div class="cbRatingOptionStart">
+                                        <div class="cbRatingImage is-interactive"
                                             onclick="cbRate('<?php echo $rating_link . '&rate=5'; ?>','cbRatingMsg<?php echo $record_id; ?>');">
                                         </div>
                                         <div class="cbRatingCount text-center">
                                         <?php echo $percentage2 ? $percentage2 . '%' : ''; ?>
                                         </div>
                                     </div>
-                                    <div style="float: right;">
-                                        <div class="cbRatingImage2" style="cursor:pointer;"
+                                    <div class="cbRatingOptionEnd">
+                                        <div class="cbRatingImage2 is-interactive"
                                             onclick="cbRate('<?php echo $rating_link . '&rate=1'; ?>','cbRatingMsg<?php echo $record_id; ?>');">
                                         </div>
                                         <div class="cbRatingCount text-center">
                                         <?php echo $percentage3 ? $percentage3 . '%' : ''; ?>
                                         </div>
                                     </div>
-                                    <div style="clear: both;"></div>
+                                    <div class="cbRatingClear"></div>
                                     <div class="cbRatingVotes text-center">
                                     <?php echo Text::plural('COM_CONTENTBUILDERNG_N_VOTES', (int) $rating_count); ?>
                                     </div>
@@ -285,7 +230,7 @@ final class RatingHelper
                 } else {
                     ?>
                                 <div class="cbRating">
-                                    <div class="cbRatingImage" style="cursor:pointer;"
+                                    <div class="cbRatingImage is-interactive"
                                         onclick="cbRate('<?php echo $rating_link . '&rate=' . $x; ?>','cbRatingMsg<?php echo $record_id; ?>');">
                                     </div>
                                     <div id="cbRatingMsg<?php echo $record_id; ?>Counter" class="cbRatingCount text-center">
@@ -300,24 +245,24 @@ final class RatingHelper
             } else {
                 if ($rating_slots > 2) {
                     ?>
-                            <div class="cbVotingStarButton" style="cursor:default;" id="cbVotingStarButton_<?php echo $x; ?>"></div>
+                            <div class="cbVotingStarButton is-readonly" id="cbVotingStarButton_<?php echo $x; ?>"></div>
                             <?php
                 } else if ($rating_slots == 2) {
                     ?>
                                 <div class="cbRatingUpDown">
-                                    <div style="float: left;">
-                                        <div class="cbRatingImage" style="cursor:default;"></div>
+                                    <div class="cbRatingOptionStart">
+                                        <div class="cbRatingImage"></div>
                                         <div class="cbRatingCount text-center">
                                         <?php echo $percentage2 ? $percentage2 . '%' : ''; ?>
                                         </div>
                                     </div>
-                                    <div style="float: right;">
-                                        <div class="cbRatingImage2" style="cursor:default;"></div>
+                                    <div class="cbRatingOptionEnd">
+                                        <div class="cbRatingImage2"></div>
                                         <div class="cbRatingCount text-center">
                                         <?php echo $percentage3 ? $percentage3 . '%' : ''; ?>
                                         </div>
                                     </div>
-                                    <div style="clear: both;"></div>
+                                    <div class="cbRatingClear"></div>
                                     <div class="cbRatingVotes text-center">
                                     <?php echo Text::plural('COM_CONTENTBUILDERNG_N_VOTES', (int) $rating_count); ?>
                                     </div>
@@ -327,7 +272,7 @@ final class RatingHelper
                 } else {
                     ?>
                                 <div class="cbRating">
-                                    <div class="cbRatingImage" style="cursor:default;"></div>
+                                    <div class="cbRatingImage"></div>
                                     <div class="cbRatingCount text-center">
                                     <?php echo $rating_count; ?>
                                     </div>
@@ -344,7 +289,7 @@ final class RatingHelper
                 </div>
                 <div class="cbVotingStars" id="cbVotingStars<?php echo $record_id; ?>" style="width: <?php echo $percentage; ?>px;">
                 </div>
-                <div style="clear: left;"></div>
+                <div class="cbRatingStarsClear"></div>
                 <div class="cbRatingVotes text-center">
                     <?php echo Text::plural('COM_CONTENTBUILDERNG_N_VOTES', (int) $rating_count); ?>
                 </div>
@@ -352,7 +297,7 @@ final class RatingHelper
             <?php
         }
         ?>
-        <div style="display:none;" class="cbRatingMsg" id="cbRatingMsg<?php echo $record_id; ?>"></div>
+        <div class="cbRatingMsg" id="cbRatingMsg<?php echo $record_id; ?>"></div>
         <?php
         $c = ob_get_contents();
         ob_end_clean();

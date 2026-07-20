@@ -127,6 +127,9 @@ if ($adminReturnContext === 'forms') {
 }
 
 $previewFormName = trim((string) ($this->form_name ?? ''));
+$previewHeadingTitle = $isAdminPreview && $previewFormName !== ''
+    ? $previewFormName
+    : '';
 if ($previewFormName === '') {
     $previewFormName = trim((string) ($this->page_title ?? ''));
 }
@@ -317,6 +320,9 @@ if ($themeJs !== '') {
     $showCurrentRecordLabel = !in_array($currentRecordLabel, ['', '0'], true);
     $showCurrentRecordLabel = $showCurrentRecordLabel && (int) ($this->show_id_column ?? 0) === 1;
     $headingTitle = (string) ($this->page_title ?? '');
+    if ($previewHeadingTitle !== '') {
+        $headingTitle = $previewHeadingTitle;
+    }
     if ($currentRecordLabel !== '') {
         foreach ([': ' . $currentRecordLabel, ' &raquo; ' . $currentRecordLabel] as $idSuffix) {
             if (str_ends_with($headingTitle, $idSuffix)) {

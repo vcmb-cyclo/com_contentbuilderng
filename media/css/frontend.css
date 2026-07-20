@@ -3,13 +3,15 @@
    Pas de sélecteurs globaux agressifs.
    ---------------------------------------------------------------- */
 
-/* Tailles de police partagées entre Détail/Édition/Liste (fallback
-   sans thème). Évite les écarts de 0,01rem sans intention entre vues
-   pour un même rôle (libellé de champ, bouton, contrôle réduit). */
+/* Échelle typographique frontend partagée. Les titres et le texte
+   courant restent pilotés par Bootstrap et le template Joomla. */
 :root {
-    --cb-fs-label: .82rem;
-    --cb-fs-control-sm: .84rem;
-    --cb-fs-button-sm: .85rem;
+    --cb-font-size-caption: .75rem;
+    --cb-font-size-compact: .85rem;
+    --cb-font-size-meta: .9rem;
+    --cb-screen-title-size: clamp(1.25rem, 2.1vw, 1.75rem);
+    --cb-button-padding-block: .34rem;
+    --cb-button-padding-inline: .85rem;
 }
 
 /* ── Liste frontend : toolbar, filtres et selects ───────────────── */
@@ -87,16 +89,102 @@
 .cbEditableBody table {
     max-width: 100%;
 }
+
+/* ── Écrans fiche et édition ─────────────────────────────────────
+   Socle visuel commun aux deux parcours. Les thèmes de formulaire
+   peuvent toujours personnaliser leur contenu sans modifier ce cadre. */
+:is(.cbDetailsWrapper, .cbEditableWrapper) {
+    --cb-screen-bg: var(--bs-body-bg, #fff);
+    --cb-screen-color: var(--bs-body-color, #212529);
+    --cb-screen-border: var(--bs-border-color, #dee2e6);
+    --cb-screen-toolbar-bg: var(--bs-tertiary-bg, #f8f9fa);
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: .7rem 0 1.4rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: var(--cb-screen-color);
+    background: transparent;
+    box-shadow: none;
+}
+:is(.cbDetailsWrapper, .cbEditableWrapper) > h1.display-6 {
+    margin: 0 0 .9rem !important;
+    padding: 0 0 .55rem;
+    border-bottom: 1px solid var(--cb-screen-border);
+    color: var(--cb-screen-color);
+    font-size: var(--cb-screen-title-size);
+    font-weight: 600;
+    letter-spacing: 0;
+}
+:is(.cbDetailsWrapper, .cbEditableWrapper) > h1.display-6::after {
+    display: none;
+}
+:is(.cbDetailsWrapper, .cbEditableWrapper) .cbToolBar {
+    padding: .65rem .75rem;
+    border: 1px solid var(--cb-screen-border);
+    border-radius: .9rem;
+    background: var(--cb-screen-bg);
+    box-shadow: 0 .35rem .9rem rgba(0, 0, 0, .06);
+}
+:is(.cbDetailsWrapper, .cbEditableWrapper) :is(.cbToolBar, .cbTitleRecordNav) .cbButton.btn {
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: var(--cb-font-size-compact);
+    padding: var(--cb-button-padding-block) var(--cb-button-padding-inline);
+}
+:is(.cbDetailsWrapper, .cbEditableWrapper) .cbTitleRecordNav .cbButton.btn {
+    display: inline-flex;
+    align-items: center;
+}
+:is(.cbDetailsWrapper, .cbEditableWrapper) :is(.cbDetailsBody, .cbEditableBody) {
+    min-width: 0;
+    padding: .65rem .75rem;
+    border: 1px solid var(--cb-screen-border);
+    border-radius: .9rem;
+    color: var(--cb-screen-color);
+    background: var(--cb-screen-bg);
+    box-shadow: 0 .35rem .9rem rgba(0, 0, 0, .06);
+}
+
 @media (max-width: 767.98px) {
-    /* Filet de sécurité : un tableau saisi dans un enregistrement
-       scrolle dans son bloc au lieu d'élargir toute la page. */
-    .cbDetailsBody,
-    .cbEditableBody {
+    :is(.cbDetailsWrapper, .cbEditableWrapper) {
+        margin-top: .45rem;
+    }
+    :is(.cbDetailsWrapper, .cbEditableWrapper) .cbToolBar {
+        padding: .34rem;
+    }
+    :is(.cbDetailsWrapper, .cbEditableWrapper) :is(.cbDetailsBody, .cbEditableBody) {
+        padding: .6rem .54rem .3rem;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
+    :is(.cbDetailsWrapper, .cbEditableWrapper) :is(.cbToolBar, .cbTitleRecordNav) .cbButton.btn {
+        flex: 0 0 auto;
+        justify-content: center;
+        white-space: normal;
+    }
 }
 
+@media (prefers-color-scheme: dark) {
+    html:not([data-bs-theme="light"]) :is(.cbDetailsWrapper, .cbEditableWrapper) {
+        --cb-screen-bg: #111a24;
+        --cb-screen-color: #e7edf6;
+        --cb-screen-border: rgba(173, 193, 216, .3);
+        --cb-screen-toolbar-bg: #1a2431;
+        color-scheme: dark;
+    }
+}
+
+html[data-bs-theme="dark"] :is(.cbDetailsWrapper, .cbEditableWrapper) {
+    --cb-screen-bg: var(--bs-body-bg, #111a24);
+    --cb-screen-color: var(--bs-body-color, #e7edf6);
+    --cb-screen-border: var(--bs-border-color, rgba(173, 193, 216, .3));
+    --cb-screen-toolbar-bg: var(--bs-tertiary-bg, #1a2431);
+    color-scheme: dark;
+}
 /* ── Aide de configuration preview (List, Details, Edit) ─────────*/
 .cb-preview-config-help {
     display: inline-flex;
@@ -112,19 +200,49 @@
     vertical-align: middle;
 }
 .cb-preview-config-help:hover,
-.cb-preview-config-help:focus {
+.cb-preview-config-help:focus-visible {
     color: #5f3b00;
     background: rgba(255,255,255,.62);
-    outline: none;
+    outline: .1875rem solid currentColor;
+    outline-offset: .125rem;
 }
 
 /* ── Fil d'Ariane du titre (liste > écran courant) ───────────────*/
 .cbPageBreadcrumb .cbPageBreadcrumbLink {
-    color: inherit;
+    display: inline-flex;
+    align-items: center;
+    padding: .16rem .48rem;
+    border: 1px solid rgba(var(--bs-primary-rgb, 13, 110, 253), .28);
+    border-radius: 999px;
+    color: var(--bs-link-color, #0d6efd);
+    background: rgba(var(--bs-primary-rgb, 13, 110, 253), .08);
+    font-weight: 600;
 }
 .cbPageBreadcrumb .cbPageBreadcrumbLink:hover,
-.cbPageBreadcrumb .cbPageBreadcrumbLink:focus {
-    text-decoration: underline;
+.cbPageBreadcrumb .cbPageBreadcrumbLink:focus-visible {
+    border-color: var(--bs-link-hover-color, #0a58ca);
+    color: var(--bs-link-hover-color, #0a58ca);
+    background: rgba(var(--bs-primary-rgb, 13, 110, 253), .16);
+}
+.cbPageBreadcrumb .cbPageBreadcrumbLink:focus-visible {
+    outline: .1875rem solid currentColor;
+    outline-offset: .125rem;
+}
+
+/* ── Radios et cases non sélectionnés ────────────────────────────── */
+:is(.cbEditableWrapper, .cbDetailsWrapper) .cbGroupField .form-check-input:not(:checked) {
+    border-color: rgba(var(--bs-primary-rgb, 13, 110, 253), .58);
+    background-color: rgba(var(--bs-primary-rgb, 13, 110, 253), .06);
+}
+:is(.cbEditableWrapper, .cbDetailsWrapper) .cbGroupField .form-check-input:not(:checked):not(:disabled):hover {
+    border-color: rgba(var(--bs-primary-rgb, 13, 110, 253), .85);
+    background-color: rgba(var(--bs-primary-rgb, 13, 110, 253), .12);
+}
+:is(.cbEditableWrapper, .cbDetailsWrapper) .cbGroupField .form-check-input:focus-visible {
+    border-color: var(--bs-primary, #0d6efd);
+    outline: .1875rem solid rgba(var(--bs-primary-rgb, 13, 110, 253), .35);
+    outline-offset: .125rem;
+    box-shadow: none;
 }
 
 /* ── Utilitaires ─────────────────────────────────────────────────*/
@@ -148,7 +266,7 @@
     min-width: 120px;
 }
 .cb-pubforms-perm-icon {
-    font-size: .9rem;
+    font-size: var(--cb-font-size-meta);
 }
 .cb-pubforms-perm-icon.is-allowed { color: var(--bs-success, #198754); }
 .cb-pubforms-perm-icon.is-denied  { color: var(--bs-danger,  #dc3545); }
@@ -317,7 +435,7 @@ html[data-bs-theme="dark"] body #system-message-container joomla-alert .joomla-a
 .cb-print-meta {
     margin-bottom: 1rem;
     color: var(--bs-secondary-color, #6c757d);
-    font-size: .9rem;
+    font-size: var(--cb-font-size-meta);
 }
 
 @media print {

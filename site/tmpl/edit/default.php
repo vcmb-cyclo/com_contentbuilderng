@@ -126,6 +126,10 @@ if ($adminReturnContext === 'forms') {
     $adminReturnUrl = Uri::root() . 'administrator/index.php?option=com_contentbuilderng&view=forms';
 }
 $previewFormName = trim((string) ($this->form_name ?? ''));
+$pageHeadingTitle = trim((string) ($this->page_title ?? ''));
+if ($isAdminPreview && $previewFormName !== '') {
+    $pageHeadingTitle = $previewFormName;
+}
 if ($previewFormName === '') {
     $previewFormName = trim((string) ($this->page_title ?? ''));
 }
@@ -839,16 +843,16 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
         </div>
     <?php endif; ?>
     <?php
-    if ($this->show_page_heading && $this->page_title) {
+    if ($this->show_page_heading && $pageHeadingTitle !== '') {
     ?>
         <?php if ((int) ($this->show_title_breadcrumb ?? 1) === 1) : ?>
             <h1 class="h3 mb-4 cbPageBreadcrumb">
                 <a class="cbPageBreadcrumbLink text-decoration-none" href="<?php echo $listHref; ?>">
-                    <?php echo $this->escape($this->page_title); ?>
+                    <?php echo $this->escape($pageHeadingTitle); ?>
                 </a>
                 <?php if (!$backToList && $hasRecord) : ?>
                     <span class="text-muted mx-1" aria-hidden="true">&rsaquo;</span>
-                    <a class="cbPageBreadcrumbLink text-muted text-decoration-none" href="<?php echo $detailsHref; ?>">
+                    <a class="cbPageBreadcrumbLink text-decoration-none" href="<?php echo $detailsHref; ?>">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_BREADCRUMB_DETAILS'); ?>
                     </a>
                 <?php endif; ?>
@@ -857,7 +861,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             </h1>
         <?php else : ?>
             <h1 class="h3 mb-4">
-                <?php echo $this->escape($this->page_title); ?>
+                <?php echo $this->escape($pageHeadingTitle); ?>
             </h1>
         <?php endif; ?>
     <?php
@@ -917,7 +921,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
     if ($topBarToggle === 1) {
     ?>
     <?php
-        echo $buttons;
+        echo str_replace('class="cbToolBar ', 'class="cbToolBar cbToolBar--top ', $buttons);
     }
 
     if ($this->create_articles && $fullarticle_allowed) {
@@ -1102,7 +1106,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             <?php
             if ($bottomBarToggle === 1) {
 
-                echo $buttons;
+                echo str_replace('class="cbToolBar ', 'class="cbToolBar cbToolBar--bottom ', $buttons);
             ?>
             <?php
             }
@@ -1146,7 +1150,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             <?php
             if ($bottomBarToggle === 1) {
 
-                echo $buttons;
+                echo str_replace('class="cbToolBar ', 'class="cbToolBar cbToolBar--bottom ', $buttons);
             ?>
             <?php
             }
@@ -1182,7 +1186,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
             <?php
             if ($bottomBarToggle === 1) {
 
-                echo $buttons;
+                echo str_replace('class="cbToolBar ', 'class="cbToolBar cbToolBar--bottom ', $buttons);
             ?>
             <?php
             }

@@ -1,0 +1,19 @@
+/* ContentBuilderNG - notation frontend et backend. */
+.cbVotingDisplay,.cbVotingStarButtonWrapper{height:20px;width:100px}
+.cbVotingStarButtonWrapper{position:absolute;z-index:100;inset:0 auto auto 0}
+.cbVotingDisplay{position:relative;min-height:20px;display:inline-block;background:url(../images/bg_votingStarOff.png) repeat-x}
+.cbVotingStars{position:relative;float:left;height:20px;overflow:hidden;background:url(../images/bg_votingStarOn.png) repeat-x}
+.cbVotingStarButton{display:block;float:left;width:20px;height:20px;cursor:pointer}
+.cbVotingStarButton.is-readonly{cursor:default}
+.cbRating{width:30px}
+.cbRatingUpDown{width:90px;text-align:center}
+.cbRatingImage,.cbRatingImage2{width:30px;height:30px;margin:auto;background-repeat:no-repeat}
+.cbRatingImage{background-image:url(../images/thumbs_up.png)}
+.cbRatingImage2{background-image:url(../images/thumbs_down.png)}
+.cbRatingImage.is-interactive,.cbRatingImage2.is-interactive{cursor:pointer}
+.cbRatingCount,.cbRatingVotes{text-align:center;font-size:11px}
+.cbRatingOptionStart{float:left}
+.cbRatingOptionEnd{float:right}
+.cbRatingClear{clear:both}
+.cbRatingStarsClear{clear:left}
+.cbRatingMsg{display:none}
