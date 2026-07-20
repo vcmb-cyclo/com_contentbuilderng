@@ -14,12 +14,12 @@
 }
 .cbEditableWrapper .cbToolBar{padding:.38rem .46rem;border:1px solid var(--bs-border-color,#dee2e6);border-radius:.72rem;background:var(--bs-tertiary-bg,#f8f9fa)}
 .cbEditableWrapper .cbToolBar.mb-5{margin-bottom:.6rem!important}
-.cbEditableWrapper .cbToolBar .cbButton.btn{border-radius:999px;font-weight:600;font-size:.85rem;padding:.34rem .78rem}
+.cbEditableWrapper .cbToolBar .cbButton.btn{border-radius:999px;font-weight:600;font-size:var(--cb-fs-button-sm);padding:.34rem .78rem}
 .cbEditableWrapper fieldset.border.rounded.p-3.mb-3{padding:.52rem!important;margin-bottom:.36rem!important;border-radius:.62rem!important}
 .cbEditableWrapper .mb-3{margin-bottom:.34rem!important}
-.cbEditableWrapper .form-label,.cbEditableWrapper label{font-size:.82rem;margin-bottom:.14rem}
+.cbEditableWrapper .form-label,.cbEditableWrapper label{font-size:var(--cb-fs-label);margin-bottom:.14rem}
 .cbEditableWrapper :is(input[type="text"],input[type="email"],input[type="number"],input[type="date"],input[type="datetime-local"],input[type="time"],input[type="url"],input[type="password"],textarea,select){min-height:1.82rem;padding:.24rem .42rem}
-.cbEditableWrapper .form-select.form-select-sm,.cbEditableWrapper .form-select-sm,.cbEditableWrapper .form-control.form-control-sm{min-height:1.72rem;font-size:.84rem;padding-top:.16rem;padding-bottom:.16rem}
+.cbEditableWrapper .form-select.form-select-sm,.cbEditableWrapper .form-select-sm,.cbEditableWrapper .form-control.form-control-sm{min-height:1.72rem;font-size:var(--cb-fs-control-sm);padding-top:.16rem;padding-bottom:.16rem}
 .cbEditableWrapper select,.cbEditableWrapper .form-select,.cbEditableWrapper .form-select-sm{line-height:1.35;vertical-align:middle}
 .cbEditableWrapper select:not([multiple]):not([size]),.cbEditableWrapper .form-select:not([multiple]):not([size]),.cbEditableWrapper .form-select-sm:not([multiple]):not([size]){min-height:1.94rem;padding-top:.2rem;padding-bottom:.2rem;padding-right:3.25rem}
 .cbEditableWrapper .form-select:not([multiple]):not([size]),.cbEditableWrapper .form-select-sm:not([multiple]):not([size]){background-position:right .62rem center;background-repeat:no-repeat}

@@ -3,6 +3,15 @@
    Pas de sélecteurs globaux agressifs.
    ---------------------------------------------------------------- */
 
+/* Tailles de police partagées entre Détail/Édition/Liste (fallback
+   sans thème). Évite les écarts de 0,01rem sans intention entre vues
+   pour un même rôle (libellé de champ, bouton, contrôle réduit). */
+:root {
+    --cb-fs-label: .82rem;
+    --cb-fs-control-sm: .84rem;
+    --cb-fs-button-sm: .85rem;
+}
+
 /* ── Liste frontend : toolbar, filtres et selects ───────────────── */
 .cb-list-filters .form-select {
     width: auto;
