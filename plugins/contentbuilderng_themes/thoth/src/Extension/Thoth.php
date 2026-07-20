@@ -29,7 +29,7 @@ final class Thoth extends CMSPlugin implements SubscriberInterface
 
     private function useStyle(string $name, string $file): void
     {
-        $wa = $this->getApplication()->getDocument()->getWebAssetManager();
+        $wa = Factory::getApplication()->getDocument()->getWebAssetManager();
         $assetName = 'plg_contentbuilderng_themes_thoth.' . $name;
 
         if (!$wa->assetExists('style', $assetName)) {
