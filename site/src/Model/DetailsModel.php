@@ -97,13 +97,10 @@ class DetailsModel extends ListModel
 
         // ATTTENTION: ALSO DEFINED IN DETAILS CONTROLLER!
         if ($this->frontend && $app->getInput()->getInt('Itemid', 0)) {
-            $this->_menu_item = true;
-
-            // try menu item
-
             $menu = $app->getMenu();
             $item = $menu->getActive();
-            if (is_object($item)) {
+            if (is_object($item) && ($item->query['option'] ?? '') === $option) {
+                $this->_menu_item = true;
                 $params = $item->getParams();
                 $this->_show_back_button = MenuParamHelper::getResolvedMenuToggle(
                     $params,

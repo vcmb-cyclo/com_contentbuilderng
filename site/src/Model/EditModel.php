@@ -274,6 +274,20 @@ class EditModel extends BaseDatabaseModel
         return $this->getComponent()->getContainer()->get(DatabaseInterface::class);
     }
 
+    public function isEditableTemplateConfigured(): bool
+    {
+        $db = $this->getDatabase();
+        $formId = $this->_id;
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('editable_template'))
+            ->from($db->quoteName('#__contentbuilderng_forms'))
+            ->where($db->quoteName('id') . ' = :formId')
+            ->bind(':formId', $formId, ParameterType::INTEGER);
+        $db->setQuery($query);
+
+        return trim((string) $db->loadResult()) !== '';
+    }
+
     private function createMailer()
     {
         return $this->getComponent()->getContainer()->get(MailerFactoryInterface::class)->createMailer();
@@ -319,6 +333,7 @@ class EditModel extends BaseDatabaseModel
                 $data->limited_options = $this->frontend ? $data->limited_article_options_fe : $data->limited_article_options;
                 $data->form_id = $this->_id;
                 $data->record_id = $this->_record_id;
+                $data->editable_template_configured = trim((string) ($data->editable_template ?? '')) !== '';
                 if ($data->type && $data->reference_id) {
 
                     // article options
@@ -1242,6 +1257,10 @@ var contentbuilderng = new function(){
                             if (isset($the_upload_fields[$id]) && $id == $the_upload_fields[$id]['reference_id']) {
                                 // nothing, done above already
                             } else {
+                                if (!$this->app->getInput()->post->exists('cb_' . $id)) {
+                                    continue;
+                                }
+
                                 $f = null;
 
                                 if (isset($the_html_fields[$id])) {

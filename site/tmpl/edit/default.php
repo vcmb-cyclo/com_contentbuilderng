@@ -138,7 +138,7 @@ if ($previewFormName === '') {
 }
 $previewFormName = htmlspecialchars($previewFormName, ENT_QUOTES, 'UTF-8');
 $previewConfigTabLabel = Text::sprintf('COM_CONTENTBUILDERNG_PREVIEW_CONFIG_TAB', Text::_('COM_CONTENTBUILDERNG_PREVIEW_TAB_EDITABLE_TEMPLATE'));
-$editableTemplateMissing = $isAdminPreview && trim((string) ($this->tpl ?? '')) === '';
+$editableTemplateMissing = !$this->editable_template_configured;
 $previewFrontendPermissionKey = in_array((string) $recordId, ['', '0'], true)
     ? 'COM_CONTENTBUILDERNG_PERM_NEW'
     : 'COM_CONTENTBUILDERNG_PERM_EDIT';
@@ -206,7 +206,7 @@ $stateOptions = (array) ($this->states ?? []);
 $currentStateId = (int) (($this->state_ids ?? [])[$recordId] ?? 0);
 $currentStateTitle = trim((string) (($this->state_titles ?? [])[$recordId] ?? ''));
 $currentStateBadgeStyle = $getStateBadgeStyle((string) $recordId, (array) ($this->state_colors ?? []));
-$showStateControl = (int) ($this->list_state ?? 0) === 1 && count($stateOptions) > 0 && $hasRecord;
+$showStateControl = !$editableTemplateMissing && (int) ($this->list_state ?? 0) === 1 && count($stateOptions) > 0 && $hasRecord;
 $showRatingControl = (int) ($this->list_rating ?? 0) === 1 && (int) ($this->rating_slots ?? 0) > 0 && $hasRecord;
 $backHref = ($backToList || !$hasRecord) ? $listHref : $detailsHref;
 if (!isset($showBack)) {
@@ -875,7 +875,7 @@ PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
         <button type="button" class="btn btn-sm btn-primary cbButton cbArticleSettingsButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_ARTICLE_SETTINGS_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="var o=document.getElementById('cbArticleOptions');o.hidden=!o.hidden;"><span class="fa-solid fa-gear me-1" aria-hidden="true"></span><?php echo Text::_('COM_CONTENTBUILDERNG_SHOW_ARTICLE_SETTINGS'); ?></button>
     <?php
     }
-    if (($edit_allowed || $new_allowed) && !$this->edit_by_type) {
+    if (($edit_allowed || $new_allowed) && !$this->edit_by_type && !$editableTemplateMissing) {
     ?>
         <button type="button" class="btn btn-sm btn-primary cbButton cbSaveButton" title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_EDIT_SAVE_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>" onclick="document.getElementById('contentbuilderng_task').value='edit.save';contentbuilderng.onSubmit();">
             <span class="fa-solid fa-floppy-disk me-1" aria-hidden="true"></span>

@@ -44,6 +44,7 @@ class HtmlView extends BaseHtmlView
     public $event;
     public $record_id = 0;
     public $edit_by_type = false;
+    public bool $editable_template_configured = false;
     public $latest = false;
     public $back_button = false;
     public $created = null;
@@ -747,7 +748,7 @@ class HtmlView extends BaseHtmlView
             if (is_object($this->item)) {
                 $props = [
                     'theme_css', 'theme_js', 'show_page_heading', 'page_title', 'record_id',
-                    'edit_by_type', 'latest', 'back_button', 'created', 'created_by',
+                    'edit_by_type', 'editable_template_configured', 'latest', 'back_button', 'created', 'created_by',
                     'modified', 'modified_by', 'create_articles', 'apply_button_title',
                     'save_button_title', 'id', 'article_options', 'article_settings',
                     'limited_options', 'show_id_column', 'toc', 'tpl',
