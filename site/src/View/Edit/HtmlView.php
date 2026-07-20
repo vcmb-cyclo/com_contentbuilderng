@@ -725,7 +725,7 @@ class HtmlView extends BaseHtmlView
     {
         $wa = $this->getDocument()->getWebAssetManager();
         $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
-        $wa->useStyle('com_contentbuilderng.edit-fallback');
+        $wa->useStyle('com_contentbuilderng.content-fallback');
     }
 
     #[\Override]
@@ -797,8 +797,7 @@ class HtmlView extends BaseHtmlView
                     $fallbackTheme = false;
                     if ($themePlugin === '' || !PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin)) {
                         $themePlugin = 'thoth';
-                        PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin);
-                        $fallbackTheme = true;
+                        $fallbackTheme = !PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin);
                     }
                     $dispatcher = $app->getDispatcher();
 
@@ -806,7 +805,7 @@ class HtmlView extends BaseHtmlView
                     $dispatcher->dispatch('onEditableTemplateCss', $eventObj);
                     $results = $eventObj->getArgument('result') ?: [];
                     $this->theme_css = trim(implode('', $results));
-                    if ($this->theme_css === '' && ($fallbackTheme || $themePlugin === 'thoth')) {
+                    if ($this->theme_css === '' && $fallbackTheme) {
                         $this->useFallbackEditThemeCss();
                     }
 

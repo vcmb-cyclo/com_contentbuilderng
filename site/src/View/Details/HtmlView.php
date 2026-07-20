@@ -252,7 +252,7 @@ class HtmlView extends BaseHtmlView
     {
         $wa = $this->getDocument()->getWebAssetManager();
         $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
-        $wa->useStyle('com_contentbuilderng.details-fallback');
+        $wa->useStyle('com_contentbuilderng.content-fallback');
     }
 
 
@@ -450,15 +450,14 @@ class HtmlView extends BaseHtmlView
 			$fallbackTheme = false;
 			if ($themePlugin === '' || !PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin)) {
 				$themePlugin = 'thoth';
-				PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin);
-				$fallbackTheme = true;
+				$fallbackTheme = !PluginHelper::importPlugin('contentbuilderng_themes', $themePlugin);
 			}
 
 		$eventObj = new \Joomla\CMS\Event\GenericEvent('onContentTemplateCss', ['theme' => $themePlugin]);
 		$dispatcher->dispatch('onContentTemplateCss', $eventObj);
 		$results = $eventObj->getArgument('result') ?: [];
 		$this->theme_css = trim(implode('', $results));
-        if ($this->theme_css === '' && ($fallbackTheme || $themePlugin === 'thoth')) {
+        if ($this->theme_css === '' && $fallbackTheme) {
             $this->useFallbackDetailsThemeCss();
         }
 

@@ -1378,8 +1378,9 @@ class TemplateRenderService
                     $textValue = $normalizeScalarValue($failedValues !== null && isset($failedValues[$element['reference_id']]) ? $failedValues[$element['reference_id']] : ($hasRecords ? $item['value'] : $element['default_value']));
                     $textPresentation = $this->normalizeEditableFieldPresentation($textValue);
                     $textStyle = ($options->length ? 'width:' . $options->length . ';' : '') . $textPresentation['style'];
+                    $textStyleAttribute = $textStyle !== '' ? 'style="' . $textStyle . '" ' : '';
                     $textClass = 'form-control form-control-sm' . ($textPresentation['class'] !== '' ? ' ' . $textPresentation['class'] : '');
-                    $theItem = '<div class="cbFormField cbTextField"><input class="' . $textClass . '" ' . $autocomplete . '' . ($options->readonly ? 'readonly="readonly" ' : '') . 'style="' . $textStyle . '" ' . ($options->maxlength ? 'maxlength="' . (int) $options->maxlength . '" ' : '') . 'type="' . (isset($element['force_password']) || $options->password ? 'password' : 'text') . '" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '" value="' . htmlspecialchars($textPresentation['value'], ENT_QUOTES, 'UTF-8') . '"/></div>';
+                    $theItem = '<div class="cbFormField cbTextField"><input class="' . $textClass . '" ' . $autocomplete . '' . ($options->readonly ? 'readonly="readonly" ' : '') . $textStyleAttribute . ($options->maxlength ? 'maxlength="' . (int) $options->maxlength . '" ' : '') . 'type="' . (isset($element['force_password']) || $options->password ? 'password' : 'text') . '" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '" value="' . htmlspecialchars($textPresentation['value'], ENT_QUOTES, 'UTF-8') . '"/></div>';
                     break;
                 case 'textarea':
                     $options->width = $options->width ?? '';
@@ -1395,8 +1396,9 @@ class TemplateRenderService
                     } else {
                         $textareaPresentation = $this->normalizeEditableFieldPresentation($textareaValue);
                         $textareaStyle = ($options->width || $options->height ? ($options->width ? 'width:' . $options->width . ';' : '') . ($options->height ? 'height:' . $options->height . ';' : '') : '') . $textareaPresentation['style'];
+                        $textareaStyleAttribute = $textareaStyle !== '' ? 'style="' . $textareaStyle . '" ' : '';
                         $textareaClass = 'form-control form-control-sm' . ($textareaPresentation['class'] !== '' ? ' ' . $textareaPresentation['class'] : '');
-                        $theItem = '<div class="cbFormField cbTextArea form-control form-control-sm"><textarea class="' . $textareaClass . '" ' . ($options->readonly ? 'readonly="readonly" ' : '') . 'style="' . $textareaStyle . '" id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '">' . htmlspecialchars($textareaPresentation['value'], ENT_QUOTES, 'UTF-8') . '</textarea></div>';
+                        $theItem = '<div class="cbFormField cbTextArea form-control form-control-sm"><textarea class="' . $textareaClass . '" ' . ($options->readonly ? 'readonly="readonly" ' : '') . $textareaStyleAttribute . 'id="cb_' . $item['id'] . '" name="cb_' . $item['id'] . '">' . htmlspecialchars($textareaPresentation['value'], ENT_QUOTES, 'UTF-8') . '</textarea></div>';
                     }
                     break;
                 case 'checkboxgroup':
@@ -1413,7 +1415,8 @@ class TemplateRenderService
                         foreach ($groupdef as $value => $label) {
                             $checked = in_array(trim((string) $value), $group, true) ? ' checked="checked"' : '';
                             $for = $i != 0 ? '_' . $i : '';
-                            $theItem .= '<div style="' . ($options->horizontal_length ? 'width: ' . $options->horizontal_length . ';' : '') . '" class="cbGroupField form-check form-check-inline d-inline-flex align-items-center gap-1 mb-0"><input class="form-check-input mt-0" id="cb_' . $item['id'] . $for . '" name="cb_' . $item['id'] . '[]" type="' . ($elementType == 'checkboxgroup' ? 'checkbox' : 'radio') . '" value="' . htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8') . '"' . $checked . '/> <label class="form-check-label" for="cb_' . $item['id'] . $for . '">' . htmlspecialchars(trim($label), ENT_QUOTES, 'UTF-8') . '</label> </div>';
+                            $groupStyleAttribute = $options->horizontal_length ? ' style="width: ' . $options->horizontal_length . ';"' : '';
+                            $theItem .= '<div class="cbGroupField form-check form-check-inline d-inline-flex align-items-center gap-1 mb-0"' . $groupStyleAttribute . '><input class="form-check-input mt-0" id="cb_' . $item['id'] . $for . '" name="cb_' . $item['id'] . '[]" type="' . ($elementType == 'checkboxgroup' ? 'checkbox' : 'radio') . '" value="' . htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8') . '"' . $checked . '/> <label class="form-check-label" for="cb_' . $item['id'] . $for . '">' . htmlspecialchars(trim($label), ENT_QUOTES, 'UTF-8') . '</label> </div>';
                             $i++;
                         }
                         $theItem .= '</div>';

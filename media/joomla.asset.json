@@ -26,9 +26,9 @@
             ]
         },
         {
-            "name": "com_contentbuilderng.edit-fallback",
+            "name": "com_contentbuilderng.content-fallback",
             "type": "style",
-            "uri": "com_contentbuilderng/edit-fallback.css",
+            "uri": "com_contentbuilderng/content-fallback.css",
             "dependencies": [
                 "com_contentbuilderng.frontend"
             ]
@@ -42,20 +42,17 @@
             ]
         },
         {
-            "name": "com_contentbuilderng.details-fallback",
-            "type": "style",
-            "uri": "com_contentbuilderng/details-fallback.css",
-            "dependencies": [
-                "com_contentbuilderng.frontend"
-            ]
-        },
-        {
             "name": "com_contentbuilderng.debug-panel",
             "type": "style",
             "uri": "com_contentbuilderng/debug-panel.css",
             "dependencies": [
                 "com_contentbuilderng.frontend"
             ]
+        },
+        {
+            "name": "com_contentbuilderng.rating",
+            "type": "style",
+            "uri": "com_contentbuilderng/rating.css"
         },
         {
             "name": "com_contentbuilderng.admin-about",
