@@ -165,6 +165,15 @@ class EditController extends BaseController
         }
 
         $model = $this->getEditModel(['ignore_request' => true]);
+        if (!$model->isEditableTemplateConfigured()) {
+            $link = Route::_('index.php?option=com_contentbuilderng&task=edit.display&id='
+                . $this->siteApp->getInput()->getInt('id', 0)
+                . '&record_id=' . $this->siteApp->getInput()->getCmd('record_id', '')
+                . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0), false);
+            $this->setRedirect($link, Text::_('COM_CONTENTBUILDERNG_EDITABLE_TEMPLATE_NOT_SET'), 'error');
+            return;
+        }
+
         $id = $model->store();
 
         $submission_failed = $this->siteApp->getInput()->getBool('cb_submission_failed', false);
@@ -294,6 +303,20 @@ class EditController extends BaseController
         }
 
         $model = $this->getEditModel(['ignore_request' => true]);
+        if (!$model->isEditableTemplateConfigured()) {
+            $message = Text::_('COM_CONTENTBUILDERNG_EDITABLE_TEMPLATE_NOT_SET');
+            if ($this->isAjaxCall()) {
+                $this->respondAjax(false, $message);
+                return;
+            }
+
+            $this->setRedirect(Route::_('index.php?option=com_contentbuilderng&task=edit.display&id='
+                . $this->siteApp->getInput()->getInt('id', 0)
+                . '&record_id=' . $this->siteApp->getInput()->getCmd('record_id', '')
+                . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0), false), $message, 'error');
+            return;
+        }
+
         $changedCount = (int) $model->change_list_states();
         $msg = Text::plural('COM_CONTENTBUILDERNG_N_STATES_CHANGED', $changedCount);
 

@@ -955,12 +955,6 @@ parameters:
 			path: site/src/Model/EditModel.php
 
 		-
-			message: '#^Access to an undefined property CB\\Component\\Contentbuilderng\\Site\\Model\\EditModel\:\:\$_id\.$#'
-			identifier: property.notFound
-			count: 32
-			path: site/src/Model/EditModel.php
-
-		-
 			message: '#^Variable \$fields might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1

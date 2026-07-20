@@ -49,7 +49,7 @@ if (trim($themeJs) !== '') {
         <span class="fa-solid fa-print me-1" aria-hidden="true"></span><?php echo Text::_('COM_CONTENTBUILDERNG_PRINT') ?>
     </button>
     <button class="btn btn-sm btn-outline-secondary" onclick="self.close()">
-        <?php echo Text::_('COM_CONTENTBUILDERNG_CLOSE') ?>
+        <span class="icon-times me-1" aria-hidden="true"></span><?php echo Text::_('COM_CONTENTBUILDERNG_CLOSE') ?>
     </button>
 </div>
 <h1 class="display-6 mb-4">
