@@ -83,6 +83,7 @@ class EditModel extends BaseDatabaseModel
     private readonly ListSupportService $listSupportService;
     private readonly TemplateRenderService $templateRenderService;
 
+    private int $_id = 0;
     private $_record_id = 0;
 
     private $frontend = false;
