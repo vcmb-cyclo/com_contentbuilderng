@@ -85,6 +85,8 @@ class HtmlView extends BaseHtmlView
         $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
         $wa->useScript('com_contentbuilderng.admin-ui');
         HTMLHelper::_('script', 'com_contentbuilderng/admin-ui.js', ['version' => 'auto', 'relative' => true], ['defer' => true]);
+        Text::script('COM_CONTENTBUILDERNG_CONFIRM_DELETE_ONE');
+        Text::script('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MANY');
 
 		if (!$this->frontend) {
             $wa->addInlineStyle(
@@ -190,6 +192,10 @@ class HtmlView extends BaseHtmlView
             ->icon('fa-solid fa-circle-xmark text-danger')
             ->listCheck(true)
             ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_UNPUBLISH_ELEMENTS_TIP')]);
+        $childToolbar->delete('storage.listDelete', 'COM_CONTENTBUILDERNG_DELETE_FIELDS')
+            ->message('COM_CONTENTBUILDERNG_DELETE_FIELDS_CONFIRM')
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_DELETE_FIELDS_TIP')]);
 
         $id = (int) ($this->item->id ?? 0);
         $isExternalTable = ((int) ($this->item->bytable ?? 0) === 1);
@@ -232,11 +238,6 @@ class HtmlView extends BaseHtmlView
                 ->listCheck(false)
                 ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_DATATABLE_SYNC_TIP')]);
         }
-
-        $toolbar->delete('storage.listDelete', 'COM_CONTENTBUILDERNG_DELETE_FIELDS')
-            ->message('COM_CONTENTBUILDERNG_DELETE_FIELDS_CONFIRM')
-            ->listCheck(true)
-            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_DELETE_FIELDS_TIP')]);
 
         ToolbarHelper::cancel('storage.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
         ToolbarHelper::help(

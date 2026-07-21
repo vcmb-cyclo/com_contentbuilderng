@@ -646,6 +646,59 @@ class StorageController extends BaseFormController
         }
     }
 
+    /**
+     * Task: storage.listDelete — supprime les champs sélectionnés dans l'écran
+     * d'édition d'un storage (bouton "Supprimer champ"). Distinct de delete()
+     * qui supprime des storages entiers depuis l'écran Storages.
+     */
+    public function listDelete(): bool
+    {
+        $this->checkToken();
+
+        $cids = $this->input->get('cid', [], 'array');
+        ArrayHelper::toInteger($cids);
+
+        $storageId = (int) $this->input->getInt('id');
+
+        if (empty($cids)) {
+            $error = Text::_('JERROR_NO_ITEMS_SELECTED');
+            $this->setMessage($error, 'error');
+            $this->setRedirect(
+                Route::_('index.php?option=com_contentbuilderng&task=storage.display&layout=edit&id=' . $storageId, false)
+            );
+
+            return false;
+        }
+
+        /** @var StoragefieldsModel|null $model */
+        $model = $this->getModel('Storagefields', 'Administrator', ['ignore_request' => true]);
+        if (!$model) {
+            throw new \RuntimeException('StoragefieldsModel introuvable');
+        }
+
+        $model->setStorageId($storageId);
+
+        try {
+            $deleted = $model->delete($cids);
+        } catch (\Throwable $e) {
+            $this->setRedirect(
+                Route::_('index.php?option=com_contentbuilderng&task=storage.display&layout=edit&id=' . $storageId, false),
+                $e->getMessage(),
+                'error'
+            );
+
+            return false;
+        }
+
+        $this->setRedirect(
+            Route::_('index.php?option=com_contentbuilderng&task=storage.display&layout=edit&id=' . $storageId, false),
+            $deleted > 0 ? Text::_('COM_CONTENTBUILDERNG_DELETED') : Text::_('COM_CONTENTBUILDERNG_DELETE_FIELDS_PROTECTED'),
+            $deleted > 0 ? 'message' : 'warning'
+        );
+
+        return true;
+    }
+
     public function publish(): bool
     {
         return $this->storagesPublish(1, 'COM_CONTENTBUILDERNG_PUBLISHED');

@@ -102,6 +102,10 @@ class HtmlView extends BaseHtmlView
         $this->addToolbarIcon();
 
         $this->document->getWebAssetManager()->useScript('table.columns');
+        $this->document->getWebAssetManager()->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+        $this->document->getWebAssetManager()->useScript('com_contentbuilderng.admin-ui');
+        Text::script('COM_CONTENTBUILDERNG_CONFIRM_DELETE_ONE');
+        Text::script('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MANY');
 
         // Barre d'outils
         $this->addToolbar();
@@ -178,7 +182,6 @@ class HtmlView extends BaseHtmlView
 
         ToolbarHelper::addNew('storage.add');
         ToolbarHelper::editList('storage.edit');
-        ToolbarHelper::deleteList('COM_CONTENTBUILDERNG_CONFIRM_STORAGE_DELETE_MESSAGE', 'storage.delete');
         /** @var HtmlDocument $document */
         $document = $this->getDocument();
         $toolbar = $document->getToolbar('toolbar');
@@ -193,6 +196,10 @@ class HtmlView extends BaseHtmlView
         $statusChildToolbar = $statusDropdown->getChildToolbar();
         $statusChildToolbar->publish('storages.publish')->icon('fa-solid fa-check text-success')->listCheck(true);
         $statusChildToolbar->unpublish('storages.unpublish')->icon('fa-solid fa-circle-xmark text-danger')->listCheck(true);
+        $statusChildToolbar->delete('storage.delete')
+            ->message('COM_CONTENTBUILDERNG_CONFIRM_STORAGE_DELETE_MESSAGE')
+            ->icon('fa-solid fa-trash text-danger')
+            ->listCheck(true);
 
         ToolbarHelper::preferences('com_contentbuilderng');
         ToolbarHelper::help(

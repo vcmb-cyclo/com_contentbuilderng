@@ -32,6 +32,7 @@ use CB\Component\Contentbuilderng\Administrator\Service\StorageFieldService;
 use CB\Component\Contentbuilderng\Administrator\Service\PathService;
 use CB\Component\Contentbuilderng\Administrator\Service\FormSupportService;
 use CB\Component\Contentbuilderng\Administrator\Service\TemplateSampleService;
+use CB\Component\Contentbuilderng\Administrator\Service\DirectStorageFormProvisioningService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Service\ArticleService;
 use CB\Component\Contentbuilderng\Administrator\Service\ListSupportService;
@@ -86,6 +87,13 @@ return new class implements ServiceProviderInterface
                 $c->get(PathService::class),
                 $c->get(DatabaseInterface::class),
                 $c->get(TemplateSampleService::class)
+            )
+        );
+        $container->set(
+            DirectStorageFormProvisioningService::class,
+            static fn(Container $c) => new DirectStorageFormProvisioningService(
+                $c->get(DatabaseInterface::class),
+                $c->get(FormSupportService::class)
             )
         );
         $container->set(

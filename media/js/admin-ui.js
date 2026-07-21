@@ -148,6 +148,90 @@ window.ContentBuilderNgAdmin = window.ContentBuilderNgAdmin || (function () {
         }
     }
 
+    function extractSubmitButtonTask(onclickAttr) {
+        var m = onclickAttr.match(/Joomla\.submitbutton\(\s*'([^']+)'\s*\)/);
+
+        return m ? m[1] : null;
+    }
+
+    function getCheckedRows(form) {
+        return Array.prototype.slice.call(form.querySelectorAll('input[name="cid[]"]:checked'));
+    }
+
+    function labelForCheckbox(checkbox) {
+        var row = checkbox.closest('tr[data-cb-item-label]');
+
+        return row ? row.getAttribute('data-cb-item-label') : '';
+    }
+
+    function buildDeleteConfirmMessage(checkedRows) {
+        if (checkedRows.length === 1) {
+            var label = labelForCheckbox(checkedRows[0]);
+
+            if (label && window.Joomla && typeof Joomla.Text._ === 'function') {
+                return Joomla.Text._('COM_CONTENTBUILDERNG_CONFIRM_DELETE_ONE').replace('%s', label);
+            }
+        }
+
+        if (window.Joomla && typeof Joomla.Text._ === 'function') {
+            return Joomla.Text._('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MANY').replace('%d', String(checkedRows.length));
+        }
+
+        return null;
+    }
+
+    // Rend les boîtes de confirmation "Supprimer" (toolbar admin, boutons
+    // générés via Toolbar\Button\ConfirmButton::message()) plus précises :
+    // nom de l'élément si un seul est sélectionné, nombre sinon. Intercepte
+    // tout bouton confirm()+Joomla.submitbutton() du composant, sans wiring
+    // par écran.
+    document.addEventListener('click', function (event) {
+        var el = typeof event.target.closest === 'function'
+            ? event.target.closest('[onclick*="Joomla.submitbutton("]')
+            : null;
+
+        if (!el) {
+            return;
+        }
+
+        var onclickAttr = el.getAttribute('onclick') || '';
+
+        if (onclickAttr.indexOf('confirm(') === -1) {
+            return;
+        }
+
+        var task = extractSubmitButtonTask(onclickAttr);
+
+        if (!task) {
+            return;
+        }
+
+        var form = document.adminForm || document.getElementById('adminForm');
+
+        if (!form) {
+            return;
+        }
+
+        var checkedRows = getCheckedRows(form);
+
+        if (!checkedRows.length) {
+            return; // Laisser le handler natif afficher "Sélectionnez un élément".
+        }
+
+        var message = buildDeleteConfirmMessage(checkedRows);
+
+        if (!message) {
+            return; // Chaînes non chargées sur cette page : conserver le comportement natif.
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        if (window.confirm(message)) {
+            Joomla.submitbutton(task);
+        }
+    }, true);
+
     return {
         applyTabTooltips: applyTabTooltips,
         getTabTargetId: getTabTargetId,

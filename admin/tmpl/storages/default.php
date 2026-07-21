@@ -381,7 +381,7 @@ if (storagesTable && storagesTable.tBodies.length) {
                         $previewUrl = (string) ($previewLinks[$id] ?? '');
 
                     ?>
-                    <tr data-cb-row-id="<?php echo $id; ?>">
+                    <tr data-cb-row-id="<?php echo $id; ?>" data-cb-item-label="<?php echo $title !== '' ? $title : $name; ?>">
                         <td class="text-nowrap"><?php echo $id; ?></td>
                         <td class="text-center"><?php echo $checked; ?></td>
                         <td class="text-center">

@@ -121,7 +121,10 @@ if ($previewActorLabel === '' && $previewActorId > 0) {
 $showPreviewSessionBadge = $isAdminPreview && $currentSessionLabel !== '' && $currentSessionLabel !== $previewActorLabel;
 $previewQuery = '';
 $adminReturnContext = trim((string) $input->getCmd('cb_admin_return', ''));
-$adminReturnUrl = Uri::root() . 'administrator/index.php?option=com_contentbuilderng&task=form.edit&id=' . (int) $id;
+$adminReturnDirectStorageId = $input->getInt('storage_id', 0);
+$adminReturnUrl = $adminReturnDirectStorageId > 0
+    ? Uri::root() . 'administrator/index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . $adminReturnDirectStorageId
+    : Uri::root() . 'administrator/index.php?option=com_contentbuilderng&task=form.edit&id=' . (int) $id;
 if ($adminReturnContext === 'forms') {
     $adminReturnUrl = Uri::root() . 'administrator/index.php?option=com_contentbuilderng&view=forms';
 }
@@ -154,7 +157,9 @@ $previewFrontendPermissionHint = Text::sprintf(
     Text::_($previewFrontendPermissionKey),
     Text::_('COM_CONTENTBUILDERNG_DISPLAY_FRONTEND')
 );
-$editScreenAdminUrl = Uri::root() . 'administrator/index.php?option=com_contentbuilderng&view=form&layout=edit&id=' . (int) $id . '&tab=tab5&force_view_tab=tab5';
+$editScreenAdminUrl = $adminReturnDirectStorageId > 0
+    ? Uri::root() . 'administrator/index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . $adminReturnDirectStorageId
+    : Uri::root() . 'administrator/index.php?option=com_contentbuilderng&view=form&layout=edit&id=' . (int) $id . '&tab=tab5&force_view_tab=tab5';
 if ($previewEnabled && $previewUntil > 0 && $previewSig !== '') {
     $previewQuery = PreviewLinkHelper::buildQuery(
         (int) $previewUntil,
@@ -177,10 +182,25 @@ $previewColorMode = PreviewColorModeHelper::resolve($input, $isAdminPreview);
 $previewQuery = PreviewColorModeHelper::appendQuery($previewQuery, $previewColorMode);
 $previewHiddenFields = PreviewColorModeHelper::appendHiddenField($previewHiddenFields, $previewColorMode);
 
+$directStorageId = $adminReturnDirectStorageId;
+if ($directStorageId > 0) {
+    // storage_id ne fait pas partie de l'URL d'action du formulaire (qui porte
+    // désormais le vrai id du #__contentbuilderng_forms résolu à l'affichage) :
+    // sans ce champ caché, la sauvegarde perdrait le contexte "storage direct"
+    // et donc la validation de la signature de prévisualisation associée.
+    $previewHiddenFields .= "\n" . '<input type="hidden" name="storage_id" value="' . (int) $directStorageId . '" />';
+}
+
+// En mode storage direct, $id porte le vrai form résolu à l'affichage :
+// retomber sur "id=" ferait perdre le contexte storage_id sur la page
+// suivante (isDirectStorageMode y redeviendrait faux), et donc la validation
+// de la signature preview.
+$idOrStorageIdParam = $directStorageId > 0 ? '&storage_id=' . $directStorageId : '&id=' . $id;
+
 $detailsHref = Route::_(
     'index.php?option=com_contentbuilderng&task=details.display'
         . ($layout !== '' ? '&layout=' . $layout : '')
-        . '&id=' . $id
+        . $idOrStorageIdParam
         . '&record_id=' . $recordId
         . ($tmpl !== '' ? '&tmpl=' . $tmpl : '')
         . '&Itemid=' . $itemId
@@ -191,7 +211,7 @@ $detailsHref = Route::_(
 $listHref = Route::_(
     'index.php?option=com_contentbuilderng&task=list.display'
         . ($layout !== '' ? '&layout=' . $layout : '')
-        . '&id=' . $id
+        . $idOrStorageIdParam
         . ($listQuery !== '' ? '&' . $listQuery : '')
         . ($tmpl !== '' ? '&tmpl=' . $tmpl : '')
         . '&Itemid=' . $itemId
@@ -219,9 +239,11 @@ $nextRecordStart = property_exists($this, 'next_record_start') ? (int) $this->ne
 $editBaseParams = [
     'option' => 'com_contentbuilderng',
     'task' => 'edit.display',
-    'id' => $id,
     'Itemid' => $itemId,
 ];
+// Même remarque que pour $idOrStorageIdParam plus haut : garder storage_id
+// pour ne pas perdre le contexte "storage direct" sur la page suivante.
+$editBaseParams[$directStorageId > 0 ? 'storage_id' : 'id'] = $directStorageId > 0 ? $directStorageId : $id;
 if ($layout !== '') {
     $editBaseParams['layout'] = $layout;
 }

@@ -22,6 +22,7 @@ use Joomla\Filesystem\File;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\PhpTemplateHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
+use CB\Component\Contentbuilderng\Administrator\Helper\StorageColumnTypeHelper;
 
 class contentbuilderng_com_contentbuilderng
 {
@@ -925,10 +926,12 @@ class contentbuilderng_com_contentbuilderng
         $username = trim((string) ($identity->username ?? ''));
         $user_full_name = trim((string) ($identity->name ?? ''));
         $names = array();
+        $sqlTypeById = array();
 
         foreach ($this->elements as $element) {
             if (isset($cleaned_values[$element['id']])) {
                 $names[$element['id']] = array('name' => $element['name'], 'value' => '');
+                $sqlTypeById[$element['id']] = StorageColumnTypeHelper::normalize($element['sql_type'] ?? null);
             }
         }
 
@@ -1054,8 +1057,11 @@ class contentbuilderng_com_contentbuilderng
             foreach ($names as $id => $keys) {
                 $columns[] = (string) $keys['name'];
                 $placeholders[] = ':fieldValue' . $i;
-                $bindValues[$i] = (string) $keys['value'];
-                $query->bind(':fieldValue' . $i, $bindValues[$i]);
+                $fieldValue = (string) $keys['value'];
+                $isEmptyDate = $fieldValue === ''
+                    && in_array($sqlTypeById[$id] ?? '', ['date', 'datetime'], true);
+                $bindValues[$i] = $isEmptyDate ? null : $fieldValue;
+                $query->bind(':fieldValue' . $i, $bindValues[$i], $isEmptyDate ? ParameterType::NULL : ParameterType::STRING);
                 $i++;
             }
 
@@ -1087,9 +1093,12 @@ class contentbuilderng_com_contentbuilderng
             $bindValues = [];
             $i = 0;
             foreach ($names as $id => $keys) {
-                $bindValues[$i] = (string) $keys['value'];
+                $fieldValue = (string) $keys['value'];
+                $isEmptyDate = $fieldValue === ''
+                    && in_array($sqlTypeById[$id] ?? '', ['date', 'datetime'], true);
+                $bindValues[$i] = $isEmptyDate ? null : $fieldValue;
                 $query->set($db->quoteName((string) $keys['name']) . ' = :fieldValue' . $i);
-                $query->bind(':fieldValue' . $i, $bindValues[$i]);
+                $query->bind(':fieldValue' . $i, $bindValues[$i], $isEmptyDate ? ParameterType::NULL : ParameterType::STRING);
                 $i++;
             }
 

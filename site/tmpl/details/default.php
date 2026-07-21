@@ -454,8 +454,16 @@ if ($themeJs !== '') {
     <?php endif; ?>
 
     <?php if ($canEditRecord) : ?>
+        <?php
+        // En mode storage direct, garder storage_id (et non le vrai id de
+        // #__contentbuilderng_forms résolu à l'affichage) pour que edit.display
+        // redétecte bien isDirectStorageMode et valide la signature preview.
+        $detailsEditIdParam = $directStorageMode
+            ? '&storage_id=' . $directStorageId
+            : '&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0);
+        ?>
         <a class="btn btn-sm btn-primary cbButton cbEditButton"
-            href="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&record_id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getCmd('record_id', 0) . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . $previewQuery); ?>"
+            href="<?php echo Route::_('index.php?option=com_contentbuilderng&task=edit.display' . $detailsEditIdParam . '&record_id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getCmd('record_id', 0) . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') : '') . '&Itemid=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') : '') . ($listQuery !== '' ? '&' . $listQuery : '') . $previewQuery); ?>"
             title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_DETAILS_EDIT_TOOLTIP'), ENT_QUOTES, 'UTF-8'); ?>">
             <span class="fa-solid fa-pen me-1" aria-hidden="true"></span>
             <?php echo Text::_('COM_CONTENTBUILDERNG_EDIT'); ?>

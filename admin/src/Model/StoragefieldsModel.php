@@ -22,6 +22,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\Database\DatabaseQuery;
+use Joomla\Database\ParameterType;
 use Joomla\Utilities\ArrayHelper;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
@@ -295,5 +296,103 @@ class StoragefieldsModel extends ListModel
         }
 
         return true;
+    }
+
+    /**
+     * Deletes the given storage_fields rows (scoped to the current storage,
+     * system fields excluded) and, for a component-managed table
+     * (bytable=0), drops the matching physical column. External tables
+     * (bytable=1) only get their CB-side metadata removed.
+     *
+     * @return int Number of fields actually deleted.
+     */
+    public function delete(array $pks): int
+    {
+        $pks = (array) $pks;
+
+        if (empty($pks)) {
+            throw new \RuntimeException(Text::_('JLIB_DATABASE_ERROR_NO_ROWS_SELECTED'));
+        }
+
+        ArrayHelper::toInteger($pks);
+        $pks = array_values(array_filter($pks));
+
+        if (empty($pks)) {
+            throw new \RuntimeException(Text::_('JLIB_DATABASE_ERROR_NO_ROWS_SELECTED'));
+        }
+
+        $storageId = (int) $this->getState('storage.id', 0);
+
+        if (!$storageId) {
+            throw new \RuntimeException(Text::_('JLIB_DATABASE_ERROR_NO_ROWS_SELECTED'));
+        }
+
+        $db = $this->getDatabase();
+
+        $storageQuery = $db->getQuery(true)
+            ->select($db->quoteName(['name', 'bytable']))
+            ->from($db->quoteName('#__contentbuilderng_storages'))
+            ->where($db->quoteName('id') . ' = :storageId')
+            ->bind(':storageId', $storageId, ParameterType::INTEGER);
+        $db->setQuery($storageQuery);
+        $storage = $db->loadAssoc();
+
+        if (!is_array($storage)) {
+            throw new \RuntimeException('Storage introuvable.');
+        }
+
+        $systemFields = ['id', 'storage_id', 'user_id', 'created', 'created_by', 'modified_user_id', 'modified', 'modified_by'];
+
+        $fieldsQuery = $db->getQuery(true)
+            ->select($db->quoteName(['id', 'name']))
+            ->from($db->quoteName('#__contentbuilderng_storage_fields'))
+            ->where($db->quoteName('id') . ' IN (' . implode(',', $pks) . ')')
+            ->where($db->quoteName('storage_id') . ' = :storageId2')
+            ->bind(':storageId2', $storageId, ParameterType::INTEGER);
+        $db->setQuery($fieldsQuery);
+        $fields = $db->loadAssocList() ?: [];
+
+        $fields = array_values(array_filter(
+            $fields,
+            static fn (array $field): bool => !in_array((string) $field['name'], $systemFields, true)
+        ));
+
+        if (empty($fields)) {
+            return 0;
+        }
+
+        $isExternalTable = ((int) ($storage['bytable'] ?? 0) === 1);
+
+        if (!$isExternalTable) {
+            $storageName = trim((string) $storage['name']);
+            $prefixedTable = $db->getPrefix() . $storageName;
+            $tables = $db->getTableList();
+
+            if ($storageName !== '' && in_array($prefixedTable, $tables, true)) {
+                $cols = $db->getTableColumns($prefixedTable, true);
+
+                foreach ($fields as $field) {
+                    $columnName = (string) $field['name'];
+
+                    if (isset($cols[$columnName])) {
+                        $db->setQuery(
+                            'ALTER TABLE ' . $db->quoteName('#__' . $storageName)
+                            . ' DROP COLUMN ' . $db->quoteName($columnName)
+                        );
+                        $db->execute();
+                    }
+                }
+            }
+        }
+
+        $ids = array_map(static fn (array $field): int => (int) $field['id'], $fields);
+
+        $deleteQuery = $db->getQuery(true)
+            ->delete($db->quoteName('#__contentbuilderng_storage_fields'))
+            ->where($db->quoteName('id') . ' IN (' . implode(',', $ids) . ')');
+        $db->setQuery($deleteQuery);
+        $db->execute();
+
+        return count($ids);
     }
 }

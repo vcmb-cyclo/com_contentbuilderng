@@ -436,7 +436,7 @@ Label 3;value3</textarea>
                     $checked = '<input class="form-check-input" type="checkbox" id="cb' . (int) $i . '" name="cid[]" value="' . $id . '" onclick="Joomla.isChecked(this.checked);">';
                     $published = ContentbuilderngHelper::listPublish('storage', $row, $i);
                 ?>
-                    <tr class="row<?php echo $i % 2; ?>" data-cb-row-id="<?php echo $id; ?>">
+                    <tr class="row<?php echo $i % 2; ?>" data-cb-row-id="<?php echo $id; ?>" data-cb-item-label="<?php echo $title !== '' ? $title : $name; ?>">
                         <td class="text-center" data-cb-storage-col="check"><?php echo $checked; ?></td>
                         <td data-cb-storage-col="name"><?php echo $name; ?></td>
                         <td data-cb-storage-col="title"><?php echo $title; ?></td>

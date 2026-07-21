@@ -23,6 +23,8 @@ use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Input\Input;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use CB\Component\Contentbuilderng\Administrator\Service\DirectStorageFormProvisioningService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
@@ -48,6 +50,17 @@ class DetailsController extends BaseController
     private function getPermissionService(): PermissionService
     {
         return PermissionService::createFromRuntimeContext();
+    }
+
+    private function getDirectStorageFormProvisioningService(): DirectStorageFormProvisioningService
+    {
+        $component = RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component->getContainer()->get(DirectStorageFormProvisioningService::class);
     }
 
     public function __construct(
@@ -174,8 +187,14 @@ class DetailsController extends BaseController
         // 1) d'abord depuis l'URL
         $form_id = $this->input->getInt('id', 0);
 
-        // 2) sinon depuis les params du menu actif
-        if (!$form_id) {
+        if ($isDirectStorageMode) {
+            // Vue directe d'un storage : résout (ou crée à la volée, avec ses
+            // éléments et ses templates par défaut) le #__contentbuilderng_forms
+            // lié, pour que le reste du pipeline (DetailsModel, etc.) fonctionne
+            // comme pour un formulaire classique.
+            $form_id = $this->getDirectStorageFormProvisioningService()->resolveOrCreateFormId($storageId);
+        } elseif (!$form_id) {
+            // 2) sinon depuis les params du menu actif
             $menu = $this->siteApp->getMenu()->getActive();
             if ($menu) {
                 $form_id = (int) MenuParamHelper::getMenuParam($menu->getParams(), 'form_id', 0);
@@ -183,8 +202,14 @@ class DetailsController extends BaseController
         }
 
         // Keep both input bags aligned for downstream model/view access.
-        $this->input->set('id', $form_id);
-        $this->siteApp->getInput()->set('id', $form_id);
+        // (En mode storage direct, DetailsModel détermine lui-même son
+        // directStorageMode via storage_id/id : ne pas y écrire le formId
+        // résolu ici, sous peine de le faire basculer sur le chemin
+        // "formulaire classique" et de perdre le rendu direct storage.)
+        if (!$isDirectStorageMode) {
+            $this->input->set('id', $form_id);
+            $this->siteApp->getInput()->set('id', $form_id);
+        }
 
         $recordId = (int) $this->input->getInt('record_id', 0);
         if (!$recordId) {
@@ -198,18 +223,26 @@ class DetailsController extends BaseController
             $this->siteApp->getInput()->set('record_id', $recordId);
         }
 
-        if (!$isDirectStorageMode) {
-            $this->getPermissionService()->setPermissions($form_id, $recordId, $suffix);
-        }
+        // En mode storage direct, $form_id pointe désormais vers un vrai
+        // #__contentbuilderng_forms (résolu/créé plus haut) : les droits
+        // configurés dessus (admin > Formulaires) doivent donc être chargés
+        // comme pour n'importe quel formulaire classique.
+        $this->getPermissionService()->setPermissions($form_id, $recordId, $suffix);
+
         $isAdminPreview = $isDirectStorageMode
             ? $this->isValidAdminPreviewRequest(0, $storageId)
             : $this->isValidAdminPreviewRequest($form_id);
         $this->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
         $this->siteApp->getInput()->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
+        if (!$isAdminPreview && $this->siteApp->getInput()->getBool('cb_preview', false)) {
+            // Lien de prévisualisation présent mais invalide/expiré : prévenir
+            // plutôt que de perdre silencieusement le bandeau "Prévisualisation".
+            $this->siteApp->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_PREVIEW_LINK_EXPIRED'), 'warning');
+        }
         if ($isDirectStorageMode && $isAdminPreview) {
             $this->getPermissionService()->setStoragePreviewPermissions($storageId, $suffix);
         }
-        if (!$isDirectStorageMode && !$isAdminPreview) {
+        if (!$isAdminPreview) {
             $this->getPermissionService()->checkPermissions('view', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_VIEW_NOT_ALLOWED'), $this->frontend ? '_fe' : '');
         }
 
