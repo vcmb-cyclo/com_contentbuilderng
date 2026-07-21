@@ -54,17 +54,22 @@
 
         root.dataset.cbstatsInitialised = 'true';
 
-        new Chart(canvas, {
+        const finalValues = items.map((item) => item.value);
+
+        const chart = new Chart(canvas, {
             type: 'bar',
             data: {
                 labels: items.map((item) => item.label),
                 datasets: [{
-                    data: items.map((item) => item.value),
+                    data: finalValues.map(() => 0),
                     backgroundColor: items.map((item) => item.color),
                     borderColor: items.map((item) => item.color),
                     borderWidth: 1,
                     borderRadius: 4,
                     borderSkipped: false,
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9,
+                    maxBarThickness: 24,
                 }],
             },
             plugins: [valueLabels],
@@ -73,7 +78,8 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 animation: {
-                    duration: 450,
+                    duration: 900,
+                    easing: 'easeOutQuart',
                 },
                 scales: {
                     x: {
@@ -110,6 +116,13 @@
                     },
                 },
             },
+        });
+
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
+                chart.data.datasets[0].data = finalValues;
+                chart.update();
+            });
         });
     };
 

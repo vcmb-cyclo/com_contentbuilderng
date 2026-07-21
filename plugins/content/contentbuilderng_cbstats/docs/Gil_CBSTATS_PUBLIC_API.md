@@ -111,14 +111,23 @@ Existing matching semantics to preserve include:
 Examples:
 
 ```text
-filter[value]="200 km*"
+{CBStats id=15 field=Element-1 filter[field]=Element-2 filter[value]="Dét* | 3 | 4" output=bar}
 ```
+
+`field=Element-1` is grouped and displayed. `filter[field]=Element-2` is used
+only to select records. `*` is a wildcard, `|` separates alternatives and
+surrounding spaces are trimmed. Without a wildcard, matching is exact.
+
+When the filter applies to the displayed field, `value=` is a shorthand:
 
 ```text
-filter[value]="FFVelo|FFC"
+{CBStats id=15 field=Element-2 value="Dét* | 3 | 4" output=bar}
 ```
 
-These examples illustrate syntax only. No example value may be hardcoded into plugin logic.
+This is strictly equivalent to the complete filter where both `field` and
+`filter[field]` are `Element-2`. `value=` is independent from `values=`, which
+is reserved exclusively for `source=manual`. These examples illustrate syntax
+only. No example value may be hardcoded into plugin logic.
 
 ## 7. External additions
 

@@ -8,7 +8,17 @@
 
 ## Recommended long description — French
 
-CBStats est le plugin de statistiques de ContentBuilder NG. Il interroge de façon générique une vue et ses champs depuis une balise `{CBStats ...}`, applique les filtres exacts, jokers et alternatives, puis produit les outputs `total`, `form_name`, `table`, `sum`, `min`, `max`, `json`, `pie` et `bar`. `add=` applique des deltas externes signés ; si le résultat calculé devient négatif, CBStats utilise temporairement `0` pour les tris, pourcentages et rendus, sans modifier les données sources. `titles=` renomme les libellés affichés avant le tri. Les outputs de données `json`, `total`, `sum`, `min`, `max` et `form_name` sont aussi accessibles par URL/API ; JSON accepte également `add` et `titles`. Les calculs de champs reposent sur une source normalisée commune et respectent les ACL, STATS et permissions de champ.
+CBStats est le plugin de statistiques de ContentBuilder NG. Il interroge de façon générique une vue et ses champs depuis une balise `{CBStats ...}`, applique les filtres exacts, jokers et alternatives, puis produit les outputs `total`, `form_name`, `table`, `sum`, `min`, `max`, `json`, `pie` et `bar`. `field=` désigne le champ regroupé et affiché ; `filter[field]` et `filter[value]` permettent de filtrer sur un autre champ, par exemple `{CBStats id=15 field=Element-1 filter[field]=Element-2 filter[value]="Dét* | 3 | 4" output=bar}`. Lorsque le filtre porte sur le champ affiché, `value=` est le raccourci strictement équivalent ; il reste distinct de `values=`, réservé à `source=manual`. `add=` applique des deltas externes signés ; si le résultat calculé devient négatif, CBStats utilise temporairement `0` pour les tris, pourcentages et rendus, sans modifier les données sources. `titles=` renomme les libellés affichés avant le tri. Les outputs de données `json`, `total`, `sum`, `min`, `max` et `form_name` sont aussi accessibles par URL/API ; JSON accepte également `add` et `titles`. Les calculs de champs reposent sur une source normalisée commune et respectent les ACL, STATS et permissions de champ.
+
+Exemples :
+
+```text
+{CBStats id=25 field=Route output=pie add='100 km=-3'}
+{CBStats id=25 field=Route output=table titles='1=Group 1;2=Group 2'}
+{CBStats id=25 field=Route output=bar add='1=-2;2=3' titles='1=Group 1;2=Group 2' sort=value dir=desc}
+{CBStats id=15 field=Element-1 filter[field]=Element-2 filter[value]="Dét* | 3 | 4" output=bar}
+{CBStats id=15 field=Element-2 value="Dét* | 3 | 4" output=bar}
+```
 
 ## Recommended short description — English
 
@@ -16,11 +26,35 @@ CBStats est le plugin de statistiques de ContentBuilder NG. Il interroge de faç
 
 ## Recommended long description — English
 
-CBStats is the statistics plugin for ContentBuilder NG. It generically queries a view and its fields from a `{CBStats ...}` tag, applies exact, wildcard and alternative filters, and produces `total`, `form_name`, `table`, `sum`, `min`, `max`, `json`, `pie` and `bar`. `add=` applies signed external deltas; when a calculated result becomes negative, CBStats temporarily uses `0` for sorting, percentages and rendering without changing source data. `titles=` renames display labels before sorting. The `json`, `total`, `sum`, `min`, `max` and `form_name` data outputs are also available through URL/API requests; JSON also accepts `add` and `titles`. Field statistics share one normalized source and enforce ACLs, STATS and field permissions.
+CBStats is the statistics plugin for ContentBuilder NG. It generically queries a view and its fields from a `{CBStats ...}` tag, applies exact, wildcard and alternative filters, and produces `total`, `form_name`, `table`, `sum`, `min`, `max`, `json`, `pie` and `bar`. `field=` selects the grouped and displayed field; `filter[field]` and `filter[value]` can filter another field, for example `{CBStats id=15 field=Element-1 filter[field]=Element-2 filter[value]="Dét* | 3 | 4" output=bar}`. When the displayed field is filtered, `value=` is the strictly equivalent shorthand; it remains distinct from `values=`, which is reserved for `source=manual`. `add=` applies signed external deltas; when a calculated result becomes negative, CBStats temporarily uses `0` for sorting, percentages and rendering without changing source data. `titles=` renames display labels before sorting. The `json`, `total`, `sum`, `min`, `max` and `form_name` data outputs are also available through URL/API requests; JSON also accepts `add` and `titles`. Field statistics share one normalized source and enforce ACLs, STATS and field permissions.
+
+Examples:
+
+```text
+{CBStats id=25 field=Route output=pie add='100 km=-3'}
+{CBStats id=25 field=Route output=table titles='1=Group 1;2=Group 2'}
+{CBStats id=25 field=Route output=bar add='1=-2;2=3' titles='1=Group 1;2=Group 2' sort=value dir=desc}
+{CBStats id=15 field=Element-1 filter[field]=Element-2 filter[value]="Dét* | 3 | 4" output=bar}
+{CBStats id=15 field=Element-2 value="Dét* | 3 | 4" output=bar}
+```
 
 ## Recommended short description — German
 
 **ContentBuilder NG - CBStats - Inhalt - Statistiken** zeigt dynamische Statistiken aus ContentBuilder-NG-Ansichten in Joomla-Inhalten über `{CBStats ...}`-Tags an oder veröffentlicht unterstützte Datenausgaben über URL/API-Anfragen. Das Plugin unterstützt Gesamtzahlen, Tabellen, Aggregate, JSON, Kreis- und Balkendiagramme, Filter, Sortierungen, vorzeichenbehaftete externe Deltas mit `add=`, Gesamtbezeichnungen mit `title=` und Kategoriebezeichnungen mit `titles=`. Beispiel: `{CBStats id=25 field=Strecke output=pie title="👥 Gesamtzahl der Anmeldungen:"}`. API-Einstellungen der Ansicht sowie STATS- und Feldberechtigungen bleiben wirksam.
+
+## Recommended long description — German
+
+CBStats ist das Statistik-Plugin für ContentBuilder NG. Es fragt eine Ansicht und ihre Felder generisch über ein `{CBStats ...}`-Tag ab, wendet exakte Filter, Platzhalter und Alternativen an und erzeugt `total`, `form_name`, `table`, `sum`, `min`, `max`, `json`, `pie` und `bar`. `field=` bestimmt das gruppierte und angezeigte Feld; mit `filter[field]` und `filter[value]` kann ein anderes Feld gefiltert werden, zum Beispiel `{CBStats id=15 field=Element-1 filter[field]=Element-2 filter[value]="Dét* | 3 | 4" output=bar}`. Wird das angezeigte Feld gefiltert, ist `value=` die exakt gleichwertige Kurzform; sie bleibt von `values=` getrennt, das ausschließlich für `source=manual` bestimmt ist. `add=` wendet vorzeichenbehaftete externe Deltas an. `titles=` benennt Anzeigebezeichnungen vor der Sortierung um. Feldstatistiken verwenden eine gemeinsame normalisierte Quelle und berücksichtigen ACLs sowie STATS- und Feldberechtigungen.
+
+Beispiele:
+
+```text
+{CBStats id=25 field=Route output=pie add='100 km=-3'}
+{CBStats id=25 field=Route output=table titles='1=Group 1;2=Group 2'}
+{CBStats id=25 field=Route output=bar add='1=-2;2=3' titles='1=Group 1;2=Group 2' sort=value dir=desc}
+{CBStats id=15 field=Element-1 filter[field]=Element-2 filter[value]="Dét* | 3 | 4" output=bar}
+{CBStats id=15 field=Element-2 value="Dét* | 3 | 4" output=bar}
+```
 
 ## Application rules
 

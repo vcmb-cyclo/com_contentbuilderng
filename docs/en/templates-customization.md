@@ -155,6 +155,27 @@ match. The `|` character separates alternatives and surrounding spaces are
 trimmed. In article tags, `field=FieldName value="Value"` is also accepted as a
 filter shorthand when `filter[field]` is absent.
 
+The grouped field and filtered field may differ:
+
+```text
+{CBStats id=15 field=Element-1 filter[field]=Element-2 filter[value]="Dét* | 3 | 4" output=bar}
+```
+
+Here, `field=Element-1` is grouped and displayed, while
+`filter[field]=Element-2` is used only to select records. `*` is a wildcard,
+`|` separates alternatives, and surrounding spaces are trimmed. Without a
+wildcard, matching is exact.
+
+When the displayed field is also filtered, the following shorthand is strictly
+equivalent to the complete filter on `Element-2`:
+
+```text
+{CBStats id=15 field=Element-2 value="Dét* | 3 | 4" output=bar}
+```
+
+`value=` is reserved for this same-field shorthand. Do not confuse it with
+`values=`, which is used exclusively by `source=manual`.
+
 Field-statistics outputs support `sort=none|title|value` and `dir=asc|desc`.
 The defaults are `sort=none` and `dir=asc`. `sort=none` preserves the engine's
 natural order; `sort=title` uses locale-aware natural label ordering;

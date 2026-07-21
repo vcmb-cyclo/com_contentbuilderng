@@ -9,7 +9,7 @@
 
 .cbstats-bar-chart {
     width: min(100%, 760px);
-    height: clamp(240px, calc(var(--cbstats-bar-items) * 42px + 64px), 760px);
+    height: clamp(140px, calc(var(--cbstats-bar-items) * 30px + 48px), 600px);
     margin-inline: auto;
 }
 
@@ -27,6 +27,6 @@
 
 @media (max-width: 30rem) {
     .cbstats-bar-chart {
-        height: clamp(240px, calc(var(--cbstats-bar-items) * 46px + 64px), 800px);
+        height: clamp(144px, calc(var(--cbstats-bar-items) * 34px + 48px), 640px);
     }
 }

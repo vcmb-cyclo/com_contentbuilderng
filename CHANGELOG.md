@@ -2,6 +2,44 @@
 
 ## Unreleased
 
+### 6.1.7-RC91
+
+- Finalized the CBStats RC91 improvements validated through builds B01 to B07.
+
+### CBStats 6.1.7-RC91-B07
+
+- Added progressive exact-value, wildcard, alternative, cross-field and same-field filter examples to CB → View → API help.
+- Clarified the distinction between `value=` and manual-source `values=`.
+
+### CBStats 6.1.7-RC91-B06
+
+- Documented the same-field `value=` filter shorthand in the CB → View → API help in English, French and German.
+
+### CBStats 6.1.7-RC91-B05
+
+- Completed the distributed English, French and German help with cross-field filter and same-field `value=` examples.
+- Preserved the existing Pie, Table and Bar examples and escaped every example against execution.
+
+### CBStats 6.1.7-RC91-B04
+
+- Made Bar animation unconditional like Pie for validation, intentionally ignoring `prefers-reduced-motion` in the Bar renderer.
+
+### CBStats 6.1.7-RC91-B03
+
+- Made the horizontal Bar animation clearly visible by painting zero-width data before a native 900 ms Chart.js update.
+- Restored the compact adaptive Bar canvas and capped bar thickness while retaining reduced category spacing.
+
+### CBStats 6.1.7-RC91-B02
+
+- Aligned the one-shot Bar appearance animation with Pie's native Chart.js 450 ms animation while disabling it for `prefers-reduced-motion: reduce`.
+
+### CBStats 6.1.7-RC91-B01
+
+- Added a discreet one-shot horizontal Bar animation from zero, disabled when `prefers-reduced-motion: reduce` is active.
+- Reduced the empty space between Bar categories through Chart.js dataset sizing without reducing the adaptive chart height.
+- Documented cross-field filters and the same-field `value=` shorthand, distinct from manual `values=`.
+- Standardized the width of all CBStats administrator help blocks.
+
 ## 6.1.7-RC87 — 2026-07-19
 
 ### Changed

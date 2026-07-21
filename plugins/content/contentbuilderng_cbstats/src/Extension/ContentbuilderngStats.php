@@ -70,9 +70,9 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         $output = TagSyntaxService::normalizeKeyword((string) ($attributes['output'] ?? 'total'));
         $allowedOutputs = ['total', 'table', 'form_name', 'sum', 'min', 'max', 'json', 'pie', 'bar'];
         $field = trim((string) ($attributes['field'] ?? ''));
-        $filterField = trim((string) ($attributes['filter[field]'] ?? ''));
-        $filterValue = trim((string) ($attributes['filter[value]'] ?? ''));
-        $value = trim((string) ($attributes['value'] ?? ''));
+        $filter = TagSyntaxService::resolveFilter($attributes);
+        $filterField = $filter['field'];
+        $filterValue = $filter['value'];
         $add = trim((string) ($attributes['add'] ?? ''));
         $titles = trim((string) ($attributes['titles'] ?? ''));
         $title = trim((string) ($attributes['title'] ?? ''));
@@ -81,11 +81,6 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         $dir = TagSyntaxService::normalizeKeyword((string) ($attributes['dir'] ?? 'asc'));
         $values = (string) ($attributes['values'] ?? '');
         $exportManual = ManualExportService::isRequested((string) ($attributes['export'] ?? ''));
-
-        if ($filterField === '' && $field !== '' && $value !== '') {
-            $filterField = $field;
-            $filterValue = $value;
-        }
 
         try {
             if (!in_array($source, ['view', 'manual'], true)) {

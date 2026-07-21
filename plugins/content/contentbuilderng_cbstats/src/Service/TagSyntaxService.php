@@ -45,6 +45,25 @@ final class TagSyntaxService
         return strtolower(trim($value));
     }
 
+    /**
+     * @param array<string, string> $attributes
+     * @return array{field: string, value: string}
+     */
+    public static function resolveFilter(array $attributes): array
+    {
+        $field = trim((string) ($attributes['field'] ?? ''));
+        $filterField = trim((string) ($attributes['filter[field]'] ?? ''));
+        $filterValue = trim((string) ($attributes['filter[value]'] ?? ''));
+        $value = trim((string) ($attributes['value'] ?? ''));
+
+        if ($filterField === '' && $field !== '' && $value !== '') {
+            $filterField = $field;
+            $filterValue = $value;
+        }
+
+        return ['field' => $filterField, 'value' => $filterValue];
+    }
+
     public static function normalizeMarkup(string $rawAttributes): string
     {
         $rawAttributes = str_replace('&nbsp;', ' ', $rawAttributes);

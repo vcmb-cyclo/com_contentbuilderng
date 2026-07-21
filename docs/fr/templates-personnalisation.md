@@ -180,6 +180,27 @@ de début et de fin sont supprimés. Dans une balise d'article,
 `field=NomDuChamp value="Valeur"` sert aussi de raccourci de filtre lorsque
 `filter[field]` est absent.
 
+Le champ regroupé et le champ filtré peuvent être différents :
+
+```text
+{CBStats id=15 field=Element-1 filter[field]=Element-2 filter[value]="Dét* | 3 | 4" output=bar}
+```
+
+Ici, `field=Element-1` est regroupé et affiché, tandis que
+`filter[field]=Element-2` sert uniquement à sélectionner les enregistrements.
+`*` est un joker, `|` sépare les alternatives et les espaces autour des valeurs
+sont ignorés. Sans joker, la comparaison est exacte.
+
+Lorsque le filtre porte sur le champ affiché, le raccourci suivant est strictement
+équivalent au filtre complet sur `Element-2` :
+
+```text
+{CBStats id=15 field=Element-2 value="Dét* | 3 | 4" output=bar}
+```
+
+`value=` est réservé à ce raccourci sur le même champ. Ne le confondez pas avec
+`values=`, utilisé exclusivement par `source=manual`.
+
 Les sorties de statistiques de champ acceptent `sort=none|title|value` et
 `dir=asc|desc`. Les valeurs par défaut sont `sort=none` et `dir=asc`.
 `sort=none` conserve l'ordre naturel du moteur ; `sort=title` applique un ordre
