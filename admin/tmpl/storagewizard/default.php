@@ -53,12 +53,12 @@ $stepLabels = [
                     <h2 class="h5"><?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_STEP_STORAGE'); ?></h2>
                     <p class="text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_STEP_STORAGE_DESC'); ?></p>
                     <div class="mb-3">
-                        <label class="form-label" for="cb-wizard-name"><?php echo Text::_('COM_CONTENTBUILDERNG_NAME'); ?></label>
-                        <input class="form-control" type="text" id="cb-wizard-name" name="name" required maxlength="255">
-                    </div>
-                    <div class="mb-3">
                         <label class="form-label" for="cb-wizard-title"><?php echo Text::_('COM_CONTENTBUILDERNG_STORAGE_TITLE'); ?></label>
                         <input class="form-control" type="text" id="cb-wizard-title" name="title" required maxlength="255">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="cb-wizard-name"><?php echo Text::_('COM_CONTENTBUILDERNG_NAME'); ?></label>
+                        <input class="form-control" type="text" id="cb-wizard-name" name="name" required maxlength="255">
                     </div>
                     <button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('storagewizard.saveStorage')">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_NEXT'); ?>

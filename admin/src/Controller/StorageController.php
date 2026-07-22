@@ -63,6 +63,19 @@ class StorageController extends BaseFormController
         $this->getApp()->close();
     }
 
+    /**
+     * Lien direct vers l'écran d'édition d'un storage — pas task=storage.edit,
+     * qui passe par le hop de checkout de FormController::edit() (reconstruit
+     * l'URL depuis zéro et perdrait wizard=1). Préserve le contexte assistant
+     * si actif.
+     */
+    private function storageEditLink(int $storageId): string
+    {
+        $wizardParam = $this->input->getBool('wizard', false) ? '&wizard=1' : '';
+
+        return Route::_('index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . $storageId . $wizardParam, false);
+    }
+
     private function externalStorageTableExists(string $tableName): bool
     {
         $tableName = trim($tableName);
@@ -257,7 +270,7 @@ class StorageController extends BaseFormController
             $saved = $model->save($data);
             if (!$saved) {
 	                $this->setRedirect(
-	                    Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) ($data['id'] ?? 0), false),
+	                    $this->storageEditLink((int) ($data['id'] ?? 0)),
 	                    Text::_('COM_CONTENTBUILDERNG_SAVE_FAILED'),
 	                    'error'
 	                );
@@ -323,7 +336,7 @@ class StorageController extends BaseFormController
 	                    $error = Text::_('COM_CONTENTBUILDERNG_SAVE_FAILED');
 	                }
                 $this->setRedirect(
-                    Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) $id, false),
+                    $this->storageEditLink((int) $id),
                     $error,
                     'error'
                 );
@@ -380,7 +393,7 @@ class StorageController extends BaseFormController
         $task = $this->getTask();
 
         if ($task === 'apply') {
-            $link = Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) $id, false);
+            $link = $this->storageEditLink((int) $id);
         } else {
             $return = $this->input->get('return', null, 'base64');
             $link = (!is_null($return) && Uri::isInternal(base64_decode((string) $return)))
@@ -450,9 +463,12 @@ class StorageController extends BaseFormController
 
         $type = $ok ? 'message' : 'warning';
 
-        // Redirect vers l’édition du storage
+        // Redirect vers l'édition du storage — lien direct vers la vue (pas
+        // task=storage.edit, qui reconstruit l'URL via le hop de checkout et
+        // perdrait wizard=1) pour rester dans le contexte assistant si actif.
+        $wizardParam = $this->input->getBool('wizard', false) ? '&wizard=1' : '';
         $this->setRedirect(
-            Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) $storageId, false),
+            Route::_('index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . (int) $storageId . $wizardParam, false),
             $msg,
             $type
         );
@@ -903,11 +919,13 @@ class StorageController extends BaseFormController
             }
             $this->getApp()->getSession()->set('tabStartOffset', $tabStartOffset, 'com_contentbuilderng');
 
+            $wizardParam = $this->input->getBool('wizard', false) ? '&wizard=1' : '';
             $this->setRedirect(
                 Route::_(
-                    'index.php?option=com_contentbuilderng&task=storage.edit&id='
+                    'index.php?option=com_contentbuilderng&view=storage&layout=edit&id='
                     . $storageId
                     . '&tabStartOffset=' . rawurlencode($tabStartOffset)
+                    . $wizardParam
                     . '#' . rawurlencode($tabStartOffset),
                     false
                 ),
