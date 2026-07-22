@@ -76,6 +76,39 @@ class StorageController extends BaseFormController
         return Route::_('index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . $storageId . $wizardParam, false);
     }
 
+    /**
+     * Lien de sortie de l'écran Storage (Fermer / Enregistrer & Fermer) :
+     * retour à l'assistant si actif, sinon liste Storages. Calculé ici
+     * directement plutôt que délégué au `return=` décodé par
+     * FormController::cancel()/save() — cette dernière voie s'est montrée
+     * peu fiable sur le terrain (return non honoré malgré une valeur
+     * correcte dans le POST), donc on ne laisse plus le cœur Joomla décider.
+     */
+    private function closeLink(): string
+    {
+        if ($this->input->getBool('wizard', false)) {
+            return Route::_('index.php?option=com_contentbuilderng&view=storagewizard', false);
+        }
+
+        return Route::_('index.php?option=com_contentbuilderng&task=storages.display', false);
+    }
+
+    #[\Override]
+    public function cancel($key = null)
+    {
+        $this->checkToken();
+
+        $storageId = (int) $this->input->getInt('id', 0);
+
+        $context = $this->option . '.edit.' . $this->context;
+        $this->releaseEditId($context, $storageId);
+        $this->app->setUserState($context . '.data', null);
+
+        $this->setRedirect($this->closeLink());
+
+        return true;
+    }
+
     private function externalStorageTableExists(string $tableName): bool
     {
         $tableName = trim($tableName);
@@ -154,6 +187,15 @@ class StorageController extends BaseFormController
             $result = parent::save($key, $urlVar);
             if ($result === false) {
                 return false;
+            }
+
+            // parent::save() (core) a déjà positionné une redirection ; pour le
+            // cas "Enregistrer & Fermer" (ni apply, ni save2new), on la
+            // réécrit nous-mêmes plutôt que de compter sur le décodage de
+            // `return` par le cœur, qui s'est montré peu fiable en pratique.
+            $saveTask = $this->getTask();
+            if (!in_array($saveTask, ['apply', 'save2new', 'save2copy'], true)) {
+                $this->setRedirect($this->closeLink());
             }
 
             // Récupère l'id réellement sauvegardé (création: id n'est pas dans le POST initial).
