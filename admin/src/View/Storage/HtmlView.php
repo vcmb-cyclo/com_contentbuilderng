@@ -40,6 +40,7 @@ class HtmlView extends BaseHtmlView
     public ?bool $storageTableExists = null;
     public string $storageTableLookupName = '';
     public string $storageTableErrorMessage = '';
+    public string $wizardReturnUrl = '';
 
     private function getApp(): CMSApplicationInterface
     {
@@ -159,11 +160,24 @@ class HtmlView extends BaseHtmlView
             $storageLabel = $isNew ? Text::_('COM_CONTENTBUILDERNG_STORAGES') : ('#' . $storageId);
         }
 
+        $isFromWizard = $input->getBool('wizard', false);
+        $breadcrumbMiddle = $isFromWizard
+            ? '<a href="' . htmlspecialchars(Route::_('index.php?option=com_contentbuilderng&view=storagewizard'), ENT_QUOTES, 'UTF-8') . '">'
+                . Text::_('COM_CONTENTBUILDERNG_WIZARD_TITLE') . '</a>'
+            : Text::_('COM_CONTENTBUILDERNG_STORAGES');
+
         ToolbarHelper::title(
-            Text::_('COM_CONTENTBUILDERNG') . ' / ' . Text::_('COM_CONTENTBUILDERNG_STORAGES') . ' / ' . $storageLabel
+            Text::_('COM_CONTENTBUILDERNG') . ' / ' . $breadcrumbMiddle . ' / ' . $storageLabel
             . ' <small><small>[ ' . $text . ' ]</small></small>',
             'logo_left'
         );
+
+        // Le retour au fil de l'assistant (bouton "Fermer"/"Enregistrer",
+        // géré nativement par FormController::cancel()/save() via `return`)
+        // doit continuer sur l'assistant plutôt que sur la liste Storages.
+        $this->wizardReturnUrl = $isFromWizard
+            ? base64_encode('index.php?option=com_contentbuilderng&view=storagewizard')
+            : '';
 
         ToolbarHelper::saveGroup(
             [
@@ -237,13 +251,6 @@ class HtmlView extends BaseHtmlView
                 ->icon('fa fa-sync')
                 ->listCheck(false)
                 ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_DATATABLE_SYNC_TIP')]);
-        }
-
-        if ($input->getBool('wizard', false)) {
-            $toolbar->link(
-                Text::_('COM_CONTENTBUILDERNG_WIZARD_BACK_TO_WIZARD'),
-                Route::_('index.php?option=com_contentbuilderng&view=storagewizard')
-            )->icon('fa fa-hat-wizard');
         }
 
         ToolbarHelper::cancel('storage.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');

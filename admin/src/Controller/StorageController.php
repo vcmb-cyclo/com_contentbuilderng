@@ -26,6 +26,7 @@ use Joomla\CMS\MVC\Controller\FormController as BaseFormController;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Response\JsonResponse;
+use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Filesystem\File;
 use Joomla\Utilities\ArrayHelper;
@@ -377,9 +378,15 @@ class StorageController extends BaseFormController
 
         // Redirect apply/save
         $task = $this->getTask();
-        $link = ($task === 'apply')
-            ? Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) $id, false)
-            : Route::_('index.php?option=com_contentbuilderng&task=storages.display', false);
+
+        if ($task === 'apply') {
+            $link = Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) $id, false);
+        } else {
+            $return = $this->input->get('return', null, 'base64');
+            $link = (!is_null($return) && Uri::isInternal(base64_decode((string) $return)))
+                ? Route::_(base64_decode((string) $return), false)
+                : Route::_('index.php?option=com_contentbuilderng&task=storages.display', false);
+        }
 
         $message = trim((string) ($this->message ?? ''));
         if ($message === '') {
