@@ -57,29 +57,67 @@ fil de l'avancement ; cocher les cases au fur et à mesure.
       - `data-cb-item-label` ajouté aux lignes de `admin/tmpl/storages/default.php`,
         `admin/layouts/storage/storage_tab.php`, `admin/tmpl/forms/default.php`.
 
-### 🚧 À faire
+### ✅ Fait (suite) — squelette fonctionnel de l'Assistant
 
-- [ ] **Recherche préalable** (avant de coder le wizard) :
-  - [ ] Vérifier s'il existe déjà un import CSV pour les storages dans le
-        composant (sinon c'est un développement à part entière).
-  - [ ] Vérifier s'il existe déjà un mécanisme de session/état multi-écrans
-        réutilisable ailleurs dans l'admin du composant.
-- [ ] **Squelette du wizard** : nouvelle vue admin `view=storagewizard`
-      (contrôleur + modèle + template), stepper à 5 étapes, état de
-      progression persisté en session.
-- [ ] **Étape 1 — Storage** : réutiliser `StorageModel` /
-      `StorageController::save()` existants, encapsulés dans le stepper.
-- [ ] **Étape 2 — Import CSV** : selon résultat de la recherche préalable.
-- [ ] **Étape 3 — Champs** : réutiliser l'écran Storagefield existant.
-- [ ] **Étape 4 — Formulaire** : soit `FormModel::save()` avec
-      `type=com_contentbuilderng` / `reference_id=storageId` pré-rempli, soit
-      s'appuyer sur `DirectStorageFormProvisioningService` (déjà en place,
-      cf. chantier "direct storage mode" ci-dessous) pour générer le
-      formulaire automatiquement.
-- [ ] **Étape 5 — Menu** : création d'un item de menu Joomla via
-      `Joomla\CMS\Table\Menu` / `MenusModel`, pointé sur
-      `task=list.display&storage_id=X` (ou `id=<formId>` une fois le
-      formulaire créé).
+- [x] **Recherche préalable** :
+  - Import CSV : **déjà fonctionnel** (upload → preview headers →
+    création table+champs+lignes), voir
+    `StorageController::previewHeaders()`/`save()` (lignes 243-340) et
+    `StorageModel::extractHeaderColumnsFromUpload()`. Pas de redéveloppement
+    nécessaire — le wizard s'appuie dessus en renvoyant vers l'écran Storage
+    existant plutôt que de le dupliquer.
+  - Pattern état multi-écrans : **existe déjà**, `RepairWorkflowService`
+    (`admin/src/Service/RepairWorkflowService.php`) via
+    `$app->getUserState()`/`setUserState()`. Repris à l'identique dans
+    `StorageWizardService`.
+- [x] **Squelette du wizard** — 4 étapes réelles (Storage / Champs /
+      Formulaire / Menu ; l'étape "CSV ou champs manuels" du besoin initial
+      est couverte par l'étape "Champs", qui renvoie vers l'écran Storage
+      existant — CSV et ajout manuel y sont déjà tous les deux disponibles) :
+  - `admin/src/Service/StorageWizardService.php` — état de session
+    (`storage_id`/`form_id`/`menu_item_id`/`current_step`), miroir du
+    pattern `RepairWorkflowService`.
+  - `admin/src/Controller/StoragewizardController.php` — tâches
+    `start`/`saveStorage`/`confirmFields`/`createForm`/`createMenu`/
+    `skipMenu`/`finish`. Orchestrateur **fin** : ne réimplémente que ce qui
+    n'existe pas ailleurs (création storage minimale, création menu) ;
+    délègue la gestion des champs à l'écran Storage existant et la création
+    du formulaire à `DirectStorageFormProvisioningService`.
+  - `admin/src/View/Storagewizard/HtmlView.php` + `admin/tmpl/storagewizard/default.php`
+    — stepper Bootstrap natif, un seul `#adminForm` (convention
+    `Joomla.submitbutton()` du cœur), un template par étape.
+  - Bouton toolbar "Assistant" sur l'écran Storages
+    (`Storages/HtmlView.php::addToolbar()`).
+  - Hook additif (uniquement si `?wizard=1`) sur l'écran Storage : bouton
+    "Retour à l'assistant" (`Storage/HtmlView.php`) — n'affecte en rien le
+    comportement normal de cet écran hors contexte wizard.
+  - Étape "Menu" : création via `Joomla\Component\Menus\Administrator\Table\MenuTable`
+    (obtenu via `MVCFactory::createTable('Menu', 'Administrator')`),
+    `setLocation(1, 'last-child')` + `bind()`/`check()`/`store()`/`rebuildPath()`
+    — pattern bas niveau standard Joomla pour insérer dans l'arbre imbriqué
+    `#__menu`, plutôt que `ItemModel::save()` (qui suppose un POST jform
+    complet, plus risqué à reproduire hors UI). Le menutype doit déjà
+    exister (pas de création de menutype dans cette itération).
+  - Toutes les chaînes UI ajoutées en en-GB/fr-FR/de-DE.
+
+### 🚧 À faire / à vérifier
+
+- [ ] **Test bout en bout sur instance Joomla réelle** — rien de ce qui
+      précède n'a pu être exécuté dans cet environnement (pas d'instance
+      Joomla vivante accessible depuis ce contexte). En particulier à
+      valider en priorité :
+  - la création de l'item de menu (`MenuTable`) ne corrompt pas l'arbre
+    imbriqué `#__menu` — c'est le point le plus sensible de ce chantier ;
+  - `StorageModel::save()` avec le tableau minimal (`id/name/title/published/ordering`)
+    passe bien la validation du formulaire XML (`admin/forms/storage.xml`) ;
+  - le retour "Retour à l'assistant" → étape Champs → "Suivant" fonctionne
+    après un import CSV réel (pas seulement un ajout manuel de champ).
+- [ ] Décider si un item de menu déjà existant devrait pouvoir être
+      réutilisé/modifié plutôt que d'en créer un nouveau à chaque passage
+      dans le wizard (actuellement : toujours création).
+- [ ] Éventuellement : bouton "Précédent" pour revenir en arrière dans le
+      stepper (actuellement wizard strictement linéaire, un `start` remet
+      tout à zéro).
 
 ## Fichiers concernés (prévisionnel)
 

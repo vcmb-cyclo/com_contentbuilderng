@@ -186,6 +186,13 @@ class HtmlView extends BaseHtmlView
         $document = $this->getDocument();
         $toolbar = $document->getToolbar('toolbar');
 
+        $toolbar->link(
+            Text::_('COM_CONTENTBUILDERNG_WIZARD_TOOLBAR_BUTTON'),
+            Route::_('index.php?option=com_contentbuilderng&task=storagewizard.start')
+        )
+            ->icon('fa fa-hat-wizard')
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_WIZARD_TOOLBAR_BUTTON_TIP')]);
+
         $statusDropdown = $toolbar->dropdownButton('storages-status-group');
         $statusDropdown->text(Text::_('COM_CONTENTBUILDERNG_TOOLBAR_ACTIONS'));
         $statusDropdown->toggleSplit(false);

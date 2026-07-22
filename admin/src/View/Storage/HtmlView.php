@@ -239,6 +239,13 @@ class HtmlView extends BaseHtmlView
                 ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_DATATABLE_SYNC_TIP')]);
         }
 
+        if ($input->getBool('wizard', false)) {
+            $toolbar->link(
+                Text::_('COM_CONTENTBUILDERNG_WIZARD_BACK_TO_WIZARD'),
+                Route::_('index.php?option=com_contentbuilderng&view=storagewizard')
+            )->icon('fa fa-hat-wizard');
+        }
+
         ToolbarHelper::cancel('storage.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
         ToolbarHelper::help(
             'COM_CONTENTBUILDERNG_HELP_STORAGES_TITLE',
