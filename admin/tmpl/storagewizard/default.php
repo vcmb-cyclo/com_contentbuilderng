@@ -134,6 +134,18 @@ $stepLabels = [
                             </select>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label" for="cb-wizard-menu-parent"><?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_MENU_PARENT'); ?></label>
+                            <select class="form-select" id="cb-wizard-menu-parent" name="parent_id">
+                                <option value="1"><?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_MENU_PARENT_ROOT'); ?></option>
+                                <?php foreach ($this->menuItems as $menuItem) : ?>
+                                    <option value="<?php echo (int) $menuItem->id; ?>">
+                                        <?php echo str_repeat('— ', max(0, (int) $menuItem->level - 1)); ?><?php echo htmlspecialchars((string) $menuItem->title, ENT_QUOTES, 'UTF-8'); ?>
+                                        (<?php echo htmlspecialchars((string) $menuItem->menutype, ENT_QUOTES, 'UTF-8'); ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label" for="cb-wizard-menu-title"><?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_MENU_ITEM_TITLE'); ?></label>
                             <input
                                 class="form-control"

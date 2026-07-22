@@ -31,6 +31,7 @@ class HtmlView extends BaseHtmlView
     public ?object $form = null;
     public int $fieldCount = 0;
     public array $menutypes = [];
+    public array $menuItems = [];
 
     private function getApp(): AdministratorApplication
     {
@@ -105,6 +106,15 @@ class HtmlView extends BaseHtmlView
             ->order($db->quoteName('title'));
         $db->setQuery($menutypesQuery);
         $this->menutypes = $db->loadObjectList() ?: [];
+
+        $menuItemsQuery = $db->getQuery(true)
+            ->select($db->quoteName(['id', 'title', 'menutype', 'level']))
+            ->from($db->quoteName('#__menu'))
+            ->where($db->quoteName('client_id') . ' = 0')
+            ->where($db->quoteName('menutype') . ' != ' . $db->quote(''))
+            ->order($db->quoteName('menutype') . ', ' . $db->quoteName('lft'));
+        $db->setQuery($menuItemsQuery);
+        $this->menuItems = $db->loadObjectList() ?: [];
 
         $this->addToolbar();
 

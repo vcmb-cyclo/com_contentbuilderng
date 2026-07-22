@@ -21,6 +21,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseInterface;
+use Joomla\Database\ParameterType;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Helper\Logger;
 use CB\Component\Contentbuilderng\Administrator\Model\StorageModel;
@@ -314,6 +315,7 @@ final class StoragewizardController extends BaseController
 
         $menutype = trim((string) $this->input->post->getCmd('menutype', ''));
         $title = trim((string) $this->input->post->getString('menu_title', ''));
+        $parentId = (int) $this->input->post->getInt('parent_id', 1);
 
         if ($menutype === '' || $title === '') {
             $this->redirectToWizard(Text::_('COM_CONTENTBUILDERNG_WIZARD_MENU_FIELDS_REQUIRED'), 'error');
@@ -322,7 +324,7 @@ final class StoragewizardController extends BaseController
         }
 
         try {
-            $menuItemId = $this->createMenuItem($storageId, $menutype, $title);
+            $menuItemId = $this->createMenuItem($storageId, $menutype, $title, $parentId);
         } catch (\Throwable $e) {
             Logger::exception($e);
             $this->redirectToWizard($e->getMessage(), 'error');
@@ -386,10 +388,35 @@ final class StoragewizardController extends BaseController
         return (int) $db->loadResult();
     }
 
-    private function createMenuItem(int $storageId, string $menutype, string $title): int
+    /**
+     * Résout le menutype effectif d'un item de menu parent (ignore la valeur
+     * choisie séparément dans le select "Type de menu" si elle diverge :
+     * un item de menu appartient physiquement à l'arbre imbriqué de SON
+     * menutype, on ne peut pas le rattacher à un autre).
+     */
+    private function resolveParentMenutype(DatabaseInterface $db, int $parentId, string $fallbackMenutype): string
+    {
+        if ($parentId <= 1) {
+            return $fallbackMenutype;
+        }
+
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('menutype'))
+            ->from($db->quoteName('#__menu'))
+            ->where($db->quoteName('id') . ' = :parentId')
+            ->where($db->quoteName('client_id') . ' = 0')
+            ->bind(':parentId', $parentId, ParameterType::INTEGER);
+        $db->setQuery($query);
+        $actual = (string) $db->loadResult();
+
+        return $actual !== '' ? $actual : $fallbackMenutype;
+    }
+
+    private function createMenuItem(int $storageId, string $menutype, string $title, int $parentId = 1): int
     {
         $db = $this->getComponent()->getContainer()->get(DatabaseInterface::class);
         $link = 'index.php?option=com_contentbuilderng&task=list.display&storage_id=' . $storageId;
+        $menutype = $this->resolveParentMenutype($db, $parentId, $menutype);
 
         $existingId = $this->findExistingMenuItemId($db, $menutype, $link);
 
@@ -431,7 +458,7 @@ final class StoragewizardController extends BaseController
             'publish_down' => null,
         ];
 
-        $table->setLocation(1, 'last-child');
+        $table->setLocation($parentId > 0 ? $parentId : 1, 'last-child');
 
         if (!$table->bind($data) || !$table->check() || !$table->store()) {
             throw new \RuntimeException($table->getError() ?: Text::_('COM_CONTENTBUILDERNG_ERROR'));
