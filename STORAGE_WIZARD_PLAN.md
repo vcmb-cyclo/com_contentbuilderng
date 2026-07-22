@@ -100,24 +100,43 @@ fil de l'avancement ; cocher les cases au fur et à mesure.
     exister (pas de création de menutype dans cette itération).
   - Toutes les chaînes UI ajoutées en en-GB/fr-FR/de-DE.
 
+### ✅ Fait (suite)
+
+- [x] Bouton "Précédent" dans le stepper — plancher volontaire à l'étape
+      "Champs" : redescendre jusqu'à "Storage" créerait un doublon puisque
+      `saveStorage()` crée toujours un nouveau storage (pas d'édition).
+      Cohérence contrôleur (`back()`, garde `$currentIndex > 1`) / template
+      (bouton affiché seulement si `$currentIndex > 1`).
+- [x] Réutilisation d'un item de menu existant (même `menutype` + `link`
+      exact) au lieu d'en recréer un à chaque passage dans le wizard pour le
+      même storage (`findExistingMenuItemId()`).
+- [x] Vérification statique (branche `feature/storage-wizard`, tout le
+      chantier commité séparément de `main`) :
+  - `phpstan.neon.dist` : 0 erreur sur les 3 nouveaux fichiers
+    (`StoragewizardController`, `StorageWizardService`, `Storagewizard/HtmlView`)
+    une fois les 2 faux positifs connus du projet (`Document::getToolbar()`,
+    `ComponentInterface::getMVCFactory()`) ajoutés au baseline, comme pour
+    les fichiers existants qui font le même appel (`Storage/HtmlView.php`,
+    `Forms/HtmlView.php`).
+  - `phpunit` (admin) : 429/430, le seul échec restant est
+    `VersionConsistencyTest::testInstallCreationDateIsToday`, préexistant et
+    sans rapport (date de build attendue = date du jour).
+
 ### 🚧 À faire / à vérifier
 
 - [ ] **Test bout en bout sur instance Joomla réelle** — rien de ce qui
       précède n'a pu être exécuté dans cet environnement (pas d'instance
-      Joomla vivante accessible depuis ce contexte). En particulier à
-      valider en priorité :
+      Joomla vivante accessible depuis ce contexte, seulement analyse
+      statique + tests unitaires). En particulier à valider en priorité :
   - la création de l'item de menu (`MenuTable`) ne corrompt pas l'arbre
     imbriqué `#__menu` — c'est le point le plus sensible de ce chantier ;
   - `StorageModel::save()` avec le tableau minimal (`id/name/title/published/ordering`)
     passe bien la validation du formulaire XML (`admin/forms/storage.xml`) ;
   - le retour "Retour à l'assistant" → étape Champs → "Suivant" fonctionne
-    après un import CSV réel (pas seulement un ajout manuel de champ).
-- [ ] Décider si un item de menu déjà existant devrait pouvoir être
-      réutilisé/modifié plutôt que d'en créer un nouveau à chaque passage
-      dans le wizard (actuellement : toujours création).
-- [ ] Éventuellement : bouton "Précédent" pour revenir en arrière dans le
-      stepper (actuellement wizard strictement linéaire, un `start` remet
-      tout à zéro).
+    après un import CSV réel (pas seulement un ajout manuel de champ) ;
+  - navigation "Précédent" jusqu'à l'étape Menu puis re-soumission : l'item
+    de menu déjà créé est bien retrouvé (pas de doublon) grâce à
+    `findExistingMenuItemId()`.
 
 ## Fichiers concernés (prévisionnel)
 
