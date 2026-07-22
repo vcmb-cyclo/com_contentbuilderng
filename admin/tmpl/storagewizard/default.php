@@ -75,7 +75,7 @@ $stepLabels = [
                         </p>
                         <a
                             class="btn btn-outline-primary mb-3"
-                            href="<?php echo Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) $this->storage->id . '&wizard=1'); ?>"
+                            href="<?php echo Route::_('index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . (int) $this->storage->id . '&wizard=1'); ?>"
                         >
                             <span class="fa-solid fa-table-list me-1" aria-hidden="true"></span>
                             <?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_OPEN_STORAGE_SCREEN'); ?>
