@@ -736,6 +736,10 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
     <input type="hidden" name="id" value="<?php echo (int) $this->item->id; ?>" />
     <input type="hidden" name="jform[id]" value="<?php echo (int) $this->item->id; ?>" />
     <input type="hidden" name="task" value="form.display" />
+    <?php if ($this->wizardReturnUrl !== '') : ?>
+        <input type="hidden" name="return" value="<?php echo htmlspecialchars($this->wizardReturnUrl, ENT_QUOTES, 'UTF-8'); ?>" />
+        <input type="hidden" name="wizard" value="1" />
+    <?php endif; ?>
     <input type="hidden" name="limitstart" value="<?php echo (int) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('limitstart', 0); ?>" />
     <input type="hidden" name="jform[ordering]" value="<?php echo $this->item->ordering; ?>" />
     <input type="hidden" name="jform[published]" value="<?php echo $this->item->published; ?>" />

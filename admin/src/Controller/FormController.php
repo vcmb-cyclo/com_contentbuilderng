@@ -140,9 +140,37 @@ class FormController extends BaseFormController
     public function cancel($key = null): bool
     {
         $this->checkToken();
-        $this->setRedirect(Route::_('index.php?option=com_contentbuilderng&view=forms', false));
+        $this->setRedirect($this->closeLink());
 
         return true;
+    }
+
+    /**
+     * Lien de sortie de l'écran Formulaire (Fermer / Enregistrer & Fermer) :
+     * retour à l'assistant Storage si actif, sinon liste Forms. Calculé ici
+     * directement plutôt que délégué à `return=` (voir StorageController,
+     * ce mécanisme natif s'est montré peu fiable en pratique).
+     */
+    private function closeLink(): string
+    {
+        if ($this->input->getBool('wizard', false)) {
+            return Route::_('index.php?option=com_contentbuilderng&view=storagewizard', false);
+        }
+
+        return Route::_('index.php?option=com_contentbuilderng&view=forms', false);
+    }
+
+    #[\Override]
+    public function save($key = null, $urlVar = null)
+    {
+        $isWizard = $this->input->getBool('wizard', false);
+        $result = parent::save($key, $urlVar);
+
+        if ($isWizard && $result !== false && !in_array($this->getTask(), ['apply', 'save2new', 'save2copy'], true)) {
+            $this->setRedirect($this->closeLink());
+        }
+
+        return $result;
     }
 
     protected function getRedirectToItemAppend($recordId = null, $urlVar = 'id')

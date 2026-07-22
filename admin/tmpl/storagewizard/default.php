@@ -95,10 +95,27 @@ $stepLabels = [
                 <?php elseif ($currentStep === StorageWizardService::STEP_FORM) : ?>
                     <h2 class="h5"><?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_STEP_FORM'); ?></h2>
                     <p class="text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_STEP_FORM_DESC'); ?></p>
-                    <button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('storagewizard.createForm')">
-                        <span class="fa-solid fa-wand-magic-sparkles me-1" aria-hidden="true"></span>
-                        <?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_CREATE_FORM'); ?>
-                    </button>
+                    <?php if (!$this->form) : ?>
+                        <button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('storagewizard.createForm')">
+                            <span class="fa-solid fa-wand-magic-sparkles me-1" aria-hidden="true"></span>
+                            <?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_CREATE_FORM'); ?>
+                        </button>
+                    <?php else : ?>
+                        <p>
+                            <a
+                                class="btn btn-outline-primary mb-3"
+                                href="<?php echo Route::_('index.php?option=com_contentbuilderng&view=form&layout=edit&id=' . (int) $this->form->id . '&wizard=1'); ?>"
+                            >
+                                <span class="fa-solid fa-file-lines me-1" aria-hidden="true"></span>
+                                <?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_OPEN_FORM_SCREEN'); ?>
+                            </a>
+                        </p>
+                        <div>
+                            <button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('storagewizard.confirmForm')">
+                                <?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_NEXT'); ?>
+                            </button>
+                        </div>
+                    <?php endif; ?>
 
                 <?php elseif ($currentStep === StorageWizardService::STEP_MENU) : ?>
                     <h2 class="h5"><?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_STEP_MENU'); ?></h2>

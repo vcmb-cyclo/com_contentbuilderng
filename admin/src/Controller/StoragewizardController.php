@@ -260,11 +260,37 @@ final class StoragewizardController extends BaseController
             return;
         }
 
+        // On reste sur l'étape "form" (pas d'avance automatique) : l'utilisateur
+        // peut maintenant ouvrir l'écran Formulaire pour le personnaliser avant
+        // de passer à l'étape menu, comme pour l'étape "fields"/Storage.
         $state['form_id'] = $formId;
-        $state = $wizardService->advanceTo($state, StorageWizardService::STEP_MENU);
         $wizardService->saveState($state);
 
         $this->redirectToWizard(Text::_('COM_CONTENTBUILDERNG_WIZARD_FORM_CREATED'));
+    }
+
+    /**
+     * Task: storagewizard.confirmForm — étape 3 → 4, valide qu'un formulaire
+     * a bien été créé et passe à l'étape menu.
+     */
+    public function confirmForm(): void
+    {
+        $this->checkToken();
+        $this->requireManagePermission();
+
+        $wizardService = $this->getWizardService();
+        $state = $wizardService->getState();
+
+        if ((int) ($state['form_id'] ?? 0) < 1) {
+            $this->redirectToWizard(Text::_('COM_CONTENTBUILDERNG_WIZARD_NO_FORM'), 'error');
+
+            return;
+        }
+
+        $state = $wizardService->advanceTo($state, StorageWizardService::STEP_MENU);
+        $wizardService->saveState($state);
+
+        $this->redirectToWizard();
     }
 
     /**
