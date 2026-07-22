@@ -131,10 +131,17 @@ final class StoragewizardController extends BaseController
         $name = trim((string) $this->input->post->getString('name', ''));
         $title = trim((string) $this->input->post->getString('title', ''));
 
-        if ($name === '' || $title === '') {
+        if ($name === '') {
             $this->redirectToWizard(Text::_('COM_CONTENTBUILDERNG_WIZARD_STORAGE_FIELDS_REQUIRED'), 'error');
 
             return;
+        }
+
+        // Le titre est facultatif : à défaut, on reprend le nom (même
+        // comportement que StorageModel::prepareTable() pour l'écran Storage
+        // classique).
+        if ($title === '') {
+            $title = $name;
         }
 
         /** @var StorageModel|null $model */

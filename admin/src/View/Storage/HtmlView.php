@@ -162,7 +162,7 @@ class HtmlView extends BaseHtmlView
 
         $isFromWizard = $input->getBool('wizard', false);
         $breadcrumbMiddle = $isFromWizard
-            ? '<a href="' . htmlspecialchars(Route::_('index.php?option=com_contentbuilderng&view=storagewizard'), ENT_QUOTES, 'UTF-8') . '">'
+            ? '<a href="' . htmlspecialchars(Route::_('index.php?option=com_contentbuilderng&view=storagewizard', false), ENT_QUOTES, 'UTF-8') . '">'
                 . Text::_('COM_CONTENTBUILDERNG_WIZARD_TITLE') . '</a>'
             : Text::_('COM_CONTENTBUILDERNG_STORAGES');
 
@@ -179,14 +179,16 @@ class HtmlView extends BaseHtmlView
             ? base64_encode('index.php?option=com_contentbuilderng&view=storagewizard')
             : '';
 
-        ToolbarHelper::saveGroup(
-            [
-                ['apply', 'storage.apply', 'JTOOLBAR_APPLY'],
-                ['save', 'storage.save', 'JTOOLBAR_SAVE'],
-                ['save2new', 'storage.save2new', 'JTOOLBAR_SAVE_AND_NEW'],
-            ],
-            'btn-success'
-        );
+        $saveButtons = [
+            ['apply', 'storage.apply', 'JTOOLBAR_APPLY'],
+            ['save', 'storage.save', 'JTOOLBAR_SAVE'],
+        ];
+
+        if (!$isFromWizard) {
+            $saveButtons[] = ['save2new', 'storage.save2new', 'JTOOLBAR_SAVE_AND_NEW'];
+        }
+
+        ToolbarHelper::saveGroup($saveButtons, 'btn-success');
 
         $toolbar = $this->getDocument()->getToolbar('toolbar');
         $dropdown = $toolbar->dropdownButton('storage-status-group');
