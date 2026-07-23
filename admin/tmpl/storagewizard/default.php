@@ -29,23 +29,36 @@ $stepLabels = [
     StorageWizardService::STEP_MENU => Text::_('COM_CONTENTBUILDERNG_WIZARD_STEP_MENU'),
     StorageWizardService::STEP_DONE => Text::_('COM_CONTENTBUILDERNG_WIZARD_STEP_DONE'),
 ];
+$stepIcons = [
+    StorageWizardService::STEP_STORAGE => 'fa-database',
+    StorageWizardService::STEP_FIELDS => 'fa-table-list',
+    StorageWizardService::STEP_FORM => 'fa-file-lines',
+    StorageWizardService::STEP_MENU => 'fa-bars',
+    StorageWizardService::STEP_DONE => 'fa-flag-checkered',
+];
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm">
     <div class="cb-wizard mt-3">
-        <ol class="list-group list-group-horizontal-md mb-4 flex-wrap">
+        <ul class="cb-wizard-steps">
             <?php foreach ($this->steps as $index => $stepId) :
-                $stateClass = 'list-group-item';
+                $stateClass = '';
                 if ($index < $currentIndex) {
-                    $stateClass .= ' list-group-item-success';
+                    $stateClass = ' is-done';
                 } elseif ($index === $currentIndex) {
-                    $stateClass .= ' active';
+                    $stateClass = ' is-active';
                 }
             ?>
-                <li class="<?php echo $stateClass; ?> flex-fill text-center">
-                    <?php echo (int) $index + 1; ?>. <?php echo htmlspecialchars($stepLabels[$stepId] ?? $stepId, ENT_QUOTES, 'UTF-8'); ?>
+                <li class="<?php echo $stateClass; ?>">
+                    <?php if ($index < $currentIndex) : ?>
+                        <span class="fa-solid fa-check" aria-hidden="true"></span>
+                    <?php else : ?>
+                        <span class="fa-solid <?php echo $stepIcons[$stepId] ?? 'fa-circle'; ?>" aria-hidden="true"></span>
+                    <?php endif; ?>
+                    <span class="cb-wizard-step-num"><?php echo (int) $index + 1; ?>.</span>
+                    <?php echo htmlspecialchars($stepLabels[$stepId] ?? $stepId, ENT_QUOTES, 'UTF-8'); ?>
                 </li>
             <?php endforeach; ?>
-        </ol>
+        </ul>
 
         <div class="card">
             <div class="card-body">
