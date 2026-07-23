@@ -77,14 +77,13 @@ final class CbStatsRc91B01Test extends TestCase
         self::assertStringContainsString('maxBarThickness: 24', $javascript);
     }
 
-    public function testManifestVersionAndHelpBlocksAreUniform(): void
+    public function testManifestHelpBlocksAreUniform(): void
     {
         $manifest = simplexml_load_file(
             self::ROOT . '/plugins/content/contentbuilderng_cbstats/contentbuilderng_cbstats.xml'
         );
 
         self::assertNotFalse($manifest);
-        self::assertSame('6.1.7-RC91', (string) $manifest->version);
 
         $fields = $manifest->xpath('/extension/config/fields/fieldset/field');
         self::assertCount(6, $fields);

@@ -9,9 +9,17 @@ on:
     tags:
       - 'v*'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
@@ -57,6 +65,7 @@ jobs:
 
   phpstan:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
@@ -69,11 +78,31 @@ jobs:
           tools: composer:v2
           coverage: none
 
+      - name: Get Composer cache directory
+        id: composer-cache
+        working-directory: admin
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-8.3-${{ hashFiles('admin/composer.lock') }}
+          restore-keys: composer-8.3-
+
       - name: Install dependencies
         working-directory: admin
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: Cache extracted Joomla core stubs
+        id: joomla-stubs-cache
+        uses: actions/cache@v4
+        with:
+          path: joomla-stubs
+          key: joomla-stubs-6.1.2-php8.3
+
       - name: Extract Joomla core for class discovery
+        if: steps.joomla-stubs-cache.outputs.cache-hit != 'true'
         run: |
           container="$(docker create joomla:6.1.2-php8.3-apache)"
           mkdir -p joomla-stubs
@@ -85,6 +114,7 @@ jobs:
 
   unit-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
@@ -96,6 +126,18 @@ jobs:
           php-version: '8.3'
           tools: composer:v2
           coverage: pcov
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        working-directory: admin
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-8.3-${{ hashFiles('admin/composer.lock') }}
+          restore-keys: composer-8.3-
 
       - name: Install test dependencies
         working-directory: admin
@@ -114,6 +156,7 @@ jobs:
   package:
     needs: [lint, unit-tests, phpstan]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write
 
@@ -128,6 +171,18 @@ jobs:
         with:
           php-version: '8.3'
           tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        working-directory: admin
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-8.3-${{ hashFiles('admin/composer.lock') }}
+          restore-keys: composer-8.3-
 
       - name: Resolve package version
         id: version
