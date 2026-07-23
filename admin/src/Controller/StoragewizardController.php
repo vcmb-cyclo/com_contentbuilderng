@@ -132,7 +132,10 @@ final class StoragewizardController extends BaseController
         $name = trim((string) $this->input->post->getString('name', ''));
         $title = trim((string) $this->input->post->getString('title', ''));
 
+        $wizardService = $this->getWizardService();
+
         if ($name === '') {
+            $this->rememberStorageInput($wizardService, $name, $title);
             $this->redirectToWizard(Text::_('COM_CONTENTBUILDERNG_WIZARD_STORAGE_FIELDS_REQUIRED'), 'error');
 
             return;
@@ -143,6 +146,21 @@ final class StoragewizardController extends BaseController
         // classique).
         if ($title === '') {
             $title = $name;
+        }
+
+        $db = $this->getComponent()->getContainer()->get(DatabaseInterface::class);
+        $query = $db->getQuery(true)
+            ->select('COUNT(*)')
+            ->from($db->quoteName('#__contentbuilderng_storages'))
+            ->where($db->quoteName('name') . ' = :name')
+            ->bind(':name', $name, ParameterType::STRING);
+        $db->setQuery($query);
+
+        if ((int) $db->loadResult() > 0) {
+            $this->rememberStorageInput($wizardService, $name, $title);
+            $this->redirectToWizard(Text::sprintf('COM_CONTENTBUILDERNG_WIZARD_STORAGE_NAME_DUPLICATE', $name), 'error');
+
+            return;
         }
 
         /** @var StorageModel|null $model */
@@ -161,7 +179,14 @@ final class StoragewizardController extends BaseController
         ];
 
         if (!$model->save($data)) {
-            $this->redirectToWizard($model->getError() ?: Text::_('COM_CONTENTBUILDERNG_ERROR'), 'error');
+            $error = (string) ($model->getError() ?: Text::_('COM_CONTENTBUILDERNG_ERROR'));
+
+            if (str_contains($error, 'Duplicate entry')) {
+                $error = Text::sprintf('COM_CONTENTBUILDERNG_WIZARD_STORAGE_NAME_DUPLICATE', $name);
+            }
+
+            $this->rememberStorageInput($wizardService, $name, $title);
+            $this->redirectToWizard($error, 'error');
 
             return;
         }
@@ -176,13 +201,25 @@ final class StoragewizardController extends BaseController
 
         $model->ensureDataTable($storageId, true, null);
 
-        $wizardService = $this->getWizardService();
         $state = $wizardService->getState();
         $state['storage_id'] = $storageId;
+        unset($state['pending_storage_input']);
         $state = $wizardService->advanceTo($state, StorageWizardService::STEP_FIELDS);
         $wizardService->saveState($state);
 
         $this->redirectToWizard(Text::_('COM_CONTENTBUILDERNG_WIZARD_STORAGE_CREATED'));
+    }
+
+    /**
+     * Conserve le nom/titre saisis en session pour repeupler le formulaire
+     * après un redirect d'erreur (name requis, doublon, etc.), au lieu de
+     * les effacer.
+     */
+    private function rememberStorageInput(StorageWizardService $wizardService, string $name, string $title): void
+    {
+        $state = $wizardService->getState();
+        $state['pending_storage_input'] = ['name' => $name, 'title' => $title];
+        $wizardService->saveState($state);
     }
 
     /**

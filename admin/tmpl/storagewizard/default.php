@@ -29,6 +29,7 @@ $stepLabels = [
     StorageWizardService::STEP_MENU => Text::_('COM_CONTENTBUILDERNG_WIZARD_STEP_MENU'),
     StorageWizardService::STEP_DONE => Text::_('COM_CONTENTBUILDERNG_WIZARD_STEP_DONE'),
 ];
+$pendingStorageInput = $this->wizardState['pending_storage_input'] ?? [];
 $stepIcons = [
     StorageWizardService::STEP_STORAGE => 'fa-database',
     StorageWizardService::STEP_FIELDS => 'fa-table-list',
@@ -67,14 +68,31 @@ $stepIcons = [
                     <p class="text-muted"><?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_STEP_STORAGE_DESC'); ?></p>
                     <div class="mb-3">
                         <label class="form-label" for="cb-wizard-title"><?php echo Text::_('COM_CONTENTBUILDERNG_STORAGE_TITLE'); ?></label>
-                        <input class="form-control" type="text" id="cb-wizard-title" name="title" required maxlength="255">
+                        <input
+                            class="form-control"
+                            type="text"
+                            id="cb-wizard-title"
+                            name="title"
+                            required
+                            maxlength="255"
+                            value="<?php echo htmlspecialchars((string) ($pendingStorageInput['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                        >
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="cb-wizard-name"><?php echo Text::_('COM_CONTENTBUILDERNG_NAME'); ?></label>
-                        <input class="form-control" type="text" id="cb-wizard-name" name="name" required maxlength="255">
+                        <input
+                            class="form-control"
+                            type="text"
+                            id="cb-wizard-name"
+                            name="name"
+                            required
+                            maxlength="255"
+                            value="<?php echo htmlspecialchars((string) ($pendingStorageInput['name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                        >
                     </div>
                     <button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('storagewizard.saveStorage')">
                         <?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_NEXT'); ?>
+                        <span class="fa-solid fa-arrow-right ms-1" aria-hidden="true"></span>
                     </button>
 
                 <?php elseif ($currentStep === StorageWizardService::STEP_FIELDS) : ?>
@@ -102,6 +120,7 @@ $stepIcons = [
                             <?php echo $this->fieldCount < 1 ? 'disabled' : ''; ?>
                         >
                             <?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_NEXT'); ?>
+                            <span class="fa-solid fa-arrow-right ms-1" aria-hidden="true"></span>
                         </button>
                     </div>
 
@@ -126,6 +145,7 @@ $stepIcons = [
                         <div>
                             <button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('storagewizard.confirmForm')">
                                 <?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_NEXT'); ?>
+                                <span class="fa-solid fa-arrow-right ms-1" aria-hidden="true"></span>
                             </button>
                         </div>
                     <?php endif; ?>
