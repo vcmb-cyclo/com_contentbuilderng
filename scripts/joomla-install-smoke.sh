@@ -12,13 +12,26 @@ web_container="cbng-smoke-web-${run_id}"
 container_archive="/tmp/com_contentbuilderng.zip"
 
 cleanup() {
+    status=$?
+
+    if [[ "${status}" -ne 0 ]]; then
+        echo "::group::MySQL smoke-test logs" >&2
+        docker logs "${db_container}" >&2 || true
+        echo "::endgroup::" >&2
+        echo "::group::Joomla smoke-test logs" >&2
+        docker logs "${web_container}" >&2 || true
+        echo "::endgroup::" >&2
+    fi
+
     if [[ "${KEEP_SMOKE_CONTAINERS:-0}" == "1" ]]; then
         echo "Smoke containers kept: ${web_container}, ${db_container}; network: ${network}" >&2
-        return
+        return "${status}"
     fi
 
     docker rm -f "${web_container}" "${db_container}" >/dev/null 2>&1 || true
     docker network rm "${network}" >/dev/null 2>&1 || true
+
+    return "${status}"
 }
 trap cleanup EXIT
 
@@ -33,14 +46,22 @@ docker run -d \
     -e MYSQL_ROOT_PASSWORD=root \
     "${mysql_image}" >/dev/null
 
+mysql_ready=0
+
 for _ in $(seq 1 60); do
-    if docker exec -e MYSQL_PWD=root "${db_container}" mysqladmin ping -uroot --silent >/dev/null 2>&1; then
+    if docker logs "${db_container}" 2>&1 \
+        | grep -Fq 'MySQL init process done. Ready for start up.' \
+        && docker exec -e MYSQL_PWD=root "${db_container}" mysqladmin ping -uroot --silent >/dev/null 2>&1; then
+        mysql_ready=1
         break
     fi
     sleep 2
 done
 
-docker exec -e MYSQL_PWD=root "${db_container}" mysqladmin ping -uroot --silent >/dev/null
+if [[ "${mysql_ready}" -ne 1 ]]; then
+    echo "MySQL did not become ready before the smoke-test timeout." >&2
+    exit 1
+fi
 
 docker run -d \
     --name "${web_container}" \
