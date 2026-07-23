@@ -113,6 +113,7 @@ final class StoragewizardController extends BaseController
      */
     public function start(): void
     {
+        $this->checkToken();
         $this->requireManagePermission();
 
         $this->getWizardService()->reset();
@@ -398,6 +399,7 @@ final class StoragewizardController extends BaseController
      */
     public function finish(): void
     {
+        $this->checkToken();
         $this->requireManagePermission();
 
         $this->getWizardService()->reset();

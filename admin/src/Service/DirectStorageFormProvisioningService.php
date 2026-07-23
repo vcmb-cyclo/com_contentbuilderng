@@ -12,6 +12,8 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 \defined('_JEXEC') or die;
 
+use Joomla\CMS\Date\Date;
+use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Database\ParameterType;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
@@ -27,6 +29,13 @@ use CB\Component\Contentbuilderng\Administrator\Helper\StorageColumnTypeHelper;
 final class DirectStorageFormProvisioningService
 {
     private const TYPE = 'com_contentbuilderng';
+
+    /**
+     * Group 1 ("Public") is Joomla's root usergroup, granted to every
+     * unauthenticated visitor: it must never get write access on a
+     * form auto-provisioned from a mere anonymous GET request.
+     */
+    private const PUBLIC_GROUP_ID = 1;
 
     public function __construct(
         private readonly DatabaseInterface $db,
@@ -93,17 +102,22 @@ final class DirectStorageFormProvisioningService
         $name = (string) $storage['name'];
         $title = (string) $storage['title'];
         $config = PackedDataHelper::encodePackedData($this->defaultPermissionsConfig());
+        $now = (new Date())->toSql();
+        // created_by/modified_by are varchar(255) columns, mirroring FormModel::prepareTable().
+        $userId = (string) (int) Factory::getApplication()->getIdentity()->id;
 
         $insertQuery = $this->db->getQuery(true)
             ->insert($this->db->quoteName('#__contentbuilderng_forms'))
-            ->columns($this->db->quoteName(['type', 'reference_id', 'name', 'title', 'tag', 'published', 'config']))
-            ->values(':cbType, :cbReferenceId, :cbName, :cbTitle, :cbTag, 1, :cbConfig')
+            ->columns($this->db->quoteName(['type', 'reference_id', 'name', 'title', 'tag', 'published', 'config', 'created', 'created_by']))
+            ->values(':cbType, :cbReferenceId, :cbName, :cbTitle, :cbTag, 1, :cbConfig, :cbCreated, :cbCreatedBy')
             ->bind(':cbType', $type)
             ->bind(':cbReferenceId', $storageId, ParameterType::INTEGER)
             ->bind(':cbName', $name)
             ->bind(':cbTitle', $title)
             ->bind(':cbTag', $tag)
-            ->bind(':cbConfig', $config);
+            ->bind(':cbConfig', $config)
+            ->bind(':cbCreated', $now)
+            ->bind(':cbCreatedBy', $userId);
         $this->db->setQuery($insertQuery);
         $this->db->execute();
 
@@ -113,8 +127,12 @@ final class DirectStorageFormProvisioningService
     /**
      * Mirrors the checkboxes pre-checked by admin/layouts/form/permissions_tab.php
      * for a brand-new form (listaccess/view/new), plus edit, applied to every
-     * user group so a freshly provisioned direct-storage form is immediately
-     * usable on the frontend without a manual permissions setup pass.
+     * authenticated user group so a freshly provisioned direct-storage form is
+     * immediately usable on the frontend without a manual permissions setup
+     * pass. The Public group only gets read access (listaccess/view): write
+     * access (new/edit) requires an admin to explicitly grant it via the
+     * Forms screen, since provisioning is triggered by an anonymous request,
+     * not an admin action.
      */
     private function defaultPermissionsConfig(): array
     {
@@ -126,11 +144,13 @@ final class DirectStorageFormProvisioningService
 
         $permissions = [];
         foreach ($groupIds as $groupId) {
-            $permissions[(int) $groupId] = [
+            $groupId = (int) $groupId;
+            $isPublic = $groupId === self::PUBLIC_GROUP_ID;
+            $permissions[$groupId] = [
                 'listaccess' => true,
                 'view' => true,
-                'new' => true,
-                'edit' => true,
+                'new' => !$isPublic,
+                'edit' => !$isPublic,
             ];
         }
 
@@ -204,6 +224,14 @@ final class DirectStorageFormProvisioningService
         if ($editableTemplate === '' && $detailsTemplate === '') {
             return;
         }
+
+        $now = (new Date())->toSql();
+        // modified_by is a varchar(255) column, mirroring FormModel::prepareTable().
+        $userId = (string) (int) Factory::getApplication()->getIdentity()->id;
+        $update->set($this->db->quoteName('modified') . ' = :modified')
+            ->set($this->db->quoteName('modified_by') . ' = :modifiedBy')
+            ->bind(':modified', $now)
+            ->bind(':modifiedBy', $userId);
 
         $formIdBind = $formId;
         $update->where($this->db->quoteName('id') . ' = :formId')
