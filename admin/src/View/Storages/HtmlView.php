@@ -181,7 +181,6 @@ class HtmlView extends BaseHtmlView
         ToolbarHelper::title(Text::_('COM_CONTENTBUILDERNG') . ' / ' . Text::_('COM_CONTENTBUILDERNG_STORAGES'), 'logo_left');
 
         ToolbarHelper::addNew('storage.add');
-        ToolbarHelper::editList('storage.edit');
         /** @var HtmlDocument $document */
         $document = $this->getDocument();
         $toolbar = $document->getToolbar('toolbar');
