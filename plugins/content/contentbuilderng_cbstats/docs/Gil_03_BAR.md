@@ -1,7 +1,7 @@
 # Pass 3 — Bar chart output
 
 
-> Platform scope is inherited from the repository root `AGENTS.md`: Joomla 6 only, PHP 8.1+, MySQL/MariaDB only. No legacy compatibility layer is required.
+> Platform scope is inherited from the repository root `AGENTS.md`: Joomla 6 only, PHP 8.3+, MySQL/MariaDB only. No legacy compatibility layer is required.
 ## Mission
 
 After the common normalized engine and Pie output are validated, add:

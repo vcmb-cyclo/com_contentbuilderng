@@ -1035,6 +1035,14 @@ echo HTMLHelper::_('uitab.endTabSet');
     <input type="hidden" name="layout" value="edit" />
     <input type="hidden" name="id" value="<?php echo (int) $this->item->id; ?>">
     <input type="hidden" name="task" value="storage.display">
+    <?php if ($this->wizardReturnUrl !== '') : ?>
+        <input type="hidden" name="return" value="<?php echo htmlspecialchars($this->wizardReturnUrl, ENT_QUOTES, 'UTF-8'); ?>" />
+        <?php /* Le formulaire soumet en POST vers action="index.php" (sans querystring) :
+                 sans ce champ, wizard=1 (présent seulement dans l'URL GET initiale) serait
+                 perdu dès la première action (addfield/apply/save), et donc plus jamais
+                 reporté dans les redirections suivantes. */ ?>
+        <input type="hidden" name="wizard" value="1" />
+    <?php endif; ?>
     <input type="hidden" name="jform[id]" value="<?php echo (int) $this->item->id; ?>" />
     <input type="hidden" name="jform[ordering]" value="<?php echo $this->item->ordering; ?>" />
     <input type="hidden" name="jform[published]" value="<?php echo $this->item->published; ?>" />

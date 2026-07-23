@@ -120,7 +120,7 @@ template before adding attachments.
 
 ## Compatibility
 
-The supported scope is Joomla 6 and PHP 8.1 or later. The SQL manifest targets MySQL.
+The supported scope is Joomla 6 and PHP 8.3 or later. The SQL manifest targets MySQL.
 MariaDB is expected in the migration guidance, but the exact production version
 matrix is **To verify**.
 

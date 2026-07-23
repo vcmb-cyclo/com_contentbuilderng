@@ -131,7 +131,8 @@ class HtmlView extends BaseHtmlView
         ToolbarHelper::title(
             $layout === 'packedpayload'
                 ? Text::_('COM_CONTENTBUILDERNG_DB_REPAIR_WORKFLOW_PACKED_DATA_RAW_TITLE')
-                : Text::_('COM_CONTENTBUILDERNG') . ' / ' . Text::_('COM_CONTENTBUILDERNG_ABOUT'),
+                : Text::_('COM_CONTENTBUILDERNG') . ' &gt; ' . Text::_('COM_CONTENTBUILDERNG_ABOUT')
+                    . ' <span class="fa-solid fa-circle-info ms-2" aria-hidden="true"></span>',
             'logo_left'
         );
 

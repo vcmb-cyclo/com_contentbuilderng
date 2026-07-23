@@ -34,6 +34,8 @@ class HtmlView extends BaseHtmlView
     /** @var array{info: array<string,string>, checks: array<int,array{status:string,message:string}>} */
     public array $audit = ['info' => [], 'checks' => []];
 
+    public string $wizardReturnUrl = '';
+
     private function getApp(): CMSApplication
     {
         $app = RuntimeContextHelper::getApplication();
@@ -180,11 +182,24 @@ class HtmlView extends BaseHtmlView
             $formLabel = $isNew ? Text::_('COM_CONTENTBUILDERNG_FORM') : ('#' . $formId);
         }
 
+        $isFromWizard = $input->getBool('wizard', false);
+        $breadcrumbMiddle = $isFromWizard
+            ? '<a href="' . htmlspecialchars(Route::_('index.php?option=com_contentbuilderng&view=storagewizard'), ENT_QUOTES, 'UTF-8') . '">'
+                . Text::_('COM_CONTENTBUILDERNG_WIZARD_TITLE')
+                . ' <span class="fa-solid fa-wand-magic-sparkles mx-2" aria-hidden="true"></span></a>'
+            : Text::_('COM_CONTENTBUILDERNG_ABOUT_CONFIG_SECTION_FORMS') . ' <span class="fa-solid fa-file-lines mx-2" aria-hidden="true"></span>';
+
         ToolbarHelper::title(
-            Text::_('COM_CONTENTBUILDERNG') . ' / ' . Text::_('COM_CONTENTBUILDERNG_ABOUT_CONFIG_SECTION_FORMS') . ' / ' . $formLabel
+            Text::_('COM_CONTENTBUILDERNG') . ' &gt; ' . $breadcrumbMiddle . ' &gt; ' . $formLabel
                 . ' <small><small>[ ' . $text . ' ]</small></small>',
             'logo_left'
         );
+
+        // Le retour au fil de l'assistant (bouton "Fermer"/"Enregistrer")
+        // doit continuer sur l'assistant plutôt que sur la liste Forms.
+        $this->wizardReturnUrl = $isFromWizard
+            ? base64_encode('index.php?option=com_contentbuilderng&view=storagewizard')
+            : '';
 
         ToolbarHelper::saveGroup(
             [

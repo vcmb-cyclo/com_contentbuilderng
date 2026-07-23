@@ -613,6 +613,18 @@ parameters:
 			path: admin/src/View/Storage/HtmlView.php
 
 		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Document\\Document\:\:getToolbar\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/View/Storagewizard/HtmlView.php
+
+		-
+			message: '#^Call to an undefined method Joomla\\CMS\\Extension\\ComponentInterface\:\:getMVCFactory\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: admin/src/Controller/StoragewizardController.php
+
+		-
 			message: '#^Call to an undefined method Joomla\\CMS\\MVC\\Model\\BaseDatabaseModel\:\:getItem\(\)\.$#'
 			identifier: method.notFound
 			count: 1

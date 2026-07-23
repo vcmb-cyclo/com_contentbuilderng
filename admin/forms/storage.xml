@@ -5,7 +5,7 @@
 
     <field name="name" type="text" label="COM_CONTENTBUILDERNG_NAME" required="true" />
 
-    <field name="title" type="text" label="COM_CONTENTBUILDERNG_STORAGE_TITLE" required="true" />
+    <field name="title" type="text" label="COM_CONTENTBUILDERNG_STORAGE_TITLE" description="COM_CONTENTBUILDERNG_STORAGE_TITLE_DESC" />
 
     <field name="published" type="list" label="JSTATUS" default="1">
       <option value="1">JPUBLISHED</option>

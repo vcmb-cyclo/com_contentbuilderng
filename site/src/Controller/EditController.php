@@ -25,6 +25,9 @@ use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
+use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
+use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
+use CB\Component\Contentbuilderng\Administrator\Service\DirectStorageFormProvisioningService;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Site\Helper\MenuParamHelper;
 use CB\Component\Contentbuilderng\Site\Helper\NavigationLinkHelper;
@@ -40,6 +43,32 @@ class EditController extends BaseController
     private function getPermissionService(): PermissionService
     {
         return PermissionService::createFromRuntimeContext();
+    }
+
+    private function getDirectStorageFormProvisioningService(): DirectStorageFormProvisioningService
+    {
+        $component = RuntimeContextHelper::getApplication()->bootComponent('com_contentbuilderng');
+
+        if (!$component instanceof ContentbuilderngComponent) {
+            throw new \RuntimeException('Unexpected component instance');
+        }
+
+        return $component->getContainer()->get(DirectStorageFormProvisioningService::class);
+    }
+
+    /**
+     * En mode storage direct, garder "storage_id=" (et non le vrai id de
+     * #__contentbuilderng_forms résolu à l'affichage) sur les liens vers une
+     * autre page, pour que celle-ci redétecte isDirectStorageMode et valide
+     * la signature preview.
+     */
+    private function buildIdOrStorageIdQueryParam(): string
+    {
+        $storageId = (int) $this->siteApp->getInput()->getInt('storage_id', 0);
+
+        return $storageId > 0
+            ? '&storage_id=' . $storageId
+            : '&id=' . $this->siteApp->getInput()->getInt('id', 0);
     }
 
     private function getEditModel(array $config = ['ignore_request' => true]): EditModel
@@ -197,12 +226,20 @@ class EditController extends BaseController
         $previewQuery = $this->buildPreviewQuery();
         $listQuery = $this->buildListQuery();
 
+        // En mode storage direct, retomber sur "id=<form résolu>" ferait perdre
+        // le contexte storage_id sur la page suivante (isDirectStorageMode
+        // redeviendrait faux), et donc la validation de la signature preview.
+        $directStorageId = (int) $this->siteApp->getInput()->getInt('storage_id', 0);
+        $idParam = $directStorageId > 0
+            ? '&storage_id=' . $directStorageId
+            : '&id=' . $this->siteApp->getInput()->getInt('id', 0);
+
         if ($this->siteApp->getInput()->getString('cb_controller', '') == 'edit') {
             $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->getInput()->get('title', '', 'string') . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '') . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '') . '&task=edit.display&return=' . NavigationLinkHelper::encodeInternalReturn((string) $this->siteApp->getInput()->get('return', '', 'string')) . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0) . $previewQuery, false);
         } else if ($apply) {
-            $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->getInput()->get('title', '', 'string') . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '') . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '') . '&task=edit.display&return=' . NavigationLinkHelper::encodeInternalReturn((string) $this->siteApp->getInput()->get('return', '', 'string')) . '&backtolist=' . $this->siteApp->getInput()->getInt('backtolist', 0) . '&id=' . $this->siteApp->getInput()->getInt('id', 0) . '&record_id=' . $id . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '') . $previewQuery, false);
+            $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->getInput()->get('title', '', 'string') . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '') . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '') . '&task=edit.display&return=' . NavigationLinkHelper::encodeInternalReturn((string) $this->siteApp->getInput()->get('return', '', 'string')) . '&backtolist=' . $this->siteApp->getInput()->getInt('backtolist', 0) . $idParam . '&record_id=' . $id . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : '') . $previewQuery, false);
         } else {
-            $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->getInput()->get('title', '', 'string') . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '') . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '') . '&task=list.display&id=' . $this->siteApp->getInput()->getInt('id', 0) . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0) . $previewQuery, false);
+            $link = Route::_('index.php?option=com_contentbuilderng&title=' . $this->siteApp->getInput()->get('title', '', 'string') . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '') . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '') . '&task=list.display' . $idParam . ($listQuery !== '' ? '&' . $listQuery : '') . '&Itemid=' . $this->siteApp->getInput()->getInt('Itemid', 0) . $previewQuery, false);
         }
         $this->setRedirect($link, $msg, $type);
     }
@@ -230,8 +267,8 @@ class EditController extends BaseController
             $listQuery = $this->buildListQuery();
             $previewQuery = $this->buildPreviewQuery();
             $link = Route::_(
-                'index.php?option=com_contentbuilderng&task=list.display&backtolist=1&id='
-                . $this->siteApp->getInput()->getInt('id', 0)
+                'index.php?option=com_contentbuilderng&task=list.display&backtolist=1'
+                . $this->buildIdOrStorageIdQueryParam()
                 . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '')
                 . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '')
                 . '&record_id='
@@ -279,8 +316,8 @@ class EditController extends BaseController
         $listQuery = $this->buildListQuery();
         $previewQuery = $this->buildPreviewQuery();
         $link = Route::_(
-            'index.php?option=com_contentbuilderng&task=list.display&backtolist=1&id='
-            . $this->siteApp->getInput()->getInt('id', 0)
+            'index.php?option=com_contentbuilderng&task=list.display&backtolist=1'
+            . $this->buildIdOrStorageIdQueryParam()
             . ($this->siteApp->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . $this->siteApp->getInput()->get('tmpl', '', 'string') : '')
             . ($this->siteApp->getInput()->get('layout', '', 'string') != '' ? '&layout=' . $this->siteApp->getInput()->get('layout', '', 'string') : '')
             . '&record_id='
@@ -538,8 +575,14 @@ class EditController extends BaseController
         $formId   = $this->input->getInt('id', 0);
         $recordId = $this->input->getInt('record_id', 0);
 
-        // 2) sinon depuis les params du menu actif
-        if (!$formId) {
+        if ($isDirectStorageMode) {
+            // Édition directe d'un storage : résout (ou crée à la volée, avec
+            // ses éléments et ses templates par défaut) le #__contentbuilderng_forms
+            // lié, pour que le reste du pipeline (EditModel, save/apply) fonctionne
+            // comme pour un formulaire classique.
+            $formId = $this->getDirectStorageFormProvisioningService()->resolveOrCreateFormId($storageId);
+        } elseif (!$formId) {
+            // 2) sinon depuis les params du menu actif
             $menu = $this->siteApp->getMenu()->getActive();
             if ($menu) {
                 $formId = (int) MenuParamHelper::getMenuParam($menu->getParams(), 'form_id', 0);
@@ -566,10 +609,22 @@ class EditController extends BaseController
         $this->input->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
         $this->siteApp->getInput()->set('cb_preview_ok', $isAdminPreview ? 1 : 0);
 
+        if (!$isAdminPreview && $this->siteApp->getInput()->getBool('cb_preview', false)) {
+            // Le lien portait bien les paramètres de prévisualisation, mais la
+            // validation a échoué (signature invalide ou lien expiré après
+            // 10 minutes) : prévenir plutôt que de perdre silencieusement le
+            // bandeau "Prévisualisation".
+            $this->siteApp->enqueueMessage(Text::_('COM_CONTENTBUILDERNG_PREVIEW_LINK_EXPIRED'), 'warning');
+        }
+
+        // En mode storage direct, $formId pointe désormais vers un vrai
+        // #__contentbuilderng_forms (résolu/créé plus haut) : les droits
+        // configurés dessus (admin > Formulaires) doivent donc être chargés
+        // comme pour n'importe quel formulaire classique.
+        $this->getPermissionService()->setPermissions($formId, $recordId, $suffix);
+
         if ($isDirectStorageMode && $isAdminPreview) {
             $this->getPermissionService()->setStoragePreviewPermissions($storageId, $this->frontend ? '_fe' : '');
-        } elseif (!$isDirectStorageMode) {
-            $this->getPermissionService()->setPermissions($formId, $recordId, $suffix);
         }
         if (!$isAdminPreview) {
             if ($this->siteApp->getInput()->getCmd('record_id', '')) {

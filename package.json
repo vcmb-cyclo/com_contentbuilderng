@@ -1,0 +1,11 @@
+{
+  "name": "com-contentbuilderng-ci",
+  "private": true,
+  "scripts": {
+    "lint:css": "stylelint \"media/css/**/*.css\" \"plugins/**/*.css\""
+  },
+  "devDependencies": {
+    "stylelint": "17.14.1",
+    "stylelint-config-standard": "40.0.0"
+  }
+}

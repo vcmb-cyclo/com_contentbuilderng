@@ -393,7 +393,11 @@ if (formsTable && formsTable.tBodies.length) {
                     $debug = ContentbuilderngHelper::listDebug('forms', $row, $i);
                     $published = ContentbuilderngHelper::listPublish('forms', $row, $i);
                 ?>
-                    <tr data-cb-row-id="<?php echo (int) $row->id; ?>">
+                    <?php
+                        $rowTitle = trim((string) ($row->title ?? ''));
+                        $rowLabel = $rowTitle !== '' ? $rowTitle : (string) ($row->name ?? '');
+                    ?>
+                    <tr data-cb-row-id="<?php echo (int) $row->id; ?>" data-cb-item-label="<?php echo htmlspecialchars($rowLabel, ENT_QUOTES, 'UTF-8'); ?>">
                         <td>
                             <?php echo $row->id; ?>
                         </td>

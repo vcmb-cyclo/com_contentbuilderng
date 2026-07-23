@@ -117,7 +117,7 @@ class HtmlView extends BaseHtmlView
         $app->setUserState('com_contentbuilderng.about.export', []);
 
         ToolbarHelper::title(
-            Text::_('COM_CONTENTBUILDERNG') . ' / ' . Text::_('COM_CONTENTBUILDERNG_ABOUT') . ' / ' . Text::_('COM_CONTENTBUILDERNG_ABOUT_CONFIG_TRANSFER_TITLE'),
+            Text::_('COM_CONTENTBUILDERNG') . ' &gt; ' . Text::_('COM_CONTENTBUILDERNG_ABOUT') . ' &gt; ' . Text::_('COM_CONTENTBUILDERNG_ABOUT_CONFIG_TRANSFER_TITLE'),
             'logo_left'
         );
 

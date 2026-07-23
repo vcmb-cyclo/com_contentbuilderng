@@ -48,6 +48,10 @@ class HtmlView extends BaseHtmlView
 
         $wa = $this->document->getWebAssetManager();
         $wa->useScript('table.columns');
+        $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
+        $wa->useScript('com_contentbuilderng.admin-ui');
+        Text::script('COM_CONTENTBUILDERNG_CONFIRM_DELETE_ONE');
+        Text::script('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MANY');
         $wa->addInlineStyle(
             '.icon-logo_left{
                 background-image:url(' . Uri::root(true) . '/media/com_contentbuilderng/images/logo_left.png);
@@ -62,7 +66,11 @@ class HtmlView extends BaseHtmlView
         );
 
         // Et pour le title, garde un identifiant cohérent :
-        ToolbarHelper::title(Text::_('COM_CONTENTBUILDERNG') . ' / ' . Text::_('COM_CONTENTBUILDERNG_ABOUT_CONFIG_SECTION_FORMS'), 'logo_left');
+        ToolbarHelper::title(
+            Text::_('COM_CONTENTBUILDERNG') . ' &gt; ' . Text::_('COM_CONTENTBUILDERNG_ABOUT_CONFIG_SECTION_FORMS')
+            . ' <span class="fa-solid fa-file-lines ms-2" aria-hidden="true"></span>',
+            'logo_left'
+        );
         ToolbarHelper::addNew('form.add');
         ToolbarHelper::custom('forms.copy', 'copy', '', Text::_('COM_CONTENTBUILDERNG_COPY'));
         ToolbarHelper::editList('form.edit');
@@ -89,7 +97,9 @@ class HtmlView extends BaseHtmlView
             ->text('COM_CONTENTBUILDERNG_DEBUG_OFF')
             ->icon('fa fa-bug text-danger')
             ->listCheck(true);
-        ToolbarHelper::deleteList('JGLOBAL_CONFIRM_DELETE', 'forms.delete');
+        $statusChildToolbar->delete('forms.delete', 'JTOOLBAR_DELETE')
+            ->message('JGLOBAL_CONFIRM_DELETE')
+            ->listCheck(true);
         ToolbarHelper::preferences('com_contentbuilderng');
         ToolbarHelper::help(
             'COM_CONTENTBUILDERNG_HELP_VIEWS_TITLE',

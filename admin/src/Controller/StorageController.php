@@ -26,6 +26,7 @@ use Joomla\CMS\MVC\Controller\FormController as BaseFormController;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Response\JsonResponse;
+use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Filesystem\File;
 use Joomla\Utilities\ArrayHelper;
@@ -60,6 +61,36 @@ class StorageController extends BaseFormController
     private function closeApp(): void
     {
         $this->getApp()->close();
+    }
+
+    /**
+     * Lien direct vers l'écran d'édition d'un storage — pas task=storage.edit,
+     * qui passe par le hop de checkout de FormController::edit() (reconstruit
+     * l'URL depuis zéro et perdrait wizard=1). Préserve le contexte assistant
+     * si actif.
+     */
+    private function storageEditLink(int $storageId): string
+    {
+        $wizardParam = $this->input->getBool('wizard', false) ? '&wizard=1' : '';
+
+        return Route::_('index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . $storageId . $wizardParam, false);
+    }
+
+    private function forwardPostedReturn(): void
+    {
+        $return = $this->input->post->get('return', null, 'base64');
+
+        if ($return !== null) {
+            $this->input->set('return', $return);
+        }
+    }
+
+    #[\Override]
+    public function cancel($key = null)
+    {
+        $this->forwardPostedReturn();
+
+        return parent::cancel($key);
     }
 
     private function externalStorageTableExists(string $tableName): bool
@@ -106,6 +137,8 @@ class StorageController extends BaseFormController
     #[\Override]
     public function save($key = null, $urlVar = null)
     {
+        $this->forwardPostedReturn();
+
         $this->checkToken();
 
         $file = $this->input->files->get('csv_file', null, 'array');
@@ -237,6 +270,14 @@ class StorageController extends BaseFormController
                 }
             }
 
+            if ($this->input->getBool('wizard', false) && $this->getTask() === 'save') {
+                $message = trim((string) ($this->message ?? ''));
+                $this->setRedirect(
+                    Route::_('index.php?option=com_contentbuilderng&view=storagewizard', false),
+                    $message !== '' ? $message : Text::_('COM_CONTENTBUILDERNG_SAVED')
+                );
+            }
+
             return $result;
         }
 
@@ -256,7 +297,7 @@ class StorageController extends BaseFormController
             $saved = $model->save($data);
             if (!$saved) {
 	                $this->setRedirect(
-	                    Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) ($data['id'] ?? 0), false),
+	                    $this->storageEditLink((int) ($data['id'] ?? 0)),
 	                    Text::_('COM_CONTENTBUILDERNG_SAVE_FAILED'),
 	                    'error'
 	                );
@@ -322,7 +363,7 @@ class StorageController extends BaseFormController
 	                    $error = Text::_('COM_CONTENTBUILDERNG_SAVE_FAILED');
 	                }
                 $this->setRedirect(
-                    Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) $id, false),
+                    $this->storageEditLink((int) $id),
                     $error,
                     'error'
                 );
@@ -377,9 +418,15 @@ class StorageController extends BaseFormController
 
         // Redirect apply/save
         $task = $this->getTask();
-        $link = ($task === 'apply')
-            ? Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) $id, false)
-            : Route::_('index.php?option=com_contentbuilderng&task=storages.display', false);
+
+        if ($task === 'apply') {
+            $link = $this->storageEditLink((int) $id);
+        } else {
+            $return = $this->input->get('return', null, 'base64');
+            $link = (!is_null($return) && Uri::isInternal(base64_decode((string) $return)))
+                ? Route::_(base64_decode((string) $return), false)
+                : Route::_('index.php?option=com_contentbuilderng&task=storages.display', false);
+        }
 
         $message = trim((string) ($this->message ?? ''));
         if ($message === '') {
@@ -443,9 +490,12 @@ class StorageController extends BaseFormController
 
         $type = $ok ? 'message' : 'warning';
 
-        // Redirect vers l’édition du storage
+        // Redirect vers l'édition du storage — lien direct vers la vue (pas
+        // task=storage.edit, qui reconstruit l'URL via le hop de checkout et
+        // perdrait wizard=1) pour rester dans le contexte assistant si actif.
+        $wizardParam = $this->input->getBool('wizard', false) ? '&wizard=1' : '';
         $this->setRedirect(
-            Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) $storageId, false),
+            Route::_('index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . (int) $storageId . $wizardParam, false),
             $msg,
             $type
         );
@@ -646,6 +696,59 @@ class StorageController extends BaseFormController
         }
     }
 
+    /**
+     * Task: storage.listDelete — supprime les champs sélectionnés dans l'écran
+     * d'édition d'un storage (bouton "Supprimer champ"). Distinct de delete()
+     * qui supprime des storages entiers depuis l'écran Storages.
+     */
+    public function listDelete(): bool
+    {
+        $this->checkToken();
+
+        $cids = $this->input->get('cid', [], 'array');
+        ArrayHelper::toInteger($cids);
+
+        $storageId = (int) $this->input->getInt('id');
+
+        if (empty($cids)) {
+            $error = Text::_('JERROR_NO_ITEMS_SELECTED');
+            $this->setMessage($error, 'error');
+            $this->setRedirect(
+                Route::_('index.php?option=com_contentbuilderng&task=storage.display&layout=edit&id=' . $storageId, false)
+            );
+
+            return false;
+        }
+
+        /** @var StoragefieldsModel|null $model */
+        $model = $this->getModel('Storagefields', 'Administrator', ['ignore_request' => true]);
+        if (!$model) {
+            throw new \RuntimeException('StoragefieldsModel introuvable');
+        }
+
+        $model->setStorageId($storageId);
+
+        try {
+            $deleted = $model->delete($cids);
+        } catch (\Throwable $e) {
+            $this->setRedirect(
+                Route::_('index.php?option=com_contentbuilderng&task=storage.display&layout=edit&id=' . $storageId, false),
+                $e->getMessage(),
+                'error'
+            );
+
+            return false;
+        }
+
+        $this->setRedirect(
+            Route::_('index.php?option=com_contentbuilderng&task=storage.display&layout=edit&id=' . $storageId, false),
+            $deleted > 0 ? Text::_('COM_CONTENTBUILDERNG_DELETED') : Text::_('COM_CONTENTBUILDERNG_DELETE_FIELDS_PROTECTED'),
+            $deleted > 0 ? 'message' : 'warning'
+        );
+
+        return true;
+    }
+
     public function publish(): bool
     {
         return $this->storagesPublish(1, 'COM_CONTENTBUILDERNG_PUBLISHED');
@@ -843,11 +946,13 @@ class StorageController extends BaseFormController
             }
             $this->getApp()->getSession()->set('tabStartOffset', $tabStartOffset, 'com_contentbuilderng');
 
+            $wizardParam = $this->input->getBool('wizard', false) ? '&wizard=1' : '';
             $this->setRedirect(
                 Route::_(
-                    'index.php?option=com_contentbuilderng&task=storage.edit&id='
+                    'index.php?option=com_contentbuilderng&view=storage&layout=edit&id='
                     . $storageId
                     . '&tabStartOffset=' . rawurlencode($tabStartOffset)
+                    . $wizardParam
                     . '#' . rawurlencode($tabStartOffset),
                     false
                 ),

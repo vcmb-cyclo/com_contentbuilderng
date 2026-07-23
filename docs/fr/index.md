@@ -33,8 +33,7 @@ compétences Joomla, HTML et PHP.
 - Joomla 6.0 ou supérieur (le composant est testé sous Joomla 6.x, avec ou sans le
   plugin de compatibilité ascendante). Joomla 5.4.x devrait fonctionner mais n'est
   pas testé — *à vérifier* selon votre environnement ;
-- PHP 8.3 (version testée par le projet). PHP 8.1 reste le minimum théorique de
-  Joomla 6 — *à vérifier* ;
+- PHP 8.3 minimum ;
 - MySQL ou MariaDB compatible avec Joomla 6 ;
 - droits Joomla permettant d'installer et d'administrer des extensions ;
 - droits SQL suffisants pour créer et modifier les tables lors de l'installation

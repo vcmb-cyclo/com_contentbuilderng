@@ -13,7 +13,7 @@ The normal output is followed by the final title, labels, values and total, then
 Labels use the RC83 manual escaping rules: `\;`, `\=` and `\\`. Pie remains Pie, Bar remains Bar and Table remains Table. `output=total` is not exported because it has no category presentation to freeze. With `source=manual export=manual`, CBStats displays one normalized export block without recursion.
 
 
-> Platform scope is inherited from the repository root `AGENTS.md`: Joomla 6 only, PHP 8.1+, MySQL/MariaDB only. No legacy compatibility layer is required.
+> Platform scope is inherited from the repository root `AGENTS.md`: Joomla 6 only, PHP 8.3+, MySQL/MariaDB only. No legacy compatibility layer is required.
 > This document is the target public reference for CBStats. In the real repository, Codex must first locate the existing canonical ContentBuilder NG documentation/API reference and merge this information there rather than creating a duplicate documentation island.
 
 ## 1. General syntax

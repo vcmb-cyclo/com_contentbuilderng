@@ -2,7 +2,9 @@
 *.zip
 admin/.phpunit.cache/
 admin/.phpunit.result.cache
+admin/coverage/
 admin/vendor/
+node_modules/
 .claude/worktrees/
 .claude/settings.local.json
 .claude/settings.json

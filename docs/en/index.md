@@ -32,8 +32,7 @@ advanced troubleshooting require Joomla, HTML, and PHP skills.
 - Joomla 6.0 or later (the component is tested on Joomla 6.x, with or without the
   Backward Compatibility plugin). Joomla 5.4.x should work but is not tested — *to
   verify* in your environment;
-- PHP 8.3 (the version tested by the project). PHP 8.1 remains the theoretical
-  minimum enforced by the installer — *to verify*;
+- PHP 8.3 minimum;
 - MySQL or MariaDB compatible with Joomla 6;
 - Joomla permissions to install and administer extensions;
 - database permissions to create and alter tables during installation (the component

@@ -1,7 +1,7 @@
 # Pass 1 — Generic field statistics engine + JSON output
 
 
-> Platform scope is inherited from the repository root `AGENTS.md`: Joomla 6 only, PHP 8.1+, MySQL/MariaDB only. No legacy compatibility layer is required.
+> Platform scope is inherited from the repository root `AGENTS.md`: Joomla 6 only, PHP 8.3+, MySQL/MariaDB only. No legacy compatibility layer is required.
 ## Mission
 
 Refactor the existing CBStats field-statistics logic into one normalized PHP source of truth and add:

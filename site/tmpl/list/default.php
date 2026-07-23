@@ -450,7 +450,11 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 		]);
 		?>
 	<?php endif; ?>
-	<?php if ($isAdminPreview || $directStorageMode): ?>
+	<?php // Le bandeau "Prévisualisation" ne doit s'afficher qu'en vraie
+	// prévisualisation admin (signature cb_preview_* valide) : le mode
+	// storage direct est désormais aussi un point d'entrée public normal
+	// (item de menu créé par l'Assistant Storage), pas seulement un aperçu. ?>
+	<?php if ($isAdminPreview): ?>
 			<div class="alert alert-warning cbPreviewBanner d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
 				<span>
 					<strong><?php echo Text::_('COM_CONTENTBUILDERNG_PREVIEW_MODE'); ?></strong>

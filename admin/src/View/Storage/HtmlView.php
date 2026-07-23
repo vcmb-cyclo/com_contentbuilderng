@@ -40,6 +40,7 @@ class HtmlView extends BaseHtmlView
     public ?bool $storageTableExists = null;
     public string $storageTableLookupName = '';
     public string $storageTableErrorMessage = '';
+    public string $wizardReturnUrl = '';
 
     private function getApp(): CMSApplicationInterface
     {
@@ -85,6 +86,8 @@ class HtmlView extends BaseHtmlView
         $wa->getRegistry()->addExtensionRegistryFile('com_contentbuilderng');
         $wa->useScript('com_contentbuilderng.admin-ui');
         HTMLHelper::_('script', 'com_contentbuilderng/admin-ui.js', ['version' => 'auto', 'relative' => true], ['defer' => true]);
+        Text::script('COM_CONTENTBUILDERNG_CONFIRM_DELETE_ONE');
+        Text::script('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MANY');
 
 		if (!$this->frontend) {
             $wa->addInlineStyle(
@@ -157,20 +160,36 @@ class HtmlView extends BaseHtmlView
             $storageLabel = $isNew ? Text::_('COM_CONTENTBUILDERNG_STORAGES') : ('#' . $storageId);
         }
 
+        $isFromWizard = $input->getBool('wizard', false);
+        $breadcrumbMiddle = $isFromWizard
+            ? '<a href="' . htmlspecialchars(Route::_('index.php?option=com_contentbuilderng&view=storagewizard', false), ENT_QUOTES, 'UTF-8') . '">'
+                . Text::_('COM_CONTENTBUILDERNG_WIZARD_TITLE')
+                . ' <span class="fa-solid fa-wand-magic-sparkles mx-2" aria-hidden="true"></span></a>'
+            : Text::_('COM_CONTENTBUILDERNG_STORAGES') . ' <span class="fa-solid fa-database mx-2" aria-hidden="true"></span>';
+
         ToolbarHelper::title(
-            Text::_('COM_CONTENTBUILDERNG') . ' / ' . Text::_('COM_CONTENTBUILDERNG_STORAGES') . ' / ' . $storageLabel
+            Text::_('COM_CONTENTBUILDERNG') . ' &gt; ' . $breadcrumbMiddle . ' &gt; ' . $storageLabel
             . ' <small><small>[ ' . $text . ' ]</small></small>',
             'logo_left'
         );
 
-        ToolbarHelper::saveGroup(
-            [
-                ['apply', 'storage.apply', 'JTOOLBAR_APPLY'],
-                ['save', 'storage.save', 'JTOOLBAR_SAVE'],
-                ['save2new', 'storage.save2new', 'JTOOLBAR_SAVE_AND_NEW'],
-            ],
-            'btn-success'
-        );
+        // Le retour au fil de l'assistant (bouton "Fermer"/"Enregistrer",
+        // géré nativement par FormController::cancel()/save() via `return`)
+        // doit continuer sur l'assistant plutôt que sur la liste Storages.
+        $this->wizardReturnUrl = $isFromWizard
+            ? base64_encode('index.php?option=com_contentbuilderng&view=storagewizard')
+            : '';
+
+        $saveButtons = [
+            ['apply', 'storage.apply', 'JTOOLBAR_APPLY'],
+            ['save', 'storage.save', 'JTOOLBAR_SAVE'],
+        ];
+
+        if (!$isFromWizard) {
+            $saveButtons[] = ['save2new', 'storage.save2new', 'JTOOLBAR_SAVE_AND_NEW'];
+        }
+
+        ToolbarHelper::saveGroup($saveButtons, 'btn-success');
 
         $toolbar = $this->getDocument()->getToolbar('toolbar');
         $dropdown = $toolbar->dropdownButton('storage-status-group');
@@ -190,6 +209,10 @@ class HtmlView extends BaseHtmlView
             ->icon('fa-solid fa-circle-xmark text-danger')
             ->listCheck(true)
             ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_UNPUBLISH_ELEMENTS_TIP')]);
+        $childToolbar->delete('storage.listDelete', 'COM_CONTENTBUILDERNG_DELETE_FIELDS')
+            ->message('COM_CONTENTBUILDERNG_DELETE_FIELDS_CONFIRM')
+            ->listCheck(true)
+            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_DELETE_FIELDS_TIP')]);
 
         $id = (int) ($this->item->id ?? 0);
         $isExternalTable = ((int) ($this->item->bytable ?? 0) === 1);
@@ -232,11 +255,6 @@ class HtmlView extends BaseHtmlView
                 ->listCheck(false)
                 ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_DATATABLE_SYNC_TIP')]);
         }
-
-        $toolbar->delete('storage.listDelete', 'COM_CONTENTBUILDERNG_DELETE_FIELDS')
-            ->message('COM_CONTENTBUILDERNG_DELETE_FIELDS_CONFIRM')
-            ->listCheck(true)
-            ->attributes(['title' => Text::_('COM_CONTENTBUILDERNG_DELETE_FIELDS_TIP')]);
 
         ToolbarHelper::cancel('storage.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
         ToolbarHelper::help(
