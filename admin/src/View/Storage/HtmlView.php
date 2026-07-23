@@ -163,11 +163,12 @@ class HtmlView extends BaseHtmlView
         $isFromWizard = $input->getBool('wizard', false);
         $breadcrumbMiddle = $isFromWizard
             ? '<a href="' . htmlspecialchars(Route::_('index.php?option=com_contentbuilderng&view=storagewizard', false), ENT_QUOTES, 'UTF-8') . '">'
-                . Text::_('COM_CONTENTBUILDERNG_WIZARD_TITLE') . '</a>'
-            : Text::_('COM_CONTENTBUILDERNG_STORAGES');
+                . Text::_('COM_CONTENTBUILDERNG_WIZARD_TITLE')
+                . ' <span class="fa-solid fa-wand-magic-sparkles mx-2" aria-hidden="true"></span></a>'
+            : Text::_('COM_CONTENTBUILDERNG_STORAGES') . ' <span class="fa-solid fa-database mx-2" aria-hidden="true"></span>';
 
         ToolbarHelper::title(
-            Text::_('COM_CONTENTBUILDERNG') . ' / ' . $breadcrumbMiddle . ' / ' . $storageLabel
+            Text::_('COM_CONTENTBUILDERNG') . ' &gt; ' . $breadcrumbMiddle . ' &gt; ' . $storageLabel
             . ' <small><small>[ ' . $text . ' ]</small></small>',
             'logo_left'
         );

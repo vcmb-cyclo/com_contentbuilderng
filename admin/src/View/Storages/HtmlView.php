@@ -178,7 +178,11 @@ class HtmlView extends BaseHtmlView
      */
     protected function addToolbar()
     {
-        ToolbarHelper::title(Text::_('COM_CONTENTBUILDERNG') . ' / ' . Text::_('COM_CONTENTBUILDERNG_STORAGES'), 'logo_left');
+        ToolbarHelper::title(
+            Text::_('COM_CONTENTBUILDERNG') . ' &gt; ' . Text::_('COM_CONTENTBUILDERNG_STORAGES')
+            . ' <span class="fa-solid fa-database ms-2" aria-hidden="true"></span>',
+            'logo_left'
+        );
 
         ToolbarHelper::addNew('storage.add');
         /** @var HtmlDocument $document */

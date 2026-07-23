@@ -17,6 +17,7 @@ namespace CB\Component\Contentbuilderng\Administrator\View\Storagewizard;
 use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseInterface;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
@@ -147,8 +148,22 @@ class HtmlView extends BaseHtmlView
 
     private function addToolbar(): void
     {
+        $this->getDocument()->getWebAssetManager()->addInlineStyle(
+            '.icon-logo_left{
+                background-image:url(' . Uri::root(true) . '/media/com_contentbuilderng/images/logo_left.png);
+                background-size:contain;
+                background-repeat:no-repeat;
+                background-position:center;
+                display:inline-block;
+                width:48px;
+                height:48px;
+                vertical-align:middle;
+            }'
+        );
+
         ToolbarHelper::title(
-            Text::_('COM_CONTENTBUILDERNG') . ' / ' . Text::_('COM_CONTENTBUILDERNG_WIZARD_TITLE'),
+            Text::_('COM_CONTENTBUILDERNG') . ' &gt; ' . Text::_('COM_CONTENTBUILDERNG_WIZARD_TITLE')
+            . ' <span class="fa-solid fa-wand-magic-sparkles ms-2" aria-hidden="true"></span>',
             'logo_left'
         );
 

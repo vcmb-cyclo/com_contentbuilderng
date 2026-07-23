@@ -54,13 +54,14 @@ class HtmlView extends BaseHtmlView
             $subjectLabel = '#' . (int) ($subject->id ?? 0);
         }
 
-        $title = Text::_('COM_CONTENTBUILDERNG') . ' / ';
+        $title = Text::_('COM_CONTENTBUILDERNG') . ' &gt; ';
 
         if ($formId > 0) {
-            $title .= Text::_('COM_CONTENTBUILDERNG_ABOUT_CONFIG_SECTION_FORMS') . ' / #' . $formId . ' / ';
+            $title .= Text::_('COM_CONTENTBUILDERNG_ABOUT_CONFIG_SECTION_FORMS') . ' &gt; #' . $formId . ' &gt; ';
         }
 
-        $title .= Text::_('COM_CONTENTBUILDERNG_USERS') . ' / ' . $subjectLabel;
+        $title .= Text::_('COM_CONTENTBUILDERNG_USERS')
+            . ' <span class="fa-solid fa-users mx-2" aria-hidden="true"></span> &gt; ' . $subjectLabel;
 
         ToolbarHelper::title($title, 'users');
         parent::display($tpl);
