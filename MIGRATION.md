@@ -53,7 +53,7 @@
 
 ## Règles pour les agents
 
-- Joomla 6 uniquement. PHP 8.1+. MySQL/MariaDB uniquement. Aucune compatibilité ascendante.
+- Joomla 6 uniquement. PHP 8.3+. MySQL/MariaDB uniquement. Aucune compatibilité ascendante.
 - Modifications minimales et ciblées ; ne toucher que les fichiers nécessaires.
 - `php -l` sur chaque fichier touché ; lancer la suite PHPUnit avant de cocher.
 - Tester en conditions réelles sur le conteneur `joomla6` quand un flux runtime est touché.

@@ -2,6 +2,7 @@
   "name": "xda-gil/com_contentbuilderng",
   "type": "joomla-component",
   "require": {
+    "php": ">=8.3",
     "bgli100/securimage": "^4.0",
     "phpoffice/phpspreadsheet": "^5.8"
   },

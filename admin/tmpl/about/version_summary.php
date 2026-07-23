@@ -14,7 +14,7 @@ use Joomla\CMS\Language\Text;
                 <span class="cb-about-version-badge <?php echo $isProductionBuild ? 'cb-about-version-badge--production' : 'cb-about-version-badge--dev'; ?>"><?php echo $buildTypeDisplay; ?></span>
                 <span class="cb-about-platform-badges" aria-label="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ABOUT_PLATFORM_BADGES_LABEL'), ENT_QUOTES, 'UTF-8'); ?>">
                     <span class="cb-about-platform-badge"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_PLATFORM_JOOMLA_6'); ?></span>
-                    <span class="cb-about-platform-badge"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_PLATFORM_PHP_81'); ?></span>
+                    <span class="cb-about-platform-badge"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_PLATFORM_PHP_83'); ?></span>
                 </span>
             </span>
         </div>

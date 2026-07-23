@@ -7,7 +7,7 @@ n'est pas un produit officiel Crosstec.
 
 ## Quelles versions sont prises en charge ?
 
-Joomla 6.0 minimum et PHP 8.1 minimum.
+Joomla 6.0 minimum et PHP 8.3 minimum.
 
 ## Puis-je installer le ZIP « Source code » de GitHub ?
 
@@ -116,4 +116,3 @@ sauvegardez avant toute désinstallation.
 
 Non. Il peut modifier le schéma et les données. Sauvegardez, exécutez-le hors charge et
 lisez chaque étape.
-

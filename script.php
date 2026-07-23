@@ -53,7 +53,7 @@ class com_contentbuilderngInstallerScript
     // Configuration
     // ---------------------------------------------------------------------
     protected string $extension = 'com_contentbuilderng';
-    protected string $minimumPhp = '8.1';
+    protected string $minimumPhp = '8.3';
     protected string $minimumJoomla = '6.0';
 
     private const SHARED_LOG_FILE = 'com_contentbuilderng.log';

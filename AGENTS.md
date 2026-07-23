@@ -2,7 +2,7 @@
 
 ## Scope
 - Joomla 6 only.
-- PHP 8.1+ only.
+- PHP 8.3+ only.
 - Database: MySQL / MariaDB only. Raw SQL fragments (outside the Joomla Query
   Builder) must use MySQL/MariaDB syntax and grammar — no PostgreSQL/SQL
   Server/SQLite constructs. In particular, `GROUP_CONCAT(... SEPARATOR ...)`
@@ -42,4 +42,3 @@
 - Keep explanations concise.
 - No legacy alternatives.
 - No pseudocode unless requested.
-

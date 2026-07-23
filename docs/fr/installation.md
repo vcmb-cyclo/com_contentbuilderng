@@ -5,14 +5,14 @@
 Vérifiez les prérequis :
 
 - Joomla 6.0 ou supérieur (vérifié par l'installateur) ;
-- PHP 8.1 minimum (vérifié par l'installateur), PHP 8.3 recommandé ;
+- PHP 8.3 minimum (vérifié par l'installateur) ;
 - accès Super Utilisateur ;
 - sauvegarde récente du site et de la base ;
 - espace disque suffisant ;
 - répertoires Joomla modifiables par le serveur web.
 
 > ℹ️ **Note :** l'installateur (`script.php`) refuse l'installation si PHP est
-> inférieur à 8.1 ou si Joomla est inférieur à 6.0. Un message d'erreur est alors
+> inférieur à 8.3 ou si Joomla est inférieur à 6.0. Un message d'erreur est alors
 > affiché et l'opération est annulée.
 
 Pour une migration depuis l'ancien ContentBuilder, ne désinstallez pas l'ancien
@@ -103,7 +103,7 @@ plugins livrés et nettoyer des éléments historiques.
 
 ### Version PHP ou Joomla refusée
 
-Le composant vérifie Joomla 6.0 minimum et PHP 8.1 minimum. Changez la version du
+Le composant vérifie Joomla 6.0 minimum et PHP 8.3 minimum. Changez la version du
 serveur avant de relancer l'installation.
 
 ### Fichiers non modifiables

@@ -13,7 +13,7 @@ This plugin is the ContentBuilder NG statistics content plugin, commonly called 
 The repository root `AGENTS.md` is authoritative and applies in full. In particular, CBStats must follow these repository-wide constraints:
 
 - Joomla 6 only;
-- PHP 8.1+ only;
+- PHP 8.3+ only;
 - MySQL / MariaDB only;
 - native Joomla 6 APIs and modern conventions only;
 - no legacy or deprecated APIs;

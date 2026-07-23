@@ -42,7 +42,7 @@ C:\Wamp\workspaces\com_contentbuilderng\
 
 The repository already contains a root `AGENTS.md`. It is authoritative and must **not** be replaced by this package.
 
-It already defines the repository-wide constraints, including Joomla 6 only, PHP 8.1+, MySQL/MariaDB only, native Joomla 6 APIs, no legacy/deprecated compatibility mechanisms, minimal targeted changes, and synchronized translations in `en-GB`, `fr-FR` and `de-DE`.
+It already defines the repository-wide constraints, including Joomla 6 only, PHP 8.3+, MySQL/MariaDB only, native Joomla 6 APIs, no legacy/deprecated compatibility mechanisms, minimal targeted changes, and synchronized translations in `en-GB`, `fr-FR` and `de-DE`.
 
 This package therefore adds only the scoped CBStats `AGENTS.md` under the plugin directory plus the `Gil_*.md` specification and mission files.
 

@@ -5,14 +5,14 @@
 Check the following requirements:
 
 - Joomla 6.0 or later (verified by the installer);
-- PHP 8.1 minimum (verified by the installer), PHP 8.3 recommended;
+- PHP 8.3 minimum (verified by the installer);
 - Super User access;
 - a recent website and database backup;
 - enough disk space;
 - Joomla directories writable by the web server.
 
 > ℹ️ **Note:** the installer (`script.php`) aborts the installation if PHP is below
-> 8.1 or Joomla is below 6.0. An error message is shown and the operation is cancelled.
+> 8.3 or Joomla is below 6.0. An error message is shown and the operation is cancelled.
 
 For a migration from the former ContentBuilder extension, do not uninstall the old
 component before reading the [migration guide](migration-contentbuilder.md).
@@ -98,7 +98,7 @@ and clean up historical entries.
 
 ### Unsupported PHP or Joomla version
 
-The installer requires Joomla 6.0 and PHP 8.1 or later. Change the server version
+The installer requires Joomla 6.0 and PHP 8.3 or later. Change the server version
 before retrying.
 
 ### Files are not writable

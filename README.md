@@ -14,7 +14,7 @@ ContentBuilder NG has been fully refactored for native Joomla 6 support: depreca
 | | |
 |---|---|
 | Joomla | 6.x — tested with and without the Backward Compatibility plugin |
-| PHP | 8.1 or later |
+| PHP | 8.3 or later |
 
 ---
 

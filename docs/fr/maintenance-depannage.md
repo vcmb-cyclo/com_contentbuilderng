@@ -165,7 +165,7 @@ manière sur Windows : **À vérifier** sur ce type d'hébergement.
 Le périmètre de ce dépôt est :
 
 - Joomla 6 uniquement ;
-- PHP 8.1 minimum.
+- PHP 8.3 minimum.
 
 Le manifeste SQL est MySQL. MariaDB est mentionné dans le guide de migration comme
 environnement attendu, mais la matrice exacte de versions n'est pas documentée :

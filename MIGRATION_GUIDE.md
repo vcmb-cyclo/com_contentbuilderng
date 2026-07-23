@@ -11,7 +11,7 @@ uniquement au diagnostic ou à la reprise après échec.
 ## Périmètre supporté
 
 - Joomla 6.0 ou supérieur.
-- PHP 8.1 ou supérieur.
+- PHP 8.3 ou supérieur.
 - MySQL ou MariaDB, comme prévu par le manifeste du composant.
 - Migration depuis le nom historique `contentbuilder`.
 - Migration d'une version antérieure de `com_contentbuilderng`.

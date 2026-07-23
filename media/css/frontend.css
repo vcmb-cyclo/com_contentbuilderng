@@ -185,7 +185,7 @@ html[data-bs-theme="dark"] :is(.cbDetailsWrapper, .cbEditableWrapper) {
     --cb-screen-toolbar-bg: var(--bs-tertiary-bg, #1a2431);
     color-scheme: dark;
 }
-/* ── Aide de configuration preview (List, Details, Edit) ─────────*/
+/* ── Aide de configuration preview (List, Details, Edit) ───────── */
 .cb-preview-config-help {
     display: inline-flex;
     align-items: center;
@@ -207,7 +207,7 @@ html[data-bs-theme="dark"] :is(.cbDetailsWrapper, .cbEditableWrapper) {
     outline-offset: .125rem;
 }
 
-/* ── Fil d'Ariane du titre (liste > écran courant) ───────────────*/
+/* ── Fil d'Ariane du titre (liste > écran courant) ─────────────── */
 .cbPageBreadcrumb .cbPageBreadcrumbLink {
     display: inline-flex;
     align-items: center;
@@ -245,10 +245,10 @@ html[data-bs-theme="dark"] :is(.cbDetailsWrapper, .cbEditableWrapper) {
     box-shadow: none;
 }
 
-/* ── Utilitaires ─────────────────────────────────────────────────*/
+/* ── Utilitaires ───────────────────────────────────────────────── */
 .cb-clear-right { clear: right; }
 
-/* ── publicforms : liste de formulaires publics ───────────────────*/
+/* ── publicforms : liste de formulaires publics ─────────────────── */
 .cb-pubforms-tag-filter {
     display: flex;
     align-items: center;
@@ -420,7 +420,7 @@ html[data-bs-theme="dark"] body #system-message-container joomla-alert .joomla-a
     color: inherit;
 }
 
-/* ── Impression (vue details/print) ──────────────────────────────*/
+/* ── Impression (vue details/print) ────────────────────────────── */
 .cb-print-wrapper {
     max-width: 960px;
     margin: 0 auto;

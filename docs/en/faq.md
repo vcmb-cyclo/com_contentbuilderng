@@ -7,7 +7,7 @@ Crosstec product.
 
 ## Which versions are supported?
 
-Joomla 6.0 or later and PHP 8.1 or later.
+Joomla 6.0 or later and PHP 8.3 or later.
 
 ## Can I install GitHub's “Source code” ZIP?
 
