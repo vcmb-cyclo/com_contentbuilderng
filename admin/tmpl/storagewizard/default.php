@@ -174,6 +174,7 @@ $stepLabels = [
                     <ul class="list-unstyled">
                         <?php if ($this->storage) : ?>
                             <li>
+                                <strong><?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_DONE_STORAGE_LABEL'); ?></strong>
                                 <a href="<?php echo Route::_('index.php?option=com_contentbuilderng&task=storage.edit&id=' . (int) $this->storage->id); ?>">
                                     <?php echo htmlspecialchars((string) $this->storage->title, ENT_QUOTES, 'UTF-8'); ?>
                                 </a>
@@ -181,8 +182,21 @@ $stepLabels = [
                         <?php endif; ?>
                         <?php if ($this->form) : ?>
                             <li>
+                                <strong><?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_DONE_FORM_LABEL'); ?></strong>
                                 <a href="<?php echo Route::_('index.php?option=com_contentbuilderng&task=form.edit&id=' . (int) $this->form->id); ?>">
                                     <?php echo htmlspecialchars((string) $this->form->title, ENT_QUOTES, 'UTF-8'); ?>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                        <?php if ($this->storage) : ?>
+                            <li>
+                                <strong><?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_DONE_FRONTEND_LABEL'); ?></strong>
+                                <a
+                                    href="<?php echo Route::link('site', 'index.php?option=com_contentbuilderng&task=list.display&storage_id=' . (int) $this->storage->id, false, Route::TLS_IGNORE, true); ?>"
+                                    target="_blank"
+                                >
+                                    <?php echo Text::_('COM_CONTENTBUILDERNG_WIZARD_DONE_FRONTEND_LINK'); ?>
+                                    <span class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></span>
                                 </a>
                             </li>
                         <?php endif; ?>
