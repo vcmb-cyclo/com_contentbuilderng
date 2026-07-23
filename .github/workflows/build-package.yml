@@ -84,7 +84,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: composer-8.3-${{ hashFiles('admin/composer.lock') }}
@@ -96,7 +96,7 @@ jobs:
 
       - name: Cache extracted Joomla core stubs
         id: joomla-stubs-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: joomla-stubs
           key: joomla-stubs-6.1.2-php8.3
@@ -133,7 +133,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: composer-8.3-${{ hashFiles('admin/composer.lock') }}
@@ -178,7 +178,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: composer-8.3-${{ hashFiles('admin/composer.lock') }}
