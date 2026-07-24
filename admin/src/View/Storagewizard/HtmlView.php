@@ -143,6 +143,7 @@ class HtmlView extends BaseHtmlView
             . '.cb-wizard-steps li .cb-wizard-step-num{opacity:.65}'
             . '.cb-wizard-steps li.is-done{background:var(--bs-success,#2e7d32);color:#fff}'
             . '.cb-wizard-steps li.is-active{background:var(--bs-primary,#0d6efd);color:#fff;font-weight:700;z-index:1}'
+            . '.cb-wizard>.card{max-height:calc(100vh - 15rem);max-height:calc(100dvh - 15rem);overflow-y:auto}'
         );
     }
 
