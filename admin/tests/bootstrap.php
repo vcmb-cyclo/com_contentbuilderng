@@ -30,6 +30,27 @@ namespace Joomla\CMS\Application {
         {
         }
     }
+
+    if (!\class_exists(AdministratorApplication::class, false)) {
+        class AdministratorApplication extends CMSApplication
+        {
+            /** @var array<string,mixed> */
+            private array $userState = [];
+
+            public function getUserState(string $key, mixed $default = null): mixed
+            {
+                return $this->userState[$key] ?? $default;
+            }
+
+            public function setUserState(string $key, mixed $value): mixed
+            {
+                $previous = $this->userState[$key] ?? null;
+                $this->userState[$key] = $value;
+
+                return $previous;
+            }
+        }
+    }
 }
 
 namespace Joomla\CMS\Categories {
@@ -66,7 +87,7 @@ namespace Joomla\Database {
             public function getPrefix(): string;
             public function getTableColumns(string $table, bool $type = true): array;
             public function quoteName(array|string $name, array|string|null $as = null): array|string;
-            public function setQuery(QueryInterface|string $query): void;
+            public function setQuery(QueryInterface|string $query);
             public function execute(): void;
         }
     }
@@ -360,6 +381,27 @@ namespace Joomla\CMS\Log {
     }
 }
 
+namespace Joomla\CMS\Date {
+    if (!\class_exists(Date::class, false)) {
+        class Date
+        {
+            public function toSql(): string
+            {
+                return '2026-02-17 12:00:00';
+            }
+
+            public function format(string $format): string
+            {
+                return match ($format) {
+                    'H:i:s' => '12:00:00',
+                    'Y-m-d H:i:s' => '2026-02-17 12:00:00',
+                    default => '2026-02-17 12:00:00',
+                };
+            }
+        }
+    }
+}
+
 namespace Joomla\CMS\Access {
     if (!\class_exists(Access::class, false)) {
         class Access
@@ -444,6 +486,31 @@ namespace Joomla\CMS\Uri {
     if (!\class_exists(Uri::class, false)) {
         class Uri
         {
+            public static function getInstance(): self
+            {
+                return new self();
+            }
+
+            public static function root(): string
+            {
+                return 'https://example.test/';
+            }
+
+            public function toString(): string
+            {
+                return 'https://example.test/index.php?option=com_contentbuilderng&start=20';
+            }
+
+            /**
+             * @return array<string,mixed>
+             */
+            public function getQuery(bool $asArray = false): array|string
+            {
+                return $asArray
+                    ? ['option' => 'com_contentbuilderng', 'start' => 20]
+                    : 'option=com_contentbuilderng&start=20';
+            }
+
             public static function isInternal(string $url): bool
             {
                 $url = \trim($url);
@@ -456,6 +523,18 @@ namespace Joomla\CMS\Uri {
                 }
 
                 return \str_starts_with($url, 'index.php') || \str_starts_with($url, '/');
+            }
+        }
+    }
+}
+
+namespace Joomla\CMS\Router {
+    if (!\class_exists(Route::class, false)) {
+        class Route
+        {
+            public static function _(string $url): string
+            {
+                return $url;
             }
         }
     }
