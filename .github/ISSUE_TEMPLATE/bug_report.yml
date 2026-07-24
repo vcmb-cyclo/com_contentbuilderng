@@ -1,0 +1,80 @@
+name: Bug report
+description: Report a reproducible problem in a supported release
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve ContentBuilder NG. Do not report security vulnerabilities here; use private vulnerability reporting instead.
+  - type: input
+    id: version
+    attributes:
+      label: ContentBuilder NG version
+      description: Use the exact version from the installed package.
+      placeholder: 6.x.x
+    validations:
+      required: true
+  - type: input
+    id: joomla
+    attributes:
+      label: Joomla version
+      placeholder: 6.x.x
+    validations:
+      required: true
+  - type: input
+    id: php
+    attributes:
+      label: PHP version
+      placeholder: 8.3.x
+    validations:
+      required: true
+  - type: input
+    id: database
+    attributes:
+      label: Database
+      description: Include the product and exact version.
+      placeholder: MySQL 8.4.x or MariaDB 11.x
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem
+      description: Describe what happened and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide a minimal, numbered sequence.
+      placeholder: |
+        1. Configure …
+        2. Open …
+        3. Observe …
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and screenshots
+      description: Remove credentials, personal data and other sensitive information.
+      render: shell
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Mention relevant extensions, templates, overrides or recent migrations.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: I reproduced this with the latest published ContentBuilder NG release.
+          required: true
+        - label: I searched existing issues and pull requests for duplicates.
+          required: true
+        - label: This report does not contain a security vulnerability or sensitive data.
+          required: true

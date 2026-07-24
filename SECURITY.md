@@ -2,20 +2,32 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Security fixes are provided for the latest published GitHub release.
+Development snapshots and older releases are not supported.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| Version | Supported |
+| --- | --- |
+| Latest GitHub release | Yes |
+| Older releases | No |
+| `main` and source archives | No |
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+Do not open a public issue for a suspected vulnerability.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Use [GitHub private vulnerability reporting](https://github.com/vcmb-cyclo/com_contentbuilderng/security/advisories/new)
+and include:
+
+- the affected ContentBuilder NG, Joomla, PHP and database versions;
+- the required configuration and permissions;
+- reproducible steps or a minimal proof of concept;
+- the expected and observed impact;
+- any suggested remediation, if available.
+
+You should receive an acknowledgement within seven days. The maintainers will
+then assess the report, keep you informed of material progress and coordinate
+disclosure when a fix is available. Reports may be declined when the behavior
+is not reproducible, is outside the supported version or does not cross a
+security boundary.
+
+Please allow a reasonable remediation period before publishing details.

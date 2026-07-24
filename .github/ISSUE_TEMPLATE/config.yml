@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/vcmb-cyclo/com_contentbuilderng/security/advisories/new
+    about: Report suspected vulnerabilities privately.
+  - name: User documentation
+    url: https://github.com/vcmb-cyclo/com_contentbuilderng/tree/main/docs
+    about: Check the English and French user documentation before opening an issue.
