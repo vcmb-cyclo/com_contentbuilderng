@@ -77,6 +77,7 @@ $listOrdering = (string) $listState['ordering'];
 $listDirection = (string) $listState['direction'];
 $listQuery = NavigationLinkHelper::buildListQuery($listStart, $listLimit, $listOrdering, $listDirection);
 $previewQuery = '';
+$previewHiddenFields = '';
 $previewEnabled = $input->getBool('cb_preview', false);
 $previewUntil = $input->getInt('cb_preview_until', 0);
 $previewSig = (string) $input->getString('cb_preview_sig', '');
@@ -157,6 +158,14 @@ if ($previewEnabled && $previewUntil > 0 && $previewSig !== '') {
         (string) $previewSig,
         (string) $adminReturnContext
     );
+    $previewHiddenFields = PreviewLinkHelper::buildHiddenFields(
+        (int) $previewUntil,
+        (int) $previewActorId,
+        (string) $previewActorName,
+        (int) $previewUserId,
+        (string) $previewSig,
+        (string) $adminReturnContext
+    );
 }
 $previewColorMode = PreviewColorModeHelper::resolve($input, $isAdminPreview || $directStorageMode);
 $previewQuery = PreviewColorModeHelper::appendQuery($previewQuery, $previewColorMode);
@@ -215,11 +224,33 @@ if ($themeJs !== '') {
     $wa->addInlineScript($themeJs);
 }
 ?>
+<form id="contentbuilderng-delete-form" action="<?php echo Route::_('index.php'); ?>" method="post" class="d-none">
+    <input type="hidden" name="option" value="com_contentbuilderng">
+    <input type="hidden" name="task" value="edit.delete">
+    <input type="hidden" name="id" value="<?php echo $input->getInt('id', 0); ?>">
+    <input type="hidden" name="cid[]" value="<?php echo (int) $recordId; ?>">
+    <input type="hidden" name="Itemid" value="<?php echo $input->getInt('Itemid', 0); ?>">
+    <input type="hidden" name="list[start]" value="<?php echo $listStart; ?>">
+    <input type="hidden" name="list[limit]" value="<?php echo $listLimit; ?>">
+    <input type="hidden" name="list[ordering]" value="<?php echo htmlspecialchars($listOrdering, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" name="list[direction]" value="<?php echo htmlspecialchars($listDirection, ENT_QUOTES, 'UTF-8'); ?>">
+    <?php if ($directStorageMode && $directStorageId > 0) : ?>
+        <input type="hidden" name="storage_id" value="<?php echo $directStorageId; ?>">
+    <?php endif; ?>
+    <?php if ($input->getString('tmpl', '') !== '') : ?>
+        <input type="hidden" name="tmpl" value="<?php echo htmlspecialchars($input->getString('tmpl', ''), ENT_QUOTES, 'UTF-8'); ?>">
+    <?php endif; ?>
+    <?php if ($input->getString('layout', '') !== '') : ?>
+        <input type="hidden" name="layout" value="<?php echo htmlspecialchars($input->getString('layout', ''), ENT_QUOTES, 'UTF-8'); ?>">
+    <?php endif; ?>
+    <?php echo $previewHiddenFields; ?>
+    <?php echo HTMLHelper::_('form.token'); ?>
+</form>
 <script>
     function contentbuilderng_delete() {
         var confirmed = confirm('<?php echo Text::_('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MESSAGE'); ?>');
         if (confirmed) {
-            location.href = '<?php echo Uri::root() . ltrim(Route::_('index.php?option=com_contentbuilderng&title=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('title', '', 'string') . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') : '') . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') : '') . '&task=edit.delete&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&cid[]=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getCmd('record_id', 0) . '&Itemid=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : ''), false), '/'); ?>';
+            document.getElementById('contentbuilderng-delete-form').submit();
         }
     }
 </script>

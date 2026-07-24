@@ -411,11 +411,30 @@ if (!empty($this->theme_css) || !empty($this->theme_js)) {
 }
 PreviewColorModeHelper::registerAssets($wa, $previewColorMode);
 ?>
+<form id="contentbuilderng-delete-form" action="<?php echo Route::_('index.php'); ?>" method="post" class="d-none">
+    <input type="hidden" name="option" value="com_contentbuilderng">
+    <input type="hidden" name="task" value="edit.delete">
+    <input type="hidden" name="id" value="<?php echo (int) $id; ?>">
+    <input type="hidden" name="cid[]" value="<?php echo (int) $recordId; ?>">
+    <input type="hidden" name="Itemid" value="<?php echo (int) $itemId; ?>">
+    <?php if ($input->getInt('storage_id', 0) > 0) : ?>
+        <input type="hidden" name="storage_id" value="<?php echo $input->getInt('storage_id', 0); ?>">
+    <?php endif; ?>
+    <?php if ($tmpl !== '') : ?>
+        <input type="hidden" name="tmpl" value="<?php echo htmlspecialchars($tmpl, ENT_QUOTES, 'UTF-8'); ?>">
+    <?php endif; ?>
+    <?php if ($layout !== '') : ?>
+        <input type="hidden" name="layout" value="<?php echo htmlspecialchars($layout, ENT_QUOTES, 'UTF-8'); ?>">
+    <?php endif; ?>
+    <?php echo $listHiddenFields; ?>
+    <?php echo $previewHiddenFields; ?>
+    <?php echo HTMLHelper::_('form.token'); ?>
+</form>
 <script>
     function contentbuilderng_delete() {
         var confirmed = confirm('<?php echo Text::_('COM_CONTENTBUILDERNG_CONFIRM_DELETE_MESSAGE'); ?>');
         if (confirmed) {
-            location.href = '<?php echo Uri::root() . ltrim(Route::_('index.php?option=com_contentbuilderng&task=edit.delete' . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') != '' ? '&tmpl=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('tmpl', '', 'string') : '') . (\CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') != '' ? '&layout=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->get('layout', '', 'string') : '') . '&id=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('id', 0) . '&cid[]=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getCmd('record_id', 0) . '&Itemid=' . \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . ($listQuery !== '' ? '&' . $listQuery : ''), false), '/'); ?>';
+            document.getElementById('contentbuilderng-delete-form').submit();
         }
     }
 

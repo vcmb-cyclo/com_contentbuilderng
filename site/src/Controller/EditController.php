@@ -251,6 +251,8 @@ class EditController extends BaseController
 
     public function delete()
     {
+        $this->checkToken('post');
+
         $isAdminPreview = $this->applyPreviewContextForAction();
         if (!$isAdminPreview) {
             $this->getPermissionService()->checkPermissions('delete', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_DELETE_NOT_ALLOWED'), $this->frontend ? '_fe' : '');
