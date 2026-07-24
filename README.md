@@ -34,6 +34,17 @@ Only **GitHub Releases** should be considered stable and suitable for production
 
 ---
 
+## Contributing
+
+Bug reports, feature proposals and pull requests are welcome. Before
+contributing, read the **[contribution guidelines](CONTRIBUTING.md)** and the
+**[code of conduct](CODE_OF_CONDUCT.md)**.
+
+Use the repository issue forms for bugs and feature requests. Security issues
+must be reported privately as described in the **[security policy](SECURITY.md)**.
+
+---
+
 ## Migration Notes
 
 The component installer performs all supported database, extension, plugin and menu migrations automatically. Do not uninstall the legacy component before installing the ContentBuilder NG package.
@@ -52,6 +63,14 @@ Manual SQL is not required during a normal migration. It is reserved for diagnos
 4. Install via the Joomla Extension Manager
 
 > The automatically generated GitHub **Source code (zip)** archive is a development snapshot, not an installable Joomla package.
+
+---
+
+## License
+
+ContentBuilder NG is licensed under the
+**[GNU General Public License version 2 or later](LICENSE)**
+(`GPL-2.0-or-later`).
 
 ---
 
