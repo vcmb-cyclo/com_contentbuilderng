@@ -391,7 +391,7 @@ class StorageController extends BaseFormController
                 }
 
                 if (!empty($importSummary['rows_skipped_empty'])) {
-                    $summaryParts[] = Text::sprintf(
+                    $summaryParts[] = Text::plural(
                         'COM_CONTENTBUILDERNG_STORAGE_IMPORT_SUMMARY_SKIPPED_EMPTY',
                         (int) $importSummary['rows_skipped_empty']
                     );

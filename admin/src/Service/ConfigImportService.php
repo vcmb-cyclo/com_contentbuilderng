@@ -330,7 +330,7 @@ class ConfigImportService
         [$formIdMap, $formsImported, $formHighlights] = $this->importRowsByNaturalKey($db, '#__contentbuilderng_forms', $formRows, ['name'], [], $importMode, true);
         $tables++;
         $rows += $formsImported;
-        $details[] = Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', '#__contentbuilderng_forms', $formsImported);
+        $details[] = Text::plural('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', $formsImported, '#__contentbuilderng_forms');
         foreach ($formHighlights as $formHighlight) {
             $details[] = (string) $formHighlight;
         }
@@ -356,7 +356,7 @@ class ConfigImportService
             [$elementIdMap, $elementsImported] = $this->importRowsByNaturalKey($db, '#__contentbuilderng_elements', $elementRows, ['form_id', 'reference_id'], [], $importMode, true);
             $tables++;
             $rows += $elementsImported;
-            $details[] = Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', '#__contentbuilderng_elements', $elementsImported);
+            $details[] = Text::plural('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', $elementsImported, '#__contentbuilderng_elements');
         } else {
             $elementIdMap = [];
             $details[] = Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_SECTION_MISSING', 'elements');
@@ -372,7 +372,7 @@ class ConfigImportService
             [, $listStatesImported] = $this->importRowsByNaturalKey($db, '#__contentbuilderng_list_states', $listStateRows, ['form_id', 'title'], [], $importMode, true);
             $tables++;
             $rows += $listStatesImported;
-            $details[] = Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', '#__contentbuilderng_list_states', $listStatesImported);
+            $details[] = Text::plural('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', $listStatesImported, '#__contentbuilderng_list_states');
         } else {
             $details[] = Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_SECTION_MISSING', 'list_states');
         }
@@ -388,7 +388,7 @@ class ConfigImportService
             [, $resourceImported] = $this->importRowsByNaturalKey($db, '#__contentbuilderng_resource_access', $resourceRows, ['type', 'element_id', 'resource_id'], ['form_id', 'hits'], $importMode, false);
             $tables++;
             $rows += $resourceImported;
-            $details[] = Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', '#__contentbuilderng_resource_access', $resourceImported);
+            $details[] = Text::plural('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', $resourceImported, '#__contentbuilderng_resource_access');
         } else {
             $details[] = Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_SECTION_MISSING', 'resource_access');
         }
@@ -415,7 +415,7 @@ class ConfigImportService
         [$storageIdMap, $storagesImported] = $this->importRowsByNaturalKey($db, '#__contentbuilderng_storages', $storageRows, ['name'], [], $importMode, true);
         $tables++;
         $rows += $storagesImported;
-        $details[] = Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', '#__contentbuilderng_storages', $storagesImported);
+        $details[] = Text::plural('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', $storagesImported, '#__contentbuilderng_storages');
 
         if ($storageIdMap === []) {
             return ['tables' => $tables, 'rows' => $rows, 'details' => $details];
@@ -436,7 +436,7 @@ class ConfigImportService
             [, $fieldsImported] = $this->importRowsByNaturalKey($db, '#__contentbuilderng_storage_fields', $fieldRows, ['storage_id', 'name'], [], $importMode, true);
             $tables++;
             $rows += $fieldsImported;
-            $details[] = Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', '#__contentbuilderng_storage_fields', $fieldsImported);
+            $details[] = Text::plural('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', $fieldsImported, '#__contentbuilderng_storage_fields');
         } else {
             $details[] = Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_SECTION_MISSING', 'storage_fields');
         }
@@ -445,7 +445,7 @@ class ConfigImportService
         if (is_array($storageContentPayload)) {
             $contentImported = $this->importStorageContent($db, $storageContentPayload, $importMode);
             $rows += $contentImported;
-            $details[] = Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', 'storage_content', $contentImported);
+            $details[] = Text::plural('COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_DETAIL_TABLE_IMPORTED', $contentImported, 'storage_content');
         }
 
         return ['tables' => $tables, 'rows' => $rows, 'details' => $details];
