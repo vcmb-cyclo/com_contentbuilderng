@@ -1117,7 +1117,7 @@ use Joomla\CMS\Router\Route;
                 </div>
                 <?php if ($columnEncodingIssueHiddenCount > 0) : ?>
                     <p class="text-muted small mb-0">
-                        <?php echo Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TRUNCATED', $columnEncodingIssueHiddenCount); ?>
+                        <?php echo Text::plural('COM_CONTENTBUILDERNG_ABOUT_AUDIT_TRUNCATED', $columnEncodingIssueHiddenCount); ?>
                     </p>
                 <?php endif; ?>
             <?php endif; ?>

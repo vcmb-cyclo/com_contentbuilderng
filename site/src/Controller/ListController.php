@@ -113,17 +113,7 @@ class ListController extends BaseController
 
         if ($ok) {
             $deletedCount = count($selectedItems);
-            if ($deletedCount > 1) {
-                $msg = Text::plural('JLIB_APPLICATION_N_ITEMS_DELETED', $deletedCount);
-                if (
-                    $msg === 'JLIB_APPLICATION_N_ITEMS_DELETED'
-                    || str_starts_with($msg, 'JLIB_APPLICATION_N_ITEMS_DELETED_')
-                ) {
-                    $msg = Text::_('COM_CONTENTBUILDERNG_ENTRIES_DELETED') . ' (' . $deletedCount . ')';
-                }
-            } else {
-                $msg = Text::_('COM_CONTENTBUILDERNG_ENTRY_DELETED');
-            }
+            $msg = Text::plural('COM_CONTENTBUILDERNG_N_ITEMS_DELETED', $deletedCount);
         } else {
             $msg = Text::_('COM_CONTENTBUILDERNG_ERROR');
         }

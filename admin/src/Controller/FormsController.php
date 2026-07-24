@@ -154,11 +154,7 @@ final class FormsController extends AdminController
 
             $count = count($cid);
             $this->setMessage(
-                $this->resolvePluralMessage(
-                    'JLIB_APPLICATION_N_ITEMS_DELETED',
-                    $count,
-                    'COM_CONTENTBUILDERNG_ENTRIES_DELETED'
-                ),
+                Text::plural('COM_CONTENTBUILDERNG_N_ITEMS_DELETED', $count),
                 'message'
             );
         } catch (\Throwable $e) {

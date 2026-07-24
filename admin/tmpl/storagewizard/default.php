@@ -102,7 +102,7 @@ $stepIcons = [
                         <p>
                             <strong><?php echo htmlspecialchars((string) $this->storage->title, ENT_QUOTES, 'UTF-8'); ?></strong>
                             &mdash;
-                            <?php echo Text::sprintf('COM_CONTENTBUILDERNG_WIZARD_FIELDS_COUNT', $this->fieldCount); ?>
+                            <?php echo Text::plural('COM_CONTENTBUILDERNG_WIZARD_FIELDS_COUNT', $this->fieldCount); ?>
                         </p>
                         <a
                             class="btn btn-outline-primary mb-3"

@@ -286,11 +286,11 @@ final class AboutController extends BaseController
             ]);
 
             if ($issuesTotal === 0 && $errorsCount === 0) {
-                $this->setMessage(Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_AUDIT_SUMMARY_CLEAN', $scannedTables), 'message');
+                $this->setMessage(Text::plural('COM_CONTENTBUILDERNG_ABOUT_AUDIT_SUMMARY_CLEAN', $scannedTables), 'message');
             } else {
                 $message = Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_AUDIT_SUMMARY_ISSUES', $issuesTotal, $scannedTables);
                 if ($errorsCount > 0) {
-                    $message .= ' ' . Text::sprintf('COM_CONTENTBUILDERNG_ABOUT_AUDIT_SUMMARY_PARTIAL', $errorsCount);
+                    $message .= ' ' . Text::plural('COM_CONTENTBUILDERNG_ABOUT_AUDIT_SUMMARY_PARTIAL', $errorsCount);
                 }
                 $this->setMessage($message, 'warning');
             }
@@ -484,7 +484,12 @@ final class AboutController extends BaseController
                 ? 'COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_SUCCESS'
                 : 'COM_CONTENTBUILDERNG_ABOUT_IMPORT_CONFIGURATION_NO_CHANGES';
 
-            $this->setMessage(Text::sprintf($messageKey, $tablesImported, $rowsImported), 'message');
+            $this->setMessage(
+                $rowsImported > 0
+                    ? Text::sprintf($messageKey, $tablesImported, $rowsImported)
+                    : Text::plural($messageKey, $tablesImported),
+                'message'
+            );
         } catch (\Throwable $e) {
             $app->setUserState('com_contentbuilderng.about.import', [
                 'generated_at' => $this->getJoomlaLocalDateTime(),

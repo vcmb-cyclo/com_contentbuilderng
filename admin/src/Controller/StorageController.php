@@ -391,7 +391,7 @@ class StorageController extends BaseFormController
                 }
 
                 if (!empty($importSummary['rows_skipped_empty'])) {
-                    $summaryParts[] = Text::sprintf(
+                    $summaryParts[] = Text::plural(
                         'COM_CONTENTBUILDERNG_STORAGE_IMPORT_SUMMARY_SKIPPED_EMPTY',
                         (int) $importSummary['rows_skipped_empty']
                     );
@@ -587,7 +587,7 @@ class StorageController extends BaseFormController
 
         $this->setRedirect(
             Route::_('index.php?option=com_contentbuilderng&task=storages.display', false),
-            Text::_('COM_CONTENTBUILDERNG_DELETED'),
+            Text::plural('COM_CONTENTBUILDERNG_N_ITEMS_DELETED', count($cid)),
             'message'
         );
 
@@ -742,7 +742,9 @@ class StorageController extends BaseFormController
 
         $this->setRedirect(
             Route::_('index.php?option=com_contentbuilderng&task=storage.display&layout=edit&id=' . $storageId, false),
-            $deleted > 0 ? Text::_('COM_CONTENTBUILDERNG_DELETED') : Text::_('COM_CONTENTBUILDERNG_DELETE_FIELDS_PROTECTED'),
+            $deleted > 0
+                ? Text::plural('COM_CONTENTBUILDERNG_N_ITEMS_DELETED', $deleted)
+                : Text::_('COM_CONTENTBUILDERNG_DELETE_FIELDS_PROTECTED'),
             $deleted > 0 ? 'message' : 'warning'
         );
 

@@ -251,6 +251,8 @@ class EditController extends BaseController
 
     public function delete()
     {
+        $this->checkToken('post');
+
         $isAdminPreview = $this->applyPreviewContextForAction();
         if (!$isAdminPreview) {
             $this->getPermissionService()->checkPermissions('delete', Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_DELETE_NOT_ALLOWED'), $this->frontend ? '_fe' : '');
@@ -293,17 +295,7 @@ class EditController extends BaseController
         }
         if ($ok) {
             $deletedCount = count($selectedItems);
-            if ($deletedCount > 1) {
-                $msg = Text::plural('JLIB_APPLICATION_N_ITEMS_DELETED', $deletedCount);
-                if (
-                    $msg === 'JLIB_APPLICATION_N_ITEMS_DELETED'
-                    || str_starts_with($msg, 'JLIB_APPLICATION_N_ITEMS_DELETED_')
-                ) {
-                    $msg = Text::_('COM_CONTENTBUILDERNG_ENTRIES_DELETED') . ' (' . $deletedCount . ')';
-                }
-            } else {
-                $msg = Text::_('COM_CONTENTBUILDERNG_ENTRY_DELETED');
-            }
+            $msg = Text::plural('COM_CONTENTBUILDERNG_N_ITEMS_DELETED', $deletedCount);
         } else {
             $msg = Text::_('COM_CONTENTBUILDERNG_ERROR');
         }
