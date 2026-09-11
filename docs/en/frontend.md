@@ -28,6 +28,9 @@ XLSX export reproduces the effective List View: fixed menu filters and active
 frontend filters are combined, the current sorting and total result limit are
 preserved, and menu-specific Export columns keep their configured order. The export
 covers the complete authorized result set, not only the visible page.
+In a CB List View menu item, **XLS export filename** keeps the existing automatic
+name by default. **Custom** accepts a base name without an extension; ContentBuilder NG
+sanitizes it and appends the date, time, and `.xlsx` extension.
 
 > 📷 *Screenshot to add: frontend list with search bar, filters, and pagination — `docs/en/img/frontend-list.png`*
 

@@ -17,6 +17,13 @@ Ajoutez `format=json` si votre intégration ou votre routage Joomla l'exige.
 - les permissions diffèrent selon l'opération ;
 - les liens de prévisualisation signés de l'administration sont temporaires.
 
+L'API utilise l'identité déjà établie par une session administrateur/site Joomla.
+Une vue peut aussi autoriser les visiteurs anonymes ; ses permissions restent alors
+applicables. Ce point d'accès site ne fournit pas de mécanisme autonome de jeton API permanent.
+
+Les réponses déclarent `Cache-Control: private, no-store`, `Pragma: no-cache`,
+`X-Content-Type-Options: nosniff` et `Vary: Authorization, Cookie`.
+
 ## Format général des réponses
 
 Succès :
@@ -74,6 +81,8 @@ Réponse déduite du contrôleur :
 ```
 
 Seuls les champs autorisés par l'API apparaissent dans `values`.
+`list[limit]` vaut 20 par défaut et est plafonné à 100 par le serveur. La valeur 0
+ne permet pas de demander tous les enregistrements par l'API.
 
 ## Lire un détail
 
@@ -94,10 +103,6 @@ Format par défaut :
     "form_id": 3,
     "fields": {
       "Nom": "Exemple"
-    },
-    "navigation": {
-      "previous": 122,
-      "next": 124
     }
   }
 }
@@ -134,12 +139,16 @@ Payload :
 
 Permissions : **API + Éditer**.
 
+Les requêtes d'écriture exigent une session Joomla et l'en-tête
+`X-CSRF-Token`. Sa valeur est le nom du jeton de formulaire Joomla courant,
+obtenu côté serveur avec `Session::getFormToken()`.
+
 `record_id` est obligatoire. Les clés peuvent être des noms de champs ou, pour les
 références numériques reconnues, des identifiants de champs. Les champs non autorisés
 sont ignorés ; si aucun champ autorisé ne reste, la requête est refusée.
 
-La création d'un nouvel enregistrement par API n'est pas démontrée par le contrôleur :
-**À vérifier**. Le code exige actuellement un `record_id` pour `POST`.
+Cette API ne crée pas d'enregistrement : `record_id` est aussi obligatoire avec `POST`.
+Un corps déclaré `application/json` invalide est refusé avec une erreur 400.
 
 ## Valeurs uniques
 
@@ -156,6 +165,7 @@ Paramètres :
 Permissions : **API + List Access**.
 
 Les deux champs de référence doivent être autorisés par l'API.
+La réponse est plafonnée à 100 valeurs.
 
 Réponse :
 
@@ -184,9 +194,8 @@ paramètre d'évaluation de la vue (`rating_slots`). Le contrôleur utilise la s
 l'adresse IP pour limiter les votes répétés.
 
 > ⚠️ **Attention :** l'action `rating` exige un **jeton CSRF Joomla** valide. Le
-> contrôleur appelle `Session::checkToken` (en `post` ou `get`) et renvoie une erreur
-> `JINVALID_TOKEN` (403) si le jeton est absent ou invalide. Un appel externe doit donc
-> disposer d'une session Joomla authentifiée et transmettre le jeton de formulaire.
+> contrôleur vérifie `X-CSRF-Token` ou le jeton de formulaire Joomla et renvoie une
+> erreur `JINVALID_TOKEN` (403) si le jeton est absent ou invalide.
 
 ## Statistiques
 

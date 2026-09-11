@@ -355,6 +355,8 @@ class com_contentbuilderngInstallerScript
 
         try {
             if ($type !== 'uninstall') {
+                $this->ensureCanonicalComponentManifest();
+
                 // Keep legacy plugins disabled (priority order)
                 $this->disableLegacyPluginsInPriorityOrder($context);
 
@@ -417,6 +419,9 @@ class com_contentbuilderngInstallerScript
             if ($type === 'update') {
                 // Remove unsupported theme plugins (these are NG themes; ok to uninstall)
                 $this->removeDeprecatedThemePlugins();
+
+                // Remove the retired Ping plugin without executing obsolete uninstall hooks.
+                $this->removeRetiredPlugins();
 
                 // Normalize stored theme references to thoth when legacy/unsupported
                 $this->normalizeFormThemePlugins();
@@ -1379,6 +1384,11 @@ class com_contentbuilderngInstallerScript
         $this->pluginInstallerService->removeCoreValidationPlugins();
     }
 
+    private function removeRetiredPlugins(): void
+    {
+        $this->pluginInstallerService->removeRetiredPlugins();
+    }
+
     private function normalizeFormThemePlugins(): void
     {
         $this->pluginInstallerService->normalizeFormThemePlugins();
@@ -1610,6 +1620,39 @@ class com_contentbuilderngInstallerScript
     // ---------------------------------------------------------------------
     // Versions
     // ---------------------------------------------------------------------
+    private function ensureCanonicalComponentManifest(): void
+    {
+        $componentPath = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng';
+        $source = $componentPath . '/com_contentbuilderng.xml';
+        $target = $componentPath . '/contentbuilderng.xml';
+
+        if (!is_file($source)) {
+            if (is_file($target)) {
+                return;
+            }
+
+            $this->log(
+                '[ERROR] Canonical component manifest cannot be installed: source manifest is missing.',
+                Log::ERROR
+            );
+
+            return;
+        }
+
+        try {
+            File::copy($source, $target);
+        } catch (\Throwable $e) {
+            $this->log(
+                '[ERROR] Canonical component manifest cannot be installed: ' . $e->getMessage(),
+                Log::ERROR
+            );
+
+            return;
+        }
+
+        $this->log('[OK] Canonical Joomla component manifest installed.');
+    }
+
     private function getCurrentInstalledVersion(): string
     {
         $db = $this->db();
@@ -1636,7 +1679,7 @@ class com_contentbuilderngInstallerScript
 
     private function verifyInstalledExtensionConsistency($parent): void
     {
-        $manifestPath = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/com_contentbuilderng.xml';
+        $manifestPath = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/contentbuilderng.xml';
 
         $requiredFiles = [
             $manifestPath,

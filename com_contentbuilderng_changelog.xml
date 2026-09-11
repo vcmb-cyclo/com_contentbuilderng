@@ -3,6 +3,74 @@
     <changelog>
         <element>com_contentbuilderng</element>
         <type>component</type>
+        <version>6.1.19</version>
+        <fix>
+            <item>Promote the validated RC7 release candidate to the production release.</item>
+            <item>Add safe configurable XLSX export filenames while preserving the historical HHMM timestamp format.</item>
+            <item>Harden the JSON API, its OpenAPI contract and private response handling.</item>
+            <item>Improve Joomla Database Maintenance checks and remove the retired Ping plugin during updates.</item>
+            <item>Fix the About plugins inventory layout and synchronize the component assets and all 17 shipped plugin versions.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
+        <version>6.1.19-RC7</version>
+        <fix>
+            <item>Remove the retired content/contentbuilderng_ping Joomla extension entry and any remaining plugin files during updates.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
+        <version>6.1.19-RC6</version>
+        <fix>
+            <item>Fix the About page plugins table so its Description column remains visible and long content wraps cleanly.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
+        <version>6.1.19-RC5</version>
+        <fix>
+            <item>Keep the historical HHMM time format in custom XLS export filenames.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
+        <version>6.1.19-RC4</version>
+        <fix>
+            <item>Align Joomla's recorded database schema version with the installed ContentBuilder NG manifest version.</item>
+            <item>Reject release packages whose latest SQL schema marker does not match the component version.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
+        <version>6.1.19-RC3</version>
+        <fix>
+            <item>Add safe Default and Custom XLSX export filenames to Joomla CB List View menu items without changing old menus or other exports.</item>
+            <item>Minimize API logs, enforce bounded result sets, reject malformed JSON and prevent caching of private JSON responses.</item>
+            <item>Accept a documented Joomla CSRF header for writes and stop exposing unchecked sibling record identifiers.</item>
+        </fix>
+        <change>
+            <item>Publish an interoperable OpenAPI path with declared Joomla authentication, explicit operations, limits and error responses.</item>
+            <item>Simplify About &gt; Extensions by removing the repetitive usage column and retaining status and purpose.</item>
+        </change>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
+        <version>6.1.19-RC1</version>
+        <fix>
+            <item>Install the canonical component manifest required by Joomla 6.1.3 Database Maintenance.</item>
+            <item>Prevent the empty component version warning and validate Database Maintenance during the package smoke test.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
         <version>6.1.18</version>
         <change>
             <item>Promote the validated RC1 fix and synchronize all shipped plugin versions for production.</item>

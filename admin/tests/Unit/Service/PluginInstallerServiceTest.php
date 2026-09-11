@@ -38,4 +38,28 @@ final class PluginInstallerServiceTest extends TestCase
             $this->source
         );
     }
+
+    public function testRetiredPingPluginIsRemovedWithoutRunningItsUninstallHooks(): void
+    {
+        self::assertStringContainsString(
+            "\$element = 'contentbuilderng_ping';",
+            $this->source
+        );
+        self::assertStringContainsString(
+            'public function removeRetiredPlugins(): void',
+            $this->source
+        );
+        self::assertStringContainsString(
+            "JPATH_PLUGINS . '/' . \$folder . '/' . \$element",
+            $this->source
+        );
+        self::assertStringNotContainsString(
+            "uninstall('plugin', \$extensionId",
+            $this->source
+        );
+
+        $installerSource = file_get_contents(\dirname(__DIR__, 4) . '/script.php');
+        self::assertIsString($installerSource);
+        self::assertStringContainsString('$this->removeRetiredPlugins();', $installerSource);
+    }
 }

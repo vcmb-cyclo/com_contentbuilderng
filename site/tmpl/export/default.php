@@ -34,6 +34,7 @@ VendorHelper::load();
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
+use CB\Component\Contentbuilderng\Site\Service\ExportFilenameService;
 
 //Font::setAutoSizeMethod(Font::AUTOSIZE_METHOD_EXACT);
 
@@ -310,17 +311,12 @@ if ($filenameTitle === '' && !empty($this->data->type) && $this->data->type === 
     $filenameTitle = (string) ($db->loadResult() ?: '');
 }
 
-if ($filenameTitle === '') {
-    $filenameTitle = 'Export';
-}
-
-$safeFilenameTitle = preg_replace('/[^\pL\pN _.-]+/u', '_', $filenameTitle);
-$safeFilenameTitle = trim((string) preg_replace('/\s+/u', ' ', (string) $safeFilenameTitle));
-if ($safeFilenameTitle === '') {
-    $safeFilenameTitle = 'Export';
-}
-
-$filename = "CB_export_" . $safeFilenameTitle . '_' . $date->format('Y-m-d_Hi', true) . ".xlsx";
+$filename = ExportFilenameService::build(
+    $filenameTitle,
+    $input->getCmd('cb_export_filename_mode', ExportFilenameService::MODE_DEFAULT),
+    $input->getString('cb_export_filename', ''),
+    $date->format('Y-m-d_Hi', true)
+);
 
 
 $spreadsheet->setActiveSheetIndex(0);
@@ -355,7 +351,11 @@ header("Content-Type: application/octet-stream");
 header("Content-Type: application/download");
 ;
 header('Cache-Control: max-age=0');
-header('Content-Disposition: attachment; filename=' . $filename);
+$asciiFilename = preg_replace('/[^A-Za-z0-9._-]+/', '_', $filename) ?: 'export.xlsx';
+header(
+    'Content-Disposition: attachment; filename="' . $asciiFilename
+    . '"; filename*=UTF-8\'\'' . rawurlencode($filename)
+);
 header("Content-Transfer-Encoding: binary ");
 
 ob_end_clean();

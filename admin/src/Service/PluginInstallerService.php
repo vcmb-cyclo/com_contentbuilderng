@@ -333,6 +333,65 @@ final class PluginInstallerService
         }
     }
 
+    public function removeRetiredPlugins(): void
+    {
+        $db = $this->db();
+        $folder = 'content';
+        $element = 'contentbuilderng_ping';
+
+        try {
+            $query = $db->getQuery(true)
+                ->select($db->quoteName('extension_id'))
+                ->from($db->quoteName('#__extensions'))
+                ->where($db->quoteName('type') . ' = ' . $db->quote('plugin'))
+                ->where($db->quoteName('folder') . ' = ' . $db->quote($folder))
+                ->where($db->quoteName('element') . ' = ' . $db->quote($element));
+            $db->setQuery($query);
+            $extensionIds = array_map('intval', (array) $db->loadColumn());
+        } catch (\Throwable $e) {
+            $this->log('[WARNING] Failed reading retired ContentBuilder NG plugins: ' . $e->getMessage(), Log::WARNING);
+            $extensionIds = [];
+        }
+
+        foreach ($extensionIds as $extensionId) {
+            if ($extensionId < 1) {
+                continue;
+            }
+
+            $this->log("[INFO] Removing retired plugin {$folder}/{$element} extension row (id {$extensionId}).");
+            $this->safe(function () use ($db, $extensionId): void {
+                foreach (['#__schemas', '#__update_sites_extensions'] as $table) {
+                    $db->setQuery(
+                        $db->getQuery(true)
+                            ->delete($db->quoteName($table))
+                            ->where($db->quoteName('extension_id') . ' = ' . $extensionId)
+                    );
+                    $db->execute();
+                }
+
+                $db->setQuery(
+                    $db->getQuery(true)
+                        ->delete($db->quoteName('#__extensions'))
+                        ->where($db->quoteName('extension_id') . ' = ' . $extensionId)
+                );
+                $db->execute();
+            });
+        }
+
+        $pluginPath = JPATH_PLUGINS . '/' . $folder . '/' . $element;
+        if (!is_dir($pluginPath)) {
+            return;
+        }
+
+        $this->safe(function () use ($pluginPath, $folder, $element): void {
+            if (Folder::delete($pluginPath)) {
+                $this->log("[OK] Removed retired plugin files: {$folder}/{$element}.");
+            } else {
+                $this->log("[WARNING] Failed removing retired plugin files: {$pluginPath}.", Log::WARNING);
+            }
+        });
+    }
+
     public function normalizeFormThemePlugins(): void
     {
         $db = $this->db();

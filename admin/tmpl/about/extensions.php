@@ -46,7 +46,6 @@ $plugins = is_array($this->plugins ?? null) ? $this->plugins : [];
                         <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_EXTENSION_CATEGORY'); ?></th>
                         <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_PLUGIN_STATUS'); ?></th>
                         <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_EXTENSION_PURPOSE'); ?></th>
-                        <th scope="col"><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_EXTENSION_USAGE'); ?></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -82,7 +81,6 @@ $plugins = is_array($this->plugins ?? null) ? $this->plugins : [];
                                 </span>
                             </td>
                             <td><?php echo htmlspecialchars((string) ($plugin['purpose'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
-                            <td><?php echo htmlspecialchars((string) ($plugin['usage'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>

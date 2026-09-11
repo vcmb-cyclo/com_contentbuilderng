@@ -35,6 +35,9 @@ L'export XLSX reproduit la Vue liste effective : les filtres fixes du menu et le
 filtres frontend actifs sont combinés, le tri courant et la limite totale sont
 conservés, et les colonnes Export propres au menu gardent leur ordre configuré.
 L'export porte sur l'ensemble du résultat autorisé, pas seulement sur la page visible.
+Dans un menu CB List View, **Nom du fichier export XLS** conserve par défaut le nom
+automatique existant. Le mode **Personnalisé** accepte un nom de base sans extension ;
+ContentBuilder NG le nettoie puis ajoute la date, l'heure et l'extension `.xlsx`.
 
 > 📷 *Capture à ajouter : liste frontend avec barre de recherche, filtres et pagination — `docs/fr/img/frontend-liste.png`*
 

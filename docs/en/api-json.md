@@ -17,6 +17,13 @@ Add `format=json` when required by the Joomla routing or integration context.
 - required permissions depend on the operation;
 - signed administrator preview links are temporary.
 
+The API uses the identity already established by a Joomla administrator/site
+session. A view may also authorize anonymous users; its ACL still applies. This
+site endpoint does not provide an autonomous permanent API-token mechanism.
+
+Responses declare `Cache-Control: private, no-store`, `Pragma: no-cache`,
+`X-Content-Type-Options: nosniff`, and `Vary: Authorization, Cookie`.
+
 ## Response envelope
 
 Success:
@@ -72,6 +79,8 @@ Permissions: **API + View + List Access**.
 ```
 
 Only API-authorized fields appear in `values`.
+`list[limit]` defaults to 20 and is capped at 100 by the server. A value of 0
+does not request all records through the API.
 
 ## Read record details
 
@@ -92,10 +101,6 @@ Default format:
     "form_id": 3,
     "fields": {
       "Name": "Example"
-    },
-    "navigation": {
-      "previous": 122,
-      "next": 124
     }
   }
 }
@@ -132,12 +137,16 @@ Payload:
 
 Permissions: **API + Edit**.
 
+Write requests require a Joomla session and the `X-CSRF-Token` header. Its value
+is the current Joomla form-token name obtained server-side with
+`Session::getFormToken()`.
+
 `record_id` is required. Keys can be field names or recognized numeric field
 references. Unauthorized fields are ignored; the request is refused when no
 authorized field remains.
 
-Creating a new record through this API is not demonstrated by the controller:
-**To verify**. The current code requires `record_id` for `POST`.
+This API does not create records: `record_id` is also required for `POST`.
+An invalid body declared as `application/json` is rejected with a 400 error.
 
 ## Unique values
 
@@ -152,6 +161,7 @@ Parameters:
 - `where`: optional condition value.
 
 Permissions: **API + List Access**. Both referenced fields must be API-authorized.
+The response is capped at 100 values.
 
 Response:
 
@@ -180,9 +190,8 @@ Methods other than `POST` are refused. The rating level count comes from the vie
 votes.
 
 > ⚠️ **Warning:** the `rating` action requires a valid **Joomla CSRF token**. The
-> controller calls `Session::checkToken` (in `post` or `get`) and returns a
-> `JINVALID_TOKEN` (403) error when the token is missing or invalid. An external caller
-> must therefore hold an authenticated Joomla session and send the form token.
+> controller checks `X-CSRF-Token` or the Joomla form token and returns a
+> `JINVALID_TOKEN` (403) error when the token is missing or invalid.
 
 ## Statistics
 

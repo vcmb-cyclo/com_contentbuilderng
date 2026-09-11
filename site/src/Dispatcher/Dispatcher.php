@@ -73,6 +73,8 @@ class Dispatcher extends ComponentDispatcher
             'cb_new_show_search' => null,
             'cb_new_show_list_edit' => null,
             'cb_new_show_limit_selector' => null,
+            'cb_export_filename_mode' => null,
+            'cb_export_filename' => null,
         ];
 
         foreach ($menuParamDefaults as $key => $default) {

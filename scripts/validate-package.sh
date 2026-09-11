@@ -18,6 +18,7 @@ required=(
     "admin/sql/install.sql"
     "admin/sql/updates/mysql/6.1.7.sql"
     "admin/sql/updates/mysql/6.1.8.sql"
+    "admin/sql/updates/mysql/6.1.19.sql"
     "admin/vendor/autoload.php"
     "admin/vendor/composer/installed.php"
     "site/src/Controller/ApiController.php"
@@ -67,6 +68,22 @@ done
 
 if ! unzip -p "${archive}" com_contentbuilderng.xml | grep -Fq '<extension type="component" method="upgrade" version="6.0">'; then
     echo "Invalid Joomla component manifest." >&2
+    exit 1
+fi
+
+manifest_version="$(unzip -p "${archive}" com_contentbuilderng.xml | sed -n 's:.*<version>\([^<]*\)</version>.*:\1:p' | head -n 1)"
+latest_schema_version="$(
+    printf '%s\n' "${entries}" \
+        | sed -n 's:^admin/sql/updates/mysql/\(.*\)\.sql$:\1:p' \
+        | php -r '
+            $versions = file("php://stdin", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            usort($versions, "version_compare");
+            echo end($versions) ?: "";
+        '
+)"
+
+if [[ -z "${manifest_version}" || "${latest_schema_version}" != "${manifest_version}" ]]; then
+    echo "Database schema version does not match the component manifest: ${latest_schema_version:-missing} != ${manifest_version:-missing}" >&2
     exit 1
 fi
 

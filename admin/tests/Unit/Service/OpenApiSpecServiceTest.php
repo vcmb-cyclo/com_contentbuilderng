@@ -17,12 +17,12 @@ final class OpenApiSpecServiceTest extends TestCase
 
         self::assertSame('3.0.3', $spec['openapi']);
         self::assertSame('6.2.0', $spec['info']['version']);
-        self::assertSame('https://example.test/index.php', $spec['servers'][0]['url']);
+        self::assertSame('https://example.test', $spec['servers'][0]['url']);
         self::assertArrayHasKey('SuccessEnvelope', $spec['components']['schemas']);
-        self::assertArrayHasKey('ErrorResponse', $spec['components']['responses']);
-        self::assertArrayHasKey('/index.php?task=api.display (list / detail)', $spec['paths']);
-        self::assertArrayHasKey('/index.php?task=api.display&action=stats', $spec['paths']);
-        self::assertArrayHasKey('/index.php?task=api.display&action=cbstats', $spec['paths']);
+        self::assertArrayHasKey('Error', $spec['components']['responses']);
+        self::assertArrayHasKey('joomlaSession', $spec['components']['securitySchemes']);
+        self::assertArrayHasKey('/index.php', $spec['paths']);
+        self::assertSame(['joomlaSession' => []], $spec['paths']['/index.php']['patch']['security'][0]);
     }
 
     public function testUsesFallbackVersionForBlankInput(): void
@@ -39,5 +39,21 @@ final class OpenApiSpecServiceTest extends TestCase
                 self::assertArrayHasKey('responses', $operation);
             }
         }
+    }
+
+    public function testUsesOnlyOpenApiPathComponentsWithoutQueryStrings(): void
+    {
+        foreach (array_keys((new OpenApiSpecService())->build('1.0.0')['paths']) as $path) {
+            self::assertStringStartsWith('/', $path);
+            self::assertStringNotContainsString('?', $path);
+        }
+    }
+
+    public function testDocumentsBoundedPaginationAndCsrfHeader(): void
+    {
+        $components = (new OpenApiSpecService())->build('1.0.0')['components'];
+
+        self::assertSame(100, $components['parameters']['ListLimit']['schema']['maximum']);
+        self::assertSame('X-CSRF-Token', $components['parameters']['CsrfToken']['name']);
     }
 }

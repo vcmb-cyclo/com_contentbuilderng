@@ -3,7 +3,7 @@
 set -euo pipefail
 
 archive="${1:?Usage: scripts/joomla-install-smoke.sh path/to/package.zip}"
-joomla_image="${JOOMLA_IMAGE:-joomla:6.1.2-php8.4-apache}"
+joomla_image="${JOOMLA_IMAGE:-joomla:6.1.3-php8.4-apache}"
 mysql_image="${MYSQL_IMAGE:-mysql:8.4}"
 run_id="${GITHUB_RUN_ID:-local}-$$"
 network="cbng-smoke-${run_id}"
@@ -174,6 +174,43 @@ if [[ "${migrated_table_count}" -ne 1 || "${legacy_table_count}" -ne 0 ]]; then
     exit 1
 fi
 
+canonical_manifest="/var/www/html/administrator/components/com_contentbuilderng/contentbuilderng.xml"
+docker exec --user www-data "${web_container}" test -r "${canonical_manifest}"
+
+database_audit="$(
+    docker exec --user www-data -e HTTP_HOST=localhost "${web_container}" \
+        php /var/www/html/cli/joomla.php maintenance:database \
+        --live-site=http://localhost \
+        --no-interaction 2>&1
+)"
+printf '%s\n' "${database_audit}"
+
+manifest_version="$(
+    docker exec "${web_container}" php -r '
+        $manifest = simplexml_load_file("/var/www/html/administrator/components/com_contentbuilderng/contentbuilderng.xml");
+        echo (string) $manifest->version;
+    '
+)"
+schema_version="$(
+    docker exec -e MYSQL_PWD=joomla "${db_container}" mysql -N -ujoomla joomla \
+        -e "SELECT s.version_id FROM \`${table_prefix}schemas\` AS s INNER JOIN \`${table_prefix}extensions\` AS e ON e.extension_id = s.extension_id WHERE e.type = 'component' AND e.element = 'com_contentbuilderng';"
+)"
+
+if [[ -z "${manifest_version}" || "${schema_version}" != "${manifest_version}" ]]; then
+    echo "Database schema version does not match the component manifest: ${schema_version:-missing} != ${manifest_version:-missing}" >&2
+    exit 1
+fi
+
+if ! grep -Fq 'All database table structures are up to date.' <<< "${database_audit}"; then
+    echo "Joomla database maintenance reported an extension schema problem." >&2
+    exit 1
+fi
+
+if grep -Fq 'Warning:' <<< "${database_audit}"; then
+    echo "Joomla database maintenance emitted a PHP warning." >&2
+    exit 1
+fi
+
 api_response="$(
     docker exec "${web_container}" php -r '
         $url = "http://127.0.0.1/index.php?option=com_contentbuilderng&task=api.display&id=999999&format=json";
@@ -194,4 +231,4 @@ docker exec "${web_container}" php -r '
     }
 ' "${api_response}"
 
-echo "Joomla installation, update, migration and API smoke tests passed."
+echo "Joomla installation, update, migration, database maintenance and API smoke tests passed."
