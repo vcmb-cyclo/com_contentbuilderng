@@ -173,6 +173,20 @@ final class MenuListConfigurationHelperTest extends TestCase
         self::assertArrayNotHasKey('cb_new_show_state_bulk', $parameters);
         self::assertArrayNotHasKey('cb_new_show_state_filter', $parameters);
         self::assertArrayNotHasKey('cb_new_show_list_edit', $parameters);
+        self::assertArrayNotHasKey('cb_export_filename_mode', $parameters);
+        self::assertArrayNotHasKey('cb_export_filename', $parameters);
+    }
+
+    public function testCustomExportFilenameIsForwardedWithoutChangingListBehaviour(): void
+    {
+        $parameters = MenuListConfigurationHelper::requestParameters([
+            'exportFilenameMode' => 'custom',
+            'exportFilename' => '  Participants BRM 200  ',
+        ]);
+
+        self::assertSame('custom', $parameters['cb_export_filename_mode']);
+        self::assertSame('Participants BRM 200', $parameters['cb_export_filename']);
+        self::assertArrayNotHasKey('cblist_embed', $parameters);
     }
 
     public function testSearchVisibilityCanOverrideTheViewSetting(): void

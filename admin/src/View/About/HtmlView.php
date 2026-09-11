@@ -443,7 +443,7 @@ class HtmlView extends BaseHtmlView
             $description = trim((string) ($manifest['description'] ?? ''));
             $description = trim(strip_tags(Text::_($description)));
             $description = preg_replace('/\s+/', ' ', $description) ?? $description;
-            $usageInfo = $this->getPluginUsageInfo($group, $element);
+            $pluginInfo = $this->getPluginInfo($group, $element);
 
             $plugins[] = [
                 'id' => (int) ($row['extension_id'] ?? 0),
@@ -453,9 +453,8 @@ class HtmlView extends BaseHtmlView
                 'version' => (string) ($manifest['version'] ?? ''),
                 'enabled' => (int) ($row['enabled'] ?? 0) === 1,
                 'description' => $description !== '' ? $description : Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE'),
-                'category' => Text::_($usageInfo['category']),
-                'purpose' => Text::_($usageInfo['purpose']),
-                'usage' => Text::_($usageInfo['usage']),
+                'category' => Text::_($pluginInfo['category']),
+                'purpose' => Text::_($pluginInfo['purpose']),
             ];
         }
 
@@ -474,7 +473,7 @@ class HtmlView extends BaseHtmlView
         ));
     }
 
-    private function getPluginUsageInfo(string $group, string $element): array
+    private function getPluginInfo(string $group, string $element): array
     {
         $pluginKey = $group . '.' . $element;
 
@@ -507,22 +506,9 @@ class HtmlView extends BaseHtmlView
             'system' => 'COM_CONTENTBUILDERNG_EXTENSION_CATEGORY_SYSTEM',
         ];
 
-        $usages = [
-            'content' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_CONTENT',
-            'contentbuilderng_listaction' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_LISTACTION',
-            'contentbuilderng_submit' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_SUBMIT',
-            'contentbuilderng_themes' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_THEME',
-            'contentbuilderng_validation' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_VALIDATION',
-            'contentbuilderng_verify' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_VERIFY',
-            'system' => 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_SYSTEM',
-        ];
-
-        $pluginUsages = [];
-
         return [
             'category' => $categories[$group] ?? 'COM_CONTENTBUILDERNG_EXTENSION_CATEGORY_OTHER',
             'purpose' => $purposes[$pluginKey] ?? 'COM_CONTENTBUILDERNG_EXTENSION_PURPOSE_OTHER',
-            'usage' => $pluginUsages[$pluginKey] ?? $usages[$group] ?? 'COM_CONTENTBUILDERNG_EXTENSION_USAGE_OTHER',
         ];
     }
 

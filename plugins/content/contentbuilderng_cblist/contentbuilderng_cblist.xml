@@ -7,7 +7,7 @@
     <authorUrl>https://breezingforms-ng.vcmb.fr</authorUrl>
     <copyright>Copyright © 2026 XDA+GIL</copyright>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <version>6.1.18</version>
+    <version>6.1.19</version>
     <description>PLG_CONTENT_CONTENTBUILDERNG_CBLIST_XML_DESCRIPTION</description>
     <namespace path="src">CB\Plugin\Content\ContentbuilderngList</namespace>
     <files>

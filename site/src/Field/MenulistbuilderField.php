@@ -146,6 +146,14 @@ final class MenulistbuilderField extends FormField
             . $introductionHtml . '</div>';
 
         $actions = is_array($config['action'] ?? null) ? $config['action'] : [];
+        $exportFilenameMode = (string) ($config['exportFilenameMode'] ?? 'default');
+        if (!in_array($exportFilenameMode, ['default', 'custom'], true)) {
+            $exportFilenameMode = 'default';
+        }
+        $exportFilenameOptions = [
+            'default' => 'COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_DEFAULT',
+            'custom' => 'COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_CUSTOM',
+        ];
         $displayHtml = '<div class="cb-menu-native-display-fields">'
             . '<div class="row g-3 mb-4 cb-menu-display-grid">'
             . $this->selectControl(
@@ -192,6 +200,22 @@ final class MenulistbuilderField extends FormField
                 true,
                 'COM_CONTENTBUILDERNG_MENU_NEW_EDIT_LIST_BUTTON_DESC'
             )
+            . '</div><div class="row g-3 mt-1">'
+            . $this->selectControl(
+                'exportFilenameMode',
+                Text::_('COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_MODE'),
+                $exportFilenameOptions,
+                $exportFilenameMode,
+                $options,
+                '',
+                false,
+                'COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_DESC'
+            )
+            . '<div class="col-12 col-lg-4" data-cb-show-when="exportFilenameMode:custom"><label class="form-label">'
+            . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_CUSTOM_LABEL'), ENT_QUOTES, 'UTF-8')
+            . '</label><input type="text" class="form-control" maxlength="150" autocomplete="off" data-cb-key="exportFilename" data-cb-reset-value="" value="'
+            . htmlspecialchars((string) ($config['exportFilename'] ?? ''), ENT_QUOTES, 'UTF-8') . '">'
+            . $this->inlineHelp('COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_CUSTOM_DESC') . '</div>'
             . '</div></div>' . $this->inlineHelp('COM_CONTENTBUILDERNG_MENU_NEW_ACTIONS_DESC', 'mt-2');
         $out .= $this->section(Text::_('COM_CONTENTBUILDERNG_MENU_NEW_DISPLAY'), $displayHtml);
 

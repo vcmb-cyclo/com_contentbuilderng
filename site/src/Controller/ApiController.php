@@ -42,6 +42,9 @@ use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 
 class ApiController extends BaseController
 {
+    private const API_DEFAULT_PAGE_SIZE = 20;
+    private const API_MAX_PAGE_SIZE = 100;
+
     private SiteApplication $siteApp;
     private bool $frontend;
 
@@ -98,13 +101,11 @@ class ApiController extends BaseController
             $action = trim((string) $this->input->getCmd('action', ''));
             $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 
-            Logger::info('API request', [
+            Logger::debug('API request', [
                 'method' => $method,
+                'action' => $action,
                 'form_id' => $formId,
                 'record_id' => $recordId,
-                'ip' => (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
-                'content_type' => (string) ($_SERVER['CONTENT_TYPE'] ?? ''),
-                'query' => (string) ($_SERVER['QUERY_STRING'] ?? ''),
             ]);
 
             if ($formId < 1) {
@@ -169,6 +170,7 @@ class ApiController extends BaseController
                     throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_PERMISSIONS_EDIT_NOT_ALLOWED'), 403);
                 }
 
+                $this->assertStateChangingRequestToken();
                 $updatedRecordId = $this->updateRecord($formId, $recordId);
                 $this->sendJson([
                     'message' => Text::_('COM_CONTENTBUILDERNG_SAVED'),
@@ -398,14 +400,14 @@ class ApiController extends BaseController
         $rawLimit = trim((string) $this->input->getString('limit', ''));
 
         if ($rawLimit === '') {
-            return $itemCount;
+            return min(self::API_MAX_PAGE_SIZE, $itemCount);
         }
 
         if (preg_match('/^[1-9][0-9]*$/D', $rawLimit) !== 1) {
             throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_CBSTATS_INVALID_LIMIT'), 400);
         }
 
-        return min((int) $rawLimit, $itemCount);
+        return min((int) $rawLimit, self::API_MAX_PAGE_SIZE, $itemCount);
     }
 
     private function getCbstatsFieldStatsErrorMessage(\InvalidArgumentException $exception): string
@@ -492,6 +494,9 @@ class ApiController extends BaseController
             $whereField,
             $this->input->get('where', '', 'string')
         );
+        if (is_array($values)) {
+            $values = array_slice($values, 0, self::API_MAX_PAGE_SIZE);
+        }
 
         return [
             'code' => 0,
@@ -510,9 +515,7 @@ class ApiController extends BaseController
             throw new \RuntimeException(Text::_('JINVALID_TOKEN'), 403);
         }
 
-        if (!Session::checkToken('post') && !Session::checkToken('get')) {
-            throw new \RuntimeException(Text::_('JINVALID_TOKEN'), 403);
-        }
+        $this->assertStateChangingRequestToken();
 
         $db = $this->getDatabase();
         $query = $db->getQuery(true)
@@ -724,6 +727,18 @@ class ApiController extends BaseController
 
     private function getListPayload(int $formId): array
     {
+        $list = (array) $this->input->get('list', [], 'array');
+        $requestedLimit = isset($list['limit']) ? (int) $list['limit'] : self::API_DEFAULT_PAGE_SIZE;
+        $list['limit'] = min(
+            self::API_MAX_PAGE_SIZE,
+            $requestedLimit > 0 ? $requestedLimit : self::API_DEFAULT_PAGE_SIZE
+        );
+        $list['start'] = max(0, isset($list['start']) ? (int) $list['start'] : 0);
+        $this->input->set('list', $list);
+        $this->input->get->set('list', $list);
+        $this->siteApp->getInput()->set('list', $list);
+        $this->siteApp->getInput()->get->set('list', $list);
+
         $this->input->set('id', $formId);
         $this->input->set('record_id', 0);
         $this->input->set('view', 'list');
@@ -834,7 +849,6 @@ class ApiController extends BaseController
             'record_id' => $recordId,
             'form_id' => $formId,
             'fields' => $this->normalizeDetailFields($fields, $verbose),
-            'navigation' => $this->resolveSiblingRecordIds((string) ($subject->type ?? ''), (string) ($subject->reference_id ?? ''), $recordId, !empty($subject->published_only)),
         ];
     }
 
@@ -857,42 +871,6 @@ class ApiController extends BaseController
         }
 
         return $normalized;
-    }
-
-    private function resolveSiblingRecordIds(string $type, string $referenceId, int $recordId, bool $publishedOnly): array
-    {
-        if ($recordId < 1 || $type === '' || $referenceId === '') {
-            return ['previous' => 0, 'next' => 0];
-        }
-
-        $db = $this->getDatabase();
-        $where = [
-            $db->quoteName('type') . ' = ' . $db->quote($type),
-            $db->quoteName('reference_id') . ' = ' . $db->quote($referenceId),
-        ];
-        if ($publishedOnly) {
-            $where[] = $db->quoteName('published') . ' = 1';
-        }
-
-        $query = $db->getQuery(true)
-            ->select($db->quoteName('record_id'))
-            ->from($db->quoteName('#__contentbuilderng_records'))
-            ->where($where)
-            ->where($db->quoteName('record_id') . ' < ' . (int) $recordId)
-            ->order($db->quoteName('record_id') . ' DESC');
-        $db->setQuery($query, 0, 1);
-        $previous = (int) $db->loadResult();
-
-        $query = $db->getQuery(true)
-            ->select($db->quoteName('record_id'))
-            ->from($db->quoteName('#__contentbuilderng_records'))
-            ->where($where)
-            ->where($db->quoteName('record_id') . ' > ' . (int) $recordId)
-            ->order($db->quoteName('record_id') . ' ASC');
-        $db->setQuery($query, 0, 1);
-        $next = (int) $db->loadResult();
-
-        return ['previous' => $previous, 'next' => $next];
     }
 
     private function updateRecord(int $formId, int $recordId): int
@@ -948,13 +926,40 @@ class ApiController extends BaseController
     private function extractRequestedFields(): array
     {
         $raw = file_get_contents('php://input');
-        $json = is_string($raw) && $raw !== '' ? json_decode($raw, true) : null;
-        if (is_array($json) && isset($json['fields']) && is_array($json['fields'])) {
-            return $json['fields'];
+        $contentType = strtolower(trim((string) ($_SERVER['CONTENT_TYPE'] ?? '')));
+        if (str_starts_with($contentType, 'application/json')) {
+            if (!is_string($raw) || trim($raw) === '') {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_FIELDS_REQUIRED'), 400);
+            }
+
+            try {
+                $json = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+            } catch (\JsonException $exception) {
+                throw new \RuntimeException(Text::_('COM_CONTENTBUILDERNG_API_ERROR_INVALID_REQUEST'), 400, $exception);
+            }
+
+            return is_array($json) && isset($json['fields']) && is_array($json['fields'])
+                ? $json['fields']
+                : [];
         }
 
         $fields = $this->input->post->get('fields', [], 'array');
         return is_array($fields) ? $fields : [];
+    }
+
+    private function assertStateChangingRequestToken(): void
+    {
+        $headerToken = trim((string) ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
+        $formToken = Session::getFormToken();
+
+        if ($headerToken !== '' && hash_equals($formToken, $headerToken)) {
+            $this->input->post->set($formToken, '1');
+            $this->siteApp->getInput()->post->set($formToken, '1');
+        }
+
+        if (!Session::checkToken('post') && !Session::checkToken('get')) {
+            throw new \RuntimeException(Text::_('JINVALID_TOKEN'), 403);
+        }
     }
 
     private function loadFormObject(int $formId)
@@ -1071,7 +1076,7 @@ class ApiController extends BaseController
             'data' => $payload,
         ];
 
-        $this->siteApp->setHeader('Content-Type', 'application/json; charset=utf-8', true);
+        $this->setJsonResponseHeaders();
         $this->siteApp->sendHeaders();
         $json = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
         echo $json === false ? '{"success":false,"messages":["JSON encoding error"],"data":null}' : $json;
@@ -1080,7 +1085,7 @@ class ApiController extends BaseController
 
     private function sendRawJson(array $payload): void
     {
-        $this->siteApp->setHeader('Content-Type', 'application/json; charset=utf-8', true);
+        $this->setJsonResponseHeaders();
         $this->siteApp->sendHeaders();
         $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
         echo $json === false ? '[]' : $json;
@@ -1100,8 +1105,6 @@ class ApiController extends BaseController
         Logger::warning('API request failed', [
             'form_id' => $formId,
             'status' => $code,
-            'exception' => $e::class,
-            'message' => $e->getMessage(),
         ]);
 
         $showDetails = $code >= 400
@@ -1113,11 +1116,20 @@ class ApiController extends BaseController
             'data' => null,
         ];
 
-        $this->siteApp->setHeader('Content-Type', 'application/json; charset=utf-8', true);
+        $this->setJsonResponseHeaders();
         $this->siteApp->sendHeaders();
         $json = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
         echo $json === false ? '{"success":false,"messages":["JSON encoding error"],"data":null}' : $json;
         $this->siteApp->close();
+    }
+
+    private function setJsonResponseHeaders(): void
+    {
+        $this->siteApp->setHeader('Content-Type', 'application/json; charset=utf-8', true);
+        $this->siteApp->setHeader('Cache-Control', 'private, no-store, max-age=0', true);
+        $this->siteApp->setHeader('Pragma', 'no-cache', true);
+        $this->siteApp->setHeader('X-Content-Type-Options', 'nosniff', true);
+        $this->siteApp->setHeader('Vary', 'Authorization, Cookie', true);
     }
 
     private function getPublicApiErrorMessage(int $code): string

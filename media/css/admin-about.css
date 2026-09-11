@@ -524,7 +524,8 @@
         font-weight: 600;
     }
     #cb-plugins-table {
-        min-width: 82rem;
+        width: 100%;
+        min-width: 64rem;
         table-layout: fixed;
     }
     .cb-about-plugins-card,
@@ -541,22 +542,22 @@
         overflow-x: auto;
     }
     #cb-plugins-table .cb-plugins-col-plugin {
-        width: 22rem;
+        width: 27%;
     }
     #cb-plugins-table .cb-plugins-col-group {
-        width: 8rem;
+        width: 9%;
     }
     #cb-plugins-table .cb-plugins-col-element {
-        width: 8rem;
+        width: 13%;
     }
     #cb-plugins-table .cb-plugins-col-version {
-        width: 7rem;
+        width: 8%;
     }
     #cb-plugins-table .cb-plugins-col-status {
-        width: 7rem;
+        width: 8%;
     }
     #cb-plugins-table .cb-plugins-col-description {
-        width: 30rem;
+        width: 35%;
     }
     #cb-plugins-table > :not(caption) > * > * {
         padding-right: .75rem;
@@ -564,7 +565,7 @@
     }
     #cb-plugins-table .cb-plugins-plugin,
     #cb-plugins-table .cb-plugins-description {
-        overflow-wrap: break-word;
+        overflow-wrap: anywhere;
     }
     #cb-plugins-table .cb-plugins-technical {
         overflow-wrap: normal;

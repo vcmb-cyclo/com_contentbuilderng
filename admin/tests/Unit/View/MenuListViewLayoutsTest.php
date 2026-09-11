@@ -201,6 +201,9 @@ final class MenuListViewLayoutsTest extends TestCase
         self::assertStringContainsString('cb-menu-introduction-settings', $fieldSource);
         self::assertStringContainsString('data-cb-key="titleMode"', $fieldSource);
         self::assertStringContainsString('data-cb-show-when="titleMode:custom"', $fieldSource);
+        self::assertStringContainsString("'exportFilenameMode'", $fieldSource);
+        self::assertStringContainsString('data-cb-show-when="exportFilenameMode:custom"', $fieldSource);
+        self::assertStringContainsString('data-cb-key="exportFilename"', $fieldSource);
         self::assertStringContainsString(". \$introductionHtml . '</div>';", $fieldSource);
         self::assertStringContainsString("\$displayHtml = '<div class=\"cb-menu-native-display-fields\">'", $fieldSource);
 
@@ -246,6 +249,12 @@ final class MenuListViewLayoutsTest extends TestCase
             'COM_CONTENTBUILDERNG_MENU_NEW_HIDE',
             'COM_CONTENTBUILDERNG_MENU_NEW_VIEW_EXPORT',
             'COM_CONTENTBUILDERNG_MENU_NEW_VIEW_EXPORT_DESC',
+            'COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_MODE',
+            'COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_DEFAULT',
+            'COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_CUSTOM',
+            'COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_CUSTOM_LABEL',
+            'COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_DESC',
+            'COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_CUSTOM_DESC',
             'COM_CONTENTBUILDERNG_MENU_NEW_FIELD_UNPUBLISHED_TIP',
             'COM_CONTENTBUILDERNG_MENU_NEW_FIELD_NOT_LISTED_TIP',
         ];

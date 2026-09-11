@@ -9,6 +9,41 @@
 
 ## Principe
 
+### Release 6.1.19
+
+- La release finale reprend la RC7 validée : nom personnalisable et sécurisé
+  des exports XLSX avec l'heure historique `HHMM`, durcissement de l'API JSON et
+  de son contrat OpenAPI, contrôles Joomla Database Maintenance, suppression du
+  plugin Ping retiré et correction du tableau **About > Plugins**.
+- Les versions du composant, des assets et des 17 plugins livrés sont
+  synchronisées sur `6.1.19` pour la publication finale.
+- Le manifeste Joomla Update reste sur `6.1.18` jusqu'à la création et à la
+  validation du ZIP GitHub par le workflow de publication.
+
+### Développement 6.1.19-RC4
+
+- Le dernier fichier de `admin/sql/updates/mysql` porte exactement la version
+  du manifeste du composant, même lorsqu'aucune modification structurelle de la
+  base n'est nécessaire.
+- Après installation ou mise à jour, la **Version de la base de données** affichée
+  par Joomla doit correspondre à la **Version du manifeste**.
+- Le validateur du ZIP et le smoke test Joomla refusent désormais tout paquet
+  dont ces deux versions diffèrent.
+- Les versions des plugins restent en `6.1.18`, leurs fichiers fonctionnels
+  n'étant pas modifiés pour cette RC.
+
+### Développement 6.1.19-RC1
+
+- La RC1 installe et actualise le manifeste du composant sous le nom canonique
+  `administrator/components/com_contentbuilderng/contentbuilderng.xml` attendu
+  par Joomla 6.1.3.
+- L'écran **Système > Maintenance > Base de données** doit résoudre la version
+  installée sans avertissement PHP et déclarer les structures à jour.
+- Le smoke test utilise Joomla 6.1.3 et exécute explicitement la maintenance de
+  la base après le parcours installation puis mise à jour.
+- Les versions des plugins restent en `6.1.18`, leurs fichiers fonctionnels
+  n'étant pas modifiés pour cette RC.
+
 ### Release 6.1.18
 
 - La release finale reprend la RC1 validée et corrige l'export XLSX des menus Joomla

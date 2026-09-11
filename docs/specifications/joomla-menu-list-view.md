@@ -440,6 +440,14 @@ tri, directions et limite. Les filtres frontend ou externes actifs complètent l
 filtres fixes du menu ; ils ne les remplacent pas. La sélection Export est appliquée
 dans l'ordre configuré dans le menu, sans revenir à l'ordre de la Vue mère.
 
+Le menu peut également choisir le nom du fichier XLSX. Le mode `default`, utilisé
+pour les anciens menus et les valeurs absentes, conserve strictement le nom actuel
+`CB_export_<Vue>_YYYY-MM-DD_HHMM.xlsx`. Le mode `custom` transmet un nom de base
+sans extension ; après suppression des contrôles, chemins et caractères interdits,
+les espaces sont remplacés par `_` et le résultat devient
+`<Nom>_YYYY-MM-DD_HHMM.xlsx`. Un nom vide après nettoyage revient au mode par défaut.
+Cette option ne s'applique pas aux exports lancés hors d'un menu CB List View.
+
 Un champ peut donc être absent des colonnes affichées et rester présent dans le
 fichier XLSX. Le menu peut retirer un champ exportable autorisé par la Vue, mais
 ne peut jamais ajouter un champ dont la capacité Export est désactivée dans la
@@ -468,6 +476,7 @@ Ordre fonctionnel validé dans RC09-B13 :
    - deuxième ligne : Detail - Top panel, Detail - Bottom panel et
      Detail - Print ;
    - troisième ligne : Edit - Top panel, Edit - Bottom panel et Edit - List button.
+   - quatrième ligne : mode du nom de fichier XLS et nom personnalisé conditionnel.
 8. **Search and State**
    - Show Search ;
    - Show State ;

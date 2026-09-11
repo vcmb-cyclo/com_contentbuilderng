@@ -43,6 +43,10 @@
   Edit/Print are the typography and spacing reference. New, Edit, Print, Save,
   Apply and Article Settings use neutral outline-secondary styling and grey hover;
   preserve destructive Delete and export colours.
+- Build local RC and test ZIP files with `scripts/build-package.sh`, never by
+  archiving source directories directly. Validate them with
+  `scripts/validate-package.sh`; reject packages larger than 10 MB until
+  development dependencies or artifacts have been removed.
 - Keep local package ZIP files in `build/`. Store intermediate screenshots,
   previews and diagnostic scripts in ignored `qa-artifacts/`, not in `build/`.
 - Prefer native Joomla 6 admin patterns before custom markup, CSS, or JavaScript.

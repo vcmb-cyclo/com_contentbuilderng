@@ -1,7 +1,7 @@
 {
     "$schema": "https://developer.joomla.org/schemas/json-schema/web_assets.json",
     "name": "com_contentbuilderng",
-    "version": "6.1.18",
+    "version": "6.1.19",
     "description": "Assets pour le composant ContentBuilderng",
     "assets": [
         {

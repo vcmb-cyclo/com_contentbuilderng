@@ -1,5 +1,46 @@
 # Changelog
 
+## 6.1.19 — 2026-09-11
+
+- Promote the validated RC7 release candidate to the production release.
+- Add safe configurable XLSX export filenames while preserving the historical `HHMM` timestamp format.
+- Harden the JSON API, its OpenAPI contract and private response handling.
+- Improve Joomla Database Maintenance checks and remove the retired Ping plugin during updates.
+- Fix the About plugins inventory layout and synchronize the component assets and all 17 shipped plugin versions.
+
+## 6.1.19-RC7 — 2026-09-11
+
+- Remove the retired `content/contentbuilderng_ping` Joomla extension entry and any remaining plugin files during updates.
+
+## 6.1.19-RC6 — 2026-09-11
+
+- Fix the About page plugins table so its Description column remains visible and long content wraps cleanly.
+
+## 6.1.19-RC5 — 2026-09-11
+
+- Keep the historical `HHMM` time format in custom XLS export filenames.
+
+## 6.1.19-RC4 — 2026-09-11
+
+- Align Joomla's recorded database schema version with the installed ContentBuilder NG manifest version.
+- Add automated package and Joomla Database Maintenance checks that reject a stale schema version.
+
+## 6.1.19-RC3 — 2026-09-10
+
+- Add Default and Custom XLS export filename options to Joomla CB List View menu items.
+- Sanitize custom filename bases, reject paths and arbitrary extensions, and always append the date, time and `.xlsx` extension.
+- Preserve the existing automatic filename for old menus, Default mode, empty values and invalid custom names.
+- Harden the JSON API with bounded result sets, strict JSON parsing, private no-store responses and minimized request/error logs.
+- Accept a documented Joomla CSRF header for writes and stop exposing unchecked sibling record identifiers in detail responses.
+- Publish an interoperable OpenAPI path with declared Joomla authentication, explicit operations, limits and error responses.
+- Remove the repetitive plugin usage column from About > Extensions and keep the administrative inventory focused on status and purpose.
+
+## 6.1.19-RC1 — 2026-09-09
+
+- Install the component manifest under the canonical filename expected by Joomla 6.1.3 Database Maintenance.
+- Prevent the empty ContentBuilder NG version warning after installation or update.
+- Run the package smoke test on Joomla 6.1.3 and fail it when Database Maintenance reports a schema problem or PHP warning.
+
 ## 6.1.18 — 2026-09-09
 
 - Promote the validated RC1 fix so Joomla List View XLSX exports reproduce the effective menu configuration.

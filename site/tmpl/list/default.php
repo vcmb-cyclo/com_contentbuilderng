@@ -319,6 +319,8 @@ $menuExportContext = array_filter([
     'cblist_sort' => (string) $input->getString('cblist_sort', ''),
     'cblist_dir' => (string) $input->getString('cblist_dir', ''),
     'cblist_limit' => $input->getInt('cblist_limit', 0),
+    'cb_export_filename_mode' => (string) $input->getCmd('cb_export_filename_mode', ''),
+    'cb_export_filename' => (string) $input->getString('cb_export_filename', ''),
 ], static fn(string|int $value): bool => $value !== '' && $value !== 0);
 $exportQueryParams = array_merge($exportQueryParams, $menuExportContext);
 if ($isEmbeddedListRequest) {

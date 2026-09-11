@@ -209,12 +209,23 @@ final class MenuListConfigurationHelper
             $parameters['cblist_limit'] = $maximumRecords;
         }
 
+        if ((string) ($config['exportFilenameMode'] ?? 'default') === 'custom') {
+            $parameters['cb_export_filename_mode'] = 'custom';
+            $parameters['cb_export_filename'] = self::normalizeExportFilenameInput(
+                (string) ($config['exportFilename'] ?? '')
+            );
+        }
+
         $restrictedActions = self::restrictedActions($config);
         if ($restrictedActions !== null) {
             $parameters['cblist_actions'] = implode('|', $restrictedActions);
         }
 
-        if (count($parameters) > 7 || $fields !== '' || $searchFields !== '' || $linkFields !== '' || $detailFields !== '' || $editFields !== '' || $exportFields !== '' || $publishedFields !== '' || $parameters[MenuDataFilterService::INPUT_NAME] !== '') {
+        $listBehaviourParameters = array_diff_key($parameters, array_flip([
+            'cb_export_filename_mode',
+            'cb_export_filename',
+        ]));
+        if (count($listBehaviourParameters) > 7 || $fields !== '' || $searchFields !== '' || $linkFields !== '' || $detailFields !== '' || $editFields !== '' || $exportFields !== '' || $publishedFields !== '' || $parameters[MenuDataFilterService::INPUT_NAME] !== '') {
             $parameters['cblist_embed'] = 'content-plugin';
         }
 
@@ -272,6 +283,15 @@ final class MenuListConfigurationHelper
         $title = trim($title);
 
         return mb_substr($title, 0, 255, 'UTF-8');
+    }
+
+    private static function normalizeExportFilenameInput(string $title): string
+    {
+        $title = trim($title);
+
+        return function_exists('mb_substr')
+            ? (string) mb_substr($title, 0, 150, 'UTF-8')
+            : (string) substr($title, 0, 150);
     }
 
     private static function toggleValue(array $config, string $key): string
