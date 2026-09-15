@@ -1,5 +1,15 @@
 # Changelog
 
+## 6.1.20 — 2026-09-15
+
+- Promote the production-validated RC1 fix for duplicated BreezingForms radio, checkbox and select-list values during frontend editing.
+- Synchronize the component assets and all 17 shipped plugin versions.
+
+## 6.1.20-RC1 — 2026-09-15
+
+- Fix a regression that duplicated BreezingForms radio, checkbox and select-list values after frontend editing.
+- Remove empty separators and duplicate group values from frontend lists, while preserving configured values containing spaces or parentheses.
+
 ## 6.1.19 — 2026-09-11
 
 - Promote the validated RC7 release candidate to the production release.

@@ -26,4 +26,16 @@ final class BreezingFormsGroupValueTest extends TestCase
             $method->invoke(null, "L\u{2019}e\u{0301}cole\u{00A0}des   jeunes")
         );
     }
+
+    public function testSelectedGroupValuesAreCanonicalAndDeduplicated(): void
+    {
+        $method = new ReflectionMethod(contentbuilderng_com_breezingformsng::class, 'getSelectedGroupValues');
+        self::assertSame(["Demande d'information (BRM 200 km)"], $method->invoke(null, [
+                    "Demande d'information (BRM 200 km)" => 'Demande',
+                    'Inscription (BRM 300 km)' => 'Inscription',
+                ], [
+                    "Demande d'information (BRM 200 km)",
+                    "Demande d\u{2019}information\u{00A0}(BRM 200 km)",
+                ]));
+    }
 }
