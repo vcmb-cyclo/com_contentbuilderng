@@ -385,6 +385,41 @@ class contentbuilderng_com_breezingformsng
         return trim((string) preg_replace('/\s+/u', ' ', $value));
     }
 
+    /**
+     * Returns the canonical configured values selected by the submitted group.
+     *
+     * Submitted values are normalized only for comparison. Persisting the
+     * configured value keeps one stable representation in BreezingForms and
+     * prevents equivalent values from accumulating on successive edits.
+     */
+    private static function getSelectedGroupValues(array $groupDefinition, array $submittedValues): array
+    {
+        $selectedLookup = [];
+
+        foreach ($submittedValues as $submittedValue) {
+            $normalized = self::normalizeGroupValueForMatch(trim((string) $submittedValue));
+
+            if ($normalized !== '') {
+                $selectedLookup[$normalized] = true;
+            }
+        }
+
+        $selectedValues = [];
+
+        foreach (array_keys($groupDefinition) as $configuredValue) {
+            $configuredValue = trim((string) $configuredValue);
+
+            if (
+                $configuredValue !== ''
+                && isset($selectedLookup[self::normalizeGroupValueForMatch($configuredValue)])
+            ) {
+                $selectedValues[] = $configuredValue;
+            }
+        }
+
+        return array_values(array_unique($selectedValues));
+    }
+
     private function getEffectiveActor(): array
     {
         $app = RuntimeContextHelper::getApplication();
@@ -791,9 +826,9 @@ class contentbuilderng_com_breezingformsng
             $isGroupType = in_array($element['type'], $groupTypes, true);
 
             if ($element['type'] == 'Radio Button' || $element['type'] == 'Checkbox') {
-                $selectors .= "GROUP_CONCAT( ( Case When s.`name` = '{$element['name']}' Then s.`value` End ) Order By s.`id` SEPARATOR ', ' ) As `col{$element['id']}Value`,";
+                $selectors .= "GROUP_CONCAT( DISTINCT ( Case When s.`name` = '{$element['name']}' Then s.`value` End ) Order By s.`id` SEPARATOR ', ' ) As `col{$element['id']}Value`,";
             } else {
-                $selectors .= "GROUP_CONCAT( ( Case When s.`element` = '{$element['id']}' Then s.`value` End ) Order By s.`id` SEPARATOR ', ' ) As `col{$element['id']}Value`,";
+                $selectors .= "GROUP_CONCAT( DISTINCT ( Case When s.`element` = '{$element['id']}' Then s.`value` End ) Order By s.`id` SEPARATOR ', ' ) As `col{$element['id']}Value`,";
             }
 
             // Group-type elements also get a raw, unambiguously-separated value:
@@ -805,9 +840,9 @@ class contentbuilderng_com_breezingformsng
                 $rawSeparator = $db->quote(chr(31));
 
                 if ($element['type'] == 'Radio Button' || $element['type'] == 'Checkbox') {
-                    $selectors .= "GROUP_CONCAT( ( Case When s.`name` = '{$element['name']}' Then s.`value` End ) Order By s.`id` SEPARATOR {$rawSeparator} ) As `col{$element['id']}Raw`,";
+                    $selectors .= "GROUP_CONCAT( DISTINCT ( Case When s.`name` = '{$element['name']}' Then s.`value` End ) Order By s.`id` SEPARATOR {$rawSeparator} ) As `col{$element['id']}Raw`,";
                 } else {
-                    $selectors .= "GROUP_CONCAT( ( Case When s.`element` = '{$element['id']}' Then s.`value` End ) Order By s.`id` SEPARATOR {$rawSeparator} ) As `col{$element['id']}Raw`,";
+                    $selectors .= "GROUP_CONCAT( DISTINCT ( Case When s.`element` = '{$element['id']}' Then s.`value` End ) Order By s.`id` SEPARATOR {$rawSeparator} ) As `col{$element['id']}Raw`,";
                 }
             }
         }
@@ -984,7 +1019,7 @@ class contentbuilderng_com_breezingformsng
                     }
                 }
                 if ($element['type'] == 'Checkbox' || $element['type'] == 'Checkbox Group' || $element['type'] == 'Select List') {
-                    $baseExpr = "Trim( Both ', ' From GROUP_CONCAT( ( Case When s.`name` = '{$element['name']}' Then s.`value` Else '' End ) Order By s.`id` SEPARATOR ', ' ) )";
+                    $baseExpr = "GROUP_CONCAT( DISTINCT ( Case When s.`name` = '{$element['name']}' Then s.`value` End ) Order By s.`id` SEPARATOR ', ' )";
                 } else {
                     $baseExpr = "max( case when s.`element` = '{$element['id']}' then s.`value` end )";
                 }
@@ -1067,7 +1102,7 @@ class contentbuilderng_com_breezingformsng
                 }
 
                 if ($type == 'Checkbox' || $type == 'Checkbox Group' || $type == 'Select List') {
-                    $selectors .= $cast_open . "Trim( Both ', ' From GROUP_CONCAT( ( Case When s.`name` = '$name' Then s.`value` Else '' End ) Order By s.`id` SEPARATOR ', ' ) )" . $cast_close . " As `col$id`,";
+                    $selectors .= $cast_open . "GROUP_CONCAT( DISTINCT ( Case When s.`name` = '$name' Then s.`value` End ) Order By s.`id` SEPARATOR ', ' )" . $cast_close . " As `col$id`,";
                 } else {
                     $selectors .= $cast_open . "max( case when s.`element` = '" . intval($id) . "' then s.`value` end )" . $cast_close . " As `col$id`,";
                 }
@@ -1767,12 +1802,8 @@ class contentbuilderng_com_breezingformsng
                     array_map(static fn($item): string => trim((string) $item), (array) $value),
                     static fn(string $item): bool => $item !== '' && $item !== 'cbGroupMark'
                 ));
-                $selectedGroupValues = [];
-                foreach ($value as $selectedValue) {
-                    $selectedGroupValues[self::normalizeGroupValueForMatch($selectedValue)] = true;
-                }
-                $del = array();
                 $groupdef = $this->getGroupDefinition($id);
+                $selectedGroupValues = self::getSelectedGroupValues($groupdef, $value);
                 $elemInfoQuery2 = $db->getQuery(true)
                     ->select($db->quoteName(['title', 'name', 'type']))
                     ->from($db->quoteName('#__facileforms_elements'))
@@ -1780,82 +1811,37 @@ class contentbuilderng_com_breezingformsng
                 $db->setQuery($elemInfoQuery2);
                 $the_element = $db->loadAssoc();
 
-                foreach ($groupdef as $groupval => $grouplabel) {
-                    if (!isset($selectedGroupValues[self::normalizeGroupValueForMatch((string) $groupval)])) {
-                        $del[] = $db->quote($groupval);
-                    } else {
-                        $existsQuery = $db->getQuery(true)
-                            ->select($db->quoteName('id'))
-                            ->from($db->quoteName('#__facileforms_subrecords'))
-                            ->where($db->quoteName('value') . ' = ' . $db->quote($groupval))
-                            ->where($db->quoteName('record') . ' = ' . $db->quote($record_id))
-                            ->where($db->quoteName('element') . ' = ' . $db->quote($id));
-                        $db->setQuery($existsQuery);
-                        $exists = $db->loadResult();
-                        if (!$exists) {
-                            $groupInsert = $db->getQuery(true)
-                                ->insert($db->quoteName('#__facileforms_subrecords'))
-                                ->columns($db->quoteName(['value', 'record', 'element', 'title', 'name', 'type']))
-                                ->values(implode(',', [
-                                    $db->quote($groupval),
-                                    $db->quote($record_id),
-                                    $db->quote($id),
-                                    $db->quote($the_element['title']),
-                                    $db->quote($the_element['name']),
-                                    $db->quote($the_element['type']),
-                                ]));
-                            $db->setQuery($groupInsert);
-                            $db->execute();
-                        }
-                    }
+                $replaceQuery = $db->getQuery(true)
+                    ->delete($db->quoteName('#__facileforms_subrecords'))
+                    ->where($db->quoteName('record') . ' = ' . (int) $record_id);
+
+                if (in_array((string) $the_element['type'], ['Radio Button', 'Checkbox'], true)) {
+                    $replaceQuery->where($db->quoteName('name') . ' = ' . $db->quote($the_element['name']));
+                } else {
+                    $replaceQuery->where($db->quoteName('element') . ' = ' . (int) $id);
                 }
-                if (count($del)) {
-                    $delQuery = $db->getQuery(true)
-                        ->delete($db->quoteName('#__facileforms_subrecords'))
-                        ->where($db->quoteName('value') . ' IN (' . implode(',', $del) . ')')
-                        ->where($db->quoteName('record') . ' = ' . $db->quote($record_id))
-                        ->where($db->quoteName('element') . ' = ' . $db->quote($id));
-                    $db->setQuery($delQuery);
+
+                $db->setQuery($replaceQuery);
+                $db->execute();
+
+                if ($selectedGroupValues !== []) {
+                    $insertQuery = $db->getQuery(true)
+                        ->insert($db->quoteName('#__facileforms_subrecords'))
+                        ->columns($db->quoteName(['value', 'record', 'element', 'title', 'name', 'type']));
+
+                    foreach ($selectedGroupValues as $groupValue) {
+                        $insertQuery->values(implode(',', [
+                            $db->quote($groupValue),
+                            (int) $record_id,
+                            (int) $id,
+                            $db->quote($the_element['title']),
+                            $db->quote($the_element['name']),
+                            $db->quote($the_element['type']),
+                        ]));
+                    }
+
+                    $db->setQuery($insertQuery);
                     $db->execute();
-                }
-                /**
-                 * Restore the input order based on the group definition
-                 */
-                foreach ($groupdef as $groupval => $grouplabel) {
-                    $oldIdQuery = $db->getQuery(true)
-                        ->select($db->quoteName('id'))
-                        ->from($db->quoteName('#__facileforms_subrecords'))
-                        ->where($db->quoteName('value') . ' = ' . $db->quote($groupval))
-                        ->where($db->quoteName('record') . ' = ' . $db->quote($record_id))
-                        ->where($db->quoteName('element') . ' = ' . $db->quote($id));
-                    $db->setQuery($oldIdQuery);
-                    $old_id = $db->loadResult();
-                    $elemInfoQuery3 = $db->getQuery(true)
-                        ->select($db->quoteName(['title', 'name', 'type']))
-                        ->from($db->quoteName('#__facileforms_elements'))
-                        ->where($db->quoteName('id') . ' = ' . (int) $id);
-                    $db->setQuery($elemInfoQuery3);
-                    $the_element = $db->loadAssoc();
-                    if ($old_id) {
-                        $reorderInsert = $db->getQuery(true)
-                            ->insert($db->quoteName('#__facileforms_subrecords'))
-                            ->columns($db->quoteName(['value', 'record', 'element', 'title', 'name', 'type']))
-                            ->values(implode(',', [
-                                $db->quote($groupval),
-                                $db->quote($record_id),
-                                $db->quote($id),
-                                $db->quote($the_element['title']),
-                                $db->quote($the_element['name']),
-                                $db->quote($the_element['type']),
-                            ]));
-                        $db->setQuery($reorderInsert);
-                        $db->execute();
-                        $oldDelete = $db->getQuery(true)
-                            ->delete($db->quoteName('#__facileforms_subrecords'))
-                            ->where($db->quoteName('id') . ' = ' . (int) $old_id);
-                        $db->setQuery($oldDelete);
-                        $db->execute();
-                    }
                 }
             }
         }
