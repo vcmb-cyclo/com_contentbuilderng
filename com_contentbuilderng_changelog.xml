@@ -3,6 +3,15 @@
     <changelog>
         <element>com_contentbuilderng</element>
         <type>component</type>
+        <version>6.1.20</version>
+        <fix>
+            <item>Promote the production-validated RC1 fix for duplicated BreezingForms radio, checkbox and select-list values during frontend editing.</item>
+            <item>Synchronize the component assets and all 17 shipped plugin versions.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
         <version>6.1.20-RC1</version>
         <fix>
             <item>Fix a regression that duplicated BreezingForms radio, checkbox and select-list values after frontend editing.</item>
