@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.1.21-RC1 — 2026-09-16
+
+- Preserve Card grid widths when JCE wraps CBStats or CBList tags in `span` elements.
+
 ## 6.1.20 — 2026-09-15
 
 - Promote the production-validated RC1 fix for duplicated BreezingForms radio, checkbox and select-list values during frontend editing.
