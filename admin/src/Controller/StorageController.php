@@ -1326,6 +1326,7 @@ class StorageController extends BaseFormController
     public function ajax_addfield(): void
     {
         $this->checkToken();
+        $this->assertStorageEditAccess();
 
         $jform = $this->input->post->get('jform', [], 'array');
         $storageId = (int) ($jform['id'] ?? $this->input->getInt('id'));

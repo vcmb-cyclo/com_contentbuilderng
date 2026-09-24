@@ -58,6 +58,12 @@ final class StorageEditLayoutTest extends TestCase
         self::assertStringContainsString('cb-storage-field-actions', $layout);
         self::assertStringContainsString('cb-storage-field-new-cancel', $script);
         self::assertStringContainsString('cb-storage-field-new-size', $script);
+        self::assertStringContainsString("const cbStorageId =", $script);
+        self::assertStringContainsString("formData.set('jform[id]', String(cbStorageId));", $script);
+        self::assertStringContainsString("formData.set('jform[fieldtitle]'", $script);
+        self::assertStringContainsString("formData.set('jform[sql_type]'", $script);
+        self::assertStringContainsString("formData.set('jform[is_group]'", $script);
+        self::assertStringContainsString("formData.set('jform[group_definition]'", $script);
         self::assertStringContainsString("max=\"' + maximum + '\"", $script);
         self::assertStringContainsString('data-max-size=', $layout);
     }
@@ -251,5 +257,4 @@ PHP;
             );
         }
     }
-
 }

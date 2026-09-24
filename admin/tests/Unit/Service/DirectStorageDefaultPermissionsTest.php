@@ -39,8 +39,10 @@ final class DirectStorageDefaultPermissionsTest extends TestCase
 
         self::assertIsString($source);
         self::assertStringContainsString('foreach ($groupIds as $groupId)', $source);
-        self::assertStringContainsString("'new' => !\$isGuest", $source);
-        self::assertStringContainsString("'edit' => !\$isGuest", $source);
+        self::assertStringContainsString("'new' => \$groupId !== \$guestGroupId", $source);
+        self::assertStringContainsString("'edit' => false", $source);
+        self::assertStringContainsString('ensureAdminProvisionedPermissions($formId);', $source);
+        self::assertStringContainsString('array_key_exists((string) $groupId, $permissions)', $source);
 
         $wizardSource = file_get_contents(
             \dirname(__DIR__, 3) . '/src/Controller/StoragewizardController.php'

@@ -99,6 +99,22 @@ final class StorageRegressionFixesTest extends TestCase
         }
     }
 
+    public function testAjaxFieldCreationRequiresEditPermission(): void
+    {
+        $source = file_get_contents(\dirname(__DIR__, 3) . '/src/Controller/StorageController.php');
+        self::assertIsString($source);
+
+        $method = strpos($source, 'public function ajax_addfield(): void');
+        $methodBody = substr($source, $method, 500);
+
+        self::assertIsInt($method);
+        self::assertIsString($methodBody);
+        self::assertStringContainsString(
+            "\$this->checkToken();\n        \$this->assertStorageEditAccess();",
+            $methodBody
+        );
+    }
+
     public function testRuntimeDirectStorageSynchronizationIsAdditive(): void
     {
         $provisioningSource = file_get_contents(

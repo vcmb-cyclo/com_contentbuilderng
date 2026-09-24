@@ -280,6 +280,7 @@ const cbFieldGroupLabel = <?php echo json_encode(Text::_('COM_CONTENTBUILDERNG_S
 const cbFieldRequiredLabel = <?php echo json_encode(Text::_('COM_CONTENTBUILDERNG_STORAGE_FIELD_REQUIRED'), JSON_UNESCAPED_UNICODE); ?>;
 const cbFieldConfirmLabel = <?php echo json_encode(Text::_('JSAVE'), JSON_UNESCAPED_UNICODE); ?>;
 const cbFieldCancelLabel = <?php echo json_encode(Text::_('JCANCEL'), JSON_UNESCAPED_UNICODE); ?>;
+const cbStorageId = <?php echo (int) $storageId; ?>;
 const cbStorageEditUrl = <?php echo json_encode('index.php?option=com_contentbuilderng&view=storage&layout=edit&id=' . $storageId . '&tabStartOffset=tab0#tab0', JSON_UNESCAPED_SLASHES); ?>;
 let cbAjaxBusy = false;
 let cbSaveButtonTimer = null;
@@ -1157,11 +1158,20 @@ function initStorageInlineAddField() {
 
         var form = document.getElementById('adminForm') || document.adminForm;
         var formData = new FormData(form);
+        // Only the current inline row is relevant to this request. Replacing
+        // these keys explicitly prevents stale/duplicate controls from the
+        // storage form from being reused on a subsequent field addition.
         formData.set('option', 'com_contentbuilderng');
+        formData.set('id', String(cbStorageId));
+        formData.set('jform[id]', String(cbStorageId));
         formData.set('cb_ajax', '1');
         formData.set('task', 'storage.ajax_addfield');
         formData.set('jform[fieldname]', nameInput.value);
+        formData.set('jform[fieldtitle]', row.querySelector('input[name="jform[fieldtitle]"]').value);
+        formData.set('jform[sql_type]', row.querySelector('select[name="jform[sql_type]"]').value);
         formData.set('jform[required]', row.querySelector('.cb-storage-field-new-required').checked ? '1' : '0');
+        formData.set('jform[is_group]', row.querySelector('.cb-storage-field-new-is-group-value').value);
+        formData.set('jform[group_definition]', row.querySelector('.cb-storage-field-new-group-definition').value);
 
         var sizeInput = row.querySelector('.cb-storage-field-new-size');
         if (sizeInput) {

@@ -55,6 +55,10 @@ final class DirectStorageFormProvisioningService
         $formId = $this->findExistingFormId($storageId);
 
         if ($formId > 0) {
+            if ($isAdminProvisioned) {
+                $this->ensureAdminProvisionedPermissions($formId);
+            }
+
             $this->ensureTemplatesProvisioned($formId, $storageId, $themePlugin);
 
             return $formId;
@@ -144,10 +148,9 @@ final class DirectStorageFormProvisioningService
      * Guest only. An admin-provisioned form (built deliberately through the
      * Storage wizard, an authenticated core.manage action) instead mirrors
      * the checkboxes pre-checked for a brand-new form in the classic Form
-     * screen (listaccess/view/new, plus edit) applied to every real usergroup
-     * so it is immediately usable on the frontend — Guest still only gets
-     * read access, since write access for anonymous visitors always requires
-     * an explicit, reviewed choice.
+     * screen (listaccess/view/new, with edit left unchecked) applied to every
+     * non-Guest usergroup so it is immediately usable on the frontend. Guest
+     * remains read-only in both provisioning paths.
      */
     private function defaultPermissionsConfig(bool $isAdminProvisioned): array
     {
@@ -185,16 +188,65 @@ final class DirectStorageFormProvisioningService
         $permissions = [];
         foreach ($groupIds as $groupId) {
             $groupId = (int) $groupId;
-            $isGuest = $groupId === $guestGroupId;
             $permissions[$groupId] = [
                 'listaccess' => true,
                 'view' => true,
-                'new' => !$isGuest,
-                'edit' => !$isGuest,
+                'new' => $groupId !== $guestGroupId,
+                'edit' => false,
             ];
         }
 
         return ['permissions_fe' => $permissions];
+    }
+
+    /**
+     * Completes a form that was auto-created before an administrator opened
+     * the wizard. Existing group settings are intentionally left untouched;
+     * only groups missing from the frontend permission matrix receive the
+     * normal new-form defaults.
+     */
+    private function ensureAdminProvisionedPermissions(int $formId): void
+    {
+        $query = $this->db->getQuery(true)
+            ->select($this->db->quoteName('config'))
+            ->from($this->db->quoteName('#__contentbuilderng_forms'))
+            ->where($this->db->quoteName('id') . ' = :formId')
+            ->bind(':formId', $formId, ParameterType::INTEGER);
+        $this->db->setQuery($query);
+        $config = PackedDataHelper::decodePackedData((string) $this->db->loadResult(), [], true);
+
+        if (!is_array($config)) {
+            $config = [];
+        }
+
+        $permissions = is_array($config['permissions_fe'] ?? null)
+            ? $config['permissions_fe']
+            : [];
+        $defaults = $this->defaultPermissionsConfig(true)['permissions_fe'] ?? [];
+        $changed = false;
+
+        foreach ($defaults as $groupId => $groupPermissions) {
+            if (array_key_exists($groupId, $permissions) || array_key_exists((string) $groupId, $permissions)) {
+                continue;
+            }
+
+            $permissions[$groupId] = $groupPermissions;
+            $changed = true;
+        }
+
+        if (!$changed) {
+            return;
+        }
+
+        $config['permissions_fe'] = $permissions;
+        $updateQuery = $this->db->getQuery(true)
+            ->update($this->db->quoteName('#__contentbuilderng_forms'))
+            ->set($this->db->quoteName('config') . ' = :config')
+            ->where($this->db->quoteName('id') . ' = :formId')
+            ->bind(':config', PackedDataHelper::encodePackedData($config))
+            ->bind(':formId', $formId, ParameterType::INTEGER);
+        $this->db->setQuery($updateQuery);
+        $this->db->execute();
     }
 
     /**

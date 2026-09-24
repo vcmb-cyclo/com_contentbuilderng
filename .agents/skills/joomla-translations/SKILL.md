@@ -15,11 +15,12 @@ changes. A technical change to an unchanged `Text::_()`, `Text::sprintf()` or
 ## Required changes
 
 - Update the changed key in `en-GB`, `fr-FR` and `de-DE` in the corresponding
-  component language files, unless the user explicitly scopes the work
-  differently.
+  component language files. Follow the project's translation coverage rules
+  if they require additional locales.
 - Keep the three values semantically equivalent and preserve every format
   placeholder (`%s`, `%d`, `%1$s`, etc.). Use positional placeholders when the
-  word order differs between languages.
+  word order differs between languages. Treat `en-GB` as the editorial source
+  of truth and use British English.
 - Use existing project key conventions and Joomla plural keys. Do not reorder
   unrelated entries merely to make language files identical.
 - Keep manifest name and description strings in `.sys.ini`; runtime strings
