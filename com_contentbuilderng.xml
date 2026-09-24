@@ -1,12 +1,12 @@
 <extension type="component" method="upgrade" version="6.0">
     <name>COM_CONTENTBUILDERNG</name>
-    <creationDate>2026-09-09</creationDate>
+    <creationDate>2026-09-16</creationDate>
     <author>XDA+GIL</author>
     <authorEmail>bf@vcmb.fr</authorEmail>
     <authorUrl>https://breezingforms-ng.vcmb.fr</authorUrl>
     <copyright>Copyright © 2024 - 2026 XDA+GIL</copyright>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <version>6.1.20</version>
+    <version>6.1.21-RC1</version>
     <php_minimum>8.3</php_minimum>
     <changelogurl>https://raw.githubusercontent.com/vcmb-cyclo/com_contentbuilderng/main/com_contentbuilderng_changelog.xml</changelogurl>
     <description>COM_CONTENTBUILDERNG_XML_DESCRIPTION</description>

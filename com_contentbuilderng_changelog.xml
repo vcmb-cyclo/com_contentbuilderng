@@ -3,6 +3,14 @@
     <changelog>
         <element>com_contentbuilderng</element>
         <type>component</type>
+        <version>6.1.21-RC1</version>
+        <fix>
+            <item>Preserve Card grid widths when JCE wraps CBStats or CBList tags in span elements.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
         <version>6.1.20</version>
         <fix>
             <item>Promote the production-validated RC1 fix for duplicated BreezingForms radio, checkbox and select-list values during frontend editing.</item>
