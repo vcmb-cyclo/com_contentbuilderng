@@ -210,10 +210,19 @@ nommage** des colonnes d'audit sur cette table, antérieure au dépôt actuel.
   `admin/src/Controller/StorageController.php`, `admin/src/Controller/StoragewizardController.php`,
   `admin/src/Service/ConfigExportService.php`/`ConfigImportService.php`
   (export/import de la configuration).
-- **Suppression** : `StorageModel::delete()` (`admin/src/Model/StorageModel.php:1212`),
-  qui orchestre aussi la suppression des lignes `records`/`list_records`/`articles`
-  liées (voir §6, §8, §9) et, selon le mode, potentiellement la table de
-  données physique.
+- **Suppression** : `StorageModel::delete()` (`admin/src/Model/StorageModel.php:1212-1274`)
+  supprime uniquement les métadonnées propres au storage — les lignes
+  `storage_fields` du storage (`:1228`), la ligne `storages` elle-même
+  (`$row->delete()`, `:1241`) et, si `bytable` est vide, la table de données
+  physique (`DROP TABLE`, `:1252`) — **sans** toucher aux lignes
+  `records`/`list_records`/`articles` liées (voir §6, §8, §9). Le nettoyage
+  en cascade de `records` et `articles` (mais pas `list_records`, jamais
+  référencée dans ce fichier) existe séparément dans
+  `StorageModel::storeCsv()` (`:1277-…`), sous l'option "vider les données
+  existantes" (`$options->dropRecords`, `:1700-1745`) : `TRUNCATE` de la
+  table physique, `DELETE` sur `records` et `DELETE` multi-table
+  `articles`/`#__content`, tous filtrés par `(type = 'com_contentbuilderng',
+  reference_id = <storage id>)`.
 - **Normalisation post-installation** : `SchemaService::normalizeStoragesOrdering()`
   (`:531-585`, appelée uniquement en `update`, `script.php:467-469`) répare les
   `ordering = 0` dupliqués.
@@ -223,9 +232,12 @@ nommage** des colonnes d'audit sur cette table, antérieure au dépôt actuel.
 **Comportement déduit** : création manuelle via l'écran d'administration
 "Storage" (nouveau/édition) ou l'assistant "Storage Wizard"
 (`StoragewizardController`) ; suppression via `StorageModel::delete()`, qui
-entraîne en cascade la suppression des métadonnées `records`/`list_records`/
-`articles` de ce storage mais **pas nécessairement** la table de données
-physique elle-même selon `bytable` (voir §15 pour la nuance). Aucune notion
+ne supprime que les métadonnées propres au storage (`storage_fields`, ligne
+`storages`) et, selon `bytable`, la table de données physique — **sans**
+cascade vers `records`/`list_records`/`articles` (voir §15 pour la nuance
+sur la table physique). Le nettoyage des `records`/`articles` liés à ce
+storage n'a lieu que via `StorageModel::storeCsv()` en mode "vider les
+données existantes" (ré-import CSV avec `dropRecords`). Aucune notion
 de corbeille (soft-delete) native sur cette table — `published` sert
 seulement à activer/désactiver le storage dans l'UI (alias Joomla `state`).
 
@@ -535,14 +547,17 @@ compare `cr.record_id = r.id` où `r` est la table de storage physique.
 
 ### Traçabilité
 
-- **Écriture (soumission front)** : `site/src/Model/EditModel.php::_buildQuery()`
-  (méthode privée `:356-2295` malgré son nom hérité — c'est le traitement
-  complet d'une soumission de formulaire front) —
-  `INSERT` (`:1868`) et `UPDATE` (`:1908`) selon que le record existe déjà ;
-  seconde paire `INSERT`/`UPDATE` (`:2901,2913` puis `:2997,3008`) pour la
-  mise à jour des champs de notation/état après traitement des champs. Voir
-  aussi `:2012` (insertion `registered_users` en mode inscription, §11) et
-  `:1760` (insertion `verifications`, §12), toutes dans la même méthode.
+- **Écriture (soumission front)** : `site/src/Model/EditModel.php::store()`
+  (`:767-2294` — traitement complet d'une soumission de formulaire front ;
+  `_buildQuery()`, `:356-371`, est une méthode legacy triviale sans rapport
+  avec ce traitement, cf. remarque méthodologique ci-dessous) —
+  `INSERT` (`:1868`) et `UPDATE` (`:1908`) selon que le record existe déjà,
+  ainsi que `:2012` (insertion `registered_users` en mode inscription, §11)
+  et `:1760` (insertion `verifications`, §12), toutes dans `store()`. Autre
+  paire `INSERT`/`UPDATE` sur `records` dans `EditModel::change_list_language()`
+  (`:2901,2913`) et dans `EditModel::change_list_publish()` (`:2997,3008`),
+  pour la mise à jour des champs de notation/état lors des actions de liste
+  en masse.
 - **Synchronisation** (storage interne) : `admin/src/types/com_contentbuilderng.php::synchRecords()`
   (`:77-131`) — `INSERT IGNORE` en lot (par paquets de 500) pour les lignes de
   la table de storage physique qui n'ont pas encore de métadonnées `records`
@@ -574,7 +589,7 @@ compare `cr.record_id = r.id` où `r` est la table de storage physique.
 ### Cycle de vie
 
 **Fait observé/Comportement déduit** : une ligne `records` est créée soit à
-la soumission d'un formulaire front (`EditModel::_buildQuery()`), soit par
+la soumission d'un formulaire front (`EditModel::store()`), soit par
 synchronisation différée lorsqu'une donnée existe déjà dans la source
 (import direct en base, storage mappé en lecture, etc. — `synchRecords()`).
 Elle est mise à jour à chaque édition (`edited++`, `last_update`), à chaque
@@ -667,18 +682,20 @@ couple (vue, enregistrement).
 
 ### Traçabilité
 
-- **Écriture** : `site/src/Model/EditModel.php::_buildQuery()` — `DELETE`
-  (`:2606,2741`), `INSERT` (`:2793`), `UPDATE` (`:2826,2842`), au fil du
-  traitement d'une soumission (création/mise à jour d'un enregistrement et de
-  son état de liste). `plugins/contentbuilderng_listaction/trash/src/Extension/Trash.php`
+- **Écriture** : `DELETE` dans `EditModel::delete()` (`:2606`) et dans
+  `EditModel::change_list_states()` (`:2741`) ; `INSERT` (`:2793`) et
+  `UPDATE` (`:2826,2842`) dans `EditModel::change_list_states()`, au fil du
+  traitement d'une suppression d'enregistrement ou d'un changement d'état de
+  liste en masse depuis l'écran d'administration. `plugins/contentbuilderng_listaction/trash/src/Extension/Trash.php`
   et `untrash/src/Extension/Untrash.php` modifient très probablement
   `state_id`/`published` pour matérialiser la mise à la corbeille (**Comportement
   déduit** du nom des plugins et de leur dépendance à `list_records`/`list_states`/
   `forms`, confirmée par leur présence dans les greps `list_records`).
 - **Suppression** : `FormModel::deleteByIds()` (`:1715`, cascade suppression
   de vue), `admin/src/Controller/StorageController.php:699` (suppression en
-  masse), `EditModel::delete()` (`:2606,2741`, suppression de
-  l'enregistrement).
+  masse), `EditModel::delete()` (`:2606`, suppression de l'enregistrement) et
+  `EditModel::change_list_states()` (`:2741`, suppression de la ligne d'état
+  de liste lors d'un changement d'état en masse).
 - **Lecture** : `site/src/Model/ListModel.php` (filtrage/affichage par état),
   `admin/tests/Unit/View/ListStatesResetTest.php` (couverture de test sur la
   réinitialisation des états liste).
@@ -790,7 +807,7 @@ vérification vue/nouveau/édition, quotas individuels.
   (`INSERT`/`UPDATE` en masse depuis l'écran liste "Utilisateurs"). Le
   compteur `records` est très probablement incrémenté lors d'une soumission
   front réussie (**Hypothèse** — cohérent avec le rôle documenté en
-  `install.sql:669`, non tracé ligne à ligne dans `EditModel::_buildQuery()`
+  `install.sql:669`, non tracé ligne à ligne dans `EditModel::store()`
   pour ce document).
 - **Suppression** : `FormModel::deleteByIds()` (`:1727`, cascade suppression
   de vue).
@@ -840,11 +857,11 @@ d'insertion exact au-delà de la ligne ci-dessous) ; `form_id` → `forms.id`.
 ### Traçabilité
 
 - **Écriture** : `site/src/Model/EditModel.php::register()`
-  (`:2295-2557`, appelée depuis `_buildQuery()`) — `INSERT`
+  (`:2295-2557`, appelée depuis `store()`) — `INSERT`
   (`:2012` — note : ligne physiquement située avant `register()` dans le
-  fichier mais dans le flux de `_buildQuery()`, cf. remarque méthodologique
-  §6) sur `#__contentbuilderng_registered_users` lors de la création d'un
-  compte Joomla associé à la soumission.
+  fichier mais dans le flux de `store()`, qui appelle `register()`, cf.
+  remarque méthodologique §6) sur `#__contentbuilderng_registered_users` lors
+  de la création d'un compte Joomla associé à la soumission.
 - **Suppression** : `FormModel::deleteByIds()` (`:1733`, cascade suppression
   de vue). Aucune suppression individuelle trouvée (cohérent avec un rôle
   d'audit/traçabilité de l'inscription, pas de gestion de cycle de vie propre).
@@ -894,7 +911,7 @@ vérification (`contentbuilderng_verify/paypal`, `/passthrough`).
 
 ### Traçabilité
 
-- **Écriture** : `site/src/Model/EditModel.php::_buildQuery()` (`:1760`,
+- **Écriture** : `site/src/Model/EditModel.php::store()` (`:1760`,
   `INSERT` lors de l'initiation d'une vérification/paiement liée à une
   soumission), `admin/src/Model/VerifyModel.php::activate_by_admin()`
   (`:469`) et `::activate()` (`:561`) / `site/src/Model/VerifyModel.php`
