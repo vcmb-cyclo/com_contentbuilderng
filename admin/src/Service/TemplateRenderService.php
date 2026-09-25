@@ -4,6 +4,7 @@ namespace CB\Component\Contentbuilderng\Administrator\Service;
 
 \defined('_JEXEC') or die;
 
+use CB\Component\Contentbuilderng\Administrator\Helper\PhpTemplateHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\TemplatePrepareHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\PackedDataHelper;
 use CB\Component\Contentbuilderng\Administrator\Helper\StorageColumnTypeHelper;
@@ -723,53 +724,12 @@ class TemplateRenderService
 
                 if (strpos($wrapperTemplate, '<?php') === 0) {
                     $value = $newValue;
-                    $code = $wrapperTemplate;
-
-                    if (function_exists('mb_strlen')) {
-                        $p1 = 0;
-                        $l = mb_strlen($code);
-                        $c = '';
-                        while ($p1 < $l) {
-                            $p2 = mb_strpos($code, '<?php', $p1);
-                            if ($p2 === false) {
-                                $p2 = $l;
-                            }
-                            $c .= mb_substr($code, $p1, $p2 - $p1);
-                            $p1 = $p2;
-                            if ($p1 < $l) {
-                                $p1 += 5;
-                                $p2 = mb_strpos($code, '?>', $p1);
-                                if ($p2 === false) {
-                                    $p2 = $l;
-                                }
-                                $c .= eval(mb_substr($code, $p1, $p2 - $p1));
-                                $p1 = $p2 + 2;
-                            }
+                    $item->$key = PhpTemplateHelper::evaluate(
+                        $wrapperTemplate,
+                        function (string $phpCode) use ($value): mixed {
+                            return eval($phpCode);
                         }
-                    } else {
-                        $p1 = 0;
-                        $l = strlen($code);
-                        $c = '';
-                        while ($p1 < $l) {
-                            $p2 = strpos($code, '<?php', $p1);
-                            if ($p2 === false) {
-                                $p2 = $l;
-                            }
-                            $c .= substr($code, $p1, $p2 - $p1);
-                            $p1 = $p2;
-                            if ($p1 < $l) {
-                                $p1 += 5;
-                                $p2 = strpos($code, '?>', $p1);
-                                if ($p2 === false) {
-                                    $p2 = $l;
-                                }
-                                $c .= eval(substr($code, $p1, $p2 - $p1));
-                                $p1 = $p2 + 2;
-                            }
-                        }
-                    }
-
-                    $item->$key = $c;
+                    );
                 } elseif ($wrapperTemplate !== '') {
                     $item->$key = str_replace('{value}', $newValue, $wrapperTemplate);
                     $item->$key = str_replace(

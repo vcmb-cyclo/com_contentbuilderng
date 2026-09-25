@@ -190,6 +190,15 @@ jobs:
           docker cp "${container}:/usr/src/joomla/libraries" joomla-stubs/libraries
           docker rm "${container}"
 
+      - name: Reject PHPStan baseline growth
+        run: |
+          baseline_max_lines=1639
+          baseline_lines="$(wc -l < phpstan-baseline.neon)"
+          if [ "${baseline_lines}" -gt "${baseline_max_lines}" ]; then
+            echo "::error::phpstan-baseline.neon grew from ${baseline_max_lines} to ${baseline_lines} lines."
+            exit 1
+          fi
+
       - name: Run PHPStan
         run: admin/vendor/bin/phpstan analyse -c phpstan.neon.dist --no-progress --error-format=github
 

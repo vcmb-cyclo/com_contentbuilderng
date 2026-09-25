@@ -135,4 +135,27 @@ final class PhpTemplateHelperTest extends TestCase
     {
         self::assertSame('hello', PhpTemplateHelper::evaluate('<?php $v = "hello"; return $v; ?>'));
     }
+
+    public function testCustomEvaluatorReceivesEachPhpBlock(): void
+    {
+        $result = PhpTemplateHelper::evaluate(
+            '<?php return "ignored"; ?>-<?php return "ignored"; ?>',
+            static function (string $phpCode): string {
+                static $calls = 0;
+                return (string) ++$calls;
+            }
+        );
+
+        self::assertSame('1-2', $result);
+    }
+
+    public function testTemplateRenderServiceDelegatesPhpWrappersToHelper(): void
+    {
+        $source = file_get_contents(dirname(__DIR__, 4) . '/admin/src/Service/TemplateRenderService.php');
+
+        self::assertIsString($source);
+        self::assertStringContainsString('PhpTemplateHelper::evaluate(', $source);
+        self::assertStringNotContainsString('$c .= eval(mb_substr($code', $source);
+        self::assertStringNotContainsString('$c .= eval(substr($code', $source);
+    }
 }

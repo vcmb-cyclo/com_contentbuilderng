@@ -115,16 +115,12 @@ résorbant la baseline à chaque cran, avec un arrêt volontaire au niveau 6 :
 « Les niveaux 7-8 exigent une couverture de typage que le code legacy
 (`types/`, `EditModel`) ne pourra pas offrir avant D et F. » Chiffrage : 1 j
 (niveau 3) + 2 j (niveau 4, détection de code mort) + 3 j (niveau 5) + 5–8 j
-(niveau 6) = 11–16 jours-homme restants. Une étape 4 — garde CI qui échoue si
-`phpstan-baseline.neon` grandit — est également prévue mais **pas encore
-implémentée** au moment de cet audit.
+(niveau 6) = 11–16 jours-homme restants. La garde CI est désormais active :
+le job PHPStan échoue si `phpstan-baseline.neon` dépasse 1 639 lignes.
 
-**Zone inconnue.** Rien dans le dépôt ne montre de garde anti-régression de
-baseline actif aujourd'hui (pas de job CI dédié trouvé référençant explicitement
-la longueur du fichier) ; seule `phpstan.neon.dist` tolère les baseline entries
-qui ne correspondent plus (`reportUnmatchedIgnoredErrors: false`), ce qui
-peut laisser croître silencieusement une baseline sans qu'un désaccord entre
-environnements (local vs CI) ne soit détecté.
+**Fait observé.** Cette garde empêche la croissance du fichier ; elle ne prouve
+pas à elle seule une réduction de la dette ni la stabilité du contenu des
+entrées à nombre de lignes égal.
 
 ---
 
@@ -136,7 +132,7 @@ l'équipe pour elle-même. Résumé chantier par chantier :
 
 | # | Chantier | Statut au 2026-08-01 | Charge restante | Risque |
 |---|---|---|---:|---|
-| A | Outillage qualité (PHPStan 2→6, PSR-12) | PSR-12 en gate global ✅ ; PHPStan niveau 2 toujours, pas de garde de baseline | 11–16 j | Faible |
+| A | Outillage qualité (PHPStan 2→6, PSR-12) | PSR-12 en gate global ✅ ; PHPStan niveau 2, garde de baseline non croissante ✅ | Étape PHPStan 3→6 à réestimer | Faible |
 | B | Échappement des sorties front (XSS) | ✅ Fait — 2 XSS stockées publiques trouvées et corrigées en cours de route | — | Faible |
 | C | Cache et requêtes N+1 | N+1 principaux résorbés ; **mise en cache de `ListModel::getData()` reportée par décision explicite** | 4–7 j | Moyen |
 | D | Décomposition d'`EditModel::store()` | Caractérisation *structurelle* seulement (pas comportementale) ; découpage non commencé | 25–30 j | **Élevé** |
@@ -285,39 +281,28 @@ marqué obsolète a pu exister puis être retiré plutôt que laissé annoté.
 > ci-dessous sont vérifiés individuellement ; d'autres existent probablement
 > ailleurs dans les 86 000 lignes du dépôt.
 
-### 4.1 Duplication confirmée — parseur `eval()` de gabarit PHP
+### 4.1 Duplication résorbée — parseur de gabarit PHP
 
-**Fait observé.** `admin/src/Helper/PhpTemplateHelper.php:23-77`
-(`PhpTemplateHelper::evaluate()`) implémente un parseur qui découpe une chaîne
-sur les marqueurs `<?php`/`?>` et `eval()` chaque segment PHP trouvé, avec une
-branche `mb_*` et une branche `strlen`/`substr` de repli. **Le même algorithme,
-caractère pour caractère identique dans sa logique**, est ré-implémenté inline
-dans `admin/src/Service/TemplateRenderService.php` (lignes ~728-770, à
-l'intérieur d'un traitement de `item_wrapper`), plutôt que d'appeler
-`PhpTemplateHelper::evaluate()` — alors que ce même service *appelle déjà*
-`PhpTemplateHelper::evaluate()` ailleurs
-(`admin/src/Service/RuntimeUtilityService.php:164` fait de même, et
-`admin/src/types/com_breezingformsng.php:1665` /
-`admin/src/types/com_contentbuilderng.php:1116` aussi).
+**Fait observé.** `PhpTemplateHelper::evaluate()` centralise le découpage des
+blocs `<?php`/`?>`, avec les branches `mb_*` et `strlen`/`substr`.
+`TemplateRenderService` lui délègue désormais le traitement de `item_wrapper`
+et lui fournit un évaluateur qui préserve la variable `$value` attendue par les
+wrappers existants.
 
-**Comportement déduit.** Trois sites d'appel utilisent le helper factorisé
-(`RuntimeUtilityService`, les deux fichiers `types/`), un quatrième
-(`TemplateRenderService`, dans le traitement des wrappers d'éléments) porte
-une copie locale de la même logique. Une correction future du parseur (gestion
-d'un cas limite, sécurisation) appliquée à `PhpTemplateHelper::evaluate()`
-sans toucher à la copie de `TemplateRenderService.php` laisserait ce site en
-désaccord silencieux avec les trois autres.
+**État.** La copie locale du parseur a été supprimée. Les tests de
+`PhpTemplateHelper` couvrent l'évaluateur fourni et vérifient que
+`TemplateRenderService` délègue bien au helper.
 
 ### 4.2 `eval()` — inventaire complet
 
-**Fait observé.** Huit appels à `eval()` en dehors des tests, répartis dans
-quatre fichiers :
+**Fait observé.** Sept appels à `eval()` en dehors des tests, répartis dans
+trois fichiers :
 
 | Fichier:ligne | Contexte |
 |---|---|
-| `admin/src/Helper/PhpTemplateHelper.php:48,71` | Parseur factorisé `<?php…?>` inline |
-| `admin/src/Service/TemplateRenderService.php:745,766` | Copie dupliquée du même parseur (§4.1) |
-| `admin/src/Service/TemplateRenderService.php:1004,1335` | `eval($prepareCode)` sur `details_prepare`/`editable_prepare` — le point RCE documenté par le chantier H |
+| `admin/src/Helper/PhpTemplateHelper.php:49,73` | Parseur factorisé `<?php…?>` inline |
+| `admin/src/Service/TemplateRenderService.php:730,964,1295` | Évaluateur du wrapper et `eval($prepareCode)` sur `details_prepare`/`editable_prepare` |
+| `site/src/Model/EditModel.php:756,763` | `eval($code)` pour les scripts de validation et d'action configurés sur les champs |
 | `site/src/Model/EditModel.php:756,763` | `eval($code)` pour les scripts de validation et d'action configurés sur les champs |
 
 **Comportement déduit.** Le risque n'est pas un point isolé : il couvre le
@@ -622,16 +607,15 @@ reste substantielle.
 | Impact | Élément de dette | Référence | État |
 |---|---|---|---|
 | **Élevé** | `EditModel::store()` (~1 300 lignes), non testée comportementalement, hors gate PSR-12 | `site/src/Model/EditModel.php:767` ; `REFACTORING_PLAN.md` chantier D | Caractérisation structurelle seulement ; découpage non commencé |
-| **Élevé** | Exécution de PHP configurable en base (`details_prepare`/`editable_prepare`, wrapper d'éléments, scripts de validation/action) — risque conditionné par les ACL d'écriture | `admin/forms/form.xml:127,147` ; `TemplateRenderService.php:1004,1335` ; `EditModel.php:756,763` ; `REFACTORING_PLAN.md` chantier H | Risque accepté par décision de direction documentée ; non planifié |
+| **Élevé** | Exécution de PHP configurable en base (`details_prepare`/`editable_prepare`, wrapper d'éléments, scripts de validation/action) — risque conditionné par les ACL d'écriture | `admin/forms/form.xml:127,147` ; `TemplateRenderService.php:730,964,1295` ; `EditModel.php:756,763` ; `REFACTORING_PLAN.md` chantier H | Risque accepté par décision de direction documentée ; non planifié |
 | **Élevé** | `admin/src/types/*.php` : namespace hors convention, chargements et appels dynamiques ; SQL brut renvoyé par contrat | `REFACTORING_PLAN.md` chantier F ; confirmé §5.1 | Risque de chemin dynamique à qualifier par une revue ACL/normalisation ; découpage non commencé |
 | Moyen | 108 méthodes > 100 lignes / 301 > 50 lignes (god-methods) hors `EditModel::store()` | `REFACTORING_PLAN.md` chantier E ; §5.4 | Non commencé |
 | Moyen | Cache absent sur `ListModel::getData()` (chemin le plus chaud), report volontairement documenté | `REFACTORING_PLAN.md` chantier C | Reporté, risque identifié et évité consciemment |
 | Moyen | Modèle de permission dépendant d'un état de session | `REFACTORING_PLAN.md` chantier G | Non commencé |
 | Moyen | Opérations DDL/multi-tables sans mécanisme explicite de compensation | `REFACTORING_PLAN.md` chantier J | À traiter par compensation ; une transaction seule ne couvre pas le DDL MySQL/MariaDB |
 | Moyen | `script.php` : façade de 96 méthodes malgré une délégation partielle à quatre services | §8 | Structurel, propre au format script Joomla |
-| Moyen | Duplication du parseur `eval()` de gabarit entre `PhpTemplateHelper` et `TemplateRenderService` | §4.1 | Non signalée par les documents internes consultés |
-| Faible | `phpstan-baseline.neon` : 1 639 lignes, niveau 2/10, pas encore de garde anti-régression | §1 ; `REFACTORING_PLAN.md` chantier A | Plan chiffré (11–16 j), en cours |
-| Faible | `set_error_handler()` vide global dans le plugin Image Scale | `ContentbuilderngImageScale.php:30-31` ; `REFACTORING_PLAN.md` chantier I | Masque les erreurs prises en charge dans les requêtes où le plugin est chargé |
+| Moyen | Duplication du parseur de gabarits résorbée : `TemplateRenderService` délègue désormais à `PhpTemplateHelper` | §4.1 | Tests ciblés ajoutés |
+| Faible | `phpstan-baseline.neon` : 1 639 lignes, niveau 2/10, garde anti-croissance active | §1 ; `REFACTORING_PLAN.md` chantier A | Le plafond CI doit diminuer avec chaque réduction de baseline |
 | Faible | Marqueurs `TODO`/`hack`/`workaround` inline | §3 | Ponctuel, peu nombreux |
 | Faible | Évolutions et rattrapages de schéma historiques | §6 | À distinguer des défauts avérés ; une évolution fonctionnelle n'est pas une dette par elle-même |
 

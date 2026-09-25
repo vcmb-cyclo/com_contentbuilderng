@@ -8,10 +8,10 @@
 > `node_modules`), 1 524 méthodes, 689 tests unitaires, PHPStan niveau 2 avec
 > baseline de 1 639 lignes, 2 377 erreurs PSR-12.
 >
-> **État au 2026-08-01** : chantier A, étapes 1-2 faites (PSR-12 en gate
-> global, 0 erreur sur les 218 fichiers couverts par `phpcs.xml.dist`) ;
-> étapes 3-4 restent entières (PHPStan est toujours au niveau 2, aucun garde
-> anti-régression de baseline). Chantier B fait entièrement, deux XSS
+> **État mis à jour au 2026-09-25** : chantier A, étapes 1-2 faites (PSR-12
+> en gate global, 0 erreur sur les 218 fichiers couverts par `phpcs.xml.dist`)
+> et étape 4 faite (CI : la baseline PHPStan ne peut pas dépasser 1 639 lignes).
+> L’étape 3 reste à faire : PHPStan est toujours au niveau 2. Chantier B fait entièrement, deux XSS
 > stockées publiques trouvées et corrigées au passage (non citées par
 > l'audit du 2026-07-31). Chantier C : N+1 et group_concat faits (étapes
 > 3-5) ; la mise en cache de `ListModel::getData()` (étapes 1-2) est
@@ -134,12 +134,13 @@ fichiers modifiés d'une PR, ce qui empêche la dette de croître sans la résor
    S'arrêter à 6. Les niveaux 7-8 exigent une couverture de typage que le
    code legacy (`types/`, `EditModel`) ne pourra pas offrir avant D et F.
 
-4. **Ajouter un garde anti-régression de baseline — pas commencé.** En CI :
-   échouer si le nombre de lignes de `phpstan-baseline.neon` augmente.
+4. **Ajouter un garde anti-régression de baseline — ✅ fait.** Le job PHPStan
+   échoue si `phpstan-baseline.neon` dépasse son plafond actuel de 1 639 lignes.
+   Abaisser ce plafond dans le même commit que toute réduction de baseline.
 
-**Livrable.** PSR-12 vérifié en gate global ✅ (2026-08-01), PHPStan niveau 6
-❌, baseline strictement décroissante ❌. Charge restante : 11 – 16 j
-(étapes 3-4 seules).
+**Livrable.** PSR-12 vérifié en gate global ✅ (2026-08-01), garde de baseline
+non croissante ✅ (2026-09-25), PHPStan niveau 6 ❌. La charge restante concerne
+l'étape 3 ; son estimation devra être révisée hors du présent correctif.
 
 ---
 

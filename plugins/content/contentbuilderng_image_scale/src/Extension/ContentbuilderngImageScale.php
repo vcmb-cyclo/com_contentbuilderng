@@ -27,20 +27,6 @@ use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 
-set_error_handler(__NAMESPACE__ . '\\myErrorHandler');
-register_shutdown_function(__NAMESPACE__ . '\\fatalErrorShutdownHandler');
-function myErrorHandler($code, $message, $file, $line)
-{
-	// nothing
-}
-function fatalErrorShutdownHandler()
-{
-	$last_error = error_get_last();
-	if ($last_error['type'] === E_ERROR) {
-		// fatal error
-		myErrorHandler(E_ERROR, $last_error['message'], $last_error['file'], $last_error['line']);
-	}
-}
 
 // some hosting providers think it is a good idea not to compile in exif with php...
 if (!function_exists('exif_imagetype')) {

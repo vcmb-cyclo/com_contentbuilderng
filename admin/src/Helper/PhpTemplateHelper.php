@@ -20,7 +20,7 @@ class PhpTemplateHelper
      * Evaluate inline <?php ... ?> blocks in a string and return the result.
      * If the string does not start with <?php, it is returned unchanged.
      */
-    public static function evaluate(string $result): string
+    public static function evaluate(string $result, ?callable $phpEvaluator = null): string
     {
         if (strpos(trim($result), '<?php') !== 0) {
             return $result;
@@ -45,7 +45,8 @@ class PhpTemplateHelper
                     if ($p2 === false) {
                         $p2 = $l;
                     }
-                    $c  .= eval(mb_substr($code, $p1, $p2 - $p1));
+                    $phpCode = mb_substr($code, $p1, $p2 - $p1);
+                    $c  .= $phpEvaluator === null ? eval($phpCode) : $phpEvaluator($phpCode);
                     $p1  = $p2 + 2;
                 }
             }
@@ -68,7 +69,8 @@ class PhpTemplateHelper
                 if ($p2 === false) {
                     $p2 = $l;
                 }
-                $c  .= eval(substr($code, $p1, $p2 - $p1));
+                $phpCode = substr($code, $p1, $p2 - $p1);
+                $c  .= $phpEvaluator === null ? eval($phpCode) : $phpEvaluator($phpCode);
                 $p1  = $p2 + 2;
             }
         }
