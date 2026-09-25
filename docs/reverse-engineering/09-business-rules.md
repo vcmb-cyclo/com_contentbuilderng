@@ -817,26 +817,10 @@ direct » accorde, pour **tous** les enregistrements du storage (portée
 « record-agnostic », `record_ids: null`, §CONTEXT_KEY) : `view`, `new`,
 `edit`, `listaccess` (et `stats` pour les groupes), mais **jamais**
 `delete`, `publish`, `state`, `rating`, `api`, `fullarticle`, `language` —
-ces actions restent soumises au calcul normal (potentiellement refusées,
-`published=false` par défaut sur la portée preview vide côté « publié »
-puisque cette méthode ne fixe même pas `published` — **Zone inconnue** :
-`setStoragePreviewPermissions()` ne définit pas explicitement `permissions['published']`,
-qui reste donc absent du tableau ; `checkPermissions()` lirait alors
-`$permissions['published'] ?? false` → `false` → **refus systématique**
-pour toute action passant par ce chemin, y compris `view`/`new`/`edit`
-listés ci-dessus. **Point à vérifier en priorité** : soit un autre code
-positionne `published` ailleurs avant l'appel, soit ce mode de preview est
-en réalité plus restrictif que son intention documentée dans le code —
-signalé comme incohérence potentielle plutôt qu'affirmé).
-
-**Conséquence si l'hypothèse se confirme** : le lien « Preview » de
-l'onglet Data d'un storage (§16 du brouillon admin, déjà signalé comme
-zone d'incertitude côté résolution de modèle `EditModel` admin) pourrait
-échouer non seulement pour l'absence de classe `EditModel` admin, mais
-aussi, indépendamment, pour un refus de permission si ce chemin était un
-jour corrigé sans que `published` soit également posé — à traiter comme
-un seul point de vérification manuelle groupé plutôt que deux anomalies
-séparées.
+ces actions ne sont pas accordées par cette méthode. Elle fixe explicitement
+la clé `published` à `true` (`PermissionService.php:641`) : le contrôle
+initial de `checkPermissions()` sur cette clé ne refuse donc pas, à lui seul,
+les actions `view`/`new`/`edit`/`listaccess` accordées par la prévisualisation.
 
 ### 6.6 `{CBList actions=}` (mode embarqué) — restriction stricte, jamais d'extension de droits
 

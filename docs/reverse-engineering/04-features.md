@@ -792,10 +792,11 @@ synchronisé, avertissements cumulables via `getLastSyncWarnings()`.
 **Gestion des erreurs** : `\Throwable` capturé, redirection avec
 `safeErrorMessage()`.
 
-**Permissions/ACL** : aucune vérification `authorise()` explicite dans ce
-contrôleur — **Comportement déduit** : protégé indirectement par le jeton
-CSRF (`checkToken()`) et l'accès à l'écran Storage qui l'initie ; **Zone
-inconnue** : accès direct par URL non testé en conditions réelles.
+**Permissions/ACL** : `ComponentAccessTrait::execute()` exige `core.manage`
+sur `com_contentbuilderng` avant les deux tâches, puis chaque méthode
+appelle `checkToken()`. Aucun contrôle spécifique `core.edit` n'est présent
+pour ces opérations DDL ; un accès direct à la tâche conserve donc le
+garde-fou `core.manage`, sans reprendre le contrôle plus fin de l'écran Storage.
 
 **Effets de bord** : identiques à `StorageModel::syncStorageDataTableOrBytable()`
 (fonctionnalité 6), via un service dédié séparé (`DatatableService`, 749

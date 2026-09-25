@@ -111,6 +111,13 @@ d'une méthode sans appel explicite, contrairement au trait qui protège
 - `admin/src/Controller/AboutController.php:124, 766, 812, 843, 923`
   (`core.manage` avant audit, log, export, import).
 
+**Fait observé — tâches Datatable** : `DatatableController` utilise
+`ComponentAccessTrait`, donc `core.manage` est vérifié dans `execute()` avant
+`create()` et `sync()`. Ces deux méthodes contrôlent ensuite le jeton CSRF,
+mais n'ajoutent pas de vérification `core.edit` propre aux opérations DDL.
+Le caractère suffisant de `core.manage` pour ces opérations reste à confirmer
+avec la politique ACL souhaitée.
+
 **Fait observé — CSRF systématique côté back-office** : chaque tâche de
 mutation appelle `$this->checkToken()` avant tout traitement — repéré dans
 `FormController.php` (25 occurrences), `StorageController.php` (16),

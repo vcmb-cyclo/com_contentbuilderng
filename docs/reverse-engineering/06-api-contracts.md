@@ -148,8 +148,8 @@ absence de contrôle, comportement notable) sont signalées.
 | `storage.ajax_update_field_required` | **AJAX** POST | `:1450-1526` | Voir §4.3 |
 | `storage.ajax_update_field_title` | **AJAX** POST | `:1532-1559` | Voir §4.3 |
 | `storagefield.add` | POST | `admin/src/Controller/StoragefieldController.php:65-118` | Soumission classique, **pas** d'`authorise()` séparé observé (porté par l'écran Storage parent) |
-| `datatable.create` | POST | `admin/src/Controller/DatatableController.php:60-104` | **Fait observé** : `checkToken()` seul — **aucun** `authorise()` explicite dans ce contrôleur (à comparer avec `07-security.md`, non signalé séparément là-bas — **Zone inconnue** à faire remonter) |
-| `datatable.sync` | POST | `DatatableController.php:106-148` | Idem — pas d'ACL explicite dans le contrôleur |
+| `datatable.create` | POST | `admin/src/Controller/DatatableController.php:60-104` | `ComponentAccessTrait::execute()` exige `core.manage` ; `create()` vérifie le jeton CSRF, sans contrôle `core.edit` propre à cette opération DDL. |
+| `datatable.sync` | POST | `DatatableController.php:106-148` | Même contrôle `core.manage` et jeton CSRF ; pas de contrôle `core.edit` propre à la synchronisation. |
 
 ### 2.2 `FormController` / `FormsController`
 
@@ -861,12 +861,11 @@ complément ou en correction des brouillons sources) :
 revérifiées ligne à ligne dans le cadre de cette mission documentaire —
 budget de lecture concentré sur les endpoints/contrats eux-mêmes) :
 
-1. **`DatatableController::create()`/`sync()`** — `checkToken()` seul,
-   **aucun** `authorise()` explicite observé dans ce contrôleur (§2.1) ;
-   à comparer avec le reste des contrôleurs admin qui vérifient
-   systématiquement l'ACL Joomla en plus du jeton CSRF — à confirmer si
-   l'ACL est portée ailleurs dans la chaîne d'appel (ex. `DatatableService`)
-   ou s'il s'agit d'une omission.
+1. **`DatatableController::create()`/`sync()`** — le trait
+   `ComponentAccessTrait` impose `core.manage` avant chaque tâche, en plus
+   du jeton CSRF (§2.1). Aucun contrôle spécifique `core.edit` n'est présent
+   pour ces opérations DDL ; vérifier si `core.manage` seul correspond à
+   la politique ACL souhaitée pour la création et la synchronisation.
 2. **`onAfterArticleCreation`** (§5.3) — point d'import exact non localisé
    avec certitude (groupe entier vs. plugins déjà importés pour d'autres
    raisons dans la requête courante).

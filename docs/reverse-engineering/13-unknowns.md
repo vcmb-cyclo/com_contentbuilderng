@@ -40,15 +40,15 @@
 Les points ci-dessous reviennent dans plusieurs documents et/ou portent sur
 un comportement visible en production (écran, bouton, export, contrôle
 d'accès). Ils sont classés par gravité perçue décroissante, pas par ordre de
-citation.
+citation. Le numéro 5, invalidé par lecture du code, reste vacant pour
+préserver les renvois vers les autres points.
 
 | # | Sujet | Gravité | Documents source | Action recommandée |
 |---|---|---|---|---|
-| 1 | **`Administrator\Model\EditModel` introuvable** — l'écran admin `view=edit` (lien « Preview » de l'onglet Data Storage) importe une classe absente du dépôt (`admin/src/View/Edit/HtmlView.php:269-270` importe `Administrator\Model\EditModel`, seule `site/src/Model/EditModel.php` existe). Le lien « Preview » généré par `admin/src/View/Storage/HtmlView.php:426` échouerait donc probablement à l'exécution. | **Élevé** | `02-architecture.md` §2 ; `04-features.md` #36 ; `09-business-rules.md` §6.5 ; `14-traceability.md` #36 | Tester manuellement en environnement Joomla réel le clic sur « Preview » depuis l'onglet Data d'un storage ; si l'erreur se confirme, créer/rétablir la classe manquante ou retirer le lien. |
+| 1 | **`Administrator\Model\EditModel` introuvable** — l'écran admin `view=edit` (lien « Preview » de l'onglet Data Storage) importe une classe absente du dépôt (`admin/src/View/Edit/HtmlView.php:269-270` importe `Administrator\Model\EditModel`, seule `site/src/Model/EditModel.php` existe). Le lien « Preview » généré par `admin/src/View/Storage/HtmlView.php:426` échouerait donc probablement à l'exécution. | **Élevé** | `02-architecture.md` §2 ; `04-features.md` #36 ; `14-traceability.md` #36 | Tester manuellement en environnement Joomla réel le clic sur « Preview » depuis l'onglet Data d'un storage ; si l'erreur se confirme, créer/rétablir la classe manquante ou retirer le lien. |
 | 2 | **`DELETE FROM #__contentbuilderng_articles` sans clause `WHERE`** dans `FormModel::deleteByIds()` (`admin/src/Model/FormModel.php:1785-1788`), déclenché quand la liste des `form_id` restants après une suppression de vue(s) est vide. | **Élevé** | `03-data-model.md` §19 ; `04-features.md`, Contradictions #4 ; `05-user-flows.md` §6.4 | Relire l'intégralité des appelants de `deleteByIds()` pour confirmer que ce cas ne se produit que lors de la suppression de **toutes** les vues à la fois (purge totale légitime) ; ajouter un test de non-régression ciblé avant toute modification de cette zone. |
-| 3 | **`DatatableController::create()`/`sync()` sans `authorise()` explicite** — seul `checkToken()` protège ces deux tâches DDL (`admin/src/Controller/DatatableController.php:60-104, 106-148`), à la différence de la quasi-totalité des autres contrôleurs admin. `06-api-contracts.md` signale lui-même que cette absence n'est **pas** reprise séparément dans `07-security.md`. | **Élevé** | `06-api-contracts.md` §2.1 et §8 (point 1) ; `05-user-flows.md` §15.4 ; `14-traceability.md` #9 | Vérifier si l'ACL est portée plus haut dans la chaîne d'appel (`DatatableService`, écran parent) ; sinon, traiter comme un contrôle d'accès manquant à corriger. Documenter le résultat dans `07-security.md` pour lever la divergence entre les deux documents. |
+| 3 | **`DatatableController::create()`/`sync()` : `core.manage` sans contrôle `core.edit`** — `ComponentAccessTrait::execute()` exige `core.manage` avant ces deux tâches DDL, puis chacune vérifie le jeton CSRF. Aucun contrôle spécifique `core.edit` n'est présent dans le contrôleur. | **Élevé (à confirmer selon la politique ACL)** | `06-api-contracts.md` §2.1 et §8 (point 1) ; `05-user-flows.md` §15.4 ; `07-security.md` §1.2 ; `14-traceability.md` #9 | Déterminer si `core.manage` suffit pour créer et synchroniser les tables. Si `core.edit` est requis pour modifier un storage, ajouter ce contrôle aux deux tâches et couvrir un appel direct par un test ciblé. |
 | 4 | **`ExportController`/`ExportModel` (export Excel front, `view=export`) ne rejoue pas le contrôle `listaccess`** appliqué par `ListController::display()` pour la même donnée en liste — l'accès **direct** à l'URL d'export d'une vue publiée semble contourner une restriction `List Access` par groupe. | **Élevé** | `07-security.md` §1.3 et §11 (point 2) ; `04-features.md`, Contradictions #7 ; `09-business-rules.md` §8.7 | Tester en environnement Joomla réel l'accès direct à `view=export&id=<id>` sur une vue dont `listaccess` est restreint par groupe, avec un utilisateur non autorisé. Si confirmé, ajouter l'appel `PermissionService::checkPermissions('listaccess', ...)`/`authorizeFe()` manquant dans `ExportController`/`ExportModel`. |
-| 5 | **`PermissionService::setStoragePreviewPermissions()` ne positionne jamais la clé `permissions['published']`** (`admin/src/Service/PermissionService.php:628-674`) — si `checkPermissions()` lit `$permissions['published'] ?? false`, le mode « prévisualisation storage direct » pourrait refuser **systématiquement** toute action (`view`/`new`/`edit`/`listaccess`) malgré son intention documentée de les accorder largement. | **Élevé** | `09-business-rules.md` §6.5 (« Point à vérifier en priorité ») | Relire `checkPermissions()` pour confirmer si `published` est positionné ailleurs avant l'appel ; sinon, corriger `setStoragePreviewPermissions()`. **`09-business-rules.md` demande explicitement de traiter ce point et le point #1 (EditModel admin absent) comme une seule vérification manuelle groupée** plutôt que deux anomalies séparées, car les deux affectent le même chemin (« Preview » storage). |
 | 6 | **Double fichier `Dispatcher.php` sous `site/src/`** — `site/src/Dispatcher/Dispatcher.php` (le vrai dispatcher PSR-4, chargé par Joomla) coexiste avec `site/src/Controller/Dispatcher.php` (corps plus simple/ancien, aucune référence trouvée ailleurs dans le dépôt) — code mort probable. | **Moyen** | `02-architecture.md` §2 ; `04-features.md` #35 ; `06-api-contracts.md` §3 ; `14-traceability.md` #35 | Confirmer avec Gilles qu'il s'agit d'un oubli de nettoyage (réorganisation antérieure vers `Dispatcher/`) plutôt que d'un filet de sécurité volontaire ; si confirmé mort, supprimer le fichier. |
 | 7 | **Incohérence de version entre `AGENTS.md` (branche `gil_6.1.16`, `6.1.15` publiée) et l'historique Git** — celui-ci montre des versions déjà publiées jusqu'à `6.1.20` et un cycle `6.2.0` entamé (`095346d Start 6.2.0 development...`). | **Moyen** (dette documentaire de méta-niveau, pas de code) | `12-technical-debt.md` §7 ; `AGENTS.md` (racine du dépôt) | Demander confirmation à Gilles : soit `AGENTS.md` doit être mis à jour avec la version de développement réelle, soit l'environnement d'analyse expose un état différent de celui attendu — à trancher avant toute nouvelle instruction de branche donnée à un agent. |
 | 8 | **`default_category` obligatoire uniquement côté client** (JS, `admin/layouts/form/article_tab.php:262-334`) quand `create_articles=1` — aucune revalidation serveur confirmée dans `FormController::save()`/`FormModel::save()`, ce qui pourrait permettre un article généré avec `catid=0` (catégorie Joomla invalide) via un client HTTP direct ou un import de configuration incomplet. | **Moyen** | `09-business-rules.md` §5.7 ; `06-api-contracts.md` §8 (point 6) ; `05-user-flows.md` §12.5 ; `04-features.md`, Contradictions (renvoi #11) | Vérifier en environnement réel la conséquence d'un `default_category=0` posté directement ; ajouter une revalidation serveur dans `FormModel::save()`/`ArticleService::createArticle()` si le risque se confirme en production. |
@@ -145,7 +145,7 @@ Action : documenter explicitement ce comportement pour toute procédure
 RGPD/désinstallation complète ; tester une collision de nom en environnement
 de test si le cas est jugé plausible.
 
-**18. Rapprochement migrations ↔ `install.sql` limité aux 19 fichiers présents
+**18. Rapprochement migrations ↔ `install.sql` limité aux 17 fichiers présents
 dans le dépôt** — la cohérence n'est garantie que pour ces versions ; les
 mises à jour depuis une version antérieure à `6.1.7` sont hors périmètre de
 vérification.
@@ -547,11 +547,13 @@ s'agit d'une délégation interne ou d'une vraie duplication à factoriser.
 
 ## API et contrats externes
 
-**53. `DatatableController::create()`/`sync()` sans `authorise()` explicite.**
+**53. `DatatableController::create()`/`sync()` sans contrôle `core.edit` spécifique.**
 Voir priorité #3 ci-dessus (repris ici pour la cohérence thématique).
-Document(s) : `06-api-contracts.md` §2.1, §8 (point 1).
-Niveau : **Contradiction non tranchée entre deux documents** (`06` signale
-explicitement que ce point n'est pas repris par `07-security.md`).
+Document(s) : `06-api-contracts.md` §2.1, §8 (point 1) ;
+`07-security.md` §1.2.
+Niveau : **Fait observé** (`core.manage` via `ComponentAccessTrait` et
+`checkToken()` dans les méthodes) + **Zone inconnue** (nécessité d'un
+contrôle `core.edit` supplémentaire selon la politique ACL souhaitée).
 
 **54. `StoragesController::copy()` — comportement exact vis-à-vis de la
 table physique non tracé en détail.**

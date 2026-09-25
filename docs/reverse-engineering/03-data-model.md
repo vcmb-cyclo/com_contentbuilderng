@@ -14,7 +14,7 @@
 >   ou dette technique à signaler.
 >
 > Le schéma "état final" documenté ici est **`admin/sql/install.sql`** (utilisé
-> tel quel pour toute nouvelle installation). Les 19 fichiers de
+> tel quel pour toute nouvelle installation). Les 17 fichiers de
 > `admin/sql/updates/mysql/` ont été lus intégralement (§1) : chacun d'eux est
 > soit un simple marqueur de version dans `#__schemas` (aucun changement de
 > schéma), soit un `ALTER TABLE` dont le résultat final est déjà présent dans
@@ -59,7 +59,7 @@
 - `admin/sql/uninstall.sql` (13 lignes) : 13 `DROP TABLE IF EXISTS`, un par
   table — parité exacte avec les 13 `CREATE TABLE` d'`install.sql` (aucune
   table orpheline).
-- `admin/sql/updates/mysql/*.sql` (19 fichiers, voir §1) : migrations
+- `admin/sql/updates/mysql/*.sql` (17 fichiers, voir §1) : migrations
   incrémentales appliquées par le moteur Joomla lors d'une mise à jour, sur la
   base de `#__schemas`.
 
@@ -87,7 +87,7 @@ Ceci est cohérent avec l'énoncé de la mission (6 fichiers `Table` en
 
 ## 1. Vue d'ensemble du schéma versionné
 
-### 1.1 Chronologie des 19 fichiers de migration
+### 1.1 Chronologie des 17 fichiers de migration
 
 **Fait observé** — contenu intégral lu, classé par ordre chronologique de
 version (le nom de fichier suit le numéro de version du composant, pas un
@@ -135,7 +135,7 @@ migré**. La seule nuance (`field_size`) est un choix assumé et documenté dans
 le code (pas une incohérence) : voir §1.1.
 
 **Zone inconnue / à vérifier** : cette cohérence n'est garantie que pour les
-19 migrations *présentes* dans le dépôt. Elle suppose que `#__schemas`
+17 migrations *présentes* dans le dépôt. Elle suppose que `#__schemas`
 contient bien, pour chaque installation en production, toutes les versions
 intermédiaires listées — une mise à jour qui aurait sauté des versions très
 anciennes (antérieures à `6.1.7`) n'a pas été vérifiée ici (hors périmètre :
@@ -1321,7 +1321,7 @@ erDiagram
   (taille disque cumulée après désinstallations répétées en environnement de
   test, collisions de nom si un storage réutilise un nom déjà employé par une
   ancienne table orpheline) n'ont pas été explorées ici.
-- **Rapprochement migrations ↔ `install.sql` limité aux 19 fichiers présents** :
+- **Rapprochement migrations ↔ `install.sql` limité aux 17 fichiers présents** :
   voir la réserve exprimée en §1.2 (versions antérieures à `6.1.7` hors
   périmètre du dossier `admin/sql/updates/mysql/`).
 - **Traçabilité "lecture" exhaustive non garantie à 100 %** : ce document cite

@@ -849,13 +849,14 @@ séquences d'exécution ; le contrat (paramètres, format de réponse) est dans
 
 ### 15.4 ACL Joomla native (back-office) (référence `07-security.md §1.2`)
 
-1. Toute action `admin/src/Controller/*Controller.php` s'appuie sur
-   `AdminController`/`AdminModel` natifs → `authorise('core.manage'|'core.edit'|'core.create'|'core.delete', 'com_contentbuilderng')`
-   (déclaré dans `admin/access.xml`).
-2. Certains contrôleurs vérifient explicitement (`checkExistingTableColumns()`,
-   `deleteRecord()`, tâches `titleset.*`, `about.*`) ; d'autres s'appuient
-   implicitement sur le CSRF token + l'accès à l'écran qui les initie
-   (`DatatableController`, **Zone inconnue** signalée en `04-features.md` #9).
+1. `ComponentAccessTrait::execute()` impose `core.manage` sur
+   `com_contentbuilderng` aux contrôleurs qui l'utilisent avant chaque tâche
+   (`07-security.md` §1.2). `TitlesetController` applique ce contrôle dans
+   ses méthodes.
+2. Certaines tâches ajoutent un contrôle plus fin (`core.edit`,
+   `core.edit.state`, etc.). `DatatableController::create()`/`sync()`
+   vérifient le jeton CSRF et héritent du contrôle `core.manage`, mais
+   ne vérifient pas `core.edit` pour ces opérations DDL (`04-features.md` #9).
 
 ### 15.5 Storage direct auto-provisionné — profils de droits (référence `04-features.md` #16, `09-business-rules.md §6.7`)
 
