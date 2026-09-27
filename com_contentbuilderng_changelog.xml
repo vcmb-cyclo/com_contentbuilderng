@@ -3,6 +3,14 @@
     <changelog>
         <element>com_contentbuilderng</element>
         <type>component</type>
+        <version>6.1.21-RC2</version>
+        <fix>
+            <item>Place the Joomla list menu's Excel export option directly above the XLS export filename option.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
         <version>6.1.21-RC1</version>
         <fix>
             <item>Preserve Card grid widths when JCE wraps CBStats or CBList tags in span elements.</item>

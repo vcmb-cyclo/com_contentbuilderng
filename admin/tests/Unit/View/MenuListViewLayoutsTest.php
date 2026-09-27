@@ -208,7 +208,6 @@ final class MenuListViewLayoutsTest extends TestCase
         self::assertStringContainsString("\$displayHtml = '<div class=\"cb-menu-native-display-fields\">'", $fieldSource);
 
         $displayMarkers = [
-            "'action.export'",
             'data-cb-native-field-slot="cb_show_details_back_button"',
             "'action.rating'",
             'data-cb-native-field-slot="cb_show_details_top_bar"',
@@ -217,6 +216,8 @@ final class MenuListViewLayoutsTest extends TestCase
             'data-cb-native-field-slot="cb_show_top_bar"',
             'data-cb-native-field-slot="cb_show_bottom_bar"',
             "'editListButton'",
+            "'action.export'",
+            "'exportFilenameMode'",
         ];
         $offset = strpos($fieldSource, '$displayHtml =');
         self::assertNotFalse($offset);
