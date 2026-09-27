@@ -6,12 +6,12 @@
 		<element>com_contentbuilderng</element>
 		<type>component</type>
 		<client>1</client>
-		<version>6.1.20</version>
+		<version>6.1.21</version>
 		<infourl title="ContentBuilder NG">https://breezingforms-ng.vcmb.fr/</infourl>
 		<changelogurl>https://raw.githubusercontent.com/vcmb-cyclo/com_contentbuilderng/main/com_contentbuilderng_changelog.xml</changelogurl>
 		<downloads>
-			<downloadurl type="full" format="zip">https://github.com/vcmb-cyclo/com_contentbuilderng/releases/download/v6.1.20/com_contentbuilderng-6.1.20.zip</downloadurl>
-		<sha256>e08e96e7e85f102cd64bf1278060b1102ef92a13998ba229981a767c7014e7c9</sha256>
+			<downloadurl type="full" format="zip">https://github.com/vcmb-cyclo/com_contentbuilderng/releases/download/v6.1.21/com_contentbuilderng-6.1.21.zip</downloadurl>
+		<sha256>8af40186bde00c4281be90aa160cfff57a4d29eae60debfb7dbc316cd0707b29</sha256>
 		</downloads>
 		<tags>
 			<tag>stable</tag>
