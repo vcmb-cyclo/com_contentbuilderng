@@ -86,6 +86,32 @@
   repository's `AGENTS.md` before the translation skill, Joomla conventions and
   upstream wording. Preserve keys and placeholders.
 
+## Changelogs and release notes
+- Treat the public changelog as documentation for ContentBuilder NG users and
+  Joomla administrators, not as a development or release-process log.
+- Before writing a final stable-version entry, review the complete diff and
+  commit history from the previous stable tag to the candidate commit. Aggregate
+  every validated RC and every change merged directly during the release cycle;
+  never derive the final entry only from the version-bump commit or release PR.
+- Write concise plain-English entries that describe the observable problem fixed,
+  behavior changed, security impact, or administrator benefit. Avoid internal
+  class names, implementation details and dependency names unless an
+  administrator must act on them.
+- Use clear public categories such as `Fixed`, `Changed` and `Security`.
+- Exclude RC promotion, branch/commit/PR mechanics, version synchronization,
+  CI-only changes, development dependencies and internal documentation from the
+  public notes. A production dependency update may be mentioned through its
+  concrete user or administrator benefit.
+- Keep `CHANGELOG.md`, `com_contentbuilderng_changelog.xml`, the release PR and
+  the GitHub release notes semantically aligned. Rewrite automatically generated
+  GitHub notes before publication; do not publish a raw commit or PR list as the
+  final changelog.
+- Never use generic final-release entries such as "Promote the validated release
+  candidate fixes" or "Synchronize all shipped plugin versions". Name each
+  delivered functional correction explicitly.
+- Do not claim that the published changelog is updated until the change is merged
+  into `main` and the GitHub release text has been read back and verified.
+
 ## Output
 - Return final code directly when coding is requested.
 - Keep explanations concise.
