@@ -3,6 +3,15 @@
     <changelog>
         <element>com_contentbuilderng</element>
         <type>component</type>
+        <version>6.1.21</version>
+        <fix>
+            <item>Promote the validated release candidate fixes for Card grid wrappers and Joomla list menu export controls.</item>
+            <item>Synchronize the component assets and all 17 shipped plugin versions.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
         <version>6.1.21-RC3</version>
         <fix>
             <item>Align the Excel export, XLS export filename mode and conditional custom filename controls on one responsive row in Joomla list menu options.</item>

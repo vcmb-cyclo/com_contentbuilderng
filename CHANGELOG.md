@@ -1,5 +1,10 @@
 # Changelog
 
+## 6.1.21 — 2026-09-27
+
+- Promote the validated release candidate fixes for Card grid wrappers and Joomla list menu export controls.
+- Synchronize the component assets and all 17 shipped plugin versions.
+
 ## 6.1.21-RC3 — 2026-09-27
 
 - Align the Excel export, XLS export filename mode and conditional custom filename controls on one responsive row in Joomla list menu options.
