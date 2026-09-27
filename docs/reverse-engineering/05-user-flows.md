@@ -862,8 +862,10 @@ séquences d'exécution ; le contrat (paramètres, format de réponse) est dans
 
 1. Requête `storage_id=` sans vue existante →
    `DirectStorageFormProvisioningService::resolveOrCreateFormId($storageId)`.
-2. Vue provisionnée par une action admin délibérée (Storage Wizard) → droits
-   lecture/écriture « raisonnables » immédiatement utilisables.
+2. Vue provisionnée par une action admin délibérée (Storage Wizard) → List,
+   View et Create pour chaque groupe non-Guest, Edit désactivé et Guest en
+   lecture seule. Sur une vue déjà auto-provisionnée, seuls les groupes absents
+   sont complétés ; les droits existants restent inchangés.
 3. Vue auto-provisionnée par une requête front anonyme → **lecture seule
    pour Invité, rien d'autre** tant qu'un administrateur n'a pas relu/ajusté
    les droits.

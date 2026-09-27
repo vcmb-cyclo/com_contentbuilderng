@@ -9,6 +9,26 @@
 
 ## Principe
 
+### Release 6.1.21
+
+- Les Cards CBStats et CBList conservent leurs largeurs de grille lorsqu'un
+  éditeur tel que JCE les enveloppe dans un élément `span`.
+- Dans les options du menu Joomla List View, Excel export, le mode du nom de
+  fichier XLS et le nom personnalisé conditionnel occupent une même ligne
+  responsive.
+- Le provisionnement administrateur d'un formulaire depuis un Storage attribue
+  List, View et Create aux groupes non-Guest, conserve Guest en lecture seule,
+  laisse Edit désactivé et complète uniquement les groupes absents sans écraser
+  les permissions existantes.
+- L'ajout inline d'un champ Storage exige le droit d'édition et transmet
+  explicitement les valeurs de la ligne courante afin d'éviter la réutilisation
+  de données obsolètes.
+- PhpSpreadsheet est mis à jour de 5.9.0 à 5.10.0 et les spécifications internes
+  de rétro-ingénierie couvrent désormais l'architecture, les données, les flux,
+  la sécurité, les règles métier, les dépendances et la traçabilité.
+- Les versions du composant, des assets et des 17 plugins livrés sont
+  synchronisées sur `6.1.21` pour la publication finale.
+
 ### Release 6.1.19
 
 - La release finale reprend la RC7 validée : nom personnalisable et sécurisé
@@ -160,6 +180,47 @@ Cette règle s'applique aussi lorsqu'une RC est installée manuellement sur un s
 de production : cette installation ne doit pas annoncer la RC aux autres sites.
 
 ## Publication
+
+### Contenu du changelog final
+
+Le changelog d'une version stable est rédigé à partir du diff complet entre le
+tag stable précédent et le commit candidat, et non à partir du seul commit de
+promotion de la dernière RC. Il agrège les effets fonctionnels de toutes les RC,
+ainsi que les corrections fusionnées directement pendant le cycle.
+
+Chaque entrée finale doit :
+
+- s'adresser d'abord à l'utilisateur ou à l'administrateur Joomla et décrire en
+  langage courant le problème corrigé ou l'amélioration observable ;
+- utiliser des catégories explicites telles que **Fixed**, **Changed** ou
+  **Security**, sans imposer au lecteur de connaître les RC, commits, branches,
+  classes PHP ou noms de dépendances internes ;
+- couvrir séparément les corrections, changements fonctionnels et incidences de
+  sécurité présents dans le diff ; une dépendance de production n'est citée que
+  par son bénéfice concret lorsqu'il est utile à l'administrateur ;
+- exclure des notes publiques la promotion d'une RC, la synchronisation des
+  numéros de version, les changements purement CI, les dépendances de
+  développement et la documentation interne ; ces opérations restent contrôlées
+  dans la PR et la spécification de release ;
+- rester sémantiquement identique dans `CHANGELOG.md`,
+  `com_contentbuilderng_changelog.xml`, la PR de release et les notes GitHub ;
+- être vérifié pendant la revue par comparaison avec le journal des commits et
+  le diff du tag stable précédent.
+
+Une formulation générique telle que « Promote the validated release candidate
+fixes » n'est pas une entrée finale suffisante : les corrections validées doivent
+être nommées explicitement. « Synchronize all shipped plugin versions » n'est pas
+non plus une amélioration destinée à l'utilisateur et reste hors du changelog
+public. Les changements internes sont identifiés pendant la revue afin que leur
+omission des notes publiques soit volontaire.
+
+Avant publication, la revue doit pouvoir répondre oui aux quatre questions
+suivantes :
+
+1. Un administrateur comprend-il immédiatement ce qui a été corrigé ?
+2. Chaque correction fonctionnelle du cycle apparaît-elle une seule fois ?
+3. Les détails de fabrication de la release ont-ils été retirés ?
+4. Les textes Markdown, XML Joomla et GitHub donnent-ils la même information ?
 
 Avant l'ouverture de la PR, une revue locale vérifie le diff complet par rapport
 à `origin/main`, la cohérence des versions, les traductions, la documentation,

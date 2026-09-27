@@ -2,8 +2,16 @@
 
 ## 6.1.21 — 2026-09-27
 
-- Promote the validated release candidate fixes for Card grid wrappers and Joomla list menu export controls.
-- Synchronize the component assets and all 17 shipped plugin versions.
+### Fixed
+
+- Fixed CBStats and CBList Card widths on pages edited with JCE.
+- Improved the Joomla List View menu options by grouping Excel export, filename type and custom filename settings together.
+- Fixed the default permissions created for Direct Storage forms while preserving permissions already configured by administrators.
+- Fixed inline Storage field creation to prevent values from a previously edited field being reused.
+
+### Changed
+
+- Updated the Excel export library for improved compatibility and reliability.
 
 ## 6.1.21-RC3 — 2026-09-27
 

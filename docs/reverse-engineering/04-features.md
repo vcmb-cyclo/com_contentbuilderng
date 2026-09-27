@@ -1225,10 +1225,12 @@ pas nécessairement de ligne `forms` : le contrôleur appelle
 `DirectStorageFormProvisioningService::resolveOrCreateFormId($storageId)`
 qui **réutilise** la vue existante si déjà auto-provisionnée, ou en **crée
 une à la volée**. Deux profils de permissions par défaut selon l'origine :
-une vue provisionnée par une action admin délibérée (Storage Wizard) reçoit
-des droits lecture/écriture « raisonnables » ; une vue auto-provisionnée par
-une requête front anonyme reste **lecture seule pour Invité et n'accorde
-rien d'autre** (« puisque personne ne l'a relue », commentaire du code).
+une vue provisionnée par une action admin délibérée (Storage Wizard) accorde
+List, View et Create à chaque groupe non-Guest, sans Edit, tandis que Guest
+reste en lecture seule ; une vue auto-provisionnée par une requête front
+anonyme reste **lecture seule pour Invité et n'accorde rien d'autre**. Si la
+vue existait déjà avant le passage dans le Wizard, seuls les groupes absents
+reçoivent ces valeurs par défaut : aucun réglage existant n'est écrasé.
 
 **Prévisualisation admin signée (HMAC)** : détail cryptographique déjà
 documenté dans `07-security.md §1.3.2`. `ListController::enqueueUnpublishedPreviewNotice()`

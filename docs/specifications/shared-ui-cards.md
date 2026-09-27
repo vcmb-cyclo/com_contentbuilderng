@@ -50,6 +50,13 @@ complète. Sous 768 px, le conteneur passe à une colonne et toutes les largeurs
 `w=33`, `w=66` et `w=100` occupent la ligne complète. Toutes les Cards à
 juxtaposer doivent être dans le même conteneur, sans élément `<br>` entre elles.
 
+Lorsqu'un éditeur tel que JCE enveloppe une balise CBStats ou CBList dans un
+élément `span` directement sous `.cb-cards`, ce wrapper doit rester transparent
+pour la grille. Les largeurs `w=33`, `w=66` et `w=100`, le comportement pleine
+largeur des variantes H et le passage à une colonne sous 768 px doivent être
+identiques à ceux d'une Card enfant directe. Cette tolérance vise uniquement un
+`span` contenant une seule Card et ne modifie pas la syntaxe publique.
+
 ```html
 <div class="cb-cards">
 {CBStats id=15 field=Groupe output=pie labels="title=Groupes" card=v1 w=33}

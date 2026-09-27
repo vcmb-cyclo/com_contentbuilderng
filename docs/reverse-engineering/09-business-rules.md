@@ -846,8 +846,10 @@ commentaire `:36-43`, repris dans le brouillon site §2.1) : une vue
 auto-créée pour exposer un storage sans configuration manuelle (« storage
 direct ») reçoit des droits par défaut différents selon qui a déclenché la
 création :
-- **provisionnement admin délibéré** (Storage Wizard) : droits
-  lecture/écriture « raisonnables », immédiatement utilisables ;
+- **provisionnement admin délibéré** (Storage Wizard) : List, View et Create
+  sont activés pour chaque groupe non-Guest, Edit reste désactivé et Guest
+  conserve uniquement List et View ; si la vue existe déjà, seuls les groupes
+  absents sont ajoutés sans modifier les droits configurés ;
 - **provisionnement déclenché par une requête front anonyme** : **lecture
   seule pour Invité, rien d'autre** — commentaire du code : « puisque
   personne ne l'a relue ».

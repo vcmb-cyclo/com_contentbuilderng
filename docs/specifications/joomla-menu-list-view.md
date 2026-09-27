@@ -24,8 +24,8 @@ Cette spécification décrit le nouveau type de menu ContentBuilder NG
 
 - Projet : ContentBuilder NG
 - Statut : RC09-B20 validée et publiée sous 6.1.10-RC09
-- Version du document : 2.1
-- Dernière mise à jour : 2026-08-14
+- Version du document : 2.2
+- Dernière mise à jour : 2026-09-27
 - Plateforme : Joomla 6 uniquement
 - PHP : 8.3 ou version ultérieure
 - Base de données : MySQL ou MariaDB uniquement
@@ -472,11 +472,13 @@ Ordre fonctionnel validé dans RC09-B13 :
 6. View introduction, dernier réglage du bloc principal List View ; Custom
    introduction apparaît sur la ligne suivante lorsqu'il est activé.
 7. **Display - Detail - Edit**
-   - première ligne : Excel export, Back button et Rating ;
+   - première ligne : Back button et Rating ;
    - deuxième ligne : Detail - Top panel, Detail - Bottom panel et
      Detail - Print ;
    - troisième ligne : Edit - Top panel, Edit - Bottom panel et Edit - List button.
-   - quatrième ligne : mode du nom de fichier XLS et nom personnalisé conditionnel.
+   - quatrième ligne responsive : Excel export, mode du nom de fichier XLS et
+     nom personnalisé conditionnel. Le troisième contrôle est visible uniquement
+     en mode Custom ; sur petit écran, les trois contrôles s'empilent.
 8. **Search and State**
    - Show Search ;
    - Show State ;
@@ -700,9 +702,11 @@ publié sous 6.1.10-RC09.
 48. Tous les contrôles de Display - Detail - Edit partagent la même grille
     horizontale ; leurs libellés sont préfixés par Detail - ou Edit - afin de
     rendre explicite l'écran concerné.
-49. Le groupe est ordonné en trois lignes compactes : Excel export, Back button
-    et Rating ; Detail - Top panel, Detail - Bottom panel et Detail - Print ;
-    puis Edit - Top panel et Edit - Bottom panel.
+49. Le groupe est ordonné en quatre lignes compactes : Back button et Rating ;
+    Detail - Top panel, Detail - Bottom panel et Detail - Print ; Edit - Top
+    panel, Edit - Bottom panel et Edit - List button ; puis Excel export, mode
+    du nom de fichier XLS et nom personnalisé conditionnel sur une même ligne
+    responsive. Le nom personnalisé n'est affiché qu'en mode Custom.
 50. Cards, Compact Table et Tiles utilisent exactement le contrat de champs du
     nouveau List View tout en conservant leur rendu spécialisé.
 51. Les menus Classic existants deviennent des List View sans perdre leurs
