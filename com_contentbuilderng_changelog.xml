@@ -3,6 +3,14 @@
     <changelog>
         <element>com_contentbuilderng</element>
         <type>component</type>
+        <version>6.1.21-RC3</version>
+        <fix>
+            <item>Align the Excel export, XLS export filename mode and conditional custom filename controls on one responsive row in Joomla list menu options.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
         <version>6.1.21-RC2</version>
         <fix>
             <item>Place the Joomla list menu's Excel export option directly above the XLS export filename option.</item>

@@ -201,7 +201,6 @@ final class MenulistbuilderField extends FormField
                 'export_xls',
                 true
             )
-            . '</div><div class="row g-3 mt-1">'
             . $this->selectControl(
                 'exportFilenameMode',
                 Text::_('COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_MODE'),
