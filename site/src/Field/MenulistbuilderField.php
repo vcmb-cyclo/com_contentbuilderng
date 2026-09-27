@@ -156,15 +156,6 @@ final class MenulistbuilderField extends FormField
         ];
         $displayHtml = '<div class="cb-menu-native-display-fields">'
             . '<div class="row g-3 mb-4 cb-menu-display-grid">'
-            . $this->selectControl(
-                'action.export',
-                Text::_('COM_CONTENTBUILDERNG_MENU_NEW_ACTION_EXPORT'),
-                $toggleOptions,
-                (string) ($actions['export'] ?? 'default'),
-                $options,
-                'export_xls',
-                true
-            )
             . '<div class="col-12 col-lg-4" data-cb-native-field-slot="cb_show_details_back_button"></div>'
             . $this->selectControl(
                 'action.rating',
@@ -201,6 +192,15 @@ final class MenulistbuilderField extends FormField
                 'COM_CONTENTBUILDERNG_MENU_NEW_EDIT_LIST_BUTTON_DESC'
             )
             . '</div><div class="row g-3 mt-1">'
+            . $this->selectControl(
+                'action.export',
+                Text::_('COM_CONTENTBUILDERNG_MENU_NEW_ACTION_EXPORT'),
+                $toggleOptions,
+                (string) ($actions['export'] ?? 'default'),
+                $options,
+                'export_xls',
+                true
+            )
             . $this->selectControl(
                 'exportFilenameMode',
                 Text::_('COM_CONTENTBUILDERNG_MENU_EXPORT_FILENAME_MODE'),

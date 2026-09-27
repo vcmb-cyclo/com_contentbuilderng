@@ -208,7 +208,6 @@ final class MenuListViewLayoutsTest extends TestCase
         self::assertStringContainsString("\$displayHtml = '<div class=\"cb-menu-native-display-fields\">'", $fieldSource);
 
         $displayMarkers = [
-            "'action.export'",
             'data-cb-native-field-slot="cb_show_details_back_button"',
             "'action.rating'",
             'data-cb-native-field-slot="cb_show_details_top_bar"',
@@ -217,6 +216,9 @@ final class MenuListViewLayoutsTest extends TestCase
             'data-cb-native-field-slot="cb_show_top_bar"',
             'data-cb-native-field-slot="cb_show_bottom_bar"',
             "'editListButton'",
+            "'action.export'",
+            "'exportFilenameMode'",
+            'data-cb-show-when="exportFilenameMode:custom"',
         ];
         $offset = strpos($fieldSource, '$displayHtml =');
         self::assertNotFalse($offset);
@@ -225,6 +227,14 @@ final class MenuListViewLayoutsTest extends TestCase
             self::assertNotFalse($position, $marker . ' is missing or out of order.');
             $offset = $position + 1;
         }
+        $exportPosition = strpos($fieldSource, "'action.export'");
+        $filenameModePosition = strpos($fieldSource, "'exportFilenameMode'", $exportPosition);
+        self::assertNotFalse($exportPosition);
+        self::assertNotFalse($filenameModePosition);
+        self::assertStringNotContainsString(
+            '<div class="row',
+            substr($fieldSource, $exportPosition, $filenameModePosition - $exportPosition)
+        );
         self::assertSame(3, substr_count($fieldSource, 'cb-menu-display-grid'));
     }
 

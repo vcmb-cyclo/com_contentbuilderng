@@ -1,0 +1,2 @@
+-- Schema version marker for ContentBuilder NG 6.1.21.
+-- No structural database change is required for this release.
