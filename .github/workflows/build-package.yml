@@ -140,6 +140,9 @@ jobs:
       - name: Install CSS lint dependencies
         run: npm ci
 
+      - name: Audit CSS lint dependencies
+        run: npm audit --audit-level=moderate
+
       - name: Lint CSS
         run: npm run lint:css
 
