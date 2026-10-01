@@ -360,6 +360,18 @@ jobs:
           sha256="$(sha256sum "${{ steps.release.outputs.archive }}" | awk '{print $1}')"
           echo "sha256=${sha256}" >> "$GITHUB_OUTPUT"
 
+      - name: Prepare public release notes
+        if: steps.release.outputs.publish == 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          awk -v version="${RELEASE_VERSION}" '
+            index($0, "## " version " ") == 1 { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > build/release-notes.md
+          grep -q '[^[:space:]]' build/release-notes.md
+
       - name: Publish GitHub release
         if: steps.release.outputs.publish == 'true'
         env:
@@ -374,9 +386,9 @@ jobs:
           if gh release view "${tag}" >/dev/null 2>&1; then
             gh release upload "${tag}" "${archive}" --clobber
             if [ "${is_rc}" = true ]; then
-              gh release edit "${tag}" --draft=false --prerelease
+              gh release edit "${tag}" --draft=false --prerelease --notes-file build/release-notes.md
             else
-              gh release edit "${tag}" --draft=false
+              gh release edit "${tag}" --draft=false --notes-file build/release-notes.md
             fi
           else
             if [ "${is_rc}" = true ]; then
@@ -384,7 +396,7 @@ jobs:
                 "${archive}" \
                 --target "${GITHUB_SHA}" \
                 --title "ContentBuilder NG ${tag#v}" \
-                --generate-notes \
+                --notes-file build/release-notes.md \
                 --prerelease \
                 --latest=false
             else
@@ -392,7 +404,7 @@ jobs:
                 "${archive}" \
                 --target "${GITHUB_SHA}" \
                 --title "ContentBuilder NG ${tag#v}" \
-                --generate-notes
+                --notes-file build/release-notes.md
             fi
           fi
 

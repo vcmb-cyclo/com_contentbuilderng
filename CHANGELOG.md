@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.1.22 — 2026-10-01
+
+### Fixed
+
+- Standardized menu Yes/No options to Default, No, Yes while preserving inherited defaults and saved selections.
+
 ## 6.1.21 — 2026-09-27
 
 ### Fixed

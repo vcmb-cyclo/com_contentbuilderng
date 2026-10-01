@@ -3,6 +3,14 @@
     <changelog>
         <element>com_contentbuilderng</element>
         <type>component</type>
+        <version>6.1.22</version>
+        <fix>
+            <item>Standardized menu Yes/No options to Default, No, Yes while preserving inherited defaults and saved selections.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
         <version>6.1.21</version>
         <fix>
             <item>Fixed CBStats and CBList Card widths on pages edited with JCE.</item>
