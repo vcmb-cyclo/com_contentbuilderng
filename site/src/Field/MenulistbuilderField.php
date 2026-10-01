@@ -74,8 +74,8 @@ final class MenulistbuilderField extends FormField
         ];
         $toggleOptions = [
             'default' => 'COM_CONTENTBUILDERNG_MENU_NEW_USE_DEFAULT',
-            'yes' => 'JYES',
             'no' => 'JNO',
+            'yes' => 'JYES',
         ];
         $visibilityOptions = [
             'default' => 'COM_CONTENTBUILDERNG_MENU_NEW_USE_DEFAULT',
