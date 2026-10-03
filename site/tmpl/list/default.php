@@ -713,8 +713,6 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 	$hasBulkSelection = !empty($this->select_column);
 	$showStickyButtonBar = !empty($this->button_bar_sticky);
 	$showPreviewLink = !empty($this->show_preview_link);
-	$showTopBar = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_top_bar', (int) ($this->cb_show_top_bar ?? 1)) === 1;
-	$showBottomBar = MenuParamHelper::resolveInputOrMenuToggle($app, 'cb_show_bottom_bar', (int) ($this->cb_show_bottom_bar ?? 1)) === 1;
 	$hasTopBarContent = $language_allowed
 			|| ($hasBulkSelection && $showStateBulkControl && $state_allowed && count($this->states))
 		|| ($this->list_publish && $publish_allowed)
@@ -726,7 +724,6 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 		|| ($hasBulkSelection && $delete_allowed)
 		|| ($this->show_records_per_page && !$embeddedListHidePagination)
 		|| ($this->export_xls && empty($this->invalid_list_setup) && $cbListActionAllowed('export'));
-	$showTopBar = $showTopBar && $hasTopBarContent;
 	$listEditBaseParams = [
 		'option' => 'com_contentbuilderng',
 		'task' => 'edit.display',
@@ -802,7 +799,7 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 		);
 	}
 	?>
-	<?php if ($showTopBar) : ?>
+	<?php if ($hasTopBarContent) : ?>
 		<div class="<?php echo $showStickyButtonBar ? 'cb-list-sticky' : ''; ?>">
 			<div class="cb-list-panel cb-list-sticky-panel">
 			<div class="cb-list-filters w-100">

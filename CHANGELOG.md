@@ -1,5 +1,12 @@
 # Changelog
 
+## 6.1.22.1 — 2026-10-03
+
+### Fixed
+
+- Keep List View search, filters, actions, export and page-size controls visible independently of the Edit form panel settings.
+- Restore inheritance of the view title prefix on Details pages when the menu uses the default setting.
+
 ## 6.1.22 — 2026-10-01
 
 ### Fixed

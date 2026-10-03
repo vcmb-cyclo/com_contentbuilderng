@@ -9,6 +9,20 @@
 
 ## Principe
 
+### Release 6.1.22.1
+
+- Les panneaux Edit ne commandent plus les outils List View : recherche,
+  filtres, actions, export et lignes par page gardent leurs réglages propres.
+- En Détail, le préfixe du titre hérite de la Vue lorsque le menu utilise
+  la valeur par défaut ; les valeurs explicites Yes/No gardent leur priorité.
+- Le correctif est validé par Gilles en production sous Joomla 6.1.4 / PHP 8.4.
+  PHP 8.3 reste supporté ; aucune contrainte minimale n'est modifiée.
+- Les 46 tests ciblés passent sous PHP 8.3 et 8.4 (896 assertions par version).
+- Le composant, les assets et les 17 plugins portent la version stable 6.1.22.1.
+  Le marqueur SQL n'effectue aucune modification structurelle.
+- Le flux Joomla Update est publié par le workflow après disponibilité du ZIP
+  officiel et validation des contrôles de release.
+
 ### Release 6.1.21
 
 - Les Cards CBStats et CBList conservent leurs largeurs de grille lorsqu'un

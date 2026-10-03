@@ -364,13 +364,13 @@ class DetailsModel extends ListModel
         if (empty($this->_data)) {
             $query = $this->buildQuery();
             $this->_data = $this->_getList($query, 0, 1);
-            $prefixInTitle = $this->getMenuToggle('cb_prefix_in_title', (int) ($data->cb_prefix_in_title ?? 0));
 
             if (!count($this->_data)) {
                 throw new \Exception(Text::_('COM_CONTENTBUILDERNG_FORM_NOT_FOUND'), 404);
             }
 
             foreach ($this->_data as $data) {
+                $prefixInTitle = $this->getMenuToggle('cb_prefix_in_title', (int) ($data->cb_prefix_in_title ?? 0));
                 MenuListConfigurationHelper::applyDisplayActionOverrides($data, [
                     'export' => $app->getInput()->getCmd('cb_new_show_export', 'default'),
                     'print' => $app->getInput()->getCmd('cb_new_show_print', 'default'),
