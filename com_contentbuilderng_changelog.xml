@@ -7,6 +7,7 @@
         <fix>
             <item>Keep List View search, filters, actions, export and page-size controls visible independently of the Edit form panel settings.</item>
             <item>Restore inheritance of the view title prefix on Details pages when the menu uses the default setting.</item>
+            <item>Keep Joomla database maintenance consistent with the hotfix version after installation and update.</item>
         </fix>
     </changelog>
     <changelog>
