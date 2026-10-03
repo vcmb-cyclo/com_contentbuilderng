@@ -11,6 +11,16 @@
 
 ### Release 6.1.22.1
 
+Exception CI autorisée par Gilles le 3 octobre 2026 :
+`GHSA-vfj7-8cjw-p6xm` (`braces`, sans version corrigée disponible).
+Le contrôle npm accepte uniquement cet avis et ses dépendances transitives,
+uniquement lorsque tous les chemins concernés sont des dépendances de
+développement. Tout autre avis de sévérité moderate/high/critical et toute
+erreur d'audit restent bloquants. Le lint CSS reste obligatoire.
+Ces dépendances sont absentes du ZIP Joomla. Retirer l'exception dès qu'une
+version corrigée ou un remplacement validé de l'outillage est disponible.
+L'exception ne constitue pas une correction de la vulnérabilité upstream.
+
 - Les panneaux Edit ne commandent plus les outils List View : recherche,
   filtres, actions, export et lignes par page gardent leurs réglages propres.
 - En Détail, le préfixe du titre hérite de la Vue lorsque le menu utilise
