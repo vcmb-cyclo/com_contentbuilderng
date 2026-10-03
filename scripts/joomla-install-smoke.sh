@@ -152,6 +152,13 @@ if [[ "${plugin_count}" -lt 5 ]]; then
 fi
 
 # Exercise the update path and one supported historical table rename.
+# Reproduce the comment-only SQL marker left behind by the previous stable package.
+superseded_marker="/var/www/html/administrator/components/com_contentbuilderng/sql/updates/mysql/6.1.22.sql"
+docker exec --user www-data "${web_container}" php -r '
+    if (file_put_contents($argv[1], "-- Superseded comment-only release marker.\n") === false) {
+        exit(1);
+    }
+' "${superseded_marker}"
 docker exec -e MYSQL_PWD=joomla "${db_container}" mysql -ujoomla joomla \
     -e "RENAME TABLE \`${table_prefix}contentbuilderng_list_states\` TO \`${table_prefix}contentbuilder_list_states\`;"
 docker exec --user www-data -e HTTP_HOST=localhost "${web_container}" php /var/www/html/cli/joomla.php extension:install \
@@ -173,6 +180,8 @@ if [[ "${migrated_table_count}" -ne 1 || "${legacy_table_count}" -ne 0 ]]; then
     echo "Historical table migration failed during the update test." >&2
     exit 1
 fi
+
+docker exec --user www-data "${web_container}" test ! -e "${superseded_marker}"
 
 canonical_manifest="/var/www/html/administrator/components/com_contentbuilderng/contentbuilderng.xml"
 docker exec --user www-data "${web_container}" test -r "${canonical_manifest}"
