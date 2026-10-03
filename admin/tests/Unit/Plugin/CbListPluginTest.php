@@ -565,7 +565,7 @@ final class CbListPluginTest extends TestCase
         $template = (string) file_get_contents(self::ROOT . '/site/tmpl/list/default.php');
 
         self::assertStringContainsString('$hasTopBarContent = $language_allowed', $template);
-        self::assertStringContainsString('$showTopBar = $showTopBar && $hasTopBarContent;', $template);
+        self::assertStringContainsString('<?php if ($hasTopBarContent) : ?>', $template);
         self::assertStringContainsString(
             '($this->show_records_per_page && !$embeddedListHidePagination)',
             $template

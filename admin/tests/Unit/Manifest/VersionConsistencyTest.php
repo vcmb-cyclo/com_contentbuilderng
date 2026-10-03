@@ -31,12 +31,12 @@ final class VersionConsistencyTest extends TestCase
         );
 
         self::assertMatchesRegularExpression(
-            '/^\d+\.\d+\.\d+(?:-[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*)?$/',
+            '/^\d+\.\d+\.\d+(?:\.\d+)?(?:-[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*)?$/',
             $installVersion
         );
         if ($updateVersion !== '') {
             self::assertMatchesRegularExpression(
-                '/^\d+\.\d+\.\d+(?:-[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*)?$/',
+                '/^\d+\.\d+\.\d+(?:\.\d+)?(?:-[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*)?$/',
                 $updateVersion
             );
             self::assertTrue(
