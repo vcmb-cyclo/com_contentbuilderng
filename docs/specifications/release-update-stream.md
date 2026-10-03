@@ -9,6 +9,36 @@
 
 ## Principe
 
+### Release 6.1.22.1
+
+Le marqueur sans SQL `6.1.22.sql` est remplacé par `6.1.22.1.sql` et
+supprimé des installations existantes par le nettoyage natif de l'installateur.
+Cela conserve le même dernier marqueur avec le tri de versions de l'installateur
+et le tri naturel des noms de fichiers utilisé par Joomla ChangeSet. Aucune migration
+structurelle ou donnée n'est supprimée. Le test vérifie les deux tris.
+
+Exception CI autorisée par Gilles le 3 octobre 2026 :
+`GHSA-vfj7-8cjw-p6xm` (`braces`, sans version corrigée disponible).
+Le contrôle npm accepte uniquement cet avis et ses dépendances transitives,
+uniquement lorsque tous les chemins concernés sont des dépendances de
+développement. Tout autre avis de sévérité moderate/high/critical et toute
+erreur d'audit restent bloquants. Le lint CSS reste obligatoire.
+Ces dépendances sont absentes du ZIP Joomla. Retirer l'exception dès qu'une
+version corrigée ou un remplacement validé de l'outillage est disponible.
+L'exception ne constitue pas une correction de la vulnérabilité upstream.
+
+- Les panneaux Edit ne commandent plus les outils List View : recherche,
+  filtres, actions, export et lignes par page gardent leurs réglages propres.
+- En Détail, le préfixe du titre hérite de la Vue lorsque le menu utilise
+  la valeur par défaut ; les valeurs explicites Yes/No gardent leur priorité.
+- Le correctif est validé par Gilles en production sous Joomla 6.1.4 / PHP 8.4.
+  PHP 8.3 reste supporté ; aucune contrainte minimale n'est modifiée.
+- Les 46 tests ciblés passent sous PHP 8.3 et 8.4 (896 assertions par version).
+- Le composant, les assets et les 17 plugins portent la version stable 6.1.22.1.
+  Le marqueur SQL n'effectue aucune modification structurelle.
+- Le flux Joomla Update est publié par le workflow après disponibilité du ZIP
+  officiel et validation des contrôles de release.
+
 ### Release 6.1.21
 
 - Les Cards CBStats et CBList conservent leurs largeurs de grille lorsqu'un

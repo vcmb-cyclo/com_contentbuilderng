@@ -180,6 +180,8 @@ final class InstallerService
     public function removeObsoleteFiles(): void
     {
         $paths = [
+            // Superseded comment-only marker sorts after the four-part hotfix filename in Joomla.
+            JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/sql/updates/mysql/6.1.22.sql',
             JPATH_ADMINISTRATOR . '/components/contentbuilder/classes/PHPExcel',
             JPATH_ADMINISTRATOR . '/components/com_contentbuilder/classes/PHPExcel',
             JPATH_ADMINISTRATOR . '/components/com_contentbuilder/classes/PHPExcel.php',

@@ -3,6 +3,16 @@
     <changelog>
         <element>com_contentbuilderng</element>
         <type>component</type>
+        <version>6.1.22.1</version>
+        <fix>
+            <item>Keep List View search, filters, actions, export and page-size controls visible independently of the Edit form panel settings.</item>
+            <item>Restore inheritance of the view title prefix on Details pages when the menu uses the default setting.</item>
+            <item>Keep Joomla database maintenance consistent with the hotfix version after installation and update.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
         <version>6.1.22</version>
         <fix>
             <item>Standardized menu Yes/No options to Default, No, Yes while preserving inherited defaults and saved selections.</item>

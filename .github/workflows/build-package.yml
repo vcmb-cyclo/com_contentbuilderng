@@ -141,7 +141,9 @@ jobs:
         run: npm ci
 
       - name: Audit CSS lint dependencies
-        run: npm audit --audit-level=moderate
+        run: |
+          node scripts/audit-css-dependencies.mjs --self-test
+          node scripts/audit-css-dependencies.mjs
 
       - name: Lint CSS
         run: npm run lint:css

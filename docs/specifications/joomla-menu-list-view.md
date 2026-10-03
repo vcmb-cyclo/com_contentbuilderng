@@ -746,3 +746,46 @@ publié sous 6.1.10-RC09.
 - modification du plugin CBList ;
 - ajout de permissions depuis un menu ;
 - migration automatique des filtres Classic vers le nouveau format.
+
+
+## Correctif 6.1.22.1 — filtres indépendants du panneau Edit
+
+`Edit - Top panel` et `Edit - Bottom panel` commandent exclusivement les
+panneaux du formulaire Edit. Ils ne masquent aucun contrôle de liste :
+recherche, filtres, création, actions groupées, export et lignes par page. Cette règle est commune aux layouts
+Default, Cards, Compact et Tiles.
+
+Dans le menu Joomla List View, `Show Search = Yes / No / Use Default` pilote
+la recherche. L'héritage utilise l'option `show_filter` de la Vue CB.
+La recherche nécessite au moins un champ publié autorisé à la recherche
+(`search_include`) parmi les champs retenus par le menu. `Yes` ne crée pas
+de champ recherchable et ne contourne pas les permissions de présentation.
+Les filtres d'état, publication et langue conservent leurs réglages propres.
+
+
+### Vérification des autres réglages — 6.1.22.1
+
+Le préfixe de titre en Détail est résolu après le chargement de la Vue :
+`Use Default` hérite de `cb_prefix_in_title`, comme dans Liste et Edit.
+Les valeurs explicites Yes/No gardent leur priorité.
+
+| Réglages | Portée et conditions vérifiées |
+| --- | --- |
+| Edit Top/Bottom panel | Formulaire Edit uniquement ; aucune dépendance des outils de Liste. |
+| Detail Top/Bottom panel, Print | Panneaux Détail et bouton d'impression ; pas d'impression de liste. |
+| Back button | Retour commun Détail/Edit, avec conservation du contexte de navigation. |
+| Show Search | Visibilité indépendante ; champs recherchables publiés et sélection du menu requis. |
+| Show State, Bulk state changer, State filter | Réglages distincts ; les mutations nécessitent les permissions CB. |
+| Edit List Button | Affichage des actions Edit dans la liste ; les permissions et la propriété des enregistrements restent vérifiées. |
+| Export, filename | Affichage/export et nom du fichier indépendants des panneaux Edit. |
+| Rating | Affichage et droit de vote restent distincts. |
+| Lignes par page, maximum d'enregistrements | Pagination et plafond total restent distincts ; héritage et valeurs personnalisées conservés. |
+| Titre, préfixe, filtres dans le titre | Surcharges et héritage de la Vue ; héritage du préfixe corrigé en Détail. |
+| Colonnes et capacités des champs | Sélections séparées pour Liste, Search, Detail, Edit, Export ; aucune permission supplémentaire accordée. |
+| Tri et filtres de données | Contrats natifs existants conservés, indépendants des panneaux Edit. |
+| Thème, auteur et catégorie | Surcharges natives conservées ; pas de changement de rendu ou de migration. |
+
+Contrat commun aux menus Default, Cards, Compact et Tiles. Les tests ciblés
+contrôlent les configurations de menu, la visibilité des outils et les layouts.
+Cette vérification ciblée ne constitue pas une certification de toutes les
+combinaisons de plugins tiers ou personnalisations de templates.
