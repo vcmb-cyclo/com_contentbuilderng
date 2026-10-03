@@ -26,8 +26,8 @@ final class CanonicalComponentManifestTest extends TestCase
 
         self::assertSame((string) $manifest->version, end($versions));
 
-        // Joomla ChangeSet uses the final lexically sorted filename, including its extension.
-        sort($schemaFiles, SORT_STRING);
+        // Joomla ChangeSet uses the final naturally sorted filename, including its extension.
+        sort($schemaFiles, SORT_NATURAL | SORT_FLAG_CASE);
         self::assertSame((string) $manifest->version, pathinfo(end($schemaFiles), PATHINFO_FILENAME));
     }
 

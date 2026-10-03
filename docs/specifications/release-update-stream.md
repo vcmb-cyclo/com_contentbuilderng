@@ -14,7 +14,7 @@
 Le marqueur sans SQL `6.1.22.sql` est remplacé par `6.1.22.1.sql` et
 supprimé des installations existantes par le nettoyage natif de l'installateur.
 Cela conserve le même dernier marqueur avec le tri de versions de l'installateur
-et le tri lexical des fichiers utilisé par Joomla ChangeSet. Aucune migration
+et le tri naturel des noms de fichiers utilisé par Joomla ChangeSet. Aucune migration
 structurelle ou donnée n'est supprimée. Le test vérifie les deux tris.
 
 Exception CI autorisée par Gilles le 3 octobre 2026 :
