@@ -1,32 +1,5 @@
 /* Khepri theme — list view styles */
 
-.cb-list-titlebar{
-    margin:0 0 .75rem;
-    padding:.85rem 1.1rem;
-    border:1px solid #dfe4ea;
-    border-radius:.5rem;
-    background:#ffffff;
-    box-shadow:0 1px 3px rgba(23,43,77,.06);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:.75rem;
-}
-.cb-list-title{
-    margin:0!important;
-    color:#16324a;
-    font:600 1.15rem/1.25 "Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    letter-spacing:.01em;
-}
-.cb-list-title::after{
-    content:"";
-    display:block;
-    width:2.4rem;
-    height:3px;
-    margin-top:.4rem;
-    border-radius:2px;
-    background:linear-gradient(90deg,#2e7dd1,#5aa9e6);
-}
 .cb-list-actions .btn{
     border-radius:.4rem;
     font-weight:600;

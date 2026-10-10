@@ -3,6 +3,16 @@
     <changelog>
         <element>com_contentbuilderng</element>
         <type>component</type>
+        <version>6.1.22.2</version>
+        <fix>
+            <item>Align list titles with the Joomla template heading size and keep them readable on mobile and tablet screens.</item>
+            <item>Apply consistent horizontal spacing to list titles and view introductions, without an extra divider.</item>
+            <item>Keep data cells and links readable in dark mode, including themes with light cell backgrounds, while preserving record state colours.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
         <version>6.1.22.1</version>
         <fix>
             <item>Keep List View search, filters, actions, export and page-size controls visible independently of the Edit form panel settings.</item>

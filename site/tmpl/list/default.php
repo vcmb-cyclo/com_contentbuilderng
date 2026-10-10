@@ -703,7 +703,9 @@ $cbListInitScriptVersion = is_file($cbListInitScriptPath) ? (string) filemtime($
 		</div>
 	<?php endif; ?>
 <?php else : ?>
-	<?php echo ContentbuilderngHelper::sanitizeStoredHtml($this->intro_text); ?>
+	<div class="cb-list-intro">
+		<?php echo ContentbuilderngHelper::sanitizeStoredHtml($this->intro_text); ?>
+	</div>
 <?php endif; ?>
 
 	<form action="<?php echo Route::_('index.php?option=com_contentbuilderng&task=list.display&' . $listTarget . $currentListLayoutQuery . '&Itemid=' . (int) \CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper::getApplication()->getInput()->getInt('Itemid', 0) . $embeddedListQuery . $embeddedListTitleQuery . $previewQuery); ?>"

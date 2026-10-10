@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="plugin" group="content" version="6.0" method="upgrade">
     <name>PLG_CONTENT_CONTENTBUILDERNG_CBLIST</name>
-    <creationDate>2026-09-03</creationDate>
+    <creationDate>2026-10-10</creationDate>
     <author>XDA+GIL</author>
     <authorEmail>noreply@vcmb.fr</authorEmail>
     <authorUrl>https://breezingforms-ng.vcmb.fr</authorUrl>
     <copyright>Copyright © 2026 XDA+GIL</copyright>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <version>6.1.22.1</version>
+    <version>6.1.22.2</version>
     <description>PLG_CONTENT_CONTENTBUILDERNG_CBLIST_XML_DESCRIPTION</description>
     <namespace path="src">CB\Plugin\Content\ContentbuilderngList</namespace>
     <files>

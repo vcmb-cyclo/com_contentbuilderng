@@ -1,0 +1,2 @@
+-- Schema version marker for ContentBuilder NG 6.1.22.2.
+-- No structural database change is required for this hotfix.
