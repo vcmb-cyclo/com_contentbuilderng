@@ -50,6 +50,51 @@ ceux du template et du thème CB. Le focus clavier doit rester visible.
   `form-select form-select-sm`. Son cadre conserve un padding de 8 px (`p-2`)
   et les lignes un espacement de 4 px (`gap-1`, `mb-1`).
 
+## Titres de liste et introduction — référence validée en 6.1.22.3
+
+- Le titre de page et le titre Custom utilisent `<h1 class="h3 cb-list-title">` :
+  la sémantique reste celle du titre principal, avec la taille H3 native du template.
+- Khepri, Thoth, Dark et Blank ne réduisent pas cette taille sur mobile.
+  Avec Cassiopeia et une base de 16 px, H3 vaut `calc(1.3rem + .6vw)`,
+  puis `1.75rem` à partir de 1 200 px (environ 23 px à 390 px et 28 px sur grand écran).
+- Le conteneur `.cb-list-titlebar` et le bloc `.cb-list-intro` ont un retrait
+  horizontal de `1rem` de chaque côté, y compris sur mobile et tablette.
+- Aucun trait ni fond décoratif n'est ajouté sous le titre. Les titres longs
+  peuvent revenir à la ligne sans troncature ni débordement.
+- View / Intro reste du HTML administrable : CB conserve sa mise en forme et
+  ses niveaux de titres. Le retrait commun ne transforme pas automatiquement
+  les titres enregistrés en H3 et ne change pas le texte de l'introduction.
+- La taille peut être surchargée via `.cb-list-title`. Sa couleur utilise
+  `--cb-list-title-color`, puis les variables du template `--heading-color`,
+  `--body-color`, `--bs-body-color`, et enfin l'héritage CSS.
+
+## Mode sombre : respecter le template Joomla
+
+Le thème CB ne doit modifier ni le `body` global, ni les fonds des conteneurs
+Joomla `.site-grid`, `.container-component` et `.component-content`.
+Le titre et l'introduction suivent la palette et le fond du template, sans
+imposer un fond noir ou blanc. La préférence sombre du téléphone ne signifie
+pas que le template Joomla a lui-même adopté une palette sombre.
+
+Les blocs CB (tableau de données, filtres, panneaux) peuvent conserver leurs
+styles sombres locaux. Le fond et le texte des cellules doivent rester lisibles
+ensemble, ainsi que les liens, lignes alternées et états au survol. Préserver
+les couleurs d'état des enregistrements définies explicitement. Respecter le
+mode explicite `data-bs-theme="light"` ou `data-bs-theme="dark"` du template.
+
+Cas de régression : sur Cyclo, le template Cassiopeia personnalisé conserve
+un dégradé blanc sur son image de fond. L'ancienne règle Thoth rendait le texte
+global presque blanc en mode sombre mobile ; le titre devenait illisible.
+Khepri seul ne reproduisait pas ce défaut. Depuis 6.1.22.3, Thoth laisse le
+template gérer la page et le titre reste lisible sans surcharge propre à Cyclo.
+
+Vérifier le CSS effectivement chargé : une surcharge de thème dans le menu peut
+prendre le pas sur le thème de la Vue. Comparer les modes clair, sombre système
+et sombre explicite, avec fond personnalisé, à 390, 768 et 1 280 px. Contrôler
+le titre, l'Intro et les données séparément ; conserver la possibilité d'une
+surcharge CSS. La reproduction HTML/CSS en navigateur complète le test sur le
+site réel sans le remplacer ; la RC1 a été validée par Gilles avant publication.
+
 ## Vérification avant validation
 
 Comparer les styles calculés des boutons à Éditer/Imprimer : famille de police,

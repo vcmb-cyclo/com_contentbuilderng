@@ -107,6 +107,21 @@ de sous-catégorie. Le libellé et le sélecteur utilisent le même alignement
 horizontal que les autres réglages placés en haut de page. Lorsque le mode
 Custom est sélectionné, Custom introduction apparaît sur la ligne suivante.
 
+### Présentation frontend validée en 6.1.22.3
+
+Le titre natif et le titre Custom partagent le rendu H3 du template Joomla,
+sans taille mobile propre à Khepri ou Thoth/Dark. Le titre et View / Intro ont
+un retrait horizontal de 1rem de chaque côté ; aucun trait n'est ajouté sous
+le titre. L'introduction conserve son HTML et sa mise en forme enregistrée.
+
+La couleur du titre et le fond de l'introduction suivent le template Joomla,
+y compris sur un téléphone en mode sombre. Les styles sombres des données CB
+restent locaux et ne modifient pas le body ni les conteneurs Joomla globaux.
+Les surcharges de thème du menu doivent être prises en compte lors du diagnostic.
+
+Voir la [charte graphique frontend](frontend-graphic-charter.md) pour les
+sélecteurs CSS, les variables de personnalisation et les cas de validation.
+
 ## 5. Colonnes affichées, capacités et filtres fixes
 
 ### 5.1 Source des champs

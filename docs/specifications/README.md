@@ -15,7 +15,7 @@ Spécifications disponibles :
 - [Pagination ContentBuilder NG](contentbuilder-pagination.md)
 - [Menu Joomla — List View](joomla-menu-list-view.md)
 - [Interface partagée et Cards CSS](shared-ui-cards.md)
-- [Charte graphique frontend et boutons](frontend-graphic-charter.md)
+- [Charte graphique frontend, titres, introductions, mode sombre et boutons](frontend-graphic-charter.md)
 - [États de liste ContentBuilder NG](contentbuilder-list-states.md)
 - [Indicateurs des onglets de vue](view-tab-indicators.md)
 - [Sélection des champs Edit et Export](view-edit-export.md)
