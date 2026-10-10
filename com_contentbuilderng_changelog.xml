@@ -3,6 +3,15 @@
     <changelog>
         <element>com_contentbuilderng</element>
         <type>component</type>
+        <version>6.1.22.3</version>
+        <fix>
+            <item>Keep list titles and view introductions readable with custom Joomla template backgrounds when the device uses dark mode.</item>
+            <item>Preserve the Joomla template page colours and backgrounds when using Thoth, while retaining dark styling inside ContentBuilder data panels.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
         <version>6.1.22.2</version>
         <fix>
             <item>Align list titles with the Joomla template heading size and keep them readable on mobile and tablet screens.</item>

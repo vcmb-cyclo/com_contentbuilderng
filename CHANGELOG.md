@@ -1,5 +1,12 @@
 # Changelog
 
+## 6.1.22.3 — 2026-10-10
+
+### Fixed
+
+- Keep list titles and view introductions readable with custom Joomla template backgrounds when the device uses dark mode.
+- Preserve the Joomla template page colours and backgrounds when using Thoth, while retaining dark styling inside ContentBuilder data panels.
+
 ## 6.1.22.2 — 2026-10-10
 
 ### Fixed
