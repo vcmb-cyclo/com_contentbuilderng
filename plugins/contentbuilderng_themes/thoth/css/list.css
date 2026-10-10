@@ -28,9 +28,7 @@
 .cb-list-table .hidden-phone{display:table-cell!important}
 .cb-list-table select[onchange*="contentbuilderng_state_single"]{display:inline-block!important;width:auto!important;min-width:0!important;max-width:100%!important}
 .cb-pagination-summary{font-weight:500}
-.cb-list-titlebar{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin:0 0 .9rem;padding:.65rem .9rem;border:1px solid rgba(13,110,253,.24);border-left:.35rem solid #0d6efd;border-radius:.85rem;background:linear-gradient(90deg,rgba(13,110,253,.11),rgba(13,110,253,.03));box-shadow:0 .35rem .9rem rgba(13,110,253,.12)}
-.cb-list-title{margin:0!important;font-weight:700;letter-spacing:.01em;color:#12395f}
-.cb-list-title::after{content:"";display:block;width:3.75rem;height:.2rem;margin-top:.45rem;border-radius:999px;background:linear-gradient(90deg,#0d6efd,#3f8cff)}
+
 .cb-list-table{color:var(--bs-body-color,#212529)}
 .cb-list-table th{color:var(--bs-body-color,#212529)}
 .cb-list-table .form-control,
@@ -117,17 +115,7 @@
         background:#22344a;
         color:#e7edf6;
     }
-    html:not([data-bs-theme="light"]) .cb-list-titlebar{
-        border-color:rgba(102,163,255,.38);
-        border-left-color:#66a3ff;
-        background:linear-gradient(90deg,rgba(102,163,255,.24),rgba(102,163,255,.06));
-        box-shadow:0 .35rem .9rem rgba(0,0,0,.35)
-    }
-    html:not([data-bs-theme="light"]) .cb-list-title,
-    html:not([data-bs-theme="light"]) .cb-list-titlebar .h3,
-    html:not([data-bs-theme="light"]) .cb-list-titlebar h3{
-        color:#d8e5f5!important
-    }
+
     html:not([data-bs-theme="light"]) .cb-list-data-panel{
         background:#111a24;
     }
@@ -202,4 +190,4 @@
     }
     html:not([data-bs-theme="light"]) .cb-pagination-summary{color:#c5d7ec}
 }
-@media (max-width:767.98px){.cb-list-actions{width:100%;justify-content:flex-end}.cb-list-panel{padding:.55rem .45rem}.cb-list-titlebar{padding:.55rem .65rem;margin-bottom:.75rem}.cb-list-title{font-size:1.18rem}}
+@media (max-width:767.98px){.cb-list-actions{width:100%;justify-content:flex-end}.cb-list-panel{padding:.55rem .45rem}}

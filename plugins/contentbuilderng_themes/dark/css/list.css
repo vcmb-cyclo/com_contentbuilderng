@@ -1,14 +1,7 @@
 .cb-scroll-x{box-shadow:inset 0 -1px 0 rgba(103,131,176,.26)!important}
 .cb-scroll-x::-webkit-scrollbar-track{background:rgba(125,153,196,.18)!important}
 .cb-scroll-x::-webkit-scrollbar-thumb{background:rgba(103,153,231,.58)!important}
-.cb-list-titlebar{
-    border-color:rgba(102,132,183,.5)!important;
-    border-left-color:#6fa0f8!important;
-    background:linear-gradient(90deg,rgba(31,49,79,.82),rgba(21,35,59,.74))!important;
-    box-shadow:0 .38rem .95rem rgba(2,8,18,.45)!important;
-}
-.cb-list-title{color:#d7e6ff!important}
-.cb-list-title::after{background:linear-gradient(90deg,#6fa0f8,#8fbaff)!important}
+
 .cb-list-panel{
     border-color:rgba(98,128,177,.38)!important;
     background:#121b2b!important;

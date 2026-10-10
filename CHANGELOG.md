@@ -1,5 +1,13 @@
 # Changelog
 
+## 6.1.22.2 — 2026-10-10
+
+### Fixed
+
+- Align list titles with the Joomla template heading size and keep them readable on mobile and tablet screens.
+- Apply consistent horizontal spacing to list titles and view introductions, without an extra divider.
+- Keep data cells and links readable in dark mode, including themes with light cell backgrounds, while preserving record state colours.
+
 ## 6.1.22.1 — 2026-10-03
 
 ### Fixed
