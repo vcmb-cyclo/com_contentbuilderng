@@ -16,8 +16,7 @@ final class MenuListConfigurationHelper
         \Joomla\Database\DatabaseInterface $db,
         int $viewId,
         string $publishedReferences
-    ): array
-    {
+    ): array {
         $query = $db->getQuery(true)
             ->select($db->quoteName(['reference_id', 'order_type']))
             ->from($db->quoteName('#__contentbuilderng_elements'))
