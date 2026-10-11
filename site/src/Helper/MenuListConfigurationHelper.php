@@ -11,6 +11,31 @@ use CB\Component\Contentbuilderng\Site\Service\MenuDataFilterService;
 
 final class MenuListConfigurationHelper
 {
+    /** @return array<string, string> */
+    public static function getMenuSortTypes(
+        \Joomla\Database\DatabaseInterface $db,
+        int $viewId,
+        string $publishedReferences
+    ): array
+    {
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['reference_id', 'order_type']))
+            ->from($db->quoteName('#__contentbuilderng_elements'))
+            ->where($db->quoteName('form_id') . ' = ' . $viewId)
+            ->where($db->quoteName('published') . ' = 1')
+            ->where($db->quoteName('type') . ' <> ' . $db->quote('hidden'));
+        $db->setQuery($query);
+        $rows = $db->loadAssocList();
+        $allowed = self::filterSearchableElements(array_column($rows, 'reference_id'), $publishedReferences);
+        $types = [];
+        foreach ($rows as $row) {
+            if (in_array($row['reference_id'], $allowed, true)) {
+                $types['col' . $row['reference_id']] = (string) $row['order_type'];
+            }
+        }
+        return $types;
+    }
+
     public const DISPLAY_ACTION_FIELDS = [
         'export' => 'export_xls',
         'print' => 'print_button',

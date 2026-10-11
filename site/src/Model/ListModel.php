@@ -1046,6 +1046,13 @@ class ListModel extends BaseListModel
                     // Allow sorting on the language code column.
                     $order_types['colLanguage'] = 'CHAR';
 
+                    if ($newMenuCustomColumns) {
+                        $order_types += MenuListConfigurationHelper::getMenuSortTypes(
+                            $this->getDatabase(),
+                            (int) $this->_id,
+                            (string) $app->getInput()->getString('cb_menu_published_fields', '')
+                        );
+                    }
                     $act_as_registration = array();
 
                     if (
@@ -1127,7 +1134,9 @@ class ListModel extends BaseListModel
                                     continue;
                                 }
                                 $match = EmbeddedListFieldFilterService::matchSelectors(
-                                    array_keys($data->labels),
+                                    $newMenuCustomColumns
+                                        ? array_map(static fn(string $key): string => substr($key, 3), array_keys($order_types))
+                                        : array_keys($data->labels),
                                     $elementNames,
                                     $selector
                                 );

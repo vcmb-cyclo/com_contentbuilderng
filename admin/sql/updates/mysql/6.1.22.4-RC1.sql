@@ -1,0 +1,2 @@
+-- Schema version marker for ContentBuilder NG 6.1.22.4-RC1.
+-- No structural database change is required.
