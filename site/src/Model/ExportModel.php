@@ -298,6 +298,7 @@ class ExportModel extends BaseDatabaseModel
                             }
                         }
                     }
+                    $newMenuCustomColumns = $app->getInput()->getInt('cb_new_list_menu', 0) === 1;
                     $order_types = array();
                     $ids = array();
                     $db = $this->getDatabase();
@@ -314,7 +315,6 @@ class ExportModel extends BaseDatabaseModel
                             ->where($db->quoteName('export_include') . ' = 1')
                             ->where($db->quoteName('type') . ' <> ' . $db->quote('hidden'))
                             ->order($db->quoteName('ordering'));
-                        $newMenuCustomColumns = $app->getInput()->getInt('cb_new_list_menu', 0) === 1;
                         $db->setQuery($query);
                         $rows = $this->getDatabase()->loadAssocList();
                         $ids = array();
@@ -363,6 +363,13 @@ class ExportModel extends BaseDatabaseModel
                                 $ids
                             );
                         }
+                    }
+                    if ($newMenuCustomColumns) {
+                        $order_types += MenuListConfigurationHelper::getMenuSortTypes(
+                            $this->getDatabase(),
+                            (int) $this->_id,
+                            (string) $app->getInput()->getString('cb_menu_published_fields', '')
+                        );
                     }
                     $data->visible_cols = $ids;
                     $data->visible_labels = $labels;
@@ -426,7 +433,9 @@ class ExportModel extends BaseDatabaseModel
                                 continue;
                             }
                             $match = EmbeddedListFieldFilterService::matchSelectors(
-                                $ids,
+                                $newMenuCustomColumns
+                                    ? array_map(static fn(string $key): string => substr($key, 3), array_keys($order_types))
+                                    : $ids,
                                 (array) $data->form->getElementNames(),
                                 $selector
                             );

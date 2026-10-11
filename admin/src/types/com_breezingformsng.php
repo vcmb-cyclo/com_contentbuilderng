@@ -934,6 +934,47 @@ class contentbuilderng_com_breezingformsng
         return $out;
     }
 
+    /**
+     * Build a validated multi-column order using the source expressions.
+     *
+     * @param array<string, string> $expressions
+     * @param array<string, string> $types
+     * @param list<string> $systemKeys
+     */
+    private static function buildMultiOrderClause(
+        string $order,
+        string $directions,
+        array $expressions,
+        array $types,
+        array $systemKeys,
+        ?object $form
+    ): string {
+        $keys = explode('|', $order);
+        if (count($keys) < 2) {
+            return '';
+        }
+
+        $directionValues = explode('|', strtolower($directions));
+        $parts = [];
+        foreach ($keys as $index => $key) {
+            if (!isset($types[$key]) && !in_array($key, $systemKeys, true)) {
+                return '';
+            }
+            if ($key === 'colRating' && $form !== null && $form->rating_slots == 1) {
+                $key = 'colRatingCount';
+            }
+            $expression = $expressions[$key] ?? match ($key) {
+                'colState' => 'COALESCE(list.state_id, 0)',
+                'colPublished' => 'joined_records.published',
+                'colLanguage' => 'joined_records.lang_code',
+                default => '`' . $key . '`',
+            };
+            $parts[] = $expression . (($directionValues[$index] ?? 'asc') === 'desc' ? ' DESC' : ' ASC');
+        }
+
+        return implode(', ', $parts);
+    }
+
     public function getListRecords(
         array $ids,
         $filter = '',
@@ -977,11 +1018,12 @@ class contentbuilderng_com_breezingformsng
         $bottom = '';
         $force = '';
         $orderExpressions = array();
+        $requestedOrderKeys = explode('|', $order);
         $radio_buttons = array();
 
         foreach ($elements as $element) {
             $colKey = 'col' . $element['id'];
-            $needsSelector = !in_array($element['id'], $ids) || $order === $colKey;
+            $needsSelector = !in_array($element['id'], $ids) || in_array($colKey, $requestedOrderKeys, true);
             // We still need the column in SELECT when it is used for ordering.
             if ($needsSelector) {
 
@@ -1024,6 +1066,9 @@ class contentbuilderng_com_breezingformsng
                     $baseExpr = "max( case when s.`element` = '{$element['id']}' then s.`value` end )";
                 }
                 $orderExpressions[$colKey] = $cast_open . $baseExpr . $cast_close;
+                if (in_array($element['id'], $ids)) {
+                    continue;
+                }
                 $forcefield = false;
                 if (isset($force_filter[$element['id']])) {
                     $forcefield = true;
@@ -1255,6 +1300,7 @@ class contentbuilderng_com_breezingformsng
         if (!$isValidInitialOrder($init_order_by3)) {
             $init_order_by3 = -1;
         }
+        $multiOrderClause = self::buildMultiOrderClause($order, $order_Dir, $orderExpressions, $order_types, $validOrderKeys, $form);
         $orderExpr = '';
         $orderKey = '';
         if ($order && !isset($order_types[$order]) && !in_array($order, $validOrderKeys, true)) {
@@ -1387,7 +1433,7 @@ class contentbuilderng_com_breezingformsng
                 s.record = r.id
             And
                 r.archived = 0
-            Group By s.record $search " . ($order ? " Order By " . $orderExpr . " " : ' Order By ' . $initialOrder1Expr . ' ' . $initialOrderDirection1 . ', ' . $initialOrder2Expr . ' ' . $initialOrderDirection2 . ', ' . $initialOrder3Expr . ' ' . $initialOrderDirection3 . ' ') . " " . $orderTail . $secondaryOrder . "
+            Group By s.record $search " . ($multiOrderClause !== '' ? " Order By " . $multiOrderClause : ($order ? " Order By " . $orderExpr . " " : ' Order By ' . $initialOrder1Expr . ' ' . $initialOrderDirection1 . ', ' . $initialOrder2Expr . ' ' . $initialOrderDirection2 . ', ' . $initialOrder3Expr . ' ' . $initialOrderDirection3 . ' ')) . " " . $orderTail . $secondaryOrder . "
         ", $limitstart, $limit);
 
         try {

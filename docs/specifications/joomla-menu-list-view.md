@@ -804,3 +804,9 @@ Contrat commun aux menus Default, Cards, Compact et Tiles. Les tests ciblés
 contrôlent les configurations de menu, la visibilité des outils et les layouts.
 Cette vérification ciblée ne constitue pas une certification de toutes les
 combinaisons de plugins tiers ou personnalisations de templates.
+
+## Correction du tri multicolonne — 6.1.22.4
+
+Le tri initial Custom applique les critères dans leur ordre de saisie (jusqu’à trois), avec une direction ASC/DESC indépendante. Le moteur BreezingForms doit accepter les mêmes critères multiples que le stockage CB natif, en conservant les expressions et conversions de type des champs. Un clic explicite du visiteur sur une colonne conserve sa priorité. Aucun contrôle « Tout sélectionner » n’est ajouté.
+
+Le tri personnalisé d’un menu peut utiliser un champ publié même si sa colonne n’est pas affichée dans la liste ou l’export. Les types de tri restent ceux de la vue ; les champs dépubliés sont exclus. La syntaxe publique CBList reste inchangée.

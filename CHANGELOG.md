@@ -1,5 +1,12 @@
 # Changelog
 
+## 6.1.22.4 — 2026-10-11
+
+### Fixed
+
+- Apply custom multi-column list-menu sorting to BreezingForms records, preserving each field’s sort direction.
+- Allow List View menus and exports to sort by a published field even when that column is not displayed.
+
 ## 6.1.22.3 — 2026-10-10
 
 ### Fixed

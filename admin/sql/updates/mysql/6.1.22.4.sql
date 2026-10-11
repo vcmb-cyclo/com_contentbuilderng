@@ -1,0 +1,1 @@
+-- Version marker for ContentBuilder NG 6.1.22.4. No schema changes.
