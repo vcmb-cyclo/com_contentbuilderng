@@ -233,7 +233,7 @@ class contentbuilderng_com_breezingformsng
             self::SYSTEM_FIELD_RECORD_ID => 'r.id',
             self::SYSTEM_FIELD_VIEWED => $this->buildRecordColumnSelect('viewed', '0'),
             self::SYSTEM_FIELD_EXPORTED => $this->buildRecordColumnSelect('exported', '0'),
-            self::SYSTEM_FIELD_ARCHIVED => $this->buildRecordColumnSelect('archived', '0'),
+            self::SYSTEM_FIELD_ARCHIVED => $this->getArchivedRecordSelect(),
             self::SYSTEM_FIELD_DOUBLE_OPT_IN => $this->getFirstRecordColumnSelect(['double_opt_in', 'double_optin', 'double_opted_in', 'opt_in', 'opted_in', 'opted', 'verified'], '0'),
             self::SYSTEM_FIELD_BROWSER => $this->buildRecordColumnSelect('browser', "''"),
             self::SYSTEM_FIELD_SUBMITTED => $this->buildRecordColumnSelect('submitted', "''"),
@@ -273,7 +273,9 @@ class contentbuilderng_com_breezingformsng
             self::SYSTEM_FIELD_RECORD_ID => (string) ($record->id ?? ''),
             self::SYSTEM_FIELD_VIEWED => $fieldValue($record, ['viewed'], '0'),
             self::SYSTEM_FIELD_EXPORTED => $fieldValue($record, ['exported'], '0'),
-            self::SYSTEM_FIELD_ARCHIVED => $fieldValue($record, ['archived'], '0'),
+            self::SYSTEM_FIELD_ARCHIVED => property_exists($record, 'state')
+                ? ((int) $record->state === 2 ? '1' : '0')
+                : $fieldValue($record, ['archived'], '0'),
             self::SYSTEM_FIELD_DOUBLE_OPT_IN => $fieldValue($record, ['double_opt_in', 'double_optin', 'double_opted_in', 'opt_in', 'opted_in', 'opted', 'verified'], '0'),
             self::SYSTEM_FIELD_BROWSER => $fieldValue($record, ['browser']),
             self::SYSTEM_FIELD_SUBMITTED => $fieldValue($record, ['submitted']),
@@ -872,7 +874,7 @@ class contentbuilderng_com_breezingformsng
             And
                 s.record = r.id
             And
-                r.archived = 0
+                " . $this->getActiveRecordCondition() . "
             Group By s.record
         ");
 
@@ -1432,7 +1434,7 @@ class contentbuilderng_com_breezingformsng
             And
                 s.record = r.id
             And
-                r.archived = 0
+                " . $this->getActiveRecordCondition() . "
             Group By s.record $search " . ($multiOrderClause !== '' ? " Order By " . $multiOrderClause : ($order ? " Order By " . $orderExpr . " " : ' Order By ' . $initialOrder1Expr . ' ' . $initialOrderDirection1 . ', ' . $initialOrder2Expr . ' ' . $initialOrderDirection2 . ', ' . $initialOrder3Expr . ' ' . $initialOrderDirection3 . ' ')) . " " . $orderTail . $secondaryOrder . "
         ", $limitstart, $limit);
 
@@ -1996,6 +1998,27 @@ class contentbuilderng_com_breezingformsng
     private function hasRecordColumn(string $columnName): bool
     {
         return isset($this->getRecordColumns()[strtolower($columnName)]);
+    }
+
+    /**
+     * BreezingForms NG keeps the status of a record in the Joomla `state`
+     * column (1 published, 2 archived, -2 trashed). Versions released before
+     * its records trash use the `archived` flag instead. Both schemas are
+     * supported on purpose, the column present in the table decides.
+     */
+    private function usesRecordStateColumn(): bool
+    {
+        return $this->hasRecordColumn('state');
+    }
+
+    private function getActiveRecordCondition(): string
+    {
+        return $this->usesRecordStateColumn() ? 'r.state = 1' : 'r.archived = 0';
+    }
+
+    private function getArchivedRecordSelect(): string
+    {
+        return $this->usesRecordStateColumn() ? '(r.state = 2)' : 'r.archived';
     }
 
     private function buildRecordColumnSelect(string $columnName, string $fallbackSql): string
