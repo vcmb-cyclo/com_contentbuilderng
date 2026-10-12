@@ -11,7 +11,7 @@ extension. It is independent from the historical product and is provided without
 warranty.
 
 > ℹ️ **Note:** this documentation describes component version `6.1.19` (the
-> `<version>` field in `com_contentbuilderng.xml`). Screens and options may change
+> `<version>` field in `contentbuilderng.xml`). Screens and options may change
 > between versions.
 
 ## Audience

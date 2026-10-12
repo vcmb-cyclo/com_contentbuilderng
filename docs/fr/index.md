@@ -11,7 +11,7 @@ de Crosstec. Il s'agit d'un projet communautaire, distinct du produit historique
 fourni sans garantie.
 
 > ℹ️ **Note :** cette documentation décrit la version `6.1.19` du composant
-> (champ `<version>` du fichier `com_contentbuilderng.xml`). Les écrans et options
+> (champ `<version>` du fichier `contentbuilderng.xml`). Les écrans et options
 > peuvent évoluer d'une version à l'autre.
 
 ## Public concerné

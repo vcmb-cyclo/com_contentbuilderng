@@ -355,7 +355,7 @@ class com_contentbuilderngInstallerScript
 
         try {
             if ($type !== 'uninstall') {
-                $this->ensureCanonicalComponentManifest();
+                $this->removeLegacyNamedComponentManifest();
 
                 // Keep legacy plugins disabled (priority order)
                 $this->disableLegacyPluginsInPriorityOrder($context);
@@ -1620,37 +1620,28 @@ class com_contentbuilderngInstallerScript
     // ---------------------------------------------------------------------
     // Versions
     // ---------------------------------------------------------------------
-    private function ensureCanonicalComponentManifest(): void
+    /**
+     * The manifest ships as contentbuilderng.xml, the name Joomla resolves for
+     * a component. Earlier releases installed com_contentbuilderng.xml and
+     * copied it to that name; drop the leftover so only one manifest remains.
+     */
+    private function removeLegacyNamedComponentManifest(): void
     {
-        $componentPath = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng';
-        $source = $componentPath . '/com_contentbuilderng.xml';
-        $target = $componentPath . '/contentbuilderng.xml';
+        $legacyManifest = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/com_contentbuilderng.xml';
 
-        if (!is_file($source)) {
-            if (is_file($target)) {
-                return;
-            }
-
-            $this->log(
-                '[ERROR] Canonical component manifest cannot be installed: source manifest is missing.',
-                Log::ERROR
-            );
-
+        if (!is_file($legacyManifest)) {
             return;
         }
 
         try {
-            File::copy($source, $target);
+            File::delete($legacyManifest);
         } catch (\Throwable $e) {
-            $this->log(
-                '[ERROR] Canonical component manifest cannot be installed: ' . $e->getMessage(),
-                Log::ERROR
-            );
+            $this->log('[WARNING] Legacy-named component manifest could not be removed: ' . $e->getMessage(), Log::WARNING);
 
             return;
         }
 
-        $this->log('[OK] Canonical Joomla component manifest installed.');
+        $this->log('[OK] Legacy-named component manifest removed.');
     }
 
     private function getCurrentInstalledVersion(): string

@@ -12,7 +12,7 @@ fi
 entries="$(unzip -Z1 "${archive}")"
 
 required=(
-    "com_contentbuilderng.xml"
+    "contentbuilderng.xml"
     "script.php"
     "admin/services/provider.php"
     "admin/sql/install.sql"
@@ -66,12 +66,12 @@ for pattern in "${forbidden_patterns[@]}"; do
     fi
 done
 
-if ! unzip -p "${archive}" com_contentbuilderng.xml | grep -Fq '<extension type="component" method="upgrade" version="6.0">'; then
+if ! unzip -p "${archive}" contentbuilderng.xml | grep -Fq '<extension type="component" method="upgrade" version="6.0">'; then
     echo "Invalid Joomla component manifest." >&2
     exit 1
 fi
 
-manifest_version="$(unzip -p "${archive}" com_contentbuilderng.xml | sed -n 's:.*<version>\([^<]*\)</version>.*:\1:p' | head -n 1)"
+manifest_version="$(unzip -p "${archive}" contentbuilderng.xml | sed -n 's:.*<version>\([^<]*\)</version>.*:\1:p' | head -n 1)"
 latest_schema_version="$(
     printf '%s\n' "${entries}" \
         | sed -n 's:^admin/sql/updates/mysql/\(.*\)\.sql$:\1:p' \

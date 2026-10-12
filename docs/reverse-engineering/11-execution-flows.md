@@ -106,7 +106,7 @@ plugin de contenu, mais reste un point d'entrée séparé (pas de dispatch via
 
 ## 3. Installation / mise à jour / désinstallation
 
-**Fait observé** (`script.php`, `com_contentbuilderng.xml`,
+**Fait observé** (`script.php`, `contentbuilderng.xml`,
 `12-technical-debt.md`).
 
 ```mermaid

@@ -5,7 +5,7 @@
 
 ## 1. Namespace et bootstrap
 
-**Fait observé** (`com_contentbuilderng.xml:17`, `admin/services/provider.php`,
+**Fait observé** (`contentbuilderng.xml:17`, `admin/services/provider.php`,
 `site/src/Dispatcher/Dispatcher.php`) : namespace racine PSR-4
 `CB\Component\Contentbuilderng`, sous-espaces `\Administrator\*` (admin) et
 `\Site\*` (site), point d'entrée admin `admin/src/Extension/ContentbuilderngComponent.php`
