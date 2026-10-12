@@ -11,7 +11,7 @@ final class CanonicalComponentManifestTest extends TestCase
     public function testLatestDatabaseSchemaMarkerMatchesTheComponentVersion(): void
     {
         $root = \dirname(__DIR__, 4);
-        $manifest = simplexml_load_file($root . '/com_contentbuilderng.xml');
+        $manifest = simplexml_load_file($root . '/contentbuilderng.xml');
         $schemaFiles = glob($root . '/admin/sql/updates/mysql/*.sql');
 
         self::assertInstanceOf(\SimpleXMLElement::class, $manifest);
@@ -27,14 +27,19 @@ final class CanonicalComponentManifestTest extends TestCase
         self::assertSame((string) $manifest->version, end($versions));
     }
 
-    public function testInstallerMaintainsTheManifestFilenameExpectedByJoomla(): void
+    public function testPackageShipsTheManifestFilenameExpectedByJoomla(): void
     {
-        $source = (string) file_get_contents(\dirname(__DIR__, 4) . '/script.php');
+        $root = \dirname(__DIR__, 4);
+        $source = (string) file_get_contents($root . '/script.php');
 
-        self::assertStringContainsString('$this->ensureCanonicalComponentManifest();', $source);
-        self::assertStringContainsString('$source = $componentPath . \'/com_contentbuilderng.xml\';', $source);
-        self::assertStringContainsString('$target = $componentPath . \'/contentbuilderng.xml\';', $source);
-        self::assertStringContainsString('File::copy($source, $target);', $source);
+        self::assertFileExists($root . '/contentbuilderng.xml');
+        self::assertFileDoesNotExist($root . '/com_contentbuilderng.xml');
+        self::assertStringContainsString('$this->removeLegacyNamedComponentManifest();', $source);
+        self::assertStringContainsString(
+            "\$legacyManifest = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/com_contentbuilderng.xml';",
+            $source
+        );
+        self::assertStringContainsString('File::delete($legacyManifest);', $source);
         self::assertStringContainsString(
             '$manifestPath = JPATH_ADMINISTRATOR . \'/components/com_contentbuilderng/contentbuilderng.xml\';',
             $source

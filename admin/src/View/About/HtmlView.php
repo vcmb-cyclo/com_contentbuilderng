@@ -274,7 +274,7 @@ class HtmlView extends BaseHtmlView
             return $versionInformation;
         }
 
-        $manifestPath = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/com_contentbuilderng.xml';
+        $manifestPath = JPATH_ADMINISTRATOR . '/components/com_contentbuilderng/contentbuilderng.xml';
 
         if (!is_file($manifestPath)) {
             return $versionInformation;

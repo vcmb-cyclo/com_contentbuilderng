@@ -75,7 +75,7 @@ jobs:
 
       - name: Check package and update stream versions
         run: |
-          manifest_version="$(grep -oPm1 '(?<=<version>)[^<]+' com_contentbuilderng.xml)"
+          manifest_version="$(grep -oPm1 '(?<=<version>)[^<]+' contentbuilderng.xml)"
           update_version="$(grep -oPm1 '(?<=<version>)[^<]+' com_contentbuilderng_update.xml)"
           if ! php -r 'exit(version_compare($argv[1], $argv[2], "<=") ? 0 : 1);' \
             "${update_version}" "${manifest_version}"; then
@@ -298,9 +298,9 @@ jobs:
         run: |
           creation_date="$(TZ=Europe/Paris date +%F)"
           build_timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          perl -0pi -e "s#<creationDate>.*?</creationDate>#<creationDate>${creation_date}</creationDate>#" com_contentbuilderng.xml
-          perl -0pi -e "s#\\n\\s*<buildType>.*?</buildType>##g; s#(<creationDate>.*?</creationDate>)#\$1\n    <buildType>production</buildType>#" com_contentbuilderng.xml
-          perl -0pi -e "s#\\n\\s*<buildTimestamp>.*?</buildTimestamp>##g; s#(<buildType>.*?</buildType>)#\$1\n    <buildTimestamp>${build_timestamp}</buildTimestamp>#" com_contentbuilderng.xml
+          perl -0pi -e "s#<creationDate>.*?</creationDate>#<creationDate>${creation_date}</creationDate>#" contentbuilderng.xml
+          perl -0pi -e "s#\\n\\s*<buildType>.*?</buildType>##g; s#(<creationDate>.*?</creationDate>)#\$1\n    <buildType>production</buildType>#" contentbuilderng.xml
+          perl -0pi -e "s#\\n\\s*<buildTimestamp>.*?</buildTimestamp>##g; s#(<buildType>.*?</buildType>)#\$1\n    <buildTimestamp>${build_timestamp}</buildTimestamp>#" contentbuilderng.xml
 
       - name: Build production package
         id: package
@@ -346,7 +346,7 @@ jobs:
       - name: Resolve release metadata
         id: release
         run: |
-          version="$(grep -oPm1 '(?<=<version>)[^<]+' com_contentbuilderng.xml)"
+          version="$(grep -oPm1 '(?<=<version>)[^<]+' contentbuilderng.xml)"
           archive="build/com_contentbuilderng-${version}.zip"
           test -f "${archive}"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
