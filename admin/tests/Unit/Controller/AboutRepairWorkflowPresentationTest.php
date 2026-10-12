@@ -172,6 +172,9 @@ final class AboutRepairWorkflowPresentationTest extends TestCase
         self::assertStringContainsString('repairLegacyStorageIndexes()', $controller);
         self::assertStringContainsString('about.repairLegacyStorageIndexes', $template);
         self::assertStringContainsString('cb-audit-legacy-storage-indexes-table', $template);
+        // One repair renames all legacy indexes of a storage: a single button spans its rows.
+        self::assertStringContainsString('rowspan="<?php echo count($legacyIndexes); ?>"', $template);
+        self::assertStringContainsString('if ($legacyIndexPosition === 0)', $template);
 
         $expectedLabels = [
             'en-GB' => ['Legacy storage index names', 'Fix names'],
