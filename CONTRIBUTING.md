@@ -88,7 +88,7 @@ The integration test requires Docker.
 ## Publishing a Release Candidate
 
 1. Prepare the RC on a dedicated branch and update the component version in
-   `com_contentbuilderng.xml`, `media/joomla.asset.json`, `CHANGELOG.md` and
+   `contentbuilderng.xml`, `media/joomla.asset.json`, `CHANGELOG.md` and
    `com_contentbuilderng_changelog.xml`.
    Do not update `com_contentbuilderng_update.xml` yet: it must continue to
    advertise the latest version whose GitHub release and installable ZIP

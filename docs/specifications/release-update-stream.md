@@ -192,7 +192,7 @@ artefact qui n'est pas disponible dans les releases GitHub.
 
 Les fichiers suivants portent la version RC :
 
-- `com_contentbuilderng.xml` ;
+- `contentbuilderng.xml` ;
 - `media/joomla.asset.json` ;
 - `CHANGELOG.md` ;
 - `com_contentbuilderng_changelog.xml`.

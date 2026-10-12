@@ -30,7 +30,7 @@ final class AdminNavigationTest extends TestCase
 
     public function testManifestDeclaresViewsBeforeStorage(): void
     {
-        $manifest = new \SimpleXMLElement($this->read('com_contentbuilderng.xml'));
+        $manifest = new \SimpleXMLElement($this->read('contentbuilderng.xml'));
         $submenu = $manifest->xpath('/extension/administration/submenu/menu');
 
         self::assertIsArray($submenu);

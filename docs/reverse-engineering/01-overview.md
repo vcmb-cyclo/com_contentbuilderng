@@ -77,7 +77,7 @@ internes propres au composant (signatures) : voir `06-api-contracts.md`
 
 - **Back-office** (`admin/`) : menu Joomla à 3 entrées (`COM_CONTENTBUILDERNG`
   → sous-menus `forms` (COM_CONTENTBUILDERNG_LIST, vue par défaut),
-  `storages`, `about`) — **Fait observé** (`com_contentbuilderng.xml`
+  `storages`, `about`) — **Fait observé** (`contentbuilderng.xml`
   §`<administration><submenu>`). Écrans additionnels non présents dans le
   menu mais accessibles par navigation interne : édition Storage, Storage
   Wizard, Form (14 onglets), Elements/Options, Titlesets, Config Transfer,

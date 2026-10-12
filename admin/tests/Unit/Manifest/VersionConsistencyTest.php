@@ -22,7 +22,7 @@ final class VersionConsistencyTest extends TestCase
     public function testPackageAndPublishedUpdateVersionsAreValid(): void
     {
         $installVersion = $this->readValue(
-            $this->root . '/com_contentbuilderng.xml',
+            $this->root . '/contentbuilderng.xml',
             '/extension/version'
         );
         $updateVersion = $this->readOptionalValue(
@@ -58,7 +58,7 @@ final class VersionConsistencyTest extends TestCase
 
         self::assertSame(
             $expectedChangelogUrl,
-            $this->readValue($this->root . '/com_contentbuilderng.xml', '/extension/changelogurl')
+            $this->readValue($this->root . '/contentbuilderng.xml', '/extension/changelogurl')
         );
         if ($updateVersion !== '') {
             $downloadUrl = $this->readValue(
@@ -87,7 +87,7 @@ final class VersionConsistencyTest extends TestCase
     public function testInstallCreationDateIsValidAndNotInFuture(): void
     {
         $creationDate = $this->readValue(
-            $this->root . '/com_contentbuilderng.xml',
+            $this->root . '/contentbuilderng.xml',
             '/extension/creationDate'
         );
         $timezone = new DateTimeZone('Europe/Paris');

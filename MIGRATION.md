@@ -13,7 +13,7 @@
 
 ### ✅ Déjà migré (le gros œuvre est fait)
 
-- [x] Manifest + namespace PSR-4 (`CB\Component\Contentbuilderng`, `com_contentbuilderng.xml`)
+- [x] Manifest + namespace PSR-4 (`CB\Component\Contentbuilderng`, `contentbuilderng.xml`)
 - [x] DI container / services (`admin/services/provider.php` : MVCFactory, Dispatcher,
   RouterFactory, providers de services métier)
 - [x] Routeur site natif (`site/src/Service/Router.php` via `RouterFactoryInterface`)

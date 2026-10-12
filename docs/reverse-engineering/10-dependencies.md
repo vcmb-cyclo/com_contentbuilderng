@@ -618,9 +618,9 @@ est désactivé.
 
 ### 5.5 Absence de `<uses>` dans les manifestes et de vérifications défensives d'extensions
 
-**Fait observé** — Aucun manifeste XML du dépôt (`com_contentbuilderng.xml`,
+**Fait observé** — Aucun manifeste XML du dépôt (`contentbuilderng.xml`,
 `admin/config.xml`, `admin/access.xml`, les manifestes de plugins) ne
-contient de balise `<uses>`. `com_contentbuilderng.xml` déclare seulement
+contient de balise `<uses>`. `contentbuilderng.xml` déclare seulement
 `<php_minimum>8.3</php_minimum>`, aucune dépendance sur une autre extension
 Joomla n'est déclarée au niveau installeur.
 
@@ -648,7 +648,7 @@ négative sur `com_fields`/`FieldsHelper` dans l'ensemble du dépôt.
 `<changelogurl>` et `<downloads><downloadurl>` vers
 `https://raw.githubusercontent.com/vcmb-cyclo/com_contentbuilderng/...`
 et `https://github.com/vcmb-cyclo/com_contentbuilderng/releases/download/...`,
-avec un `<sha256>` de vérification d'intégrité. `com_contentbuilderng.xml`
+avec un `<sha256>` de vérification d'intégrité. `contentbuilderng.xml`
 référence la même URL de changelog GitHub brut.
 
 **Comportement déduit** — Le mécanisme natif "mises à jour" de Joomla
@@ -675,7 +675,7 @@ composant lors d'une vérification de mise à jour.
 | Extension Joomla core | `com_users` | Inscription/activation de compte | `admin/src/Model/VerifyModel.php` |
 | Extension Joomla core | `com_content` | Table `#__categories`, pipeline `onContentPrepare` | `site/src/Field/CategoriesField.php`, plugins du groupe `content` |
 | Plugin Joomla core | `plg_editors_codemirror` | Éditeur de code des templates | `TemplateRenderService.php`, `prepare_editor.php`, `elementoptions/default.php` |
-| Infrastructure | GitHub (`vcmb-cyclo/com_contentbuilderng`) | Hébergement du flux de mise à jour Joomla | `com_contentbuilderng_update.xml`, `com_contentbuilderng.xml` |
+| Infrastructure | GitHub (`vcmb-cyclo/com_contentbuilderng`) | Hébergement du flux de mise à jour Joomla | `com_contentbuilderng_update.xml`, `contentbuilderng.xml` |
 
 **Zones inconnues restantes** :
 - Contenu exact et provenance précise du paquet `bgli100/securimage` (pas de

@@ -10,7 +10,7 @@ if [[ "${output_dir}" != /* ]]; then
 fi
 
 package_dir="${output_dir}/package"
-version="$(sed -n 's:.*<version>\([^<]*\)</version>.*:\1:p' "${root_dir}/com_contentbuilderng.xml" | head -n 1)"
+version="$(sed -n 's:.*<version>\([^<]*\)</version>.*:\1:p' "${root_dir}/contentbuilderng.xml" | head -n 1)"
 
 if [[ -z "${version}" ]]; then
     echo "Unable to resolve the component version." >&2
@@ -29,7 +29,7 @@ cp -R "${root_dir}/admin" "${package_dir}/admin"
 cp -R "${root_dir}/site" "${package_dir}/site"
 cp -R "${root_dir}/media" "${package_dir}/media"
 cp -R "${root_dir}/plugins" "${package_dir}/plugins"
-cp "${root_dir}/com_contentbuilderng.xml" "${package_dir}/"
+cp "${root_dir}/contentbuilderng.xml" "${package_dir}/"
 cp "${root_dir}/script.php" "${package_dir}/"
 
 rm -rf \
