@@ -337,7 +337,9 @@ use Joomla\CMS\Router\Route;
                                     'is_array'
                                 ));
                                 $legacyStorageId = (int) ($legacyStorageIndexIssue['storage_id'] ?? 0);
-                                foreach ($legacyIndexes as $legacyIndex) :
+                                // The repair renames every legacy index of the storage in one pass,
+                                // so its button is shown once and spans the storage's rows.
+                                foreach ($legacyIndexes as $legacyIndexPosition => $legacyIndex) :
                                 ?>
                                     <tr>
                                         <td><?php echo (int) ($legacyStorageIndexRowNumber++); ?></td>
@@ -345,21 +347,23 @@ use Joomla\CMS\Router\Route;
                                         <td><?php echo htmlspecialchars((string) ($legacyStorageIndexIssue['table'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
                                         <td><?php echo htmlspecialchars((string) ($legacyIndex['name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
                                         <td><?php echo htmlspecialchars((string) ($legacyIndex['suggested_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td class="text-end">
-                                            <?php if ($legacyStorageId > 0) : ?>
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-sm btn-warning"
-                                                    data-cb-audit-ajax-task="about.repairLegacyStorageIndexes"
-                                                    data-cb-audit-ajax-field="repair_storage_id"
-                                                    data-cb-audit-ajax-value="<?php echo (int) $legacyStorageId; ?>"
-                                                    title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_LEGACY_STORAGE_INDEXES_REPAIR_TIP'), ENT_QUOTES, 'UTF-8'); ?>"
-                                                    aria-label="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_LEGACY_STORAGE_INDEXES_REPAIR'), ENT_QUOTES, 'UTF-8'); ?>"
-                                                    data-bs-toggle="tooltip"
-                                                    data-bs-placement="top"
-                                                ><span class="fa-solid fa-wrench me-1" aria-hidden="true"></span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_LEGACY_STORAGE_INDEXES_REPAIR'); ?></button>
-                                            <?php endif; ?>
-                                        </td>
+                                        <?php if ($legacyIndexPosition === 0) : ?>
+                                            <td class="text-end align-middle" rowspan="<?php echo count($legacyIndexes); ?>">
+                                                <?php if ($legacyStorageId > 0) : ?>
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-sm btn-warning"
+                                                        data-cb-audit-ajax-task="about.repairLegacyStorageIndexes"
+                                                        data-cb-audit-ajax-field="repair_storage_id"
+                                                        data-cb-audit-ajax-value="<?php echo (int) $legacyStorageId; ?>"
+                                                        title="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_LEGACY_STORAGE_INDEXES_REPAIR_TIP'), ENT_QUOTES, 'UTF-8'); ?>"
+                                                        aria-label="<?php echo htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_LEGACY_STORAGE_INDEXES_REPAIR'), ENT_QUOTES, 'UTF-8'); ?>"
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-placement="top"
+                                                    ><span class="fa-solid fa-wrench me-1" aria-hidden="true"></span><?php echo Text::_('COM_CONTENTBUILDERNG_ABOUT_AUDIT_LEGACY_STORAGE_INDEXES_REPAIR'); ?></button>
+                                                <?php endif; ?>
+                                            </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endforeach; ?>
