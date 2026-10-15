@@ -72,7 +72,7 @@ class ConfigExportService
                 continue;
             }
 
-            if (($sectionConfig['type'] ?? '') === 'component_params') {
+            if ($sectionConfig['type'] === 'component_params') {
                 $exportSections[$sectionKey] = [
                     'type' => 'component_params',
                     'params' => $this->loadComponentParams($db),

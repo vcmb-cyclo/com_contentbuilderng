@@ -53,7 +53,7 @@ class TemplateSampleService
         $results = $eventResult->getArgument('result') ?: [];
         $out = implode('', $results);
 
-        if ($activePlugin !== '' && $out === '') {
+        if ($out === '') {
             $msg = "ContentBuilder NG theme plugin returned empty sample: contentbuilderng_themes/{$activePlugin}";
             Log::add($msg, Log::WARNING, 'com_contentbuilderng');
             $this->app->enqueueMessage($msg, 'warning');
@@ -152,7 +152,7 @@ class TemplateSampleService
         $results = $eventResult->getArgument('result') ?: [];
         $out = implode('', $results);
 
-        if ($activePlugin !== '' && $out === '') {
+        if ($out === '') {
             $msg = "ContentBuilder NG theme plugin returned empty editable sample: contentbuilderng_themes/{$activePlugin}";
             Log::add($msg, Log::WARNING, 'com_contentbuilderng');
             $this->getApp()->enqueueMessage($msg, 'warning');

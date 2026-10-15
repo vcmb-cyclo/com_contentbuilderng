@@ -284,7 +284,7 @@ final class PluginExtensionDedupHelper
 
         $groups = [];
         foreach ($bucket as $key => $groupRows) {
-            if (!is_array($groupRows) || count($groupRows) < 2) {
+            if (count($groupRows) < 2) {
                 continue;
             }
 
@@ -297,20 +297,20 @@ final class PluginExtensionDedupHelper
             $rowsPayload = [];
             $duplicateIds = [];
             foreach ($groupRows as $groupRow) {
-                $id = (int) ($groupRow['extension_id'] ?? 0);
+                $id = $groupRow['extension_id'];
                 if ($id <= 0) {
                     continue;
                 }
 
-                $folder = (string) ($groupRow['folder'] ?? '');
-                $element = (string) ($groupRow['element'] ?? '');
+                $folder = $groupRow['folder'];
+                $element = $groupRow['element'];
                 $isCanonical = ($folder === $canonicalFolder && $element === $canonicalElement) ? 1 : 0;
 
                 $rowsPayload[] = [
                     'extension_id' => $id,
                     'folder' => $folder,
                     'element' => $element,
-                    'enabled' => (int) ($groupRow['enabled'] ?? 0),
+                    'enabled' => $groupRow['enabled'],
                     'is_canonical' => $isCanonical,
                 ];
 

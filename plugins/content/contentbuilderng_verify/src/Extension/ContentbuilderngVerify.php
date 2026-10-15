@@ -87,7 +87,7 @@ final class ContentbuilderngVerify extends CMSPlugin implements SubscriberInterf
         $matches = array();
         preg_match_all("/\{CBVerify([^}]*)\}/i", $article->text, $matches);
 
-        if (isset($matches[0]) && is_array($matches[0]) && isset($matches[1]) && is_array($matches[1])) {
+        if ($matches[0] !== []) {
             $i = 0;
             foreach ($matches[1] as $match) {
                 $return_admin = '';

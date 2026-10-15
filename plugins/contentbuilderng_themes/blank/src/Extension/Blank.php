@@ -68,18 +68,18 @@ final class Blank extends CMSPlugin implements SubscriberInterface
      * Any content template specific JS?
      * Return it here
      * 
-     * @return string
+     * @return string|null
      */
     function onContentTemplateJavascript($event = null)
     {
         if ($event instanceof Event && !$this->acceptsThemeEvent($event)) {
-            return;
+            return null;
         }
 
         $out = '';
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);
-            return;
+            return null;
         }
         return $out;
     }
@@ -88,18 +88,18 @@ final class Blank extends CMSPlugin implements SubscriberInterface
      * Any editable template specific JS?
      * Return it here
      * 
-     * @return string
+     * @return string|null
      */
     function onEditableTemplateJavascript($event = null)
     {
         if ($event instanceof Event && !$this->acceptsThemeEvent($event)) {
-            return;
+            return null;
         }
 
         $out = '';
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);
-            return;
+            return null;
         }
         return $out;
     }
@@ -108,18 +108,18 @@ final class Blank extends CMSPlugin implements SubscriberInterface
      * Any list view specific JS?
      * Return it here
      * 
-     * @return string
+     * @return string|null
      */
     function onListViewJavascript($event = null)
     {
         if ($event instanceof Event && !$this->acceptsThemeEvent($event)) {
-            return;
+            return null;
         }
 
         $out = '';
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);
-            return;
+            return null;
         }
         return $out;
     }
@@ -128,18 +128,18 @@ final class Blank extends CMSPlugin implements SubscriberInterface
      * Any content template specific CSS?
      * Return it here
      * 
-     * @return string
+     * @return string|null
      */
     function onContentTemplateCss($event = null)
     {
         if ($event instanceof Event && !$this->acceptsThemeEvent($event)) {
-            return;
+            return null;
         }
 
         $out = '';
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);
-            return;
+            return null;
         }
         return $out;
     }
@@ -148,18 +148,18 @@ final class Blank extends CMSPlugin implements SubscriberInterface
      * Any editable template specific CSS?
      * Return it here
      * 
-     * @return string
+     * @return string|null
      */
     function onEditableTemplateCss($event = null)
     {
         if ($event instanceof Event && !$this->acceptsThemeEvent($event)) {
-            return;
+            return null;
         }
 
-        $out = $this->onContentTemplateCss(null);
+        $out = (string) $this->onContentTemplateCss(null);
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);
-            return;
+            return null;
         }
         return $out;
     }
@@ -168,19 +168,19 @@ final class Blank extends CMSPlugin implements SubscriberInterface
      * Any list view specific CSS?
      * Return it here
      * 
-     * @return string
+     * @return string|null
      */
     function onListViewCss($event = null)
     {
         if ($event instanceof Event && !$this->acceptsThemeEvent($event)) {
-            return;
+            return null;
         }
 
         $cssFile = __DIR__ . '/../../css/list.css';
         $out = \is_file($cssFile) ? (string) \file_get_contents($cssFile) : '';
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);
-            return;
+            return null;
         }
         return $out;
     }
@@ -188,7 +188,7 @@ final class Blank extends CMSPlugin implements SubscriberInterface
     /**
      * Return the sample html code for content here (triggered in view admin, after checking "SAMPLE"
      * 
-     * @return string
+     * @return string|null
      */
     function onContentTemplateSample($arg0, $arg1 = null)
     {
@@ -196,7 +196,7 @@ final class Blank extends CMSPlugin implements SubscriberInterface
         if ($arg0 instanceof Event) {
             $event = $arg0;
             if (!$this->acceptsThemeEvent($event)) {
-                return;
+                return null;
             }
             $args = $event->getArguments();
             $contentbuilderng_form_id = (int) ($args[0] ?? 0);
@@ -209,7 +209,7 @@ final class Blank extends CMSPlugin implements SubscriberInterface
         if (!$contentbuilderng_form_id || !is_object($form)) {
             if ($event instanceof Event) {
                 $this->pushEventResult($event, '');
-                return;
+                return null;
             }
             return '';
         }
@@ -238,7 +238,7 @@ final class Blank extends CMSPlugin implements SubscriberInterface
         $out .= '</tbody></table>' . "\n";
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);
-            return;
+            return null;
         }
         return (string) $out;
     }
@@ -246,7 +246,7 @@ final class Blank extends CMSPlugin implements SubscriberInterface
     /**
      * Return the sample html code for editables here (triggered in view admin, after checking "SAMPLE"
      * 
-     * @return string
+     * @return string|null
      */
     function onEditableTemplateSample($arg0, $arg1 = null)
     {
@@ -254,7 +254,7 @@ final class Blank extends CMSPlugin implements SubscriberInterface
         if ($arg0 instanceof Event) {
             $event = $arg0;
             if (!$this->acceptsThemeEvent($event)) {
-                return;
+                return null;
             }
             $args = $event->getArguments();
             $contentbuilderng_form_id = (int) ($args[0] ?? 0);
@@ -267,7 +267,7 @@ final class Blank extends CMSPlugin implements SubscriberInterface
         if (!$contentbuilderng_form_id || !is_object($form)) {
             if ($event instanceof Event) {
                 $this->pushEventResult($event, '');
-                return;
+                return null;
             }
             return '';
         }
@@ -284,7 +284,7 @@ final class Blank extends CMSPlugin implements SubscriberInterface
         if (!$hasEditable) {
             if ($event instanceof Event) {
                 $this->pushEventResult($event, '');
-                return;
+                return null;
             }
             return '';
         }
@@ -298,9 +298,7 @@ final class Blank extends CMSPlugin implements SubscriberInterface
 				->where($db->quoteName('published') . ' = 1')
 				->where($db->quoteName('form_id') . ' = ' . (int) $contentbuilderng_form_id)
 				->where($db->quoteName('reference_id') . ' = ' . $db->quote($reference_id));
-			if ($hasEditable) {
-				$query->where($db->quoteName('editable') . ' = 1');
-			}
+			$query->where($db->quoteName('editable') . ' = 1');
 			$db->setQuery($query);
 			$result = $db->loadAssoc();
             if (is_array($result)) {
@@ -317,7 +315,7 @@ final class Blank extends CMSPlugin implements SubscriberInterface
         }
         if ($event instanceof Event) {
             $this->pushEventResult($event, $out);
-            return;
+            return null;
         }
         return (string) $out;
     }

@@ -25,7 +25,7 @@ use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\Database\DatabaseQuery;
+use Joomla\Database\QueryInterface;
 use Joomla\Utilities\ArrayHelper;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
@@ -258,7 +258,7 @@ class ElementsModel extends ListModel
      */
 
     #[\Override]
-    protected function getListQuery(): DatabaseQuery
+    protected function getListQuery(): QueryInterface
     {
         $db    = $this->getDatabase();
         $query = $db->getQuery(true);

@@ -91,7 +91,7 @@ class ApiController extends BaseController
     }
 
     #[\Override]
-    public function display($cachable = false, $urlparams = []): void
+    public function display($cachable = false, $urlparams = []): static
     {
         $formId = 0;
 
@@ -141,13 +141,13 @@ class ApiController extends BaseController
                     } else {
                         $this->sendJson($payload);
                     }
-                    return;
+                    return $this;
                 }
 
                 $payload = $this->handleAction($action, $formId, $recordId);
                 $payload = $this->applySparseFieldsets($payload, $method);
                 $this->sendJson($payload);
-                return;
+                return $this;
             }
 
             if ($method === 'GET') {
@@ -157,7 +157,7 @@ class ApiController extends BaseController
 
                 $payload = $this->applySparseFieldsets($payload, $method);
                 $this->sendJson($payload);
-                return;
+                return $this;
             }
 
             if (in_array($method, ['PUT', 'PATCH', 'POST'], true)) {
@@ -177,13 +177,15 @@ class ApiController extends BaseController
                     'record_id' => $updatedRecordId,
                     'detail' => $this->getDetailPayload($formId, $updatedRecordId),
                 ]);
-                return;
+                return $this;
             }
 
             throw new \RuntimeException('Unsupported HTTP method', 405);
         } catch (\Throwable $e) {
             $this->sendJsonError($e, $formId);
         }
+
+        return $this;
     }
 
     private function handleAction(string $action, int $formId, int $recordId): array

@@ -32,7 +32,7 @@ final class HistoricalAssetAuditHelper
             }
 
             $withoutPrefix = strtolower(substr($tableName, strlen($prefix)));
-            if ($withoutPrefix === false || $withoutPrefix === '') {
+            if ($withoutPrefix === '') {
                 continue;
             }
 

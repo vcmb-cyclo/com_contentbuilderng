@@ -666,7 +666,7 @@ class ListModel extends BaseListModel
 
     /**
      * Gets the currencies
-     * @return array List of products
+     * @return object|null
      */
     function getData()
     {
@@ -1365,9 +1365,4 @@ class ListModel extends BaseListModel
         ));
     }
 
-
-    private function startsWith(string $haystack, string $needle): bool
-    {
-        return str_starts_with($haystack, $needle);
-    }
 }

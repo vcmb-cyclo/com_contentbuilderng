@@ -21,7 +21,7 @@ use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\MVC\Model\ListModel;
-use Joomla\Database\DatabaseQuery;
+use Joomla\Database\QueryInterface;
 use Joomla\Database\ParameterType;
 use Joomla\Utilities\ArrayHelper;
 use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
@@ -170,7 +170,7 @@ class StoragefieldsModel extends ListModel
      * {@inheritDoc}
      */
     #[\Override]
-    protected function getListQuery(): DatabaseQuery
+    protected function getListQuery(): QueryInterface
     {
         $db = $this->getDatabase();
         $query = $db->getQuery(true);

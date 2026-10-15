@@ -2,7 +2,10 @@ includes:
     - phpstan-baseline.neon
 
 parameters:
-    level: 2
+    level: 4
+    phpVersion:
+        min: 80300
+        max: 80500
     bootstrapFiles:
         - phpstan-bootstrap.php
     paths:

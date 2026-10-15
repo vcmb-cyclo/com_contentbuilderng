@@ -71,7 +71,6 @@ class DetailsModel extends ListModel
 
     private $_page_title = '';
 
-    private $_page_heading = '';
     private SiteApplication $app;
     private int $directStorageId = 0;
 
@@ -82,11 +81,7 @@ class DetailsModel extends ListModel
         // IMPORTANT : on transmet factory/app/input à ListModel
         parent::__construct($config, $factory);
 
-        $component = $this->getComponent();
-        if (!$component instanceof ContentbuilderngComponent) {
-            throw new \RuntimeException('Unexpected component instance');
-        }
-        $container = $component->getContainer();
+        $container = $this->getComponent()->getContainer();
         $app = $container->get(CMSApplicationInterface::class);
         if (!$app instanceof SiteApplication) {
             throw new \RuntimeException('Unexpected application instance');
@@ -131,9 +126,6 @@ class DetailsModel extends ListModel
                 }
                 if ($item->getParams()->get('page_title', null) !== null) {
                     $this->_page_title = $item->getParams()->get('page_title', null);
-                }
-                if ($item->getParams()->get('page_heading', null) !== null) {
-                    $this->_page_heading = $item->getParams()->get('page_heading', null);
                 }
             }
         }
@@ -307,7 +299,7 @@ class DetailsModel extends ListModel
 
     /**
      * Gets the currencies
-     * @return array List of currencies
+     * @return object|null
      */
     public function getData()
     {

@@ -39,8 +39,6 @@ final class PackedDataHelper
         } catch (\Throwable $e) {
             return $default;
         }
-
-        return $default;
     }
 
     /**

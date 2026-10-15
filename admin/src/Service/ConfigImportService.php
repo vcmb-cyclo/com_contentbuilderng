@@ -200,7 +200,7 @@ class ConfigImportService
                 $legacyTableAlias = (string) ($tableEntry['table'] ?? '');
                 $legacyRows = is_array($tableEntry['rows'] ?? null) ? $tableEntry['rows'] : [];
                 foreach (ConfigExportService::EXPORT_SECTIONS as $sectionKey => $sectionConfig) {
-                    if (($sectionConfig['type'] ?? '') !== 'table') {
+                    if ($sectionConfig['type'] !== 'table') {
                         continue;
                     }
                     if ((string) ($sectionConfig['table'] ?? '') === $legacyTableAlias) {
@@ -883,13 +883,8 @@ class ConfigImportService
             return;
         }
         $query = $db->getQuery(true)->update($db->quoteName($tableAlias));
-        $setCount = 0;
         foreach ($row as $columnName => $value) {
             $query->set($db->quoteName($columnName) . ' = ' . ($value === null ? 'NULL' : $db->quote((string) $value)));
-            $setCount++;
-        }
-        if ($setCount === 0) {
-            return;
         }
         $query->where($db->quoteName('id') . ' = ' . $id);
         $db->setQuery($query);
@@ -902,13 +897,8 @@ class ConfigImportService
             return;
         }
         $query = $db->getQuery(true)->update($db->quoteName($tableAlias));
-        $setCount = 0;
         foreach ($row as $columnName => $value) {
             $query->set($db->quoteName($columnName) . ' = ' . ($value === null ? 'NULL' : $db->quote((string) $value)));
-            $setCount++;
-        }
-        if ($setCount === 0) {
-            return;
         }
         foreach ($columnValues as $columnName => $value) {
             $query->where($db->quoteName($columnName) . ' = ' . ($value === null ? 'NULL' : $db->quote((string) $value)));

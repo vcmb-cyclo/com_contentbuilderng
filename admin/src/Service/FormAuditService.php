@@ -630,14 +630,6 @@ final class FormAuditService
     }
 
     /**
-     * @return array<int,string>
-     */
-    private function getBreezingFormsSystemFieldNames(): array
-    {
-        return array_keys($this->getBreezingFormsSystemFieldDefinitionsByName());
-    }
-
-    /**
      * @return array<string,array<string,mixed>>
      */
     private function getBreezingFormsSystemFieldDefinitionsByName(): array
@@ -881,7 +873,7 @@ final class FormAuditService
                 ],
             ] as $key => $definition
         ) {
-            $template = (string) ($definition['template'] ?? '');
+            $template = $definition['template'];
 
             foreach ($this->extractMarkerNames($template) as $markerName) {
                 $needle = function_exists('mb_strtolower') ? mb_strtolower($markerName, 'UTF-8') : strtolower($markerName);
@@ -892,9 +884,9 @@ final class FormAuditService
                         'reference' => $key === 'COM_CONTENTBUILDERNG_AUDIT_CHECK_UNKNOWN_MARKER_DETAILS'
                             ? 'CBNG-AUDIT-UNKNOWN-MARKER-DETAILS'
                             : 'CBNG-AUDIT-UNKNOWN-MARKER-EDIT',
-                        'code' => (string) ($definition['code'] ?? ''),
+                        'code' => $definition['code'],
                         'field' => $markerName,
-                        'template_type' => (string) ($definition['template_type'] ?? ''),
+                        'template_type' => $definition['template_type'],
                     ];
                 }
             }

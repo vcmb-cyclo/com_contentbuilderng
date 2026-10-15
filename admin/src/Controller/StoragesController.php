@@ -84,10 +84,11 @@ final class StoragesController extends AdminController
     }
 
     #[\Override]
-    public function display($cachable = false, $urlparams = []): void
+    public function display($cachable = false, $urlparams = []): static
     {
         $this->input->set('view', $this->view_list);
-        parent::display($cachable, $urlparams);
+
+        return parent::display($cachable, $urlparams);
     }
 
     /**

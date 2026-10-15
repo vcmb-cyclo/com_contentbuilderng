@@ -39,6 +39,7 @@ final class DatabaseAuditReportBuilder
      *   frontend_permission_issues:array<int,array<string,mixed>>,
      *   element_reference_issues:array<int,array<string,mixed>>,
      *   content_record_duplicate_issues:array<int,array<string,mixed>>,
+     *   bf_content_record_orphans:array<int,array{form_id:int,count:int,records:array<int,array{cb_record_id:int,record_id:int}>}>,
      *   invalid_datetime_sort_issues:array<int,array<string,mixed>>,
      *   legacy_storage_index_issues:array<int,array<string,mixed>>,
      *   upload_directory_protection_issues:array<int,array<string,mixed>>,

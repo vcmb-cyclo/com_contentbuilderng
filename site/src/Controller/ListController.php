@@ -392,7 +392,7 @@ class ListController extends BaseController
                     : 'COM_CONTENTBUILDERNG_DIRECT_STORAGE_PROVISIONING_ERROR';
                 $app->enqueueMessage(Text::_($messageKey), 'error');
 
-                return false;
+                return $this;
             }
         } elseif (!$formId) {
             // 2) sinon depuis les params du menu actif

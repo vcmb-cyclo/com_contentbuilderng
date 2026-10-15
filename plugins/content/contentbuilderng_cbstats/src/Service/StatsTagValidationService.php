@@ -144,10 +144,8 @@ final class StatsTagValidationService
             } catch (\InvalidArgumentException $exception) {
                 $errors[] = self::error(
                     'invalid_value',
-                    array_key_exists('total', $attributes) ? 'total' : 'hide',
-                    array_key_exists('total', $attributes)
-                        ? (string) $attributes['total']
-                        : (string) ($attributes['hide'] ?? $exception->getMessage()),
+                    'hide',
+                    (string) ($attributes['hide'] ?? $exception->getMessage()),
                     'hide'
                 );
             }

@@ -115,7 +115,7 @@ class RepairWorkflowService
         }
 
         $currentStep = 0;
-        while ($currentStep < count($steps) && (string) ($steps[$currentStep]['status'] ?? 'pending') !== 'pending') {
+        while ($currentStep < count($steps) && $steps[$currentStep]['status'] !== 'pending') {
             $currentStep++;
         }
 

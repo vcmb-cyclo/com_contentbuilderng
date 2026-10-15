@@ -1032,11 +1032,6 @@ class com_contentbuilderngInstallerScript
         $this->installerService->purgeStaleLanguageFiles();
     }
 
-    private function removeObsoleteLanguageFiles(): void
-    {
-        $this->installerService->removeObsoleteLanguageFiles();
-    }
-
     private function reportLegacyTableCollisions(): void
     {
         $this->migrationService->reportLegacyTableCollisions();
@@ -1555,14 +1550,6 @@ class com_contentbuilderngInstallerScript
         }
     }
 
-    private function tableExists(string $tableNoPrefix): bool
-    {
-        $db = $this->db();
-        $tables = $this->safe(fn() => $db->getTableList(), []);
-        $expected = $db->getPrefix() . ltrim($tableNoPrefix, '#__');
-        return is_array($tables) && in_array($expected, $tables, true);
-    }
-
     // ---------------------------------------------------------------------
     // Runtime info / charset checks
     // ---------------------------------------------------------------------
@@ -1571,26 +1558,20 @@ class com_contentbuilderngInstallerScript
         try {
             $db = $this->db();
 
-            $type = '';
-            if (method_exists($db, 'getServerType')) {
-                $type = trim((string) $db->getServerType());
-            }
-            if ($type === '' && method_exists($db, 'getName')) {
+            $type = trim((string) $db->getServerType());
+            if ($type === '') {
                 $type = trim((string) $db->getName());
             }
             if ($type === '') {
                 $type = 'unknown';
             }
 
-            $version = '';
-            if (method_exists($db, 'getVersion')) {
-                $version = trim((string) $db->getVersion());
-            }
+            $version = trim((string) $db->getVersion());
             if ($version === '') {
                 $version = 'unknown';
             }
 
-            $prefix = method_exists($db, 'getPrefix') ? trim((string) $db->getPrefix()) : '(none)';
+            $prefix = trim((string) $db->getPrefix());
             if ($prefix === '') {
                 $prefix = '(none)';
             }
@@ -1850,10 +1831,6 @@ class com_contentbuilderngInstallerScript
             }
         } catch (\Throwable) {
             $timezoneName = '';
-        }
-
-        if ($timezoneName === '') {
-            $timezoneName = 'UTC';
         }
 
         if ($timezoneName === '') {

@@ -193,7 +193,7 @@ final class ContentbuilderngDownload extends CMSPlugin implements SubscriberInte
          */
         if (is_object($article) && !isset($article->id) && !isset($article->cbrecord) && isset($article->text) && $article->text) {
             preg_match_all("/<!--\(cbArticleId:(\d{1,})\)-->/si", $article->text, $matched_id);
-            if (isset($matched_id[1]) && isset($matched_id[1][0])) {
+            if (isset($matched_id[1][0])) {
                 $article->id = intval($matched_id[1][0]);
             }
         }
@@ -239,7 +239,7 @@ final class ContentbuilderngDownload extends CMSPlugin implements SubscriberInte
 
             preg_match_all("/\{CBDownload([^}]*)\}/i", $article->text, $matches);
 
-            if (isset($matches[0]) && is_array($matches[0]) && isset($matches[1]) && is_array($matches[1])) {
+            if ($matches[0] !== []) {
 
                 $record = null;
                 $default_title = '';
@@ -286,15 +286,12 @@ final class ContentbuilderngDownload extends CMSPlugin implements SubscriberInte
                         return true;
                     }
 
-                    if ($form) {
-
-                        $protect = $data['protect_upload_directory'];
-                        $record = $form->getRecord($data['record_id'], $data['published_only'], $frontend ? ($data['own_only_fe'] ? (int) ($this->app->getIdentity()->id ?? 0) : -1) : ($data['own_only'] ? (int) ($this->app->getIdentity()->id ?? 0) : -1), true);
-                        $default_title = $data['title_field'];
-                        $form_id = $data['form_id'];
-                        $record_id = $data['record_id'];
-                        $type = $data['type'];
-                    }
+                    $protect = $data['protect_upload_directory'];
+                    $record = $form->getRecord($data['record_id'], $data['published_only'], $frontend ? ($data['own_only_fe'] ? (int) ($this->app->getIdentity()->id ?? 0) : -1) : ($data['own_only'] ? (int) ($this->app->getIdentity()->id ?? 0) : -1), true);
+                    $default_title = $data['title_field'];
+                    $form_id = $data['form_id'];
+                    $record_id = $data['record_id'];
+                    $type = $data['type'];
 
                 } else if (isset($article->cbrecord) && isset($article->cbrecord->id) && $article->cbrecord->id) {
 
@@ -517,8 +514,8 @@ final class ContentbuilderngDownload extends CMSPlugin implements SubscriberInte
                                                     '<div style="' . (str_replace('::', ';', $info_style_)) . '">
                                                                     ' . ($hide_filename_ ? '' : '<span class="cbPluginDownloadFilename">' . Text::_('COM_CONTENTBUILDERNG_PLUGIN_DOWNLOAD_FILENAME') . ':</span> ' . $download_name . '<br/>') . '
                                                                     ' . ($hide_mime_ ? '' : '<span class="cbPluginDownloadMime">' . Text::_('COM_CONTENTBUILDERNG_PLUGIN_DOWNLOAD_MIME') . ':</span> ' . $mime . '<br/>') . '
-                                                                    ' . ($hide_size_ ? '' : '<span ' . ($hide_size_ ? ' style="display:none;" ' : '') . 'class="cbPluginDownloadSize">' . Text::_('COM_CONTENTBUILDERNG_PLUGIN_DOWNLOAD_SIZE') . ':</span> ' . $size . '<br/>') . '
-                                                                    ' . ($hide_downloads_ ? '' : '<span ' . ($hide_downloads_ ? ' style="display:none;" ' : '') . 'class="cbPluginDownloadDownloads">' . Text::_('COM_CONTENTBUILDERNG_PLUGIN_DOWNLOAD_DOWNLOADS') . ':</span> ' . $hits . '<br/>') . '
+                                                                    ' . ($hide_size_ ? '' : '<span class="cbPluginDownloadSize">' . Text::_('COM_CONTENTBUILDERNG_PLUGIN_DOWNLOAD_SIZE') . ':</span> ' . $size . '<br/>') . '
+                                                                    ' . ($hide_downloads_ ? '' : '<span class="cbPluginDownloadDownloads">' . Text::_('COM_CONTENTBUILDERNG_PLUGIN_DOWNLOAD_DOWNLOADS') . ':</span> ' . $hits . '<br/>') . '
                                                                  </div>' : '') . '</div>';
 
                                             if ($is_series && $align_ && (strtolower($align_) == 'left' || strtolower($align_) == 'right')) {

@@ -264,7 +264,7 @@ class HtmlView extends BaseHtmlView
         $needsManifestFallback = false;
 
         foreach (['version', 'creationDate', 'author', 'copyright', 'license', 'buildType', 'buildTimestamp'] as $key) {
-            if (trim((string) ($versionInformation[$key] ?? '')) === '') {
+            if (trim($versionInformation[$key]) === '') {
                 $needsManifestFallback = true;
                 break;
             }
@@ -294,7 +294,7 @@ class HtmlView extends BaseHtmlView
             ];
 
             foreach ($manifestValues as $key => $value) {
-                if (trim((string) ($versionInformation[$key] ?? '')) === '' && trim($value) !== '') {
+                if (trim($versionInformation[$key]) === '' && trim($value) !== '') {
                     $versionInformation[$key] = $value;
                 }
             }
@@ -785,7 +785,7 @@ class HtmlView extends BaseHtmlView
                 $libraries[$key]['version'] = $this->extractVersionFromUri($uri);
             }
 
-            if (($libraries[$key]['source'] ?? '') === '' && $uri !== '') {
+            if ($libraries[$key]['source'] === '' && $uri !== '') {
                 $libraries[$key]['source'] = $this->extractHostFromUri($uri);
             }
 
@@ -799,10 +799,10 @@ class HtmlView extends BaseHtmlView
         foreach ($libraries as &$library) {
             sort($library['assets']);
             $library['assets'] = implode(' + ', $library['assets']);
-            if (($library['version'] ?? '') === '') {
+            if ($library['version'] === '') {
                 $library['version'] = Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE');
             }
-            if (($library['source'] ?? '') === '') {
+            if ($library['source'] === '') {
                 $library['source'] = Text::_('COM_CONTENTBUILDERNG_NOT_AVAILABLE');
             }
         }

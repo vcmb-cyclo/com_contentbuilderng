@@ -73,7 +73,7 @@ final class ContentbuilderngPermissionObserver extends CMSPlugin implements Subs
                 return true;
             }
 
-            if ($form && !(Factory::getApplication()->getInput()->get('option', '', 'string') == 'com_contentbuilderng' && Factory::getApplication()->getInput()->get('controller', '', 'string') == 'edit')) {
+            if (!(Factory::getApplication()->getInput()->get('option', '', 'string') == 'com_contentbuilderng' && Factory::getApplication()->getInput()->get('controller', '', 'string') == 'edit')) {
                 // com_contentbuilderng's language files are extension-scoped only
                 // (no copy under the global site/administrator language
                 // directory), so load('com_contentbuilderng') with no explicit

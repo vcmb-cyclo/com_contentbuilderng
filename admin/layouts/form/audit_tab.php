@@ -121,9 +121,8 @@ $renderCheck = static function (array $check) use ($statusBadges, $checkRepairs,
         . htmlspecialchars((string) ($check['message'] ?? ''), ENT_QUOTES, 'UTF-8');
 
     if ($checkReference !== '') {
-        $tipKey = 'COM_CONTENTBUILDERNG_AUDIT_REFERENCE_TIP';
         $html .= '<small class="d-block text-muted"'
-            . ($tipKey !== '' ? ' title="' . htmlspecialchars(Text::_($tipKey), ENT_QUOTES, 'UTF-8') . '"' : '')
+            . ' title="' . htmlspecialchars(Text::_('COM_CONTENTBUILDERNG_AUDIT_REFERENCE_TIP'), ENT_QUOTES, 'UTF-8') . '"'
             . '>'
             . htmlspecialchars(Text::sprintf('COM_CONTENTBUILDERNG_AUDIT_REFERENCE', $checkReference), ENT_QUOTES, 'UTF-8')
             . '</small>';
