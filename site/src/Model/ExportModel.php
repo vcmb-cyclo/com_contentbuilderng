@@ -156,7 +156,7 @@ class ExportModel extends BaseDatabaseModel
 
     /**
      * Gets the currencies
-     * @return array List of products
+     * @return object|null
      */
     public function getData()
     {
@@ -411,8 +411,8 @@ class ExportModel extends BaseDatabaseModel
                     $publishedOnly = PublishedRecordVisibilityHelper::shouldRestrictToPublishedOnly($data, $isAdminPreview);
                     $ownerFilterUserId = $isAdminPreview
                         ? -1
-                        : ($this->frontend && $data->own_only_fe ? (int) ($app->getIdentity()->id ?? 0) : -1);
-                    $showAllLanguages = $isAdminPreview ? true : ($this->frontend ? $data->show_all_languages_fe : true);
+                        : ($data->own_only_fe ? (int) ($app->getIdentity()->id ?? 0) : -1);
+                    $showAllLanguages = $isAdminPreview ? true : $data->show_all_languages_fe;
                     $exportOrdering = (string) $this->getState('formsd_filter_order');
                     $exportOrderDirection = $this->getState('formsd_filter_order_Dir')
                         ? (string) $this->getState('formsd_filter_order_Dir')

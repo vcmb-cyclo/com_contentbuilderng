@@ -554,7 +554,7 @@ class StorageModel extends AdminModel
         $bytableName = '';
         if ($rawBytable !== '' && $rawBytable !== '0' && $rawBytable !== '1') {
             $bytableName = $rawBytable;
-        } elseif (!empty($bytable) && $bytable !== '0' && $bytable !== '1') {
+        } elseif (!empty($bytable) && $bytable !== '1') {
             $bytableName = $bytable;
         }
 
@@ -1637,181 +1637,179 @@ class StorageModel extends AdminModel
             return Text::_('COM_CONTENTBUILDERNG_FILE_NOT_FOUND');
         }
 
-        if ($handle !== false) {
-            $last_update = (new Date())->toSql();
+        $last_update = (new Date())->toSql();
 
-            $fieldnames = array();
-            $rowReadCount = 0;
-            $rowImportedCount = 0;
-            $rowSkippedEmptyCount = 0;
-            $droppedDataRecords = 0;
-            $droppedMetaRecords = 0;
-            $droppedArticleLinks = 0;
+        $fieldnames = array();
+        $rowReadCount = 0;
+        $rowImportedCount = 0;
+        $rowSkippedEmptyCount = 0;
+        $droppedDataRecords = 0;
+        $droppedMetaRecords = 0;
+        $droppedArticleLinks = 0;
 
-            $columns = fgetcsv($handle, $max_line_length, $options->delimiter, '"');
-            if ($columns === false || !is_array($columns) || empty($columns)) {
+        $columns = fgetcsv($handle, $max_line_length, $options->delimiter, '"');
+        if ($columns === false || empty($columns)) {
+            fclose($handle);
+            return Text::_('COM_CONTENTBUILDERNG_CSV_IMPORT_COLUMN_COUNT_ERROR');
+        }
+
+        foreach ($columns as &$column) {
+            $column = str_replace('.', '', trim($column));
+        }
+        unset($column);
+
+        $importAllColumns = $options->selectedColumns === null;
+        $selectedColumnIndexes = array();
+        if (!$importAllColumns) {
+            foreach ($options->selectedColumns as $rawIndex) {
+                $selectedColumnIndexes[(int) $rawIndex] = true;
+            }
+        }
+
+        $includedColumnIndexes = array();
+        $normalizedColumns = [];
+        foreach ($columns as $index => $column) {
+            if (!$importAllColumns && !isset($selectedColumnIndexes[$index])) {
+                continue;
+            }
+
+            if ($column === '') {
                 fclose($handle);
-                return Text::_('COM_CONTENTBUILDERNG_CSV_IMPORT_COLUMN_COUNT_ERROR');
+                return Text::sprintf('COM_CONTENTBUILDERNG_CSV_IMPORT_EMPTY_COLUMN_HEADER', $index + 1);
             }
 
-            foreach ($columns as &$column) {
-                $column = str_replace('.', '', trim($column));
+            $normalizedColumn = $this->normalizeFieldIdentifier($column);
+            $normalizedKey = strtolower($normalizedColumn);
+            if ($normalizedKey !== '' && isset($normalizedColumns[$normalizedKey])) {
+                fclose($handle);
+                return Text::_('COM_CONTENTBUILDERNG_CSV_IMPORT_COLUMN_NOT_UNIQUE');
             }
-            unset($column);
+            if ($normalizedKey !== '') {
+                $normalizedColumns[$normalizedKey] = true;
+            }
 
-            $importAllColumns = $options->selectedColumns === null;
-            $selectedColumnIndexes = array();
-            if (!$importAllColumns) {
-                foreach ($options->selectedColumns as $rawIndex) {
-                    $selectedColumnIndexes[(int) $rawIndex] = true;
+            $data['fieldname'] = $column;
+            $data['fieldtitle'] = $column;
+            $data['is_group'] = false;
+            $fieldnames[] = $this->store($data);
+            $includedColumnIndexes[] = $index;
+            $data['id'] = $this->storageId;
+        }
+
+        if ($options->dropRecords) {
+            $targetTable = $this->getDatabase()->quoteName('#__' . $this->target_table);
+            $this->getDatabase()->setQuery(
+                $this->getDatabase()->getQuery(true)
+                    ->select('COUNT(*)')
+                    ->from($targetTable)
+            );
+            $droppedDataRecords = (int) $this->getDatabase()->loadResult();
+            $db = $this->getDatabase();
+            $storageIdValue = (string) $this->storageId;
+
+            $query = $db->getQuery(true)
+                ->select('COUNT(*)')
+                ->from($db->quoteName('#__contentbuilderng_records'))
+                ->where($db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng'))
+                ->where($db->quoteName('reference_id') . ' = :referenceId')
+                ->bind(':referenceId', $storageIdValue);
+            $db->setQuery($query);
+            $droppedMetaRecords = (int) $db->loadResult();
+
+            $query = $db->getQuery(true)
+                ->select('COUNT(*)')
+                ->from($db->quoteName('#__contentbuilderng_articles'))
+                ->where($db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng'))
+                ->where($db->quoteName('reference_id') . ' = :referenceId')
+                ->bind(':referenceId', $storageIdValue);
+            $db->setQuery($query);
+            $droppedArticleLinks = (int) $db->loadResult();
+
+            $db->setQuery('TRUNCATE TABLE ' . $targetTable);
+            $db->execute();
+
+            $query = $db->getQuery(true)
+                ->delete($db->quoteName('#__contentbuilderng_records'))
+                ->where($db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng'))
+                ->where($db->quoteName('reference_id') . ' = :referenceId')
+                ->bind(':referenceId', $storageIdValue);
+            $db->setQuery($query);
+            $db->execute();
+
+            // DELETE multi-tables (a.*, c.*) : non exprimable via le Query Builder Joomla,
+            // fragment MySQL brut conservé avec valeurs quotées.
+            $db->setQuery(
+                'DELETE a.*, c.* FROM ' . $db->quoteName('#__contentbuilderng_articles', 'a')
+                . ' INNER JOIN ' . $db->quoteName('#__content', 'c') . ' ON c.id = a.article_id'
+                . ' WHERE a.' . $db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng')
+                . ' AND a.reference_id = ' . $db->quote($storageIdValue)
+            );
+            $db->execute();
+        }
+
+        if ($options->importData && !empty($fieldnames)) {
+            $insert_query_prefix = 'INSERT INTO '
+                . $this->getDatabase()->quoteName('#__' . $this->target_table)
+                . ' (' . implode(',', $fieldnames) . ")\nVALUES";
+            $publishedValue = $options->published;
+
+            while (($data = fgetcsv($handle, $max_line_length, $options->delimiter, '"')) !== false) {
+                $rowReadCount++;
+                while (count($data) < count($columns)) {
+                    array_push($data, null);
                 }
-            }
 
-            $includedColumnIndexes = array();
-            $normalizedColumns = [];
-            foreach ($columns as $index => $column) {
-                if (!$importAllColumns && !isset($selectedColumnIndexes[$index])) {
+                $isEmptyRow = true;
+                foreach ($data as $value) {
+                    if (trim((string) $value) !== '') {
+                        $isEmptyRow = false;
+                        break;
+                    }
+                }
+                if ($isEmptyRow) {
+                    $rowSkippedEmptyCount++;
                     continue;
                 }
 
-                if ($column === '') {
-                    fclose($handle);
-                    return Text::sprintf('COM_CONTENTBUILDERNG_CSV_IMPORT_EMPTY_COLUMN_HEADER', $index + 1);
-                }
+                $rowValues = $importAllColumns
+                    ? $data
+                    : array_map(static fn ($colIndex) => $data[$colIndex] ?? null, $includedColumnIndexes);
 
-                $normalizedColumn = $this->normalizeFieldIdentifier($column);
-                $normalizedKey = strtolower($normalizedColumn);
-                if ($normalizedKey !== '' && isset($normalizedColumns[$normalizedKey])) {
-                    fclose($handle);
-                    return Text::_('COM_CONTENTBUILDERNG_CSV_IMPORT_COLUMN_NOT_UNIQUE');
-                }
-                if ($normalizedKey !== '') {
-                    $normalizedColumns[$normalizedKey] = true;
-                }
-
-                $data['fieldname'] = $column;
-                $data['fieldtitle'] = $column;
-                $data['is_group'] = false;
-                $fieldnames[] = $this->store($data);
-                $includedColumnIndexes[] = $index;
-                $data['id'] = $this->storageId;
-            }
-
-            if ($options->dropRecords) {
-                $targetTable = $this->getDatabase()->quoteName('#__' . $this->target_table);
-                $this->getDatabase()->setQuery(
-                    $this->getDatabase()->getQuery(true)
-                        ->select('COUNT(*)')
-                        ->from($targetTable)
-                );
-                $droppedDataRecords = (int) $this->getDatabase()->loadResult();
+                $query = "$insert_query_prefix (" . join(", ", $this->quoteAllArray($rowValues)) . ")";
+                $this->getDatabase()->setQuery($query);
+                $this->getDatabase()->execute();
                 $db = $this->getDatabase();
-                $storageIdValue = (string) $this->storageId;
-
-                $query = $db->getQuery(true)
-                    ->select('COUNT(*)')
-                    ->from($db->quoteName('#__contentbuilderng_records'))
-                    ->where($db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng'))
-                    ->where($db->quoteName('reference_id') . ' = :referenceId')
-                    ->bind(':referenceId', $storageIdValue);
-                $db->setQuery($query);
-                $droppedMetaRecords = (int) $db->loadResult();
-
-                $query = $db->getQuery(true)
-                    ->select('COUNT(*)')
-                    ->from($db->quoteName('#__contentbuilderng_articles'))
-                    ->where($db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng'))
-                    ->where($db->quoteName('reference_id') . ' = :referenceId')
-                    ->bind(':referenceId', $storageIdValue);
-                $db->setQuery($query);
-                $droppedArticleLinks = (int) $db->loadResult();
-
-                $db->setQuery('TRUNCATE TABLE ' . $targetTable);
+                $recordIdValue = (string) intval($db->insertid());
+                $referenceIdValue = (string) $this->storageId;
+                $insertQuery = $db->getQuery(true)
+                    ->insert($db->quoteName('#__contentbuilderng_records'))
+                    ->columns($db->quoteName(['type', 'last_update', 'is_future', 'lang_code', 'sef', 'published', 'record_id', 'reference_id']))
+                    ->values($db->quote('com_contentbuilderng') . ", :lastUpdate, 0, '*', '', :published, :recordId, :referenceId")
+                    ->bind(':lastUpdate', $last_update)
+                    ->bind(':published', $publishedValue, ParameterType::INTEGER)
+                    ->bind(':recordId', $recordIdValue)
+                    ->bind(':referenceId', $referenceIdValue);
+                $db->setQuery($insertQuery);
                 $db->execute();
-
-                $query = $db->getQuery(true)
-                    ->delete($db->quoteName('#__contentbuilderng_records'))
-                    ->where($db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng'))
-                    ->where($db->quoteName('reference_id') . ' = :referenceId')
-                    ->bind(':referenceId', $storageIdValue);
-                $db->setQuery($query);
-                $db->execute();
-
-                // DELETE multi-tables (a.*, c.*) : non exprimable via le Query Builder Joomla,
-                // fragment MySQL brut conservé avec valeurs quotées.
-                $db->setQuery(
-                    'DELETE a.*, c.* FROM ' . $db->quoteName('#__contentbuilderng_articles', 'a')
-                    . ' INNER JOIN ' . $db->quoteName('#__content', 'c') . ' ON c.id = a.article_id'
-                    . ' WHERE a.' . $db->quoteName('type') . ' = ' . $db->quote('com_contentbuilderng')
-                    . ' AND a.reference_id = ' . $db->quote($storageIdValue)
-                );
-                $db->execute();
+                $rowImportedCount++;
             }
-
-            if ($options->importData && !empty($fieldnames)) {
-                $insert_query_prefix = 'INSERT INTO '
-                    . $this->getDatabase()->quoteName('#__' . $this->target_table)
-                    . ' (' . implode(',', $fieldnames) . ")\nVALUES";
-                $publishedValue = $options->published;
-
-                while (($data = fgetcsv($handle, $max_line_length, $options->delimiter, '"')) !== false) {
-                    $rowReadCount++;
-                    while (count($data) < count($columns)) {
-                        array_push($data, null);
-                    }
-
-                    $isEmptyRow = true;
-                    foreach ($data as $value) {
-                        if (trim((string) $value) !== '') {
-                            $isEmptyRow = false;
-                            break;
-                        }
-                    }
-                    if ($isEmptyRow) {
-                        $rowSkippedEmptyCount++;
-                        continue;
-                    }
-
-                    $rowValues = $importAllColumns
-                        ? $data
-                        : array_map(static fn ($colIndex) => $data[$colIndex] ?? null, $includedColumnIndexes);
-
-                    $query = "$insert_query_prefix (" . join(", ", $this->quoteAllArray($rowValues)) . ")";
-                    $this->getDatabase()->setQuery($query);
-                    $this->getDatabase()->execute();
-                    $db = $this->getDatabase();
-                    $recordIdValue = (string) intval($db->insertid());
-                    $referenceIdValue = (string) $this->storageId;
-                    $insertQuery = $db->getQuery(true)
-                        ->insert($db->quoteName('#__contentbuilderng_records'))
-                        ->columns($db->quoteName(['type', 'last_update', 'is_future', 'lang_code', 'sef', 'published', 'record_id', 'reference_id']))
-                        ->values($db->quote('com_contentbuilderng') . ", :lastUpdate, 0, '*', '', :published, :recordId, :referenceId")
-                        ->bind(':lastUpdate', $last_update)
-                        ->bind(':published', $publishedValue, ParameterType::INTEGER)
-                        ->bind(':recordId', $recordIdValue)
-                        ->bind(':referenceId', $referenceIdValue);
-                    $db->setQuery($insertQuery);
-                    $db->execute();
-                    $rowImportedCount++;
-                }
-            }
-            fclose($handle);
-
-            $this->lastImportSummary = [
-                'storage_id' => $this->storageId,
-                'columns' => count($columns),
-                'created_fields' => count($fieldnames),
-                'rows_read' => $rowReadCount,
-                'rows_imported' => $rowImportedCount,
-                'rows_skipped_empty' => $rowSkippedEmptyCount,
-                'published' => $options->published,
-                'drop_records' => $options->dropRecords,
-                'import_data' => $options->importData,
-                'dropped_data_records' => $droppedDataRecords,
-                'dropped_meta_records' => $droppedMetaRecords,
-                'dropped_article_links' => $droppedArticleLinks,
-            ];
         }
+        fclose($handle);
+
+        $this->lastImportSummary = [
+            'storage_id' => $this->storageId,
+            'columns' => count($columns),
+            'created_fields' => count($fieldnames),
+            'rows_read' => $rowReadCount,
+            'rows_imported' => $rowImportedCount,
+            'rows_skipped_empty' => $rowSkippedEmptyCount,
+            'published' => $options->published,
+            'drop_records' => $options->dropRecords,
+            'import_data' => $options->importData,
+            'dropped_data_records' => $droppedDataRecords,
+            'dropped_meta_records' => $droppedMetaRecords,
+            'dropped_article_links' => $droppedArticleLinks,
+        ];
         return $this->storageId;
     }
 

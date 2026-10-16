@@ -355,7 +355,7 @@ class TemplateRenderService
         $openFieldName = null;
 
         foreach ($matches as $match) {
-            $token = (string) ($match[0] ?? '');
+            $token = $match[0];
 
             if (stripos($token, '{hide-if-empty') === 0) {
                 if ($openFieldName !== null) {
@@ -457,7 +457,7 @@ class TemplateRenderService
         $classNames = [];
 
         if (preg_match('/color\s*:\s*([^;"\']+)/i', $rawValue, $matches)) {
-            $color = trim((string) ($matches[1] ?? ''));
+            $color = trim($matches[1]);
             if ($color !== '') {
                 $styleParts[] = 'color:' . $color;
             }
@@ -973,7 +973,7 @@ class TemplateRenderService
             $this->addUnclosedHideIfEmptyWarnings((int) $contentbuilderngFormId, $template);
 
             foreach ($items as $key => $item) {
-                $rawValue = (string) ($item['raw_value'] ?? '');
+                $rawValue = $item['raw_value'];
                 $template = $this->applyDetailsHideIfEmpty($template, (string) $key, $rawValue);
                 $template = $this->applyDetailsHideIfMatches($template, (string) $key, $rawValue);
             }

@@ -131,7 +131,7 @@ final class AboutController extends BaseController
     private function getJoomlaLocalDateTime(): string
     {
         $app = $this->getApp();
-        $offset = is_object($app) && method_exists($app, 'get') ? (string) $app->get('offset', 'UTC') : 'UTC';
+        $offset = (string) $app->get('offset', 'UTC');
 
         try {
             $timezone = new \DateTimeZone($offset !== '' ? $offset : 'UTC');
@@ -876,7 +876,7 @@ final class AboutController extends BaseController
 
             $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-            if (!is_string($json) || $json === '') {
+            if (!is_string($json)) {
                 throw new \RuntimeException('Failed to encode configuration export payload.');
             }
 
@@ -1196,11 +1196,7 @@ final class AboutController extends BaseController
     private function resolveLogDirectory(): string
     {
         $app = $this->getApp();
-        $configuredPath = '';
-
-        if (is_object($app) && method_exists($app, 'get')) {
-            $configuredPath = trim((string) $app->get('log_path', ''));
-        }
+        $configuredPath = trim((string) $app->get('log_path', ''));
 
         if ($configuredPath === '') {
             $configuredPath = JPATH_ROOT . '/logs';

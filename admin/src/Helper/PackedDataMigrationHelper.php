@@ -21,7 +21,6 @@ use CB\Component\Contentbuilderng\Administrator\Helper\Audit\EncodingAuditHelper
 final class PackedDataMigrationHelper
 {
     private const TARGET_CHARSET = 'utf8mb4';
-    private const TARGET_COLLATION = 'utf8mb4_0900_ai_ci';
 
     private const PACKED_MIGRATION_TARGETS = [
         [
@@ -763,7 +762,7 @@ final class PackedDataMigrationHelper
 
             $withoutPrefix = substr($tableName, strlen($prefix));
 
-            if ($withoutPrefix === false || $withoutPrefix === '') {
+            if ($withoutPrefix === '') {
                 continue;
             }
 

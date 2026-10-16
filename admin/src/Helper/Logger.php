@@ -45,7 +45,7 @@ final class Logger
     private static function applyJoomlaTimezone(): void
     {
         $app = RuntimeContextHelper::getApplication();
-        $offset = is_object($app) && method_exists($app, 'get') ? (string) $app->get('offset', 'UTC') : 'UTC';
+        $offset = (string) $app->get('offset', 'UTC');
 
         try {
             $timezone = new \DateTimeZone($offset !== '' ? $offset : 'UTC');
@@ -58,11 +58,7 @@ final class Logger
     private static function resolveLogDirectory(): string
     {
         $app = RuntimeContextHelper::getApplication();
-        $logPath = '';
-
-        if (is_object($app) && method_exists($app, 'get')) {
-            $logPath = trim((string) $app->get('log_path', ''));
-        }
+        $logPath = trim((string) $app->get('log_path', ''));
 
         if ($logPath === '') {
             $logPath = JPATH_ROOT . '/logs';
@@ -147,7 +143,7 @@ final class Logger
                 continue;
             }
 
-            $fn = $frame['function'] ?? '';
+            $fn = $frame['function'];
             if (!in_array($fn, ['debug', 'info', 'warning', 'error', 'exception'], true)) {
                 continue;
             }

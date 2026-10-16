@@ -860,7 +860,7 @@ class contentbuilderng_com_breezingformsng
             From
                 #__facileforms_subrecords As s,
                 #__facileforms_records As r
-                " . ($published_only || !$show_all_languages || $show_all_languages ? " Left Join #__contentbuilderng_records As joined_records On ( joined_records.`type` = 'com_breezingformsng' And joined_records.record_id = r.id And joined_records.reference_id = r.form ) " : "") . "
+                Left Join #__contentbuilderng_records As joined_records On ( joined_records.`type` = 'com_breezingformsng' And joined_records.record_id = r.id And joined_records.reference_id = r.form ) 
                 
             Where
                 r.id = " . $db->quote(intval($record_id)) . " And
@@ -1353,9 +1353,9 @@ class contentbuilderng_com_breezingformsng
         $initialOrder3Expr = $init_order_by3 == -1 || $init_order_by3 == 0
             ? 'colRecord'
             : (isset($orderExpressions[$init_order_by3]) ? $orderExpressions[$init_order_by3] : '`' . $init_order_by3 . '`');
-        $initialOrderDirection1 = strtolower((string) ($form?->initial_order_dir ?? ($order_Dir ?: 'asc'))) === 'asc' ? 'asc' : 'desc';
-        $initialOrderDirection2 = strtolower((string) ($form?->initial_order_dir2 ?? $initialOrderDirection1)) === 'asc' ? 'asc' : 'desc';
-        $initialOrderDirection3 = strtolower((string) ($form?->initial_order_dir3 ?? $initialOrderDirection1)) === 'asc' ? 'asc' : 'desc';
+        $initialOrderDirection1 = strtolower((string) ($form->initial_order_dir ?? ($order_Dir ?: 'asc'))) === 'asc' ? 'asc' : 'desc';
+        $initialOrderDirection2 = strtolower((string) ($form->initial_order_dir2 ?? $initialOrderDirection1)) === 'asc' ? 'asc' : 'desc';
+        $initialOrderDirection3 = strtolower((string) ($form->initial_order_dir3 ?? $initialOrderDirection1)) === 'asc' ? 'asc' : 'desc';
         $foundRowsClause = $calculateTotal ? 'SQL_CALC_FOUND_ROWS' : '';
 
 
@@ -1606,15 +1606,10 @@ class contentbuilderng_com_breezingformsng
             switch ($result['type']) {
                 case 'Radio Group':
                 case 'Radio Button':
-                    return true;
-                    break;
                 case 'Checkbox Group':
                 case 'Checkbox':
-                    return true;
-                    break;
                 case 'Select List':
                     return true;
-                    break;
             }
         }
 
@@ -1667,7 +1662,6 @@ class contentbuilderng_com_breezingformsng
 
             return $return;
         }
-        return array();
     }
 
     /**

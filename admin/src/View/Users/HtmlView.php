@@ -29,7 +29,7 @@ class HtmlView extends BaseHtmlView
     protected $items;
 
     /**
-     * @var  \JPagination
+     * @var  \Joomla\CMS\Pagination\Pagination
      */
     protected $pagination;
 

@@ -19,7 +19,7 @@ use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 class ExportController extends BaseController
 {
     #[\Override]
-    public function display($cachable = false, $urlparams = []): void
+    public function display($cachable = false, $urlparams = []): static
     {
         $formId = (int) $this->input->getInt('id', 0);
         $isAdminPreview = $this->isValidAdminPreviewRequest($formId);
@@ -31,7 +31,7 @@ class ExportController extends BaseController
         $this->input->set('view', 'export');
         $this->input->set('format', 'raw');
 
-        parent::display();
+        return parent::display();
     }
 
     private function isValidAdminPreviewRequest(int $formId): bool

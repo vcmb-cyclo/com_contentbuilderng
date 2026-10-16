@@ -133,7 +133,7 @@ if (!is_object($item) || !is_callable($formatTypeDisplay)) {
                 <input type="hidden" name="jform[type]" value="<?php echo $item->type; ?>" />
                 <input type="hidden" name="jform[type_name]" value="<?php echo isset($item->type_name) ? $item->type_name : ''; ?>" />
             </div>
-            <?php if ($isBreezingFormsType && (int) ($item->id ?? 0) > 0 && $allBfSystemFields !== []) : ?>
+            <?php if ($isBreezingFormsType && $allBfSystemFields !== []) : ?>
                 <?php echo LayoutHelper::render(
                     'form.bf_system_fields_modal',
                     ['item' => $item, 'allBfSystemFields' => $allBfSystemFields],

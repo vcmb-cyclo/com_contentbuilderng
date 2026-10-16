@@ -150,6 +150,7 @@ final class DatabaseAuditHelper
      *     keep_id:int,
      *     duplicate_ids:array<int,int>
      *   }>,
+     *   bf_content_record_orphans:array<int,array{form_id:int,count:int,records:array<int,array{cb_record_id:int,record_id:int}>}>,
      *   invalid_datetime_sort_issues:array<int,array{
      *     form_id:int,
      *     form_name:string,
@@ -212,6 +213,8 @@ final class DatabaseAuditHelper
      *     element_reference_issues:int,
      *     content_record_duplicate_issues:int,
      *     content_record_duplicate_rows_to_remove:int,
+     *     bf_content_record_orphan_forms:int,
+     *     bf_content_record_orphan_rows:int,
      *     invalid_datetime_sort_issues:int,
      *     invalid_datetime_sort_rows:int,
      *     legacy_storage_indexes:int,

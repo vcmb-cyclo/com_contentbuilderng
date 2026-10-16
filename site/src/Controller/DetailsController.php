@@ -41,7 +41,6 @@ class DetailsController extends BaseController
 
     private SiteApplication $siteApp;
     private bool $frontend;
-    private $_show_back_button = true;
 
     private function getDatabase(): DatabaseInterface
     {
@@ -91,11 +90,6 @@ class DetailsController extends BaseController
 
                 if ($menuRecordId !== null) {
                     $this->siteApp->getInput()->set('record_id', $menuRecordId);
-                    $this->_show_back_button = MenuParamHelper::getResolvedMenuToggle(
-                        $params,
-                        'cb_show_details_back_button',
-                        1
-                    ) === 1;
                 }
             }
         }

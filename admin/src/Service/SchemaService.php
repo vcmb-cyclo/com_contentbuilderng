@@ -646,11 +646,14 @@ final class SchemaService
                     continue;
                 } catch (\Throwable $e) {
                     $this->log("[WARNING] Failed renaming storage audit column {$legacy} to {$target}: " . $e->getMessage(), Log::WARNING);
+
+                    // Keep the legacy column: its data has nowhere to go yet.
+                    continue;
                 }
             }
 
             try {
-                if ($target === 'modified' || $target === 'created') {
+                if ($target === 'modified') {
                     $db->setQuery(
                         'UPDATE ' . $db->quoteName('#__contentbuilderng_storages')
                         . ' SET ' . $db->quoteName($target) . ' = ' . $db->quoteName($legacy)
@@ -671,20 +674,21 @@ final class SchemaService
                 }
             } catch (\Throwable $e) {
                 $this->log("[WARNING] Failed copying data from {$legacy} to {$target}: " . $e->getMessage(), Log::WARNING);
+
+                // Keep the legacy column so its data is not lost.
+                continue;
             }
 
-            if ($legacy !== $target) {
-                try {
-                    $db->setQuery(
-                        'ALTER TABLE ' . $db->quoteName('#__contentbuilderng_storages')
-                        . ' DROP COLUMN ' . $db->quoteName($legacy)
-                    );
-                    $db->execute();
-                    $this->log("[OK] Removed legacy storage audit column {$legacy}.");
-                    $columns = $this->getStoragesTableColumnsLower();
-                } catch (\Throwable $e) {
-                    $this->log("[WARNING] Failed removing legacy storage audit column {$legacy}: " . $e->getMessage(), Log::WARNING);
-                }
+            try {
+                $db->setQuery(
+                    'ALTER TABLE ' . $db->quoteName('#__contentbuilderng_storages')
+                    . ' DROP COLUMN ' . $db->quoteName($legacy)
+                );
+                $db->execute();
+                $this->log("[OK] Removed legacy storage audit column {$legacy}.");
+                $columns = $this->getStoragesTableColumnsLower();
+            } catch (\Throwable $e) {
+                $this->log("[WARNING] Failed removing legacy storage audit column {$legacy}: " . $e->getMessage(), Log::WARNING);
             }
         }
 

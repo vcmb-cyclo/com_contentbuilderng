@@ -92,7 +92,6 @@ return new class implements ServiceProviderInterface
         $container->set(
             FormSupportService::class,
             static fn(Container $c) => new FormSupportService(
-                $c->get(PathService::class),
                 $c->get(DatabaseInterface::class),
                 $c->get(TemplateSampleService::class)
             )

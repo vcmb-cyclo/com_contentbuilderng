@@ -56,7 +56,7 @@ final class ContentbuilderngRating extends CMSPlugin implements SubscriberInterf
          */
         if (is_object($article) && !isset($article->id) && !isset($article->cbrecord) && isset($article->text) && $article->text) {
             preg_match_all("/<!--\(cbArticleId:(\d{1,})\)-->/si", $article->text, $matched_id);
-            if (isset($matched_id[1]) && isset($matched_id[1][0])) {
+            if (isset($matched_id[1][0])) {
                 $article->id = intval($matched_id[1][0]);
             }
         }
@@ -96,7 +96,7 @@ final class ContentbuilderngRating extends CMSPlugin implements SubscriberInterf
 
             preg_match_all("/\{CBRating([^}]*)\}/i", $article->text, $matches);
 
-            if (isset($matches[0]) && is_array($matches[0]) && isset($matches[1]) && is_array($matches[1])) {
+            if ($matches[0] !== []) {
                 $form_id = 0;
                 $record_id = 0;
 
@@ -136,11 +136,9 @@ final class ContentbuilderngRating extends CMSPlugin implements SubscriberInterf
                         return true;
                     }
 
-                    if ($form) {
-                        $form_id = $data['form_id'];
-                        $record_id = $data['record_id'];
-                        $rating_slots = $data['rating_slots'];
-                    }
+                    $form_id = $data['form_id'];
+                    $record_id = $data['record_id'];
+                    $rating_slots = $data['rating_slots'];
                 } elseif (isset($article->cbrecord) && isset($article->cbrecord->id) && $article->cbrecord->id) {
                     $form = $article->cbrecord->form;
                     $form_id = $article->cbrecord->id;

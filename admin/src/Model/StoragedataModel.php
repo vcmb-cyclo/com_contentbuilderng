@@ -268,9 +268,7 @@ class StoragedataModel extends ListModel
                 $ors[] = $db->quoteName($column) . ' LIKE ' . $db->quote($escaped, false);
             }
 
-            if ($ors !== []) {
-                $query->where('(' . implode(' OR ', $ors) . ')');
-            }
+            $query->where('(' . implode(' OR ', $ors) . ')');
         }
 
         $orderCol = (string) $this->getState('list.ordering', '');

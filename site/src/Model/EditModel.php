@@ -367,7 +367,7 @@ class EditModel extends BaseDatabaseModel
 
     /**
      * Gets the currencies
-     * @return array List of currencies
+     * @return object|null
      */
     function getData()
     {
@@ -1698,89 +1698,86 @@ var contentbuilderng = new function(){
                             }
                         } else {
 
-                            if (!$meta->created_id) {
+                            $bypass = new \stdClass();
+                            $verification_name = str_replace(array(';', '___', '|'), '-', trim($data->registration_bypass_verification_name) ? trim($data->registration_bypass_verification_name) : $data->title);
+                            $verify_view = trim($data->registration_bypass_verify_view) ? trim($data->registration_bypass_verify_view) : $data->id;
+                            $bypass->text = $orig_text = '{CBVerify plugin: ' . $data->registration_bypass_plugin . '; verification-name: ' . $verification_name . '; verify-view: ' . $verify_view . '; ' . str_replace(array("\r", "\n"), '', $data->registration_bypass_plugin_params) . '}';
+                            $params = new \stdClass();
 
-                                $bypass = new \stdClass();
-                                $verification_name = str_replace(array(';', '___', '|'), '-', trim($data->registration_bypass_verification_name) ? trim($data->registration_bypass_verification_name) : $data->title);
-                                $verify_view = trim($data->registration_bypass_verify_view) ? trim($data->registration_bypass_verify_view) : $data->id;
-                                $bypass->text = $orig_text = '{CBVerify plugin: ' . $data->registration_bypass_plugin . '; verification-name: ' . $verification_name . '; verify-view: ' . $verify_view . '; ' . str_replace(array("\r", "\n"), '', $data->registration_bypass_plugin_params) . '}';
-                                $params = new \stdClass();
+                            PluginHelper::importPlugin('content', 'contentbuilderng_verify');
 
-                                PluginHelper::importPlugin('content', 'contentbuilderng_verify');
+                            $dispatcher = $this->app->getDispatcher();
+                            $bypass_result = $dispatcher->dispatch('onPrepareContent', new \Joomla\CMS\Event\GenericEvent('onPrepareContent', array(&$bypass, &$params)));
 
-                                $dispatcher = $this->app->getDispatcher();
-                                $bypass_result = $dispatcher->dispatch('onPrepareContent', new \Joomla\CMS\Event\GenericEvent('onPrepareContent', array(&$bypass, &$params)));
+                            $verification_id = '';
 
-                                $verification_id = '';
+                            if ($bypass->text != $orig_text) {
+                                $verification_id = md5(uniqid('', true) . mt_rand(0, mt_getrandmax()) . (int) ($this->app->getIdentity()->id ?? 0));
+                            }
 
-                                if ($bypass->text != $orig_text) {
-                                    $verification_id = md5(uniqid('', true) . mt_rand(0, mt_getrandmax()) . (int) ($this->app->getIdentity()->id ?? 0));
-                                }
+                            $user_id = $this->register(
+                                $data->registration_bypass_plugin,
+                                $verification_name,
+                                $verification_id,
+                                $meta->created_id,
+                                $this->app->getInput()->post->get('cb_' . $the_name_field['reference_id'], '', 'raw'),
+                                $this->app->getInput()->post->get('cb_' . $the_username_field['reference_id'], '', 'raw'),
+                                $this->app->getInput()->post->get('cb_' . $the_email_field['reference_id'], '', 'raw'),
+                                $this->app->getInput()->post->get('cb_' . $the_password_field['reference_id'], '', 'raw')
+                            );
 
-                                $user_id = $this->register(
-                                    $data->registration_bypass_plugin,
-                                    $verification_name,
-                                    $verification_id,
-                                    $meta->created_id,
+                            if (intval($user_id) > 0) {
+
+                                $session->set('com_contentbuilderng.cb_last_record_user_id', $user_id);
+
+                                $data->form->saveRecordUserData(
+                                    $record_return,
+                                    $user_id,
                                     $this->app->getInput()->post->get('cb_' . $the_name_field['reference_id'], '', 'raw'),
-                                    $this->app->getInput()->post->get('cb_' . $the_username_field['reference_id'], '', 'raw'),
-                                    $this->app->getInput()->post->get('cb_' . $the_email_field['reference_id'], '', 'raw'),
-                                    $this->app->getInput()->post->get('cb_' . $the_password_field['reference_id'], '', 'raw')
+                                    $this->app->getInput()->post->get('cb_' . $the_username_field['reference_id'], '', 'raw')
                                 );
+                            } else {
 
-                                if (intval($user_id) > 0) {
+                                // rollback upon registration problems
+                                $data->form->clearDirtyRecordUserData($record_return);
 
-                                    $session->set('com_contentbuilderng.cb_last_record_user_id', $user_id);
+                                throw new \Exception(Text::_('COM_CONTENTBUILDERNG_REGISTRATION_FAILED'));
+                            }
 
-                                    $data->form->saveRecordUserData(
-                                        $record_return,
-                                        $user_id,
-                                        $this->app->getInput()->post->get('cb_' . $the_name_field['reference_id'], '', 'raw'),
-                                        $this->app->getInput()->post->get('cb_' . $the_username_field['reference_id'], '', 'raw')
-                                    );
-                                } else {
+                            if ($bypass->text != $orig_text) {
 
-                                    // rollback upon registration problems
-                                    $data->form->clearDirtyRecordUserData($record_return);
+                                $_now = (new Date());
 
-                                    throw new \Exception(Text::_('COM_CONTENTBUILDERNG_REGISTRATION_FAILED'));
-                                }
+                                $verificationSessionKey = 'com_contentbuilderng.verify.' . $data->registration_bypass_plugin . $verification_name;
+                                $setup = $session->get($verificationSessionKey, '');
+                                $session->remove($verificationSessionKey);
+                                $___now = $_now->toSql();
 
-                                if ($bypass->text != $orig_text && intval($user_id) > 0) {
-
-                                    $_now = (new Date());
-
-                                    $verificationSessionKey = 'com_contentbuilderng.verify.' . $data->registration_bypass_plugin . $verification_name;
-                                    $setup = $session->get($verificationSessionKey, '');
-                                    $session->remove($verificationSessionKey);
-                                    $___now = $_now->toSql();
-
-                                    $db = $this->getDatabase();
-                                    $query = $db->getQuery(true)
-                                        ->insert($db->quoteName('#__contentbuilderng_verifications'))
-                                        ->columns($db->quoteName([
-                                            'verification_hash',
-                                            'start_date',
-                                            'verification_data',
-                                            'user_id',
-                                            'plugin',
-                                            'ip',
-                                            'setup',
-                                            'client',
-                                        ]))
-                                        ->values(implode(', ', [
-                                            $db->quote($verification_id),
-                                            $db->quote($___now),
-                                            $db->quote('type=registration&'),
-                                            (string) (int) $user_id,
-                                            $db->quote((string) $data->registration_bypass_plugin),
-                                            $db->quote((string) ($_SERVER['REMOTE_ADDR'] ?? '')),
-                                            $db->quote((string) $setup),
-                                            $this->app->isClient('administrator') ? '1' : '0',
-                                        ]));
-                                    $db->setQuery($query);
-                                    $this->getDatabase()->execute();
-                                }
+                                $db = $this->getDatabase();
+                                $query = $db->getQuery(true)
+                                    ->insert($db->quoteName('#__contentbuilderng_verifications'))
+                                    ->columns($db->quoteName([
+                                        'verification_hash',
+                                        'start_date',
+                                        'verification_data',
+                                        'user_id',
+                                        'plugin',
+                                        'ip',
+                                        'setup',
+                                        'client',
+                                    ]))
+                                    ->values(implode(', ', [
+                                        $db->quote($verification_id),
+                                        $db->quote($___now),
+                                        $db->quote('type=registration&'),
+                                        (string) (int) $user_id,
+                                        $db->quote((string) $data->registration_bypass_plugin),
+                                        $db->quote((string) ($_SERVER['REMOTE_ADDR'] ?? '')),
+                                        $db->quote((string) $setup),
+                                        $this->app->isClient('administrator') ? '1' : '0',
+                                    ]));
+                                $db->setQuery($query);
+                                $this->getDatabase()->execute();
                             }
                         }
                     }
@@ -2381,10 +2378,10 @@ var contentbuilderng = new function(){
         $query = $db->getQuery(true);
 
         // Compile the notification mail values.
-        $data['name'] = (string) ($user->name ?? '');
-        $data['email'] = (string) ($user->email ?? '');
-        $data['username'] = (string) ($user->username ?? '');
-        $data['activation'] = (string) ($user->activation ?? '');
+        $data['name'] = $user->name;
+        $data['email'] = $user->email;
+        $data['username'] = $user->username;
+        $data['activation'] = $user->activation;
         if (!isset($data['password_clear'])) {
             $data['password_clear'] = (string) $the_password_field;
         }

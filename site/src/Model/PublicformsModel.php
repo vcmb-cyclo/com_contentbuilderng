@@ -54,8 +54,6 @@ class PublicformsModel extends ListModel
 
     private $frontend = false;
 
-    private $_menu_item = false;
-
     private $forms = array();
 
     private $show_permissions = false;
@@ -116,8 +114,6 @@ class PublicformsModel extends ListModel
         $this->frontend = $app->isClient('site');
 
         if ($this->frontend && $app->getInput()->getInt('Itemid', 0)) {
-            $this->_menu_item = true;
-
             // try menu item
             $forms = null;
 

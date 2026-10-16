@@ -25,7 +25,6 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use CB\Component\Contentbuilderng\Site\Helper\PreviewLinkHelper;
 use CB\Component\Contentbuilderng\Administrator\Model\StoragesModel;
-use CB\Component\Contentbuilderng\Administrator\Extension\ContentbuilderngComponent;
 use CB\Component\Contentbuilderng\Administrator\View\Contentbuilderng\HtmlView as BaseHtmlView;
 
 /**
@@ -50,16 +49,6 @@ class HtmlView extends BaseHtmlView
         return $app;
     }
 
-    private function getComponent(): ContentbuilderngComponent
-    {
-        $component = $this->getApp()->bootComponent('com_contentbuilderng');
-
-        if (!$component instanceof ContentbuilderngComponent) {
-            throw new \RuntimeException('Unexpected component instance');
-        }
-
-        return $component;
-    }
 
     /**
      * Méthode d'affichage de la vue

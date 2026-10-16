@@ -385,7 +385,7 @@ class contentbuilderng_com_contentbuilderng
                 joined_records.rating_sum As colRatingSum
             From
                 " . $this->bytable . $this->properties->name . " As r
-                " . ($published_only || !$show_all_languages || $show_all_languages ? " Left Join #__contentbuilderng_records As joined_records On ( joined_records.`type` = 'com_contentbuilderng' And joined_records.record_id = r.id And joined_records.reference_id = " . $recordReference . " ) " : "") . "
+                Left Join #__contentbuilderng_records As joined_records On ( joined_records.`type` = 'com_contentbuilderng' And joined_records.record_id = r.id And joined_records.reference_id = " . $recordReference . " ) 
                 
             Where
                 r.id = " . $db->quote(intval($record_id)) . " And
@@ -793,9 +793,9 @@ class contentbuilderng_com_contentbuilderng
         $initialOrder2 = $init_order_by2 == -1 || $init_order_by2 == 0 ? 'colRecord' : $init_order_by2;
         $initialOrder3 = $init_order_by3 == -1 || $init_order_by3 == 0 ? 'colRecord' : $init_order_by3;
         $orderDirection = $order_Dir ? (strtolower($order_Dir) == 'asc' ? 'asc' : 'desc') : 'asc';
-        $initialOrderDirection1 = strtolower((string) ($form?->initial_order_dir ?? $orderDirection)) === 'asc' ? 'asc' : 'desc';
-        $initialOrderDirection2 = strtolower((string) ($form?->initial_order_dir2 ?? $initialOrderDirection1)) === 'asc' ? 'asc' : 'desc';
-        $initialOrderDirection3 = strtolower((string) ($form?->initial_order_dir3 ?? $initialOrderDirection1)) === 'asc' ? 'asc' : 'desc';
+        $initialOrderDirection1 = strtolower((string) ($form->initial_order_dir ?? $orderDirection)) === 'asc' ? 'asc' : 'desc';
+        $initialOrderDirection2 = strtolower((string) ($form->initial_order_dir2 ?? $initialOrderDirection1)) === 'asc' ? 'asc' : 'desc';
+        $initialOrderDirection3 = strtolower((string) ($form->initial_order_dir3 ?? $initialOrderDirection1)) === 'asc' ? 'asc' : 'desc';
 
         $orderClause = $multiOrderClause !== ""
             ? " Order By " . $multiOrderClause

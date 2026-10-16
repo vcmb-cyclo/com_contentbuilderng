@@ -28,18 +28,9 @@ use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 
 set_error_handler(__NAMESPACE__ . '\\myErrorHandler');
-register_shutdown_function(__NAMESPACE__ . '\\fatalErrorShutdownHandler');
 function myErrorHandler($code, $message, $file, $line)
 {
 	// nothing
-}
-function fatalErrorShutdownHandler()
-{
-	$last_error = error_get_last();
-	if ($last_error['type'] === E_ERROR) {
-		// fatal error
-		myErrorHandler(E_ERROR, $last_error['message'], $last_error['file'], $last_error['line']);
-	}
 }
 
 // some hosting providers think it is a good idea not to compile in exif with php...
@@ -118,7 +109,7 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 		 */
 		if (is_object($article) && !isset ($article->id) && !isset ($article->cbrecord) && isset ($article->text) && $article->text) {
 			preg_match_all("/<!--\(cbArticleId:(\d{1,})\)-->/si", $article->text, $matched_id);
-			if (isset ($matched_id[1]) && isset ($matched_id[1][0])) {
+			if (isset($matched_id[1][0])) {
 				$article->id = intval($matched_id[1][0]);
 			}
 		}
@@ -160,13 +151,15 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 
 			preg_match_all("/\{CBImageScale([^}]*)\}/i", $article->text, $matches);
 
-			if (isset ($matches[0]) && is_array($matches[0]) && isset ($matches[1]) && is_array($matches[1])) {
+			if ($matches[0] !== []) {
 
 				$record = null;
 				$default_title = '';
 				$protect = 0;
 				$form_id = 0;
 				$record_id = 0;
+				$ref_type = '';
+				$ref_id = '';
 
 				$frontend = true;
 				if ($this->app->isClient('administrator')) {
@@ -206,19 +199,16 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 						return true;
 					}
 
-					if ($form) {
-
-						$protect = $data['protect_upload_directory'];
-						$record = $form->getRecord($data['record_id'], $data['published_only'], $frontend ? ($data['own_only_fe'] ? (int) ($this->app->getIdentity()->id ?? 0) : -1) : ($data['own_only'] ? (int) ($this->app->getIdentity()->id ?? 0) : -1), true);
-						$default_title = $data['title_field'];
-						$form_id = $data['form_id'];
-						$record_id = $data['record_id'];
-						$ref_id = $record_id = $data['reference_id'];
-						$ref_type = $data['type'];
-						$ref_published_only = $data['published_only'];
-						$ref_own_only_fe = $data['own_only_fe'];
-						$ref_own_only = $data['own_only'];
-					}
+					$protect = $data['protect_upload_directory'];
+					$record = $form->getRecord($data['record_id'], $data['published_only'], $frontend ? ($data['own_only_fe'] ? (int) ($this->app->getIdentity()->id ?? 0) : -1) : ($data['own_only'] ? (int) ($this->app->getIdentity()->id ?? 0) : -1), true);
+					$default_title = $data['title_field'];
+					$form_id = $data['form_id'];
+					$record_id = $data['record_id'];
+					$ref_id = $record_id = $data['reference_id'];
+					$ref_type = $data['type'];
+					$ref_published_only = $data['published_only'];
+					$ref_own_only_fe = $data['own_only_fe'];
+					$ref_own_only = $data['own_only'];
 
 				} else if (isset ($article->cbrecord) && isset ($article->cbrecord->id) && $article->cbrecord->id) {
 
@@ -378,34 +368,31 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 
 					if ($is_list && $alt == 'USE-TITLE') {
 
-						if (!$use_form) {
-
-							$use_form = FormSourceFactory::getForm($ref_type, $ref_id);
+						$formCacheKey = $ref_type . ':' . $ref_id;
+						if (!isset($use_form[$formCacheKey])) {
+							$use_form[$formCacheKey] = FormSourceFactory::getForm($ref_type, $ref_id);
 						}
+						$titleForm = $use_form[$formCacheKey];
 
-						if ($use_form && $use_form->exists) {
+						if ($titleForm && $titleForm->exists) {
 
-							if (!is_array($use_title) || !isset ($use_title[intval($default_title)])) {
+							$titleCacheKey = $formCacheKey . ':' . $record_id . ':' . $default_title;
+							if (!isset($use_title[$titleCacheKey])) {
 
-									$use_record = $use_form->getRecord($record_id, $ref_published_only, $frontend ? ($ref_own_only_fe ? (int) ($this->app->getIdentity()->id ?? 0) : -1) : ($ref_own_only ?
-									 (int) ($this->app->getIdentity()->id ?? 0) : -1), true);
+								$use_record = $titleForm->getRecord($record_id, $ref_published_only, $frontend ? ($ref_own_only_fe ? (int) ($this->app->getIdentity()->id ?? 0) : -1) : ($ref_own_only ?
+									(int) ($this->app->getIdentity()->id ?? 0) : -1), true);
 
-								foreach ($use_record as $use_item) {
+								$use_title[$titleCacheKey] = '';
+								foreach ((array) $use_record as $use_item) {
 									if ($default_title == $use_item->recElementId) {
-										$default_title = ContentbuilderngHelper::cbinternal($item->recValue);
-										if (!$is_list && $alt == 'USE-TITLE') {
-											$alt = $default_title;
-											$title = $default_title;
-										}
+										$use_title[$titleCacheKey] = ContentbuilderngHelper::cbinternal($use_item->recValue);
 										break;
 									}
 								}
-
-								$use_title[intval($default_title)] = $this->db->loadResult();
 							}
 
-							$alt = $use_title[intval($default_title)];
-							$title = $use_title[intval($default_title)];
+							$alt = $use_title[$titleCacheKey];
+							$title = $use_title[$titleCacheKey];
 
 						}
 					} else if ($is_list && trim($alt) == '') {
@@ -556,7 +543,7 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 													$image_changed = false;
 													$image_filesize = @filesize($filename);
 
-													if ($image_filesize !== null) {
+													if ($image_filesize !== false) {
 														$existing_image = @getimagesize($filename);
 														if ($existing_image[0] != $width || $existing_image[1] != $height) {
 															$image_changed = true;
@@ -716,78 +703,76 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 														}
 													}
 
-													if ($filename) {
-														$the_image = @getimagesize($filename);
+													$the_image = @getimagesize($filename);
 
-														if ($the_image !== false) {
-															if (Factory::getApplication()->getInput()->getInt('contentbuilderng_display', 0)) {
+													if ($the_image !== false) {
+														if (Factory::getApplication()->getInput()->getInt('contentbuilderng_display', 0)) {
 
-																if ($this->app->getInput()->getString('contentbuilderng_field', '') == sha1($field . $filename)) {
+															if ($this->app->getInput()->getString('contentbuilderng_field', '') == sha1($field . $filename)) {
 
-																	// clean up before displaying
-																	ob_end_clean();
+																// clean up before displaying
+																ob_end_clean();
 
-																	switch ($exif_type) {
-																		case IMAGETYPE_JPEG2000:
-																			header('Content-Type: ' . @image_type_to_mime_type(IMAGETYPE_JPEG2000));
-																			break;
-																		case IMAGETYPE_JPEG:
-																			header('Content-Type: ' . @image_type_to_mime_type(IMAGETYPE_JPEG));
-																			break;
-																		case IMAGETYPE_GIF:
-																			header('Content-Type: ' . @image_type_to_mime_type(IMAGETYPE_GIF));
-																			break;
-																		case IMAGETYPE_PNG:
-																			header('Content-Type: ' . @image_type_to_mime_type(IMAGETYPE_PNG));
-																			break;
-																	}
-
-																	header('Content-Disposition: inline; filename="' . OutputFilter::stringURLSafe($title) . '_' . basename($filename) . '"');
-																	header('Content-Length: ' . @filesize($filename));
-																	@$this->readfile_chunked($filename);
-
-																	exit;
-
+																switch ($exif_type) {
+																	case IMAGETYPE_JPEG2000:
+																		header('Content-Type: ' . @image_type_to_mime_type(IMAGETYPE_JPEG2000));
+																		break;
+																	case IMAGETYPE_JPEG:
+																		header('Content-Type: ' . @image_type_to_mime_type(IMAGETYPE_JPEG));
+																		break;
+																	case IMAGETYPE_GIF:
+																		header('Content-Type: ' . @image_type_to_mime_type(IMAGETYPE_GIF));
+																		break;
+																	case IMAGETYPE_PNG:
+																		header('Content-Type: ' . @image_type_to_mime_type(IMAGETYPE_PNG));
+																		break;
 																}
 
-															} else {
-																$align_ = $align;
-																$open_ = '';
-																$close_ = '';
+																header('Content-Disposition: inline; filename="' . OutputFilter::stringURLSafe($title) . '_' . basename($filename) . '"');
+																header('Content-Length: ' . @filesize($filename));
+																@$this->readfile_chunked($filename);
 
-																$url = Uri::getInstance()->toString();
-																//fixing downloads on other pages than page 1
-																if (Factory::getApplication()->getInput()->get('controller', '', 'string') == 'list') {
-																	$url = Uri::getInstance()->base() . 'index.php?option=com_contentbuilderng&amp;task=list.display&amp;id=' . intval($form_id) . '&amp;limitstart=' . Factory::getApplication()->getInput()->getInt('limitstart', 0);
-																}
+																exit;
 
-																if (trim($open) == 'true') {
-																	if ($protect) {
-																		$open_ = Route::_($url . (strstr($url, '?') !== false ? '&' : '?') . 'contentbuilderng_display_detail=1&contentbuilderng_detail_file=' . sha1($field . $the_value));
-																	} else {
-																		$ex = explode(JPATH_SITE . '/', Path::clean($the_value), 2);
-																		$open_ = Uri::root(true) . '/' . str_replace("\\", "/", $ex[count($ex) - 1]);
-																	}
-																}
-																if ($open_) {
-																	$hrefalign = $align_ ? 'style="float: ' . $align_ . ';" ' : '';
-																	$open_ = '<a href="javascript:var win = window.open(\'' . $open_ . '\',\'ImageSizer\',\'height=' . $image[1] . ',width=' . $image[0] . ',scrollbars=1\');win.focus();void(0);" ' . $hrefalign . '>';
-																	$close_ = '</a>';
-																}
-
-																if ($protect) {
-																	$src = Route::_($url . (strstr($url, '?') !== false ? '&' : '?') . 'contentbuilderng_display=1&contentbuilderng_field=' . sha1($field . $filename));
-																} else {
-																	$ex = explode(JPATH_SITE . '/', $filename, 2);
-																	$src = Uri::root(true) . '/' . str_replace("\\", "/", $ex[count($ex) - 1]);
-																}
-
-																$out .= $open_ . '<img border="0" ' . $the_image[3] . ' ' . ($align_ ? 'style="float: ' . $align_ . ';" ' : '') . 'alt="' . $alt . '" title="' . $title . '" src="' . $src . '"/>' . $close_;
-																if ($is_series && $align_ && (strtolower($align_) == 'left' || strtolower($align_) == 'right')) {
-																	$out .= '<div style="float:' . strtolower($align_) . ';width: 5px;">&nbsp;</div>';
-																}
-																$align_ = '';
 															}
+
+														} else {
+															$align_ = $align;
+															$open_ = '';
+															$close_ = '';
+
+															$url = Uri::getInstance()->toString();
+															//fixing downloads on other pages than page 1
+															if (Factory::getApplication()->getInput()->get('controller', '', 'string') == 'list') {
+																$url = Uri::getInstance()->base() . 'index.php?option=com_contentbuilderng&amp;task=list.display&amp;id=' . intval($form_id) . '&amp;limitstart=' . Factory::getApplication()->getInput()->getInt('limitstart', 0);
+															}
+
+															if (trim($open) == 'true') {
+																if ($protect) {
+																	$open_ = Route::_($url . (strstr($url, '?') !== false ? '&' : '?') . 'contentbuilderng_display_detail=1&contentbuilderng_detail_file=' . sha1($field . $the_value));
+																} else {
+																	$ex = explode(JPATH_SITE . '/', Path::clean($the_value), 2);
+																	$open_ = Uri::root(true) . '/' . str_replace("\\", "/", $ex[count($ex) - 1]);
+																}
+															}
+															if ($open_) {
+																$hrefalign = $align_ ? 'style="float: ' . $align_ . ';" ' : '';
+																$open_ = '<a href="javascript:var win = window.open(\'' . $open_ . '\',\'ImageSizer\',\'height=' . $image[1] . ',width=' . $image[0] . ',scrollbars=1\');win.focus();void(0);" ' . $hrefalign . '>';
+																$close_ = '</a>';
+															}
+
+															if ($protect) {
+																$src = Route::_($url . (strstr($url, '?') !== false ? '&' : '?') . 'contentbuilderng_display=1&contentbuilderng_field=' . sha1($field . $filename));
+															} else {
+																$ex = explode(JPATH_SITE . '/', $filename, 2);
+																$src = Uri::root(true) . '/' . str_replace("\\", "/", $ex[count($ex) - 1]);
+															}
+
+															$out .= $open_ . '<img border="0" ' . $the_image[3] . ' ' . ($align_ ? 'style="float: ' . $align_ . ';" ' : '') . 'alt="' . $alt . '" title="' . $title . '" src="' . $src . '"/>' . $close_;
+															if ($is_series && $align_ && (strtolower($align_) == 'left' || strtolower($align_) == 'right')) {
+																$out .= '<div style="float:' . strtolower($align_) . ';width: 5px;">&nbsp;</div>';
+															}
+															$align_ = '';
 														}
 													}
 												}

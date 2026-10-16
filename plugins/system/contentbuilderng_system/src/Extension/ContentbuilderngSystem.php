@@ -341,7 +341,7 @@ JS);
             preg_match_all("/<!--\(cbArticleId:(\d{1,})\)-->/si", $body, $matched_ids);
 
             $ids = array();
-            if (isset($matched_ids[1]) && is_array($matched_ids[1])) {
+            if ($matched_ids[1] !== []) {
                 foreach ($matched_ids[1] as $id) {
                     if (!in_array(intval($id), $ids)) {
                         $ids[] = intval($id);
@@ -576,52 +576,50 @@ JS);
         }
 
         // synch the records if there are any changes
-        if ($app->isClient('site')) {
-            $user = $this->app->getIdentity();
+        $user = $this->app->getIdentity();
 
-            // Multi-table UPDATE (MySQL-specific syntax): DDL-style raw string with quoted identifiers.
-            $db = $this->db;
-            $db->setQuery(
-                'UPDATE ' . $db->quoteName('#__contentbuilderng_articles', 'articles') . ','
-                . $db->quoteName('#__content', 'content') . ','
-                . $db->quoteName('#__contentbuilderng_forms', 'forms') . ','
-                . $db->quoteName('#__contentbuilderng_registered_users', 'cbusers') . ','
-                . $db->quoteName('#__users', 'users')
-                . ' SET ' . $db->quoteName('content.state') . ' = 0'
-                . ' WHERE ' . $db->quoteName('articles.article_id') . ' = ' . $db->quoteName('content.id')
-                . ' AND ' . $db->quoteName('content.state') . ' = 1'
-                . ' AND ' . $db->quoteName('articles.form_id') . ' = ' . $db->quoteName('forms.id')
-                . ' AND ' . $db->quoteName('forms.act_as_registration') . ' = 1'
-                . ' AND ' . $db->quoteName('forms.id') . ' = ' . $db->quoteName('cbusers.form_id')
-                . ' AND ' . $db->quoteName('content.created_by') . ' = ' . $db->quoteName('cbusers.user_id')
-                . ' AND (' . $db->quoteName('users.id') . ' = ' . $db->quoteName('cbusers.user_id')
-                . ' AND ' . $db->quoteName('users.block') . ' = 1)'
-            );
-            $db->execute();
+        // Multi-table UPDATE (MySQL-specific syntax): DDL-style raw string with quoted identifiers.
+        $db = $this->db;
+        $db->setQuery(
+            'UPDATE ' . $db->quoteName('#__contentbuilderng_articles', 'articles') . ','
+            . $db->quoteName('#__content', 'content') . ','
+            . $db->quoteName('#__contentbuilderng_forms', 'forms') . ','
+            . $db->quoteName('#__contentbuilderng_registered_users', 'cbusers') . ','
+            . $db->quoteName('#__users', 'users')
+            . ' SET ' . $db->quoteName('content.state') . ' = 0'
+            . ' WHERE ' . $db->quoteName('articles.article_id') . ' = ' . $db->quoteName('content.id')
+            . ' AND ' . $db->quoteName('content.state') . ' = 1'
+            . ' AND ' . $db->quoteName('articles.form_id') . ' = ' . $db->quoteName('forms.id')
+            . ' AND ' . $db->quoteName('forms.act_as_registration') . ' = 1'
+            . ' AND ' . $db->quoteName('forms.id') . ' = ' . $db->quoteName('cbusers.form_id')
+            . ' AND ' . $db->quoteName('content.created_by') . ' = ' . $db->quoteName('cbusers.user_id')
+            . ' AND (' . $db->quoteName('users.id') . ' = ' . $db->quoteName('cbusers.user_id')
+            . ' AND ' . $db->quoteName('users.block') . ' = 1)'
+        );
+        $db->execute();
 
-            $db->setQuery(
-                'UPDATE ' . $db->quoteName('#__contentbuilderng_articles', 'articles') . ','
-                . $db->quoteName('#__content', 'content') . ','
-                . $db->quoteName('#__contentbuilderng_forms', 'forms') . ','
-                . $db->quoteName('#__contentbuilderng_records', 'records') . ','
-                . $db->quoteName('#__contentbuilderng_registered_users', 'cbusers') . ','
-                . $db->quoteName('#__users', 'users')
-                . ' SET ' . $db->quoteName('content.state') . ' = ' . $db->quoteName('forms.auto_publish')
-                . ' WHERE ' . $db->quoteName('articles.article_id') . ' = ' . $db->quoteName('content.id')
-                . ' AND ' . $db->quoteName('content.state') . ' = 0'
-                . ' AND ' . $db->quoteName('articles.form_id') . ' = ' . $db->quoteName('forms.id')
-                . ' AND ' . $db->quoteName('forms.act_as_registration') . ' = 1'
-                . ' AND ' . $db->quoteName('forms.id') . ' = ' . $db->quoteName('cbusers.form_id')
-                . ' AND ' . $db->quoteName('content.created_by') . ' = ' . $db->quoteName('cbusers.user_id')
-                . ' AND ' . $db->quoteName('users.id') . ' = ' . $db->quoteName('cbusers.user_id')
-                . ' AND ' . $db->quoteName('records.record_id') . ' = ' . $db->quoteName('cbusers.record_id')
-                . ' AND ' . $db->quoteName('records.type') . ' = ' . $db->quoteName('forms.type')
-                . ' AND ' . $db->quoteName('users.block') . ' = 0'
-            );
-            $db->execute();
+        $db->setQuery(
+            'UPDATE ' . $db->quoteName('#__contentbuilderng_articles', 'articles') . ','
+            . $db->quoteName('#__content', 'content') . ','
+            . $db->quoteName('#__contentbuilderng_forms', 'forms') . ','
+            . $db->quoteName('#__contentbuilderng_records', 'records') . ','
+            . $db->quoteName('#__contentbuilderng_registered_users', 'cbusers') . ','
+            . $db->quoteName('#__users', 'users')
+            . ' SET ' . $db->quoteName('content.state') . ' = ' . $db->quoteName('forms.auto_publish')
+            . ' WHERE ' . $db->quoteName('articles.article_id') . ' = ' . $db->quoteName('content.id')
+            . ' AND ' . $db->quoteName('content.state') . ' = 0'
+            . ' AND ' . $db->quoteName('articles.form_id') . ' = ' . $db->quoteName('forms.id')
+            . ' AND ' . $db->quoteName('forms.act_as_registration') . ' = 1'
+            . ' AND ' . $db->quoteName('forms.id') . ' = ' . $db->quoteName('cbusers.form_id')
+            . ' AND ' . $db->quoteName('content.created_by') . ' = ' . $db->quoteName('cbusers.user_id')
+            . ' AND ' . $db->quoteName('users.id') . ' = ' . $db->quoteName('cbusers.user_id')
+            . ' AND ' . $db->quoteName('records.record_id') . ' = ' . $db->quoteName('cbusers.record_id')
+            . ' AND ' . $db->quoteName('records.type') . ' = ' . $db->quoteName('forms.type')
+            . ' AND ' . $db->quoteName('users.block') . ' = 0'
+        );
+        $db->execute();
 
-            $this->createMissingArticles();
-        }
+        $this->createMissingArticles();
     }
 
     private function createMissingArticles(): void

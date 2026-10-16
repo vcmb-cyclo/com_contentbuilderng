@@ -154,7 +154,7 @@ class FormsField extends FormField
         }
 
         foreach ($defaultsByForm as $formId => $defaults) {
-            $categoryId = (int) ($defaults['default_category_id'] ?? 0);
+            $categoryId = $defaults['default_category_id'];
             $defaultsByForm[$formId]['default_category_label'] = $categoryId > 0
                 ? ($categoryTitles[$categoryId] ?? ('#' . $categoryId))
                 : Text::_('COM_CONTENTBUILDERNG_INHERIT');

@@ -620,7 +620,7 @@ final class PluginInstallerService
         $groupCount = 0;
 
         foreach ($groups as $key => $groupRows) {
-            if (!is_array($groupRows) || count($groupRows) < 2) {
+            if (count($groupRows) < 2) {
                 continue;
             }
 

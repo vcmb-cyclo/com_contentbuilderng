@@ -31,7 +31,7 @@ $direction   = strtolower((string) ($displayData['direction'] ?? 'asc')) === 'de
 $editBaseUrl = (string) ($displayData['editBaseUrl'] ?? '');
 
 $columns = array_keys($labels);
-$isReadOnly = (int) ($item?->bytable ?? 0) === 2;
+$isReadOnly = (int) ($item->bytable ?? 0) === 2;
 $canMutate = $hasPk && !$isReadOnly && $editBaseUrl !== '';
 
 $records = is_array($records) ? $records : iterator_to_array($records);

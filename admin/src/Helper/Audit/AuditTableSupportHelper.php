@@ -42,7 +42,7 @@ final class AuditTableSupportHelper
             }
 
             $withoutPrefix = substr($tableName, strlen($prefix));
-            if ($withoutPrefix === false || $withoutPrefix === '') {
+            if ($withoutPrefix === '') {
                 continue;
             }
 

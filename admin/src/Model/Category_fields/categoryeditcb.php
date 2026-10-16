@@ -80,14 +80,6 @@ class FormFieldCategoryEditCb extends ListField
             $options[$i]->text = str_repeat('- ', $options[$i]->level) . $options[$i]->text;
         }
 
-        if (isset($row) && !isset($options[0])) {
-            if ($row->parent_id == '1') {
-                $parent = new \stdClass();
-                $parent->text = Text::_('JGLOBAL_ROOT_PARENT');
-                array_unshift($options, $parent);
-            }
-        }
-
         return $options;
     }
 }

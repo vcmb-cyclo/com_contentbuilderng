@@ -801,8 +801,10 @@ $renderCheckbox = static function (string $name, string $id, bool $checked = fal
                         );
 
                         $allBfSystemFields = [];
+                        // System fields are added to a saved form only: a new one has no id for them yet.
                         if (
                             $isBreezingFormsType
+                            && (int) ($this->item->id ?? 0) > 0
                             && is_object($this->item->form ?? null)
                             && method_exists($this->item->form, 'getSystemFieldDefinitions')
                         ) {

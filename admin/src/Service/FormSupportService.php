@@ -17,7 +17,6 @@ use Joomla\Filesystem\Folder;
 class FormSupportService
 {
     public function __construct(
-        private readonly PathService $pathService,
         private readonly DatabaseInterface $db,
         private readonly TemplateSampleService $templateSampleService
     ) {
@@ -100,7 +99,7 @@ class FormSupportService
         try {
             [$sourceForm, $themePlugin] = $this->resolveFormForTemplateRegeneration($formId);
         } catch (\Throwable $e) {
-            return array_map(
+            return array_values(array_map(
                 static fn(array $template): array => [
                     'type' => 'warning',
                     'message' => Text::sprintf(
@@ -110,7 +109,7 @@ class FormSupportService
                     ),
                 ],
                 $lockedTemplates
-            );
+            ));
         }
 
         $messages = [];

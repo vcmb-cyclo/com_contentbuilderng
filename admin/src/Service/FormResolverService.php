@@ -54,11 +54,8 @@ class FormResolverService
                     continue;
                 }
                 try {
-                    $previewForm = new $class($referenceId, false);
-                    if (is_object($previewForm)) {
-                        $form = $previewForm;
-                        break;
-                    }
+                    $form = new $class($referenceId, false);
+                    break;
                 } catch (\ArgumentCountError | \TypeError $e) {
                 } catch (\Throwable $e) {
                     Logger::exception($e);

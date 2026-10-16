@@ -98,7 +98,7 @@ final class ContentbuilderngStats extends CMSPlugin implements SubscriberInterfa
         if ($hasStats) {
             $text = preg_replace_callback(
                 TagSyntaxService::TAG_PATTERN,
-                fn(array $match): string => $this->renderArticleTag((string) ($match[1] ?? '')),
+                fn(array $match): string => $this->renderArticleTag($match[1]),
                 $text
             );
         }

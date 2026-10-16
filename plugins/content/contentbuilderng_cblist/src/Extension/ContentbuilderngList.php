@@ -59,7 +59,7 @@ final class ContentbuilderngList extends CMSPlugin implements SubscriberInterfac
 
         $article->text = preg_replace_callback(
             TagSyntaxService::TAG_PATTERN,
-            fn(array $match): string => $this->renderTag((string) ($match[1] ?? ''), $app),
+            fn(array $match): string => $this->renderTag($match[1], $app),
             (string) $article->text
         );
     }

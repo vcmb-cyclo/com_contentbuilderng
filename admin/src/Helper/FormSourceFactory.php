@@ -148,10 +148,7 @@ final class FormSourceFactory
 
         if ($allowUnpublishedSource && !$exists) {
             try {
-                $previewForm = new $class($referenceId, false);
-                if (is_object($previewForm)) {
-                    $form = $previewForm;
-                }
+                $form = new $class($referenceId, false);
             } catch (\ArgumentCountError | \TypeError $e) {
                 // Type class does not support an unpublished flag; keep initial instance.
             }

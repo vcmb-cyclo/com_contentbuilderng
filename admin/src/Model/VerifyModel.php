@@ -39,7 +39,6 @@ use CB\Component\Contentbuilderng\Administrator\Helper\RuntimeContextHelper;
 class VerifyModel extends BaseDatabaseModel
 {
 
-    private $frontend = false;
     private AdministratorApplication|SiteApplication $app;
 
     private function getComponent(): ContentbuilderngComponent
@@ -78,7 +77,7 @@ class VerifyModel extends BaseDatabaseModel
         $payload = $decoded !== false ? $decoded : $encoded;
         parse_str($payload, $opts);
 
-        return is_array($opts) ? $opts : [];
+        return $opts;
     }
 
     private function decodeInternalReturn(?string $encoded): string
@@ -118,7 +117,6 @@ class VerifyModel extends BaseDatabaseModel
             throw new \RuntimeException('Unexpected application instance');
         }
         $this->app = $app;
-        $this->frontend = $this->app->isClient('site');
 
         $option = 'com_contentbuilderng';
 
