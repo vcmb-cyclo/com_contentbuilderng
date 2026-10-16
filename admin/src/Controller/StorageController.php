@@ -265,7 +265,7 @@ class StorageController extends BaseFormController
             }
             if (!$id) {
                 try {
-                    $redirect = $this->redirect;
+                    $redirect = (string) $this->redirect;
                     $query = parse_url($redirect, PHP_URL_QUERY);
                     if (is_string($query) && $query !== '') {
                         parse_str($query, $queryVars);
@@ -348,7 +348,7 @@ class StorageController extends BaseFormController
                         '#__' . (string) $renameInfo['to']
                     );
 
-                    $currentMessage = trim($this->message);
+                    $currentMessage = trim((string) $this->message);
                     $this->setMessage(
                         $currentMessage !== '' ? ($currentMessage . ' ' . $renameMessage) : $renameMessage
                     );
@@ -375,7 +375,7 @@ class StorageController extends BaseFormController
             }
 
             if ($this->input->getBool('wizard', false) && $this->getTask() === 'save') {
-                $message = trim($this->message);
+                $message = trim((string) $this->message);
                 $this->setRedirect(
                     Route::_('index.php?option=com_contentbuilderng&view=storagewizard', false),
                     $message !== '' ? $message : Text::_('COM_CONTENTBUILDERNG_SAVED')
@@ -540,7 +540,7 @@ class StorageController extends BaseFormController
                 : Route::_('index.php?option=com_contentbuilderng&task=storages.display', false);
         }
 
-        $message = trim($this->message);
+        $message = trim((string) $this->message);
         if ($message === '') {
             $message = Text::_('COM_CONTENTBUILDERNG_SAVED');
         }

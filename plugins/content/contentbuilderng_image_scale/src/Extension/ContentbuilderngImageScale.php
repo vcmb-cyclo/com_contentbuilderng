@@ -152,6 +152,8 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 				$protect = 0;
 				$form_id = 0;
 				$record_id = 0;
+				$ref_type = '';
+				$ref_id = '';
 
 				$frontend = true;
 				if ($this->app->isClient('administrator')) {
@@ -360,30 +362,31 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 
 					if ($is_list && $alt == 'USE-TITLE') {
 
-						if (!$use_form) {
-
-							$use_form = FormSourceFactory::getForm($ref_type, $ref_id);
+						$formCacheKey = $ref_type . ':' . $ref_id;
+						if (!isset($use_form[$formCacheKey])) {
+							$use_form[$formCacheKey] = FormSourceFactory::getForm($ref_type, $ref_id);
 						}
+						$titleForm = $use_form[$formCacheKey];
 
-						if ($use_form && $use_form->exists) {
+						if ($titleForm && $titleForm->exists) {
 
-							if (!is_array($use_title) || !isset ($use_title[intval($default_title)])) {
+							$titleCacheKey = $formCacheKey . ':' . $record_id . ':' . $default_title;
+							if (!isset($use_title[$titleCacheKey])) {
 
-									$use_record = $use_form->getRecord($record_id, $ref_published_only, $frontend ? ($ref_own_only_fe ? (int) ($this->app->getIdentity()->id ?? 0) : -1) : ($ref_own_only ?
-									 (int) ($this->app->getIdentity()->id ?? 0) : -1), true);
+								$use_record = $titleForm->getRecord($record_id, $ref_published_only, $frontend ? ($ref_own_only_fe ? (int) ($this->app->getIdentity()->id ?? 0) : -1) : ($ref_own_only ?
+									(int) ($this->app->getIdentity()->id ?? 0) : -1), true);
 
-								foreach ($use_record as $use_item) {
+								$use_title[$titleCacheKey] = '';
+								foreach ((array) $use_record as $use_item) {
 									if ($default_title == $use_item->recElementId) {
-										$default_title = ContentbuilderngHelper::cbinternal($item->recValue);
+										$use_title[$titleCacheKey] = ContentbuilderngHelper::cbinternal($use_item->recValue);
 										break;
 									}
 								}
-
-								$use_title[intval($default_title)] = $this->db->loadResult();
 							}
 
-							$alt = $use_title[intval($default_title)];
-							$title = $use_title[intval($default_title)];
+							$alt = $use_title[$titleCacheKey];
+							$title = $use_title[$titleCacheKey];
 
 						}
 					} else if ($is_list && trim($alt) == '') {

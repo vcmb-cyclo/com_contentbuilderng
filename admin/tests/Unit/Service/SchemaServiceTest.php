@@ -24,6 +24,59 @@ final class SchemaServiceTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string,mixed> $columns
+     * @return array{executed: list<string>, logs: list<string>}
+     */
+    private function runStoragesAuditColumnMigration(array $columns, string $failingStatementPrefix): array
+    {
+        $db = new SchemaServiceAuditColumnsFakeDatabase($columns, $failingStatementPrefix);
+        $logLines = [];
+        $service = new SchemaService(
+            static fn(): DatabaseInterface => $db,
+            static function (string $message, int $priority) use (&$logLines): void {
+                $logLines[] = $message;
+            },
+            static fn(callable $callback, mixed $fallback = null): mixed => $callback()
+        );
+
+        (new \ReflectionMethod(SchemaService::class, 'migrateStoragesAuditColumns'))->invoke($service);
+
+        return ['executed' => $db->executed, 'logs' => $logLines];
+    }
+
+    public function testKeepsLegacyAuditColumnWhenRenamingItFails(): void
+    {
+        $result = $this->runStoragesAuditColumnMigration(
+            ['id' => 'int', 'last_update' => 'datetime', 'created' => 'datetime', 'created_by' => 'varchar', 'modified_by' => 'varchar'],
+            'ALTER TABLE `#__contentbuilderng_storages` CHANGE `last_update`'
+        );
+
+        self::assertSame([], array_filter($result['executed'], static fn(string $sql): bool => str_contains($sql, 'DROP COLUMN `last_update`')));
+        self::assertStringContainsString('Failed renaming storage audit column last_update to modified', implode("\n", $result['logs']));
+    }
+
+    public function testKeepsLegacyAuditColumnWhenCopyingItsDataFails(): void
+    {
+        $result = $this->runStoragesAuditColumnMigration(
+            ['id' => 'int', 'last_update' => 'datetime', 'created' => 'datetime', 'modified' => 'datetime', 'created_by' => 'varchar', 'modified_by' => 'varchar'],
+            'UPDATE `#__contentbuilderng_storages` SET `modified` = `last_update`'
+        );
+
+        self::assertSame([], array_filter($result['executed'], static fn(string $sql): bool => str_contains($sql, 'DROP COLUMN `last_update`')));
+        self::assertStringContainsString('Failed copying data from last_update to modified', implode("\n", $result['logs']));
+    }
+
+    public function testDropsLegacyAuditColumnOnceItsDataIsCopied(): void
+    {
+        $result = $this->runStoragesAuditColumnMigration(
+            ['id' => 'int', 'last_update' => 'datetime', 'created' => 'datetime', 'modified' => 'datetime', 'created_by' => 'varchar', 'modified_by' => 'varchar'],
+            ''
+        );
+
+        self::assertCount(1, array_filter($result['executed'], static fn(string $sql): bool => str_contains($sql, 'DROP COLUMN `last_update`')));
+    }
+
     public function testKeepsOldestRowByIdAndAddsMissingUniqueIndex(): void
     {
         $db = new SchemaServiceFakeDatabase();
@@ -368,5 +421,91 @@ final class SchemaServiceFakeQuery implements QueryInterface
         }
 
         return $this;
+    }
+}
+
+final class SchemaServiceAuditColumnsFakeDatabase implements DatabaseInterface
+{
+    /** @var list<string> */
+    public array $executed = [];
+
+    private string $currentQuery = '';
+
+    /**
+     * @param array<string,mixed> $columns
+     */
+    public function __construct(private array $columns, private readonly string $failingStatementPrefix)
+    {
+    }
+
+    public function getPrefix(): string
+    {
+        return 'joom_';
+    }
+
+    public function getTableColumns(string $table, bool $type = true): array
+    {
+        return $this->columns;
+    }
+
+    public function getTableList(): array
+    {
+        return [];
+    }
+
+    public function getQuery(bool $new = false): QueryInterface
+    {
+        return new class implements QueryInterface {
+            /**
+             * @param array<int,mixed> $arguments
+             */
+            public function __call(string $method, array $arguments): self
+            {
+                return $this;
+            }
+
+            public function __toString(): string
+            {
+                return 'builder query';
+            }
+        };
+    }
+
+    public function quote(mixed $value): string
+    {
+        return "'" . str_replace("'", "''", (string) $value) . "'";
+    }
+
+    /**
+     * @return array<int,array<string,mixed>>
+     */
+    public function loadAssocList(): array
+    {
+        return [];
+    }
+
+    public function quoteName(array|string $name, array|string|null $as = null): array|string
+    {
+        return is_array($name) ? array_map(static fn(string $item): string => '`' . $item . '`', $name) : '`' . $name . '`';
+    }
+
+    public function setQuery(QueryInterface|string $query, int $offset = 0, int $limit = 0): self
+    {
+        $this->currentQuery = (string) $query;
+
+        return $this;
+    }
+
+    public function execute(): void
+    {
+        if ($this->failingStatementPrefix !== '' && str_starts_with($this->currentQuery, $this->failingStatementPrefix)) {
+            throw new \RuntimeException('Simulated failure');
+        }
+
+        $this->executed[] = $this->currentQuery;
+
+        if (preg_match('/ DROP COLUMN `([^`]+)`$/', $this->currentQuery, $matches)) {
+            unset($this->columns[$matches[1]]);
+        }
     }
 }
