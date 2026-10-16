@@ -1342,7 +1342,7 @@ class TemplateRenderService
         foreach ($items as $key => $item) {
             $hideIfEmptyValue = $failedValues !== null && isset($failedValues[$item['id']])
                 ? $failedValues[$item['id']]
-                : ($hasRecords ? $item['value'] : '');
+                : ($hasRecords ? ($item['value'] ?? '') : '');
             if (is_array($hideIfEmptyValue)) {
                 $hideIfEmptyValue = array_values(array_filter($hideIfEmptyValue, static fn($v) => $v !== null && $v !== '' && $v !== 'cbGroupMark'));
                 $hideIfEmptyValue = implode(', ', $hideIfEmptyValue);
@@ -1363,7 +1363,7 @@ class TemplateRenderService
             if (!is_array($element) || !$element) {
                 $rawValue = ($failedValues !== null && isset($failedValues[$item['id']]))
                     ? $failedValues[$item['id']]
-                    : ($hasRecords ? $item['value'] : '');
+                    : ($hasRecords ? ($item['value'] ?? '') : '');
 
                 if (is_array($rawValue)) {
                     $rawValue = array_values(array_filter($rawValue, static fn($v) => $v !== null && $v !== '' && $v !== 'cbGroupMark'));
@@ -1661,7 +1661,7 @@ class TemplateRenderService
             if ($theItem === '' || $theItem === null) {
                 $rawValue = ($failedValues !== null && isset($failedValues[$element['reference_id']]))
                     ? $failedValues[$element['reference_id']]
-                    : ($hasRecords ? $item['value'] : ($element['default_value'] ?? ''));
+                    : ($hasRecords ? ($item['value'] ?? '') : ($element['default_value'] ?? ''));
 
                 if (is_array($rawValue)) {
                     $rawValue = array_values(array_filter($rawValue, static fn($v) => $v !== null && $v !== '' && $v !== 'cbGroupMark'));

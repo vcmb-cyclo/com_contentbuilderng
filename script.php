@@ -366,6 +366,7 @@ class com_contentbuilderngInstallerScript
                 $this->removeOldDirectories();
                 $this->removeObsoleteFiles();
                 $this->removeLegacyPluginLanguageFiles();
+                $this->removeObsoleteLanguageFiles();
 
                 // Ensure media templates / upload dir
                 $this->ensureMediaListTemplateInstalled();
@@ -1030,6 +1031,11 @@ class com_contentbuilderngInstallerScript
     private function purgeStaleLanguageFiles(): void
     {
         $this->installerService->purgeStaleLanguageFiles();
+    }
+
+    private function removeObsoleteLanguageFiles(): void
+    {
+        $this->installerService->removeObsoleteLanguageFiles();
     }
 
     private function reportLegacyTableCollisions(): void
