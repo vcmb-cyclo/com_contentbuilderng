@@ -159,7 +159,7 @@ class HtmlView extends BaseHtmlView
         $rendered = preg_replace_callback(
             '/\{BreezingForms\s*:\s*([^}]+)\}/i',
             function (array $matches): string {
-                $formReference = trim((string) ($matches[1] ?? ''));
+                $formReference = trim($matches[1]);
                 if ($formReference === '') {
                     return $matches[0];
                 }
