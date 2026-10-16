@@ -318,7 +318,7 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 									$original_height = $value;
 									break;
 								case 'field':
-									$field = $is_list ? $article->items[0]->recName : $value;
+									$field = $is_list ? $article->cbrecord->items[0]->recName : $value;
 									break;
 								case 'background-color':
 									$bgcolor = $value;
