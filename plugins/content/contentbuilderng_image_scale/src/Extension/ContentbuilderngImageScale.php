@@ -27,17 +27,11 @@ use CB\Component\Contentbuilderng\Administrator\Helper\ContentbuilderngHelper;
 use CB\Component\Contentbuilderng\Administrator\Service\PermissionService;
 use CB\Component\Contentbuilderng\Administrator\Helper\FormSourceFactory;
 
-set_error_handler(__NAMESPACE__ . '\\myErrorHandler');
-function myErrorHandler($code, $message, $file, $line)
-{
-	// nothing
-}
-
 // some hosting providers think it is a good idea not to compile in exif with php...
 if (!function_exists('exif_imagetype')) {
 	function exif_imagetype($filename)
 	{
-		if ((list($width, $height, $type, $attr) = getimagesize($filename)) !== false) {
+		if ((list($width, $height, $type, $attr) = @getimagesize($filename)) !== false) {
 			return $type;
 		}
 		return false;
@@ -324,7 +318,7 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 									$original_height = $value;
 									break;
 								case 'field':
-									$field = $is_list ? $article->items[0]->recName : $value;
+									$field = $is_list ? $article->cbrecord->items[0]->recName : $value;
 									break;
 								case 'background-color':
 									$bgcolor = $value;
@@ -545,7 +539,7 @@ final class ContentbuilderngImageScale extends CMSPlugin implements SubscriberIn
 
 													if ($image_filesize !== false) {
 														$existing_image = @getimagesize($filename);
-														if ($existing_image[0] != $width || $existing_image[1] != $height) {
+														if ($existing_image === false || $existing_image[0] != $width || $existing_image[1] != $height) {
 															$image_changed = true;
 														}
 													}
