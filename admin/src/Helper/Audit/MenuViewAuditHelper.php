@@ -31,6 +31,7 @@ final class MenuViewAuditHelper
                 ->select($db->quoteName(['id', 'title', 'access', 'link', 'params']))
                 ->from($db->quoteName('#__menu'))
                 ->where($db->quoteName('client_id') . ' = 0')
+                ->where($db->quoteName('published') . ' <> -2')
                 ->where($db->quoteName('type') . ' = ' . $db->quote('component'))
                 ->where($db->quoteName('link') . ' LIKE ' . $db->quote('%option=com_contentbuilderng%'))
                 ->order($db->quoteName('id') . ' ASC');

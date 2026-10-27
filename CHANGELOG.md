@@ -1,5 +1,18 @@
 # Changelog
 
+## 6.1.22.5 — 2026-10-28
+
+### Fixed
+
+- Ignore trashed menu items when auditing ContentBuilder view references and frontend permissions.
+- Respect published, archived and trashed BreezingForms record states in lists and record details.
+- Offer BreezingForms system fields only after the view has been saved.
+- Correct image field selection and record-specific image titles in lists, and handle unreadable cached images safely.
+- Preserve normal Joomla PHP error reporting when the Image Scale plugin is enabled.
+- Use the Joomla component manifest filename consistently during installation and updates, and remove obsolete language files.
+- Show the legacy index repair action once per storage.
+- Preserve existing storage audit data when an upgrade cannot rename or copy its columns.
+
 ## 6.1.22.4 — 2026-10-11
 
 ### Fixed

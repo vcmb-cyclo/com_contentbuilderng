@@ -3,6 +3,21 @@
     <changelog>
         <element>com_contentbuilderng</element>
         <type>component</type>
+        <version>6.1.22.5</version>
+        <fix>
+            <item>Ignore trashed menu items when auditing ContentBuilder view references and frontend permissions.</item>
+            <item>Respect published, archived and trashed BreezingForms record states in lists and record details.</item>
+            <item>Offer BreezingForms system fields only after the view has been saved.</item>
+            <item>Correct image field selection and record-specific image titles in lists, and handle unreadable cached images safely.</item>
+            <item>Preserve normal Joomla PHP error reporting when the Image Scale plugin is enabled.</item>
+            <item>Use the Joomla component manifest filename consistently during installation and updates, and remove obsolete language files.</item>
+            <item>Show the legacy index repair action once per storage.</item>
+            <item>Preserve existing storage audit data when an upgrade cannot rename or copy its columns.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>com_contentbuilderng</element>
+        <type>component</type>
         <version>6.1.22.4</version>
         <fix>
             <item>Apply custom multi-column list-menu sorting to BreezingForms records, preserving each field’s sort direction.</item>
