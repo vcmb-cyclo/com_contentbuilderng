@@ -21,6 +21,13 @@ cleanup() {
         echo "::group::Joomla smoke-test logs" >&2
         docker logs "${web_container}" >&2 || true
         echo "::endgroup::" >&2
+        docker exec "${web_container}" sh -c '
+            for log in /var/www/html/administrator/logs/*; do
+                [ -f "${log}" ] || continue
+                echo "===== ${log} (last 200 lines)"
+                tail -n 200 "${log}"
+            done
+        ' >&2 || true
     fi
 
     if [[ "${KEEP_SMOKE_CONTAINERS:-0}" == "1" ]]; then
@@ -100,6 +107,33 @@ docker exec "${web_container}" php -r '
     exit(@file_get_contents("http://127.0.0.1/index.php") === false ? 1 : 0);
 '
 
+table_prefix="$(
+    docker exec "${web_container}" php -r '
+        require "/var/www/html/configuration.php";
+        $config = new JConfig();
+        echo $config->dbprefix;
+    '
+)"
+
+# Exercise installation and update without Joomla's Backward Compatibility plugin.
+docker exec -e MYSQL_PWD=joomla "${db_container}" mysql -N -ujoomla joomla \
+    -e "UPDATE \`${table_prefix}extensions\` SET enabled = 0 WHERE type = 'plugin' AND folder = 'behaviour' AND element = 'compat6';"
+
+check_compat_disabled() {
+    local enabled_count
+    enabled_count="$(
+        docker exec -e MYSQL_PWD=joomla "${db_container}" mysql -N -ujoomla joomla \
+            -e "SELECT COUNT(*) FROM \`${table_prefix}extensions\` WHERE type = 'plugin' AND folder = 'behaviour' AND element = 'compat6' AND enabled = 1;"
+    )"
+
+    if [[ "${enabled_count}" -ne 0 ]]; then
+        echo "Joomla's Backward Compatibility plugin is enabled." >&2
+        exit 1
+    fi
+}
+
+check_compat_disabled
+
 docker cp "${archive}" "${web_container}:${container_archive}" >/dev/null
 for target in /var/www/html/administrator/components /var/www/html/components /var/www/html/media /var/www/html/plugins; do
     docker exec --user www-data "${web_container}" test -w "${target}"
@@ -110,14 +144,6 @@ docker exec --user www-data -e HTTP_HOST=localhost "${web_container}" php /var/w
     --live-site=http://localhost \
     --quiet \
     --no-interaction
-
-table_prefix="$(
-    docker exec "${web_container}" php -r '
-        require "/var/www/html/configuration.php";
-        $config = new JConfig();
-        echo $config->dbprefix;
-    '
-)"
 
 component_count="$(
     docker exec -e MYSQL_PWD=joomla "${db_container}" mysql -N -ujoomla joomla \
@@ -166,6 +192,7 @@ docker exec --user www-data -e HTTP_HOST=localhost "${web_container}" php /var/w
     --live-site=http://localhost \
     --quiet \
     --no-interaction
+check_compat_disabled
 
 migrated_table_count="$(
     docker exec -e MYSQL_PWD=joomla "${db_container}" mysql -N -ujoomla joomla \
@@ -219,6 +246,19 @@ if grep -Fq 'Warning:' <<< "${database_audit}"; then
     echo "Joomla database maintenance emitted a PHP warning." >&2
     exit 1
 fi
+
+docker exec "${web_container}" php -r '
+    $response = file_get_contents(
+        "http://127.0.0.1/index.php",
+        false,
+        stream_context_create(["http" => ["ignore_errors" => true]])
+    );
+    $status = $http_response_header[0] ?? "";
+    if ($response === false || !preg_match("~^HTTP/\\S+ 200(?: |$)~", $status)) {
+        fwrite(STDERR, "Frontend did not respond with HTTP 200 after update: {$status}\n");
+        exit(1);
+    }
+'
 
 api_response="$(
     docker exec "${web_container}" php -r '
