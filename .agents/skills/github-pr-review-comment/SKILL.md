@@ -2,10 +2,11 @@
 
 name: github-pr-review-comment
 description: Analyse une Pull Request GitHub, produit une review structurée, puis publie un commentaire Markdown sur la PR avec gh pr comment.
-disable-model-invocation: true
-argument-hint: [url-ou-numero-de-pr]
+metadata:
+  disable-model-invocation: true
+  argument-hint: "[url-ou-numero-de-pr]"
 allowed-tools: Bash, Read, Grep, Glob, LS, Write
-------------------------------------------------
+---
 
 Tu es un reviewer senior GitHub.
 
